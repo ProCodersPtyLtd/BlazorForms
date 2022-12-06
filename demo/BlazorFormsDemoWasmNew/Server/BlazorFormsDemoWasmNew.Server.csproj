@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\platform\BlazorForms.Platform.Cosmos\BlazorForms.Platform.Cosmos.csproj" />
+    <ProjectReference Include="..\..\..\src\platform\BlazorForms.Platform.WebAssembly\BlazorForms.Platform.WebAssembly.csproj" />
+    <ProjectReference Include="..\..\..\src\platform\BlazorForms.Platform\BlazorForms.Platform.csproj" />
+    <ProjectReference Include="..\..\BlazorFormsDemoFlows\BlazorFormsDemoFlows.csproj" />
+    <ProjectReference Include="..\Client\BlazorFormsDemoWasmNew.Client.csproj" />
+    <ProjectReference Include="..\Shared\BlazorFormsDemoWasmNew.Shared.csproj" />
+  </ItemGroup>
+
+
+</Project>

@@ -1,0 +1,251 @@
+﻿@using BlazorForms.Rendering.State
+@using MatBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Platform
+@using BlazorForms.Shared
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.Rendering.Interfaces
+@using System.Text
+
+@inject IReflectionProvider _reflectionProvider
+@inject NotificationService _notificationService
+@inject NavigationManager _navigationManager
+@inject DialogService _dialogService
+
+@if (_columns.Length > 0)
+{
+    <RadzenDataGrid TItem="Tuple<int, object>" @ref="_grid" Data="@_listItems" AllowColumnResize="true">
+        <Columns>
+            <RadzenDataGridColumn TItem="Tuple<int, object>" Title="#" Property="Item1" Frozen="true" Width="3rem" Filterable="false"/>
+            @foreach (var col in _columns)
+            {
+                <RadzenDataGridColumn TItem="Tuple<int, object>" Title="@col.DisplayProperties.Caption">
+                    <Template Context="row">
+                        <SimpleControl ModelChanged="@ModelChanged" ModelBinding="" Field="@GetField(row.Item1, col)" RowIndex="@row.Item1"/>
+                    </Template>
+                </RadzenDataGridColumn>
+            }
+            @if (_repeaterParameters?.IsFixedList != true)
+            {
+                @if (_repeaterParameters?.IsLineEditing == true)
+                {
+                    <RadzenDataGridColumn TItem="Tuple<int, object>" Filterable="false" Sortable="false" Frozen="true" Resizable="false" Width="4rem">
+                        <Template Context="row">
+                            <RadzenButton Icon="create" Click="@(async (args) => await EditClick(args, row.Item1))"/>
+                        </Template>
+                    </RadzenDataGridColumn>
+                }
+                <RadzenDataGridColumn TItem="Tuple<int, object>" Filterable="false" Sortable="false" Frozen="true" Resizable="false" Width="4rem">
+                    <Template Context="row">
+                        <RadzenButton Icon="delete_forever" Click="@(async (args) => await DelClick(args, row.Item1))"/>
+                    </Template>
+                </RadzenDataGridColumn>
+            }
+            <RadzenDataGridColumn TItem="Tuple<int, object>" Frozen="true" Width="0"/>
+        </Columns>
+    </RadzenDataGrid>
+
+    @if (_repeaterParameters?.IsFixedList != true)
+    {
+        <RadzenButton ButtonStyle="ButtonStyle.Primary" Click="@AddClick" class="pz-add-button">Add</RadzenButton>
+    }
+}
+
+@code {
+
+    [CascadingParameter]
+    public IFormViewModel Controller { get; set; }
+
+    [Parameter]
+    public FieldControlDetails Table { get; set; }
+
+    [Parameter]
+    public string Caption { get; set; }
+
+    [Parameter]
+    public IEnumerable<FieldControlDetails> Columns
+    {
+        get => _columns;
+        set
+        {
+            if (value is null)
+            {
+                _columns = Array.Empty<FieldControlDetails>();
+                return;
+            }
+            _columns = value.Where(x => (x?.DisplayProperties?.Visible ?? false) && x.ControlType != "Repeater").ToArray();
+        }
+    }
+
+    [Parameter]
+    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    private RadzenDataGrid<Tuple<int, object>> _grid;
+    private FieldControlDetails[] _columns = Array.Empty<FieldControlDetails>();
+    
+    private RepeaterParameters _repeaterParameters;
+
+    private System.Collections.IList _listData;
+    private List<Tuple<int, object>> _listItems;
+    private Type _listItemType;
+
+    private bool _isModelChanged;
+    private int _newRow = -1;
+    private bool _dialogIsOpen = false;
+
+    private RadzenDataGrid<object> Dg { get; set; }
+
+    private void OpenDialog()
+    {
+        _dialogIsOpen = true;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Table.Binding.Parameters == null)
+        {
+            _repeaterParameters = new RepeaterParameters();
+        }
+        else
+        {
+            _repeaterParameters = Table.Binding.Parameters as RepeaterParameters;
+        }
+        GetListData();
+    }
+
+    private async Task ModelChanged(ValueChangedArgs args)
+    {
+        _isModelChanged = true;
+        Controller.ModelNaviSetValue(Table.Binding.TableBinding, args.RowIndex, args.Binding.Binding, args.NewValue);
+    //var cellModelBinding = $"{Table.Binding.TableBinding}[{args.RowIndex}]{args.Binding.Binding.Replace("$", "")}";
+        try
+        {
+            var task = await Controller.TriggerRules(Controller.FormData.ProcessTaskTypeFullName, args.Binding, rowIndex: args.RowIndex);
+            StateHasChanged();
+
+            await ModelValueChanged.InvokeAsync(new ValueChangedArgs {Operation = ModelChangedOperation.Refresh});
+        }
+        catch (Exception exc)
+        {
+            Controller.PopulateException(exc);
+            ShowPopup();
+        }
+    }
+
+    private void GetListData()
+    {
+        if (Controller.ModelUntyped == null)
+        {
+            return;
+        }
+
+        _listData = (System.Collections.IList)Controller.ModelNaviGetItems(Table.Binding.TableBinding);
+        _listItemType = _listData.GetType().GetGenericArguments()[0];
+
+        _listItems = new List<Tuple<int, object>>();
+        var i = 0;
+        foreach (var item in _listData)
+        {
+            _listItems.Add(new Tuple<int, object>(i, item));
+            i++;
+        }
+    }
+
+    private FieldControlDetails GetField(int row, FieldControlDetails col)
+    {
+        var field = Controller.GetRowField(col, row);
+    //var field = _reflectionProvider.CloneObject(col);
+    //field.Binding.ResolveKey(new FieldBindingArgs { RowIndex = row });
+    //string modelBinding = $"{Table.ModelTableBinding}[{row}]{col.ModelBinding.Replace("$", "")}";
+    //return field;
+        if (_repeaterParameters.IsLineEditing)
+        {
+            field.DisplayProperties.Disabled = row == _repeaterParameters.CurrentRow ? false : true;
+        }
+        return field;
+    }
+
+    private async Task AddClick()
+    {
+        {
+            _newRow = _listItems.Count;
+            var newItem = Activator.CreateInstance(_listItemType);
+            _listData.Add(newItem);
+            _listItems.Add(new Tuple<int, object>(_newRow, newItem));
+            _repeaterParameters.CurrentRow = _newRow;
+
+    // register fields for new row
+            foreach (var col in Columns)
+            {
+                GetField(_newRow, col);
+            }
+
+    // trigger rule after rendering (new fields should be created by GetField())
+            await Controller.TriggerRules(Controller.FormData.ProcessTaskTypeFullName, Table.Binding, FormRuleTriggers.ItemAdded, _newRow);
+            await _grid.Reload();
+            StateHasChanged();
+        }
+    }
+
+    private async Task DelClick(MouseEventArgs args, int rowIndex)
+    {
+        if (await _dialogService.Confirm("Delete current row?") != true)
+            return;
+        
+        _newRow = -1;
+        _listData.RemoveAt(rowIndex);
+
+        _listItems.RemoveAt(rowIndex);
+        for (var i = 0; i < _listItems.Count; i++)
+        {
+            var (index, value) = _listItems[i];
+            if (index != i)
+                _listItems[i] = new Tuple<int, object>(i, value);
+        }
+            
+        _repeaterParameters.CurrentRow = null;
+        await _grid.Reload();
+    }
+
+    private async Task EditClick(MouseEventArgs args, int rowIndex)
+    {
+    //if (IsModelChanged)
+    //{
+    //    await SaveDialog();
+    //}
+    //else
+        {
+            _repeaterParameters.CurrentRow = rowIndex;
+            var task = await Controller.TriggerRules(Controller.FormData.ProcessTaskTypeFullName, Table.Binding, FormRuleTriggers.ItemChanged, rowIndex);
+            StateHasChanged();
+        }
+    }
+
+    public async Task ShowPopup()
+    {
+        if (Controller.ExceptionType != null && Controller.ExceptionType != typeof(FlowStopException).Name)
+        {
+            _notificationService.Notify(NotificationSeverity.Warning, "Operation failed", "Please notify BlazorForms Support");
+
+    //Controller.SaveException(_NavigationManager.BaseUri);
+            Controller.SaveException();
+        }
+    }
+
+    //private async Task SaveDialog()
+    //{
+    //    // ToDo: this breaks repeater logic and makes User unhappy, always showing message dialog for any add/del button click
+    //    var result = await MatDialogService.AskAsync($"All changes should be saved. Save changes?", new string[] {"No", "Yes"});
+
+    //    if (result == "Yes")
+    //    {
+    //        IsModelChanged = false;
+    //        NewRow = -1;
+    //        await ModelValueChanged.InvokeAsync(new ValueChangedArgs { Operation = ModelChangedOperation.SubmitAndRefresh });
+    //    }
+    //}
+}

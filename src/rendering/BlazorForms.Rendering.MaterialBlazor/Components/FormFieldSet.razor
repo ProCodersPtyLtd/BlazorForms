@@ -1,0 +1,96 @@
+﻿@using MatBlazor
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.Rendering.State
+@using BlazorForms.Rendering.Interfaces
+@using BlazorForms.Forms
+
+@inject IFormViewModel _vm
+@inject NavigationManager _navigationManager
+
+@if (_vm.ModelUntyped == null)
+{
+    <MatHeadline6>No Model Found</MatHeadline6>
+}
+else
+{
+    <CascadingValue Value="@_vm">
+        <FormGroupContent Group="@_group" ModelValueChanged="@ModelChanged" />
+    </CascadingValue>
+}
+
+@code {
+
+    //[CascadingParameter]
+    //public IFormViewModel Controller { get; set; }
+
+    [Parameter]
+    public FormDetails FormDetails { get; set; }
+
+    [Parameter]
+    public IFlowModel Model { get; set; }
+
+    [Parameter]
+    public string Group { get; set; }
+
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    [Parameter]
+    public bool AllowAnonymousAccess { get; set; }
+
+    [Parameter]
+    public bool AllowFlowStorage { get; set; }
+
+    [Parameter]
+    public bool SupressExceptions { get; set; }
+
+    private IGrouping<string, FieldControlDetails> _group
+    {
+        get 
+        {
+            var result = _vm.FieldsGrouped.First(g => g.Key == Group);
+            return result;
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // We load form once, and every time when parameters changed
+        await Reload();
+        await base.OnParametersSetAsync();
+    }
+
+    private async Task Reload()
+    {
+        try
+        {
+            _vm.SetBaseUri(_navigationManager.BaseUri);
+            _vm.FormSettings.AllowAnonymousAccess = AllowAnonymousAccess;
+            _vm.FormSettings.AllowFlowStorage = AllowFlowStorage;
+            await _vm.ApplyFormData(FormDetails, Model);
+
+            StateHasChanged();
+        }
+        catch (Exception exc)
+        {
+            //_vm.PopulateException(exc);
+            //await ShowPopup();
+        }
+    }
+
+    async Task ModelChanged(ValueChangedArgs args)
+    {
+        if (args.Operation != ModelChangedOperation.Default)
+        {
+            StateHasChanged();
+            if (args.Operation == ModelChangedOperation.Refresh)
+            {               
+                return;
+            }
+            else if (args.Operation == ModelChangedOperation.SubmitAndRefresh)
+            {               
+                await ModelValueChanged.InvokeAsync(args);
+            }
+        }
+    }
+}

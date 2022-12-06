@@ -1,0 +1,62 @@
+﻿@using BlazorForms.Rendering.State
+@using MatBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+@using System
+@using System.IO
+@using System.Net.Http
+
+@inherits FieldControl
+
+@inject NavigationManager _navigation;
+
+@RenderLabel
+
+<RadzenUpload Url="@UploadUrl" Progress=@TrackProgress Complete=@CompleteUpload class="w-100" />
+<RadzenProgressBar Value=@_progress class="mt-4" Visible=@_showProgress />
+<RadzenLabel Visible=@_showComplete class="mt-4" Text="Upload Complete!" />
+
+@RenderValidation
+
+@code {
+
+    private bool _showProgress;
+    private bool _showComplete;
+    private int _progress;
+    private HttpClient _httpClient;
+
+    protected override void OnInitialized()
+    {
+        _httpClient = new HttpClient
+        {
+            BaseAddress = new Uri(_navigation.BaseUri)
+        };
+        base.OnInitialized();
+    }
+
+    private string FileString { get; set; }
+
+    public string FileId { get; } = Guid.NewGuid().ToString();
+
+    public string UploadUrl => $"/_api/pc/BlazorForms/radzen/fileupload/{FileId}";
+
+    private async Task CompleteUpload()
+    {
+        _showProgress = false;
+        _showComplete = true;
+        var fileBytes = await _httpClient.GetByteArrayAsync(UploadUrl);
+        
+        await ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = fileBytes, RowIndex = RowIndex });
+
+        await _httpClient.DeleteAsync(UploadUrl);
+    }
+
+    private void TrackProgress(UploadProgressArgs args)
+    {
+        _showProgress = true;
+        _showComplete = false;
+        _progress = args.Progress;
+    }
+
+}

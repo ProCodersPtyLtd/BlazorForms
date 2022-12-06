@@ -1,0 +1,10 @@
+﻿@page "/ListItemView/{pk}"
+
+<PageTitle>Form V2</PageTitle>
+
+<DynamicForm FlowName="BlazorForms.SampleSilentFlow2" Pk="@Pk" AllowAnonymousAccess="true" AllowFlowStorage="false" NavigationSuccess="/"/>
+
+@code {
+    [Parameter]
+    public string Pk { get; set; }
+}

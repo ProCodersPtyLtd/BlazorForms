@@ -1,0 +1,12 @@
+﻿@using BlazorForms.Rendering.State
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+@using BlazorForms.Shared
+
+<h6 MatHeadline6>@ObjectValue.AsString()</h6>
+
+@code {
+    [Parameter]
+    public object ObjectValue { get; set; }
+}

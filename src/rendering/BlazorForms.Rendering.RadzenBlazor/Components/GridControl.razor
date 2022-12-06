@@ -1,0 +1,119 @@
+﻿@using BlazorForms.Rendering.State
+@using MatBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Platform
+@using BlazorForms.Shared
+
+@inject IUserViewDataResolver DataResolver
+
+
+@if (@GetGridData().Length > 0)
+{
+    var currentRow = 0;
+
+    <MatTable Items="@GetGridData()" class="mat-elevation-z5" AllowSelection="true" >
+        <MatTableHeader>
+            @foreach (var col in Columns)
+            {
+                @if (col?.ControlType == "Table" || col?.DisplayProperties?.Visible == false)
+                {
+                    continue;
+                }
+
+                <th>@col?.DisplayProperties?.Caption</th>
+            }
+        </MatTableHeader>
+        <MatTableRow>
+            @if (1 == 1)
+            {
+                int currentColumn = 0;
+                @*<td hidden="hidden">@rowIndex</td>*@
+
+                @for (int i = 0; i < ColumnList().Count; i++)
+                {
+                    @if (ColumnList()[i]?.ControlType == "Table" || ColumnList()[i]?.DisplayProperties?.Visible == false)
+                    {
+                        currentColumn++;
+                        continue;
+                    }
+
+                    var rowIndex = currentRow;
+                    <td @onclick="@(async (args) => await RowOnClick(rowIndex, context[0]))">@context[currentColumn]</td>
+                    currentColumn++;
+                }
+                currentRow++;
+            }
+        </MatTableRow>
+    </MatTable>
+}
+<ValidatorControl Validations="@Validations"></ValidatorControl>
+
+@code {
+    [CascadingParameter]
+    public IFormViewModel ViewModel { get; set; }
+
+    [Parameter]
+    public FieldControlDetails Table { get; set; }
+    [Parameter]
+    public string Caption { get; set; }
+    [Parameter]
+    public IEnumerable<FieldControlDetails> Columns { get; set; }
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelChanged { get; set; }
+    [Parameter]
+    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    private void tdclick(object args)
+    {
+    }
+
+    private List<FieldControlDetails> ColumnList()
+    {
+        return Columns.ToList();
+    }
+
+    private void OnSelected(string pk)
+    {
+
+    }
+
+    private async Task RowOnClick(int index, string pk)
+    {
+        // ToDo: index coming here is not stable, current work around is to calculate Index based on cached data by pk
+        var rowIndex = 0;
+
+        for (int i = 0; i < GridDataCache.Length; i++)
+        {
+            if (GridDataCache[i][0] == pk)
+            {
+                break;
+            }
+
+            rowIndex++;
+        }
+
+        await ModelChanged.InvokeAsync(new ValueChangedArgs { Binding = Table.Binding, RowIndex = rowIndex, NewValue = pk});
+        StateHasChanged();
+    }
+
+    private string[][] GridDataCache;
+
+    private string[][] GetGridData()
+    {
+        if (ViewModel.ModelUntyped == null)
+        {
+            return null;
+        }
+
+        var gridModel = ViewModel.PathNavi.GetValue(ViewModel.ModelUntyped, Table.Binding.TableBinding);
+        var data = DataResolver.ResolveData(Table.Binding.TableBinding, Columns, ViewModel.ModelUntyped);
+        var jaggedData = ConvertHelper.ConvertToJaggedArray(data);
+        GridDataCache = jaggedData;
+        return jaggedData;
+    }
+}

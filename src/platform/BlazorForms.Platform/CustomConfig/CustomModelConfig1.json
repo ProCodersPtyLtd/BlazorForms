@@ -1,0 +1,14 @@
+﻿{
+  "FlowName": "Platform.Crm.Business.Clients.ProjectListEditFlow",
+  "TaskName": "PopulateDetailsAsync",
+  "Models": [
+    {
+      "Name": "ExtraProject",
+      "PkJsonPath": "$.Project.Id",
+      "Query": {
+        "SchemaName": "_pc1",
+        "TableName": "ExtraProjectTable"
+      }
+    }
+  ]
+}

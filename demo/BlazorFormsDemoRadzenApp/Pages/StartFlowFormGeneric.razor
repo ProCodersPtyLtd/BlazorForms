@@ -1,0 +1,16 @@
+﻿@page "/start-flow-form-generic/{flowName}/{Pk}"
+
+<PcAuthorizeView>
+        <DynamicForm FlowName="@FlowName" Pk="@Pk" IsDefaultReadonlyView="false" NavigationSuccess="/" AllowFlowStorage="false" />
+</PcAuthorizeView>
+
+@code {
+    [Parameter]
+    public string FlowName { get; set; }
+
+    [Parameter]
+    public string Pk { get; set; }
+
+}
+
+

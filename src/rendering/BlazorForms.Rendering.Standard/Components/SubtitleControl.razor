@@ -1,0 +1,21 @@
+﻿@using BlazorForms.Rendering.State
+@using MatBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+@using BlazorForms.Shared
+
+<style>
+    .pz-subtitle1 {
+        text-decoration: underline;
+        margin-bottom: 0;
+        margin-top: 0;
+    }
+</style>
+
+<h6 class="pz-subtitle1">@ObjectValue.AsString()</h6>
+
+@code {
+    [Parameter]
+    public object ObjectValue { get; set; }
+}

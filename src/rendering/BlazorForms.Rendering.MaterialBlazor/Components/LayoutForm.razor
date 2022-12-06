@@ -1,0 +1,56 @@
+﻿@using MatBlazor
+@using BlazorForms.Rendering.State
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.FlowRules
+@using BlazorForms.Platform
+@using BlazorForms.Shared
+@using BlazorForms.Rendering.Interfaces
+@using BlazorForms.Forms
+@using BlazorForms.Rendering.Types
+@using Microsoft.AspNetCore.Components.Rendering
+
+@inject IFlowRunProvider _flowRunProvider
+@inject IFormViewModel _vm
+
+<h3>Layout Form</h3>
+<CascadingValue Value="@_vm">
+    <div class="grid-layout">
+        @foreach (var element in Params.Elements!)
+        {
+            <div data-grid="@element" class="grid-item" style="grid-area: @GetGridAreaStyle(element);">
+               @* <DynamicComponent Type="@element.WidgetType" Parameters="@element.Parameters"></DynamicComponent>*@
+                <FormGroupContent Group="@element.Group" ModelValueChanged="@ModelChanged" />
+            </div>
+        }
+    </div>
+</CascadingValue>
+
+@code {
+
+    [Parameter]
+    public LayoutFormParams Params { get; init; }
+
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    private string GetGridAreaStyle(LayoutFormElement element)
+    {
+        return $"{element.Row} / {element.Col} / span {element.RowSpan} / span {element.ColSpan}";
+    }
+
+    async Task ModelChanged(ValueChangedArgs args)
+    {
+        if (args.Operation != ModelChangedOperation.Default)
+        {
+            StateHasChanged();
+            if (args.Operation == ModelChangedOperation.Refresh)
+            {
+                return;
+            }
+            else if (args.Operation == ModelChangedOperation.SubmitAndRefresh)
+            {
+                await ModelValueChanged.InvokeAsync(args);
+            }
+        }
+    }
+}

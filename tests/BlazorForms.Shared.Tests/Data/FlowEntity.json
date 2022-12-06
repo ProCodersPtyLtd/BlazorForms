@@ -1,0 +1,140 @@
+﻿{
+  "$type": "BlazorForms.BlazorForms.Flows.Definitions.FlowEntity",
+  "id": null,
+  "PK": 100226,
+  "FlowName": "BlazorForms.Application.DemoInsurance.LowCode.InsuranceClaim.Flows.InsuranceClaimFlow",
+  "LastModel": {
+    "$type": "BlazorForms.Application.DemoInsurance.LowCode.InsuranceClaim.Flows.InsuranceClaimModel",
+    "Message": null,
+    "Claim": {
+      "$type": "BlazorForms.Application.DemoInsurance.LowCode.InsuranceClaim.DomainStubs.InsuranceClaimDetails",
+      "ClaimId": 0,
+      "EffectiveDate": "0001-01-01T00:00:00",
+      "PolicyNumber": null,
+      "Member": {
+        "$type": "BlazorForms.Application.DemoInsurance.LowCode.InsuranceClaim.DomainStubs.PersonDetails",
+        "EntityId": 0,
+        "TitleCode": null,
+        "Title": null,
+        "GenderCode": null,
+        "Gender": null,
+        "FirstName": null,
+        "MiddleName": null,
+        "LastName": null,
+        "DateOfBirth": null
+      },
+      "InsuranceTypeCode": null,
+      "PaymentOptionCode": null,
+      "InsuranceType": null,
+      "ClaimAmount": null,
+      "InterestAmount": null,
+      "StatusCode": null,
+      "TpdStartDateOfDisability": "0001-01-01T00:00:00",
+      "DateOfTerminalIllness": "0001-01-01T00:00:00"
+    },
+    "ClaimRejected": false,
+    "MemberSearch": null,
+    "ShowInactivePolicies": false,
+    "FoundMembers": null,
+    "FoundMemberItems": null,
+    "Insurances": null,
+    "InsuranceTypes": null,
+    "PaymentOptions": null,
+    "DocumentCount": 0,
+    "Bag": {
+      "$type": "System.Dynamic.ExpandoObject"
+    },
+    "Ext": {
+      "$type": "System.Collections.Generic.Dictionary`2[System.String,BlazorForms.BlazorForms.Shared.DynamicRecordset]"
+    }
+  },
+  "Records": [
+    {
+      "$type": "BlazorForms.BlazorForms.Flows.FlowContext",
+      "Model": {
+        "$type": "BlazorForms.Application.DemoInsurance.LowCode.InsuranceClaim.Flows.InsuranceClaimModel",
+        "Message": null,
+        "Claim": {
+          "$type": "BlazorForms.Application.DemoInsurance.LowCode.InsuranceClaim.DomainStubs.InsuranceClaimDetails",
+          "ClaimId": 0,
+          "EffectiveDate": "0001-01-01T00:00:00",
+          "PolicyNumber": null,
+          "Member": {
+            "$type": "BlazorForms.Application.DemoInsurance.LowCode.InsuranceClaim.DomainStubs.PersonDetails",
+            "EntityId": 0,
+            "TitleCode": null,
+            "Title": null,
+            "GenderCode": null,
+            "Gender": null,
+            "FirstName": null,
+            "MiddleName": null,
+            "LastName": null,
+            "DateOfBirth": null
+          },
+          "InsuranceTypeCode": null,
+          "PaymentOptionCode": null,
+          "InsuranceType": null,
+          "ClaimAmount": null,
+          "InterestAmount": null,
+          "StatusCode": null,
+          "TpdStartDateOfDisability": "0001-01-01T00:00:00",
+          "DateOfTerminalIllness": "0001-01-01T00:00:00"
+        },
+        "ClaimRejected": false,
+        "MemberSearch": null,
+        "ShowInactivePolicies": false,
+        "FoundMembers": null,
+        "FoundMemberItems": null,
+        "Insurances": null,
+        "InsuranceTypes": null,
+        "PaymentOptions": null,
+        "DocumentCount": 0,
+        "Bag": {
+          "$type": "System.Dynamic.ExpandoObject"
+        },
+        "Ext": {
+          "$type": "System.Collections.Generic.Dictionary`2[System.String,BlazorForms.BlazorForms.Shared.DynamicRecordset]"
+        }
+      },
+      "FlowRunId": 100226,
+      "CurrentTask": null,
+      "CurrentTaskLine": 0,
+      "AssignedUser": null,
+      "AssignedTeam": null,
+      "AdminUser": null,
+      "StatusMessage": null,
+      "Params": {
+        "$type": "BlazorForms.BlazorForms.Flows.Definitions.FlowParamsGeneric",
+        "ItemId": 1,
+        "ParentItemId": null,
+        "AssignedUser": null,
+        "AssignedTeam": null,
+        "Operation": 0,
+        "Tag": null,
+        "DynamicInput": {
+          "$type": "System.Collections.Generic.Dictionary`2[System.String,System.String]"
+        }
+      },
+      "ExecutionResult": {
+        "$type": "BlazorForms.BlazorForms.Flows.Definitions.TaskExecutionResult",
+        "ResultState": 0,
+        "FlowState": 0,
+        "FormState": 0,
+        "FormLastAction": null,
+        "IsFormTask": false,
+        "FormId": null,
+        "CallbackTaskId": null,
+        "NextStep": null,
+        "ExceptionMessage": null,
+        "TaskExecutionValidationIssues": [],
+        "ExceptionStackTrace": null,
+        "ExceptionType": null,
+        "ExecutionException": null
+      },
+      "FlowAssembly": "BlazorForms.Application.DemoInsurance.LowCode",
+      "FlowName": "BlazorForms.Application.DemoInsurance.LowCode.InsuranceClaim.Flows.InsuranceClaimFlow",
+      "Id": null,
+      "CallStack": []
+    }
+  ]
+}

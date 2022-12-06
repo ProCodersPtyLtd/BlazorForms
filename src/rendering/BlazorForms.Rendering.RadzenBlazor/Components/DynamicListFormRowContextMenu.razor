@@ -1,0 +1,34 @@
+﻿@using BlazorForms.Rendering.Types
+@inject ContextMenuService ContextMenuService
+
+<RadzenButton Icon="more_horiz" Click="args => ShowContextMenuWithItems(args)" @ref="_contextButton" ContextMenu="@(async args => await ShowContextMenuWithItems(args))" ButtonStyle="ButtonStyle.Secondary" />
+
+@code {
+    [CascadingParameter]
+    TableRow MatBlazorRow { get; set; }
+
+    [Parameter]
+    public List<string> Actions { get; set; }
+
+    [Parameter]
+    public string Pk { get; set; }
+
+    [Parameter]
+    public EventCallback<DynamicListFormRowContextMenuItemClickArgs> OnContextMenuItemClick { get; set; }
+
+    private RadzenButton _contextButton;
+    private BaseMatMenu _contextMenu;
+    
+    private async Task ShowContextMenuWithItems(MouseEventArgs args)
+    {
+        await InvokeAsync(async () => ContextMenuService.Open(args, Actions.Select(action => new ContextMenuItem {Text = action, Value = action}), ContextMenuClick));
+    }
+
+    private void ContextMenuClick(MenuItemEventArgs args)
+    {
+        // TODO YB What should be here?
+        OnContextMenuItemClick
+            .InvokeAsync(new DynamicListFormRowContextMenuItemClickArgs{Pk = args.Text, Action = args.Value.ToString() ?? string.Empty})
+            .Wait();
+    }
+}

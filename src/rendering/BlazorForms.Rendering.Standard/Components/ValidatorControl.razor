@@ -1,0 +1,24 @@
+﻿@using BlazorForms.FlowRules
+
+<div>
+    @foreach (var validation in Validations)
+    {
+        @if (validation.ValidationResult == RuleValidationResult.Warning)
+        {
+            <label style="color: DarkOrange;">@($"{validation.RuleCode}: {validation.ValidationMessage}")</label>
+        }
+        else if (validation.ValidationResult == RuleValidationResult.Error)
+        {
+            <label style="color: red;">@($"{validation.RuleCode}: {validation.ValidationMessage}")</label>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+}

@@ -1,0 +1,31 @@
+﻿@using BlazorForms.Rendering.State
+@using MatBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+
+@inherits FieldControl
+
+<RadzenCheckBox
+    TValue="bool"
+    Value="@(Value == true)"
+    Disabled="@Field.DisplayProperties.Disabled"
+    ValueChanged="ValueChanged" />
+
+@RenderLabel
+
+@RenderValidation
+
+@code {
+    [Parameter]
+    public bool? Value { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    async Task ValueChanged(bool val)
+    {
+        Value = val;
+        await ObjectValueChanged(val);
+    }
+}

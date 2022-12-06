@@ -1,0 +1,11 @@
+﻿@page "/_BlazorForms/admin/stored-flows"
+@using BlazorForms.Rendering.Interfaces
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.Rendering.State
+
+@inject IDialogFormViewModel DialogVM
+
+<DynamicListForm FlowType="BlazorForms.Admin.BusinessObjects.StorageFlows.StoredListFlow" ShowFilters="true" ShowSorting="true" />
+
+@code {
+}

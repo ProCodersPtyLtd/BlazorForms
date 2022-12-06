@@ -1,0 +1,80 @@
+﻿@using Pc.Platz.Rendering.State
+@using MatBlazor
+@using Pc.Framework.Libs.Forms
+@using Pc.Framework.Libs.FlowRules
+@using Pc.Platz.Rendering.Validation
+@using Pc.Platz.Rendering.MaterialBlazor.Components
+@using Pc.Framework.Libs.Shared.Reflection
+
+@inject IDynamicFieldValidator FieldValidator
+
+<h3>@Field.ControlType</h3>
+<div>Created for field @Field.Name</div>
+<div>Binding @Field.Binding.Binding</div>
+<div>RowIndex @RowIndex</div>
+<div>ModelValueChanged @ModelValueChanged.HasDelegate</div>
+
+<MatTextField Id="@MyId" Value="@TextValue" Disabled="@Field.DisplayProperties.Disabled" Required="@Field.DisplayProperties.Required"
+              TValue="string" ValueChanged="@(async a => await ValueChanged(a))" Style="width: 100%;"></MatTextField>
+
+<ValidatorControl Validations="@AllValidations"></ValidatorControl>
+
+
+@code {
+    [Parameter]
+    public FieldControlDetails Field { get; set; }
+
+    [Parameter]
+    public int RowIndex { get; set; }
+
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    [Parameter]
+    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    [Parameter]
+    public IDynamicFormContentController Controller { get; set; }
+
+    public string TextValue { get; set; }
+
+    private string MyId
+    {
+        get
+        {
+            return $"{Field.Group}-{Field.Name}-{Field.Caption}-{RowIndex}";
+        }
+    }
+
+    private RuleExecutionResult _localValidation;
+
+    private IEnumerable<RuleExecutionResult> AllValidations { get { return FieldValidator.PrepareValidations(Validations, _localValidation); } }
+
+    protected override async Task OnInitializedAsync()
+    {
+        TextValue = GetFieldValue();
+    }
+
+    async Task ValueChanged(string val)
+    {
+        TextValue = val;
+        _localValidation = FieldValidator.Validate(Field, val);
+        await ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = TextValue, RowIndex = RowIndex });
+    }
+
+    private string GetFieldValue()
+    {
+        object val;
+
+        if (RowIndex == -1)
+        {
+            val = Controller.ModelNaviGetValueObject(Field.Binding.Binding);
+        }
+        else
+        {
+            val = Controller.ModelNaviGetValue(Field.Binding.TableBinding, RowIndex, Field.Binding.Binding);
+        }
+
+        return val as string;
+    }
+}

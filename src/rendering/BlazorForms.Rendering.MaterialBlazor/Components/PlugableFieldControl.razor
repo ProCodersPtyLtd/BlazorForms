@@ -1,0 +1,108 @@
+﻿@using BlazorForms.Rendering.State
+@using MatBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+@using BlazorForms.Shared
+@using BlazorForms.Flows.Definitions
+
+@inject IDynamicFieldValidator FieldValidator
+@inject IMatToaster Toaster
+@inject NavigationManager _NavigationManager
+
+
+@if (Field.ControlType == "Table")
+{
+    <GridControl Table="Field" Columns="@ViewModel.Tables[Field.Binding.TableBinding]" Caption="@Field.DisplayProperties.Caption"
+                 Validations="@GetValidations(Field.Binding.ResolvedBinding)" />
+}
+else if (Field.ControlType == "Repeater")
+{
+    <RepeaterControl Table="Field" Columns="@ViewModel.Repeaters[Field.Binding.TableBinding]" Caption="@Field.DisplayProperties.Caption"
+                 Validations="@GetValidations(Field.Binding.ResolvedBinding)" />
+}
+else if (Field.ControlType == "SelectableList")
+{
+    <SelectableListControl Table="Field" Data="@ViewModel.GetSelectableListData(Field)" Caption="@Field.DisplayProperties.Caption"
+                       ModelValueChanged="@ModelChanged" Validations="@GetValidations(Field.Binding.ResolvedBinding)" />
+}
+else
+{
+    <SimpleControl ModelChanged="@ModelChanged" Field="@Field" />
+}
+<MatToastContainer />
+
+@code {
+    [CascadingParameter]
+    public IFormViewModel ViewModel { get; set; }
+
+    [Parameter]
+    public string Name { get; set; }
+    //[Parameter]
+    //public IDynamicFormContentController Controller { get; set; }
+
+    private FieldControlDetails _field;
+
+    public FieldControlDetails Field
+    {
+        get
+        {
+            if (_field == null)
+            {
+                _field = ViewModel.GetFieldByName(Name);
+            }
+
+            return _field;
+        }
+    }
+
+    //public FieldControlDetails Field => ViewModel.GetFieldByName(Name);
+    //{
+    //    get
+    //    {
+    //        return ViewModel.GetFieldByName(Name);
+    //    }
+    //}
+
+    private void ModelChanged(ValueChangedArgs args)
+    {
+
+        ViewModel.ModelNaviSetValue(args.Binding.ResolvedBinding, args.NewValue);
+        try
+        {
+            var task = ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, args.Binding);
+            StateHasChanged();
+        }
+        catch (Exception exc)
+        {
+            ViewModel.PopulateException(exc);
+            ShowPopup();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    private IEnumerable<RuleExecutionResult> GetValidations(string modelBinding)
+    {
+        return ViewModel.Validations.Where(v => v.AffectedField == modelBinding);
+    }
+
+    private object GetFieldValue()
+    {
+        object val;
+        val = ViewModel.ModelNaviGetValue(Field.Binding.Binding);
+        return val;
+    }
+
+    public async Task ShowPopup()
+    {
+        if (ViewModel.ExceptionType != null && ViewModel.ExceptionType != typeof(FlowStopException).Name)
+        {
+            Toaster.Add("Operation failed. Please notify BlazorForms Support", MatToastType.Warning);
+
+            ViewModel.SaveException();
+        }
+    }
+}

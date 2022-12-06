@@ -1,0 +1,30 @@
+﻿@page "/DashboardDemo"
+@using BlazorForms.Rendering.Types
+@using BlazorFormsDemoBlazorApp.Widgets
+
+<h3>Dashboard Header</h3>
+<Dashboard Params="@DashboardParams"></Dashboard>
+
+@code {
+
+    private static DashboardParams DashboardParams => new()
+    { 
+        Widgets = new List<DashboardWidget>
+        {
+            new()
+            {
+                Col = 1, Row = 1, RowSpan = 2, ColSpan = 2,
+                WidgetType = typeof(ImageWidget)
+            },
+            new()
+            {
+                Col = 3, Row = 1, RowSpan = 2, ColSpan = 2,
+                WidgetType = typeof(TableDataWidget),
+                Parameters = new Dictionary<string, object?>
+                {
+                    { "DataSource", "Server=(local);Database=pcdev;Trusted_Connection=True;MultipleActiveResultSets=true" }
+                }
+            }
+        }
+    };
+}

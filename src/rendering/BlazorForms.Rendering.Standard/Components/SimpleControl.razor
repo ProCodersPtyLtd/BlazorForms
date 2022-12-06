@@ -1,0 +1,156 @@
+﻿@using BlazorForms.Rendering.State
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+@using BlazorForms.Shared
+@using BlazorForms.Rendering.Interfaces
+
+@inject IDynamicFieldValidator FieldValidator
+@inject BlazorForms.Platform.IKnownTypesBinder _knownTypesBinder
+
+    @if (Field.ControlType == null || Field.ControlType == "Label") // TODO constant
+    {
+        <MatBody1>@GetFieldValue().AsString()</MatBody1>
+    }
+    else if (Field.ControlType.StartsWith("CustomComponent"))
+    {
+    // @Field.ControlType.Split(' ')[1]
+    var counter = GetCustomComponent(Field.ControlType);
+    RenderFragment renderFragment = (builder) =>
+    {
+       builder.OpenComponent(0, counter);
+       builder.AddAttribute(0, "Field", Field);
+       builder.AddAttribute(0, "RowIndex", RowIndex);
+       builder.AddAttribute(0, "ModelValueChanged", ModelChanged);
+       builder.AddAttribute(0, "Validations", GetValidations(Field.Binding.ResolvedBinding));
+       builder.AddAttribute(0, "Controller", ViewModel);
+       builder.CloseComponent();
+    };
+    <div>
+        @*<div>Before the component</div>*@
+        @renderFragment
+        @*<div>After the component</div>*@
+    </div>
+
+    }
+    else if (Field.ControlType == ControlTypeExtensions.TextEdit)
+    {
+    <TextEditControl @key="@(Field.Name+Field.Binding.Binding)" RowIndex="@RowIndex" Name="@(Field.Name)" Field="@Field" ObjectValue="@GetFieldValue()" Caption="@Field.DisplayProperties.Caption"
+                     ModelValueChanged="@ModelChanged" Validations="@GetValidations(Field.Binding.ResolvedBinding)" Password="@Field.DisplayProperties.Password" />
+    }
+    else if (Field.ControlType == ControlTypeExtensions.TextArea)
+    {
+    <TextAreaControl @key="@(Field.Name+Field.Binding.Binding)" RowIndex="@RowIndex" Name="@(Field.Name)" Field="@Field" TextValue="@GetFieldValue().AsString()" Caption="@Field.DisplayProperties.Caption"
+                     ModelValueChanged="@ModelChanged" Validations="@GetValidations(Field.Binding.ResolvedBinding)" />
+    }
+    else if (Field.ControlType == ControlTypeExtensions.TextSearchEdit)
+    {
+    <TextSearchEditControl @key="@(Field.Name+Field.Binding.Binding)" RowIndex="@RowIndex" Name="@(Field.Name)" Field="@Field" TextValue="@GetFieldValue().AsString()" Caption="@Field.DisplayProperties.Caption"
+                           ModelValueChanged="@ModelChanged" Validations="@GetValidations(Field.Binding.ResolvedBinding)" />
+    }
+    else if (Field.ControlType == ControlTypeExtensions.Autocomplete)
+    {
+    <AutocompleteControl @key="@(Field.Name+Field.Binding.Binding)" RowIndex="@RowIndex" Name="@(Field.Name)" Field="@Field" TextValue="@GetFieldValue().AsString()" Caption="@Field.DisplayProperties.Caption"
+                         ItemsBinding="@Field.Binding.ItemsBinding" NameBinding="@Field.Binding.NameBinding"
+                         ModelValueChanged="@ModelChanged" Validations="@GetValidations(Field.Binding.ResolvedBinding)" />
+    }
+    else if (Field.ControlType == ControlTypeExtensions.MoneyEdit)
+    {
+    <MoneyEditControl @key="@(Field.Name+Field.Binding.Binding)" RowIndex="@RowIndex" Name="@(Field.Name)" Field="@Field" MoneyValue="@GetFieldValue().AsMoney()" Caption="@Field.DisplayProperties.Caption"
+                      ModelValueChanged="@ModelChanged" Validations="@GetValidations(Field.Binding.ResolvedBinding)" />
+    }
+    else if (Field.ControlType == ControlTypeExtensions.PercentEdit)
+    {
+    <PercentEditControl @key="@(Field.Name+Field.Binding.Binding)" RowIndex="@RowIndex" Name="@(Field.Name)" Field="@Field" PercentValue="@GetFieldValue().AsDecimal()" Caption="@Field.DisplayProperties.Caption"
+                        ModelValueChanged="@ModelChanged" Validations="@GetValidations(Field.Binding.ResolvedBinding)" />
+    }
+    else if (Field.ControlType == ControlTypeExtensions.DropDown)
+    {
+    <DropDownControl @key="@(Field.Name+Field.Binding.Binding)" RowIndex="@RowIndex" Name="@(Field.Name)" Field="@Field" TextValue="@GetFieldValue().AsString()" Caption="@Field.DisplayProperties.Caption" ItemsBinding="@Field.Binding.ItemsBinding"
+                     IdBinding="@Field.Binding.IdBinding" NameBinding="@Field.Binding.NameBinding" ModelBinding="@Field.Binding.Binding"
+                     ModelValueChanged="@ModelChanged" Validations="@GetValidations(Field.Binding.ResolvedBinding)" />
+    }
+    else if (Field.ControlType == ControlTypeExtensions.DatePicker)
+    {
+    <DateEditControl AllowInput="false" @key="@(Field.Name+Field.Binding.Binding)" RowIndex="@RowIndex" Name="@(Field.Name)" Field="@Field" DateValue="@GetFieldValue().AsDate()" Caption="@Field.DisplayProperties.Caption"
+                       ModelValueChanged="@ModelChanged" Validations="@GetValidations(Field.Binding.ResolvedBinding)" />
+    }
+    else if (Field.ControlType == ControlTypeExtensions.DateEdit)
+    {
+    <DateEditControl @key="@(Field.Name+Field.Binding.Binding)" RowIndex="@RowIndex" Name="@(Field.Name)" Field="@Field" DateValue="@GetFieldValue().AsDate()" Caption="@Field.DisplayProperties.Caption"
+                     ModelValueChanged="@ModelChanged" Validations="@GetValidations(Field.Binding.ResolvedBinding)" />
+    }
+    else if (Field.ControlType == ControlTypeExtensions.Checkbox)
+    {
+    <CheckboxEditControl @key="@(Field.Name+Field.Binding.Binding)" RowIndex="@RowIndex" Name="@(Field.Name)" Field="@Field" Value="@GetFieldValue().AsBool()" Caption="@Field.DisplayProperties.Caption"
+                         ModelValueChanged="@ModelChanged" Validations="@GetValidations(Field.Binding.ResolvedBinding)" />
+    }
+    else if (Field.ControlType == ControlTypeExtensions.FileUpload)
+    {
+    <FileUploadControl @key="@(Field.Name+Field.Binding.Binding)" RowIndex="@RowIndex" Field="@Field"
+                       ModelValueChanged="@ModelChanged" Validations="@GetValidations(Field.Binding.ResolvedBinding)" />
+    }
+    else if (Field.ControlType == ControlTypeExtensions.Button || Field.Binding.BindingType == BlazorForms.Shared.FieldBindingType.ActionButton)
+    {
+    <ButtonControl @key="@(Field.Name+Field.Binding.Binding)" Field="@Field" Caption="@Field.DisplayProperties.Caption" Name="@(Field.Name)"
+                   ModelValueChanged="@ModelChanged" Validations="@GetValidations(Field.Binding.ResolvedBinding)" />
+    }
+    else if (Field.ControlType == ControlTypeExtensions.Header)
+    {
+    <HeaderControl ObjectValue="@GetFieldValue()" />
+    }
+    else if (Field.ControlType == ControlTypeExtensions.Subtitle)
+    {
+    <SubtitleControl ObjectValue="@GetFieldValue()" />
+    }
+
+@code {
+    [Parameter]
+    public int RowIndex { get; set; } = -1;
+    [CascadingParameter]
+    public IFormViewModel ViewModel { get; set; }
+    [Parameter]
+    public FieldControlDetails Field { get; set; }
+    [Parameter]
+    public string ModelBinding { get; set; }
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelChanged { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    IEnumerable<RuleExecutionResult> GetValidations(string modelBinding)
+    {
+        return ViewModel.Validations.Where(v => v.AffectedField == modelBinding);
+    }
+
+    private Type GetCustomComponent(string name)
+    {
+        // var typeFullName = "Application.DemoInsurance.Components.MyControl1";
+        var typeFullName = name.Split(' ')[1];
+        var result = _knownTypesBinder.KnownTypesDict[typeFullName];
+        return result;
+    }
+
+    private object GetFieldValue()
+    {
+        object val;
+
+        if (RowIndex == -1)
+        {
+            val = ViewModel.ModelNaviGetValueObject(Field.Binding.Binding);
+        }
+        else
+        {
+            val = ViewModel.ModelNaviGetValue(Field.Binding.TableBinding, RowIndex, Field.Binding.Binding);
+        }
+
+        return val;
+    }
+
+    private async Task ButtonClick()
+    {
+        await ModelChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding });
+    }
+}

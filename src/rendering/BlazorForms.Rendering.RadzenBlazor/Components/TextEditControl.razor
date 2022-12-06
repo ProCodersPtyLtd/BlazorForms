@@ -1,0 +1,38 @@
+﻿@using BlazorForms.Rendering.State
+@using MatBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+@using BlazorForms.Shared
+
+@inherits FieldControl
+
+@RenderLabel
+
+@if (Password)
+{
+    <RadzenPassword
+        Name="@MyId"
+        Value="@ObjectValue.AsString()"
+        Disabled="@Field.DisplayProperties.Disabled"
+        ValueChanged="ObjectValueChanged"
+        class="w-100"/>
+}
+else
+{
+    <RadzenTextBox
+        Name="@MyId"
+        Value="@ObjectValue.AsString()"
+        Disabled="@Field.DisplayProperties.Disabled"
+        ValueChanged="ObjectValueChanged"
+        class="w-100"/>
+}
+
+@RenderValidation
+
+@code {
+
+    [Parameter]
+    public bool Password { get; set; }
+
+}

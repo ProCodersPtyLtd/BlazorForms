@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Castle.Core" Version="5.1.0" />
+    <PackageReference Include="Castle.Core.AsyncInterceptor" Version="2.1.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.21.0" />
+    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\shared\BlazorForms.Shared\BlazorForms.Shared.csproj" />
+    <ProjectReference Include="..\BlazorForms.Flows.Definitions\BlazorForms.Flows.Definitions.csproj" />
+  </ItemGroup>
+
+</Project>

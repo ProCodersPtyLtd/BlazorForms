@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>BlazorForms.WebAssembly</id>
+    <version>0.8.0</version>
+    <authors>Binoculars X</authors>
+    <owners>Binoculars X</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>BlazorForms is a declarative Flows, Forms, Rules framework for controlled project development and maintenance. Blazor WebAssembly extensions.</description>
+    <copyright>Copyright (c) 2022 Binoculars X</copyright>
+    <tags>blazor declarative dynamic flow form rule framework webassembly</tags>
+    <dependencies>
+		<group>
+      <dependency id="MatBlazor" version="2.7.0" />
+      <dependency id="Newtonsoft.Json" version="12.0.3" />
+		</group>
+    </dependencies>
+    <contentFiles>
+      <files include="**\*.json" buildAction="None" />
+      <files include="**\*.cmd" buildAction="None" />
+      <files include="**\*.txt" buildAction="None" />
+      <files include="**\*.sql" buildAction="None" />
+      <files include="**\*.cs" buildAction="None" />
+    </contentFiles>
+  </metadata>
+  <files>
+    <file src="readme.txt" />
+    <file src="contentFiles\any\any\BlazorForms.Example.Link\*" target="contentFiles\any\any\BlazorForms.Example.Link"/>
+    <file src="..\bin\Release\netstandard2.1\BlazorForms.Flows.Definitions.dll" target="lib\netstandard2.1\BlazorForms.Flows.Definitions.dll" />
+    <file src="..\bin\Release\netstandard2.1\BlazorForms.FlowRules.Definition.dll" target="lib\netstandard2.1\BlazorForms.FlowRules.Definition.dll" />
+    <file src="..\bin\Release\netstandard2.1\BlazorForms.Forms.Definitions.dll" target="lib\netstandard2.1\BlazorForms.Forms.Definitions.dll" />
+    <file src="..\bin\Release\netstandard2.1\BlazorForms.Shared.dll" target="lib\netstandard2.1\BlazorForms.Shared.dll" />
+    <file src="..\bin\Release\netstandard2.1\BlazorForms.Platform.Definitions.dll" target="lib\netstandard2.1\BlazorForms.Platform.Definitions.dll" />
+    <file src="..\bin\Release\netstandard2.1\BlazorForms.BlazorForms.Rendering.dll" target="lib\netstandard2.1\BlazorForms.BlazorForms.Rendering.dll" />
+    <file src="..\bin\Release\netstandard2.1\BlazorForms.Platform.WebAssembly.dll" target="lib\netstandard2.1\BlazorForms.Platform.WebAssembly.dll" />
+  </files>
+</package>

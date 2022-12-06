@@ -1,0 +1,12 @@
+﻿.grid-layout {
+    display: grid;
+    grid-template-columns: repeat(10, 160px);
+    grid-template-rows: repeat(10, 160px);
+    grid-gap: 10px;
+}
+
+.grid-item {
+    min-width: 160px;
+    min-height: 160px;
+    overflow-wrap: anywhere;
+}

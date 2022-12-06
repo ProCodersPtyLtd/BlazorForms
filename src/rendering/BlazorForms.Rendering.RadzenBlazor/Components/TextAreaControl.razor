@@ -1,0 +1,23 @@
+﻿@using BlazorForms.Rendering.State
+@using MatBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Shared
+@using BlazorForms.Rendering.Validation
+
+@inherits FieldControl
+
+@RenderLabel
+
+<RadzenTextArea
+    Name="@MyId"
+    Value="@ObjectValue.AsString()"
+    ReadOnly="@Field.DisplayProperties.Disabled"
+    ValueChanged="ObjectValueChanged"
+    class="w-100" />
+
+@RenderValidation
+
+@code {
+    
+}

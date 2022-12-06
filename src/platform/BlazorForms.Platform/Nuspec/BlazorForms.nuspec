@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>BlazorForms</id>
+    <version>0.3.1</version>
+    <authors>Binoculars X</authors>
+    <owners>Binoculars X</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>BlazorForms is a model-centric framework that helps to create flows, forms and rules</description>
+    <copyright>Copyright (c) 2022 Binoculars X</copyright>
+	<license type="expression">MIT</license>
+    <tags>blazor flow form rule framework</tags>
+    <dependencies>
+		<group targetFramework="net6.0">
+			<dependency id="Microsoft.Extensions.Logging" version="6.0.0" />
+			<dependency id="Microsoft.Extensions.Configuration" version="6.0.1" />
+			<dependency id="Microsoft.Extensions.Configuration.Json" version="6.0.0" />
+			<!--<dependency id="Microsoft.AspNetCore.Components" version="5.0.0" />
+			<dependency id="Microsoft.AspNetCore.Components.Web" version="5.0.0" />-->
+			<dependency id="Microsoft.CodeAnalysis.Common" version="4.3.0" />
+			<dependency id="Microsoft.CodeAnalysis.CSharp" version="4.3.0" />
+			<dependency id="Microsoft.EntityFrameworkCore" version="6.0.9" />
+			<dependency id="Microsoft.Extensions.DependencyInjection" version="6.0.0" />
+			<dependency id="Microsoft.Extensions.Logging.Debug" version="6.0.0" />
+			<dependency id="System.Data.SqlClient" version="4.8.3" />
+			<dependency id="System.Linq.Async" version="6.0.1" />
+			<dependency id="FeatureToggle" version="4.0.2" />
+			<dependency id="Castle.Core" version="5.1.0" />
+			<dependency id="Castle.Core.AsyncInterceptor" version="2.1.0" />
+			<dependency id="Newtonsoft.Json" version="13.0.1" />
+			<dependency id="AutoMapper" version="11.0.0" />
+		</group>
+    </dependencies>
+    <contentFiles>
+      <files include="**\*.json" buildAction="None" />
+      <files include="**\*.cmd" buildAction="None" />
+      <files include="**\*.txt" buildAction="None" />
+      <files include="**\*.sql" buildAction="None" />
+    </contentFiles>
+  </metadata>
+  <files>
+    <!--<file src="readme.txt" />-->
+    <!--<file src="contentFiles\any\any\BlazorForms.Config.Link\*" target="contentFiles\any\any\BlazorForms.Config.Link"/>
+    <file src="contentFiles\any\any\BlazorForms.Example.Link\*" target="contentFiles\any\any\BlazorForms.Example.Link"/>-->
+    <file src="..\bin\Release\net6.0\BlazorForms.Platform.dll" target="lib\net6.0\BlazorForms.Platform.dll" />
+    <file src="..\bin\Release\net6.0\BlazorForms.Platform.Config.dll" target="lib\net6.0\BlazorForms.Platform.Config.dll" />
+    <file src="..\bin\Release\net6.0\BlazorForms.FlowRules.dll" target="lib\net6.0\BlazorForms.FlowRules.dll" />
+    <file src="..\bin\Release\net6.0\BlazorForms.Flows.Definitions.dll" target="lib\net6.0\BlazorForms.Flows.Definitions.dll" />
+    <file src="..\bin\Release\net6.0\BlazorForms.Flows.Engine.dll" target="lib\net6.0\BlazorForms.Flows.Engine.dll" />
+    <file src="..\bin\Release\net6.0\BlazorForms.FlowRules.Definition.dll" target="lib\net6.0\BlazorForms.FlowRules.Definition.dll" />
+    <file src="..\bin\Release\net6.0\BlazorForms.Forms.Definitions.dll" target="lib\net6.0\BlazorForms.Forms.Definitions.dll" />
+    <file src="..\bin\Release\net6.0\BlazorForms.ItemStore.dll" target="lib\net6.0\BlazorForms.ItemStore.dll" />
+    <file src="..\bin\Release\net6.0\BlazorForms.Proxyma.dll" target="lib\net6.0\BlazorForms.Proxyma.dll" />
+    <file src="..\bin\Release\net6.0\BlazorForms.Shared.dll" target="lib\net6.0\BlazorForms.Shared.dll" />
+    <file src="..\bin\Release\net6.0\BlazorForms.Platform.Definitions.dll" target="lib\net6.0\BlazorForms.Platform.Definitions.dll" />
+    <file src="..\bin\Release\net6.0\BlazorForms.Platform.Shared.dll" target="lib\net6.0\BlazorForms.Platform.Shared.dll" />
+    <file src="..\bin\Release\net6.0\BlazorForms.Rendering.dll" target="lib\net6.0\BlazorForms.Rendering.dll" />
+    <file src="..\bin\Release\net6.0\BlazorForms.DynamicCode.dll" target="lib\net6.0\BlazorForms.DynamicCode.dll" />
+  </files>
+</package>

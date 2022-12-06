@@ -1,0 +1,17 @@
+﻿@using BlazorForms.Rendering.State
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+
+@inherits FieldControl
+
+<RadzenButton Click="ButtonClick" Disabled="@Field.DisplayProperties.Disabled" Text="@Choose(Caption, Field.DisplayProperties.Caption)" />
+
+@RenderValidation
+
+@code {
+
+    private async Task ButtonClick()
+    {
+        ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding });
+    }
+}

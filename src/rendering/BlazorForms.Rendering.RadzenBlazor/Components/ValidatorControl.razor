@@ -1,0 +1,25 @@
+﻿@using MatBlazor
+@using BlazorForms.FlowRules
+
+<div>
+    @foreach (var validation in Validations)
+    {
+        @if (validation.ValidationResult == RuleValidationResult.Warning)
+        {
+            <RadzenLabel style="color: DarkOrange;" Text="@($"{validation.RuleCode}: {validation.ValidationMessage}")" />
+        }
+        else if (validation.ValidationResult == RuleValidationResult.Error)
+        {
+            <RadzenLabel style="color: red;" Text="@($"{validation.RuleCode}: {validation.ValidationMessage}")" />
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+}

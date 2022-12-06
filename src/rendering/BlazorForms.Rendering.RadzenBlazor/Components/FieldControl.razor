@@ -1,0 +1,81 @@
+﻿@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.State
+@using BlazorForms.Rendering.Validation
+
+@inherits ValueControl
+
+@inject IDynamicFieldValidator _fieldValidator
+
+@code {
+
+    [Parameter]
+    public RenderFragment RenderLabel { get; set; }
+
+    [Parameter]
+    public RenderFragment RenderValidation { get; set; }
+
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    [Parameter]
+    public FieldControlDetails Field { get; set; }
+
+    [Parameter]
+    public string Group { get; set; }
+
+    [Parameter]
+    public string Name { get; set; }
+
+    [Parameter]
+    public string Caption { get; set; }
+
+    [Parameter]
+    public int RowIndex { get; set; }
+
+    [Parameter]
+    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    protected string MyId => $"{Normalize(Group, Field.Group)}-{Normalize(Name, Field.Name)}-{Normalize(Caption, Field.Caption)}-{RowIndex}";
+
+    private RuleExecutionResult _localValidation;
+
+    private IEnumerable<RuleExecutionResult> AllValidations => _fieldValidator.PrepareValidations(Validations, _localValidation);
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        RenderLabel = _ => { };
+
+        if (Field.DisplayProperties.Disabled)
+        {
+            RenderValidation = _ => { };
+        }
+        else if (Field.DisplayProperties.Required)
+        {
+            RenderValidation =
+                @<div>
+                    <RadzenRequiredValidator Component="@MyId" Text="@($"{Choose(Caption, Field.Caption)} is required")"/>
+                    @if (AllValidations?.Count() > 0)
+                    {
+                        <ValidatorControl Validations="@AllValidations"/>
+                    }
+                </div>;
+        }
+        else if (AllValidations?.Count() > 0)
+        {
+            RenderValidation =
+                @<div>
+                    <ValidatorControl Validations="@AllValidations"></ValidatorControl>
+                </div>;
+        }
+    }
+
+    protected async Task ObjectValueChanged(object value)
+    {
+        ObjectValue = value;
+        _localValidation = _fieldValidator.Validate(Field, value);
+        await ModelValueChanged.InvokeAsync(new ValueChangedArgs {Binding = Field.Binding, NewValue = value, RowIndex = RowIndex});
+    }
+}

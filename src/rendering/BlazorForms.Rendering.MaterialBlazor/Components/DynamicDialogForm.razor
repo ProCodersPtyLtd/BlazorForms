@@ -1,0 +1,179 @@
+﻿@using BlazorForms.Platform.Definitions.Shared
+@using BlazorForms.Rendering.State
+@using MatBlazor
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.Shared
+
+@inject IDynamicFieldValidator FieldValidator
+@inject IMatToaster Toaster
+@inject NavigationManager _navigationManager
+
+<style>
+    .pz-gilaog-grid-align {
+        display: flex;
+    }
+
+    .pz-dialog-content {
+        padding: 0 40px;
+    }
+</style>
+
+@if (DialogViewModel.FormData != null && DialogViewModel.ItemId != null)
+{
+    <MatDialog @bind-IsOpen="@DialogViewModel.DialogIsOpen">
+        <MatDialogTitle>@DialogViewModel.FormData.DisplayName</MatDialogTitle>
+        <MatDialogContent class="pz-dialog-content" @onkeydown="@KeyPress">
+
+            <CascadingValue Value="@(DialogViewModel as IFormViewModel)">
+                <FormContent ModelValueChanged=@ModelActionChanged />
+            </CascadingValue>
+
+        </MatDialogContent>
+        <MatDialogActions>
+            <div class="mat-layout-grid" style="display:flex">
+                <div class="mat-layout-grid-inner pz-gilaog-grid-align">
+                    <div class="mat-layout-grid-cell">
+                        <MatButton Outlined="true" OnClick="@CancelClick" Disabled="@_formLocked">Cancel</MatButton>
+                    </div>
+
+                    @if (ValidateButton)
+                    {
+                        <div class="mat-layout-grid-cell">
+                            <MatButton Unelevated="true" OnClick="@ValidateClick" Disabled="@_formLocked">Validate</MatButton>
+                        </div>
+                    }
+
+                    <div class="mat-layout-grid-cell">
+                        <MatButton Raised="true" OnClick="@SubmitClick" Disabled="@_formLocked">@DialogViewModel.SubmitActionName</MatButton>
+                    </div>
+                </div>
+            </div>
+        </MatDialogActions>
+    </MatDialog>
+    <MatToastContainer />
+}
+
+@code {
+
+    [Parameter]
+    public IDialogFormViewModel DialogViewModel { get; set; }
+
+    [Parameter]
+    public bool AllowAnonymousAccess { get; set; }
+
+    [Parameter]
+    public bool AllowFlowStorage { get; set; }
+
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelActionChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<FormSubmittedArgs> FormSubmitted { get; set; }
+
+    [Parameter]
+    public bool ValidateButton { get; set; }
+
+    private bool _formLocked = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // We load form once, and every time when parameters changed
+        await Setup();
+        await base.OnParametersSetAsync();
+    }
+
+    // Dialog never appears itself, the only way to show dialog is through DialogVM.LoadDialog(...)
+    private async Task Setup()
+    {
+        DialogViewModel.SetBaseUri(_navigationManager.BaseUri);
+        DialogViewModel.FormSettings.AllowAnonymousAccess = AllowAnonymousAccess;
+        DialogViewModel.FormSettings.AllowFlowStorage = AllowFlowStorage;        
+    }
+
+    private void KeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            SubmitClick();
+        }
+    }
+
+    private async Task CancelClick()
+    {
+        CloseDialog();
+    }
+
+    private async Task ValidateClick()
+    {
+        _formLocked = true;
+        StateHasChanged();
+        try
+        {
+            await DialogViewModel.ValidateDialog();
+            StateHasChanged();
+        }
+        catch (Exception exc)
+        {
+            DialogViewModel.PopulateException(exc);
+            await ShowPopup();
+        }
+        finally
+        {
+            _formLocked = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SubmitClick()
+    {
+        _formLocked = true;
+        StateHasChanged();
+        try
+        {
+            await Task.Run(async () =>
+            {
+                await DialogViewModel.SubmitDialog();
+            });
+
+            await FormSubmitted.InvokeAsync(new FormSubmittedArgs { Context = null });
+        }
+        catch (Exception exc)
+        {
+            DialogViewModel.PopulateException(exc);
+            await ShowPopup();
+        }
+        finally
+        {
+            _formLocked = false;
+            StateHasChanged();
+        }
+    }
+
+    private void CloseDialog()
+    {
+        DialogViewModel.DialogIsOpen = false;
+        StateHasChanged();
+    }
+
+    public async Task ShowPopup()
+    {
+        if (DialogViewModel.ExceptionType != null && DialogViewModel.ExceptionType != typeof(FlowStopException).Name)
+        {
+            Toaster.Add($"Operation failed. {DialogViewModel.ExceptionMessage}", MatToastType.Danger);
+
+            await Task.Run(async () =>
+            {
+                var flowParams = new FlowParamsGeneric();                
+                flowParams.Operation = FlowReferenceOperation.QuickAction;
+                flowParams[PlatformConstants.BaseUri] = _navigationManager.BaseUri;
+                flowParams["Type"] = DialogViewModel.ExceptionType;
+                flowParams["Message"] = DialogViewModel.ExceptionMessage;
+                flowParams["StackTrace"] = DialogViewModel.ExceptionStackTrace;
+
+                await DialogViewModel.RunActionFlow("BlazorForms.Platform.ErrorEditFlow", flowParams, false);
+            });
+        }
+    }
+}

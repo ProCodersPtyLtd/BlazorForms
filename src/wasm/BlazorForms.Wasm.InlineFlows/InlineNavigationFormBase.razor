@@ -1,0 +1,47 @@
+﻿@using BlazorForms.Shared
+@using BlazorForms.Flows.Definitions
+
+@typeparam TModel where TModel : class, IFlowModel
+
+@inject IInlineFlowProvider _vm
+@inject NavigationManager _navi
+
+@code {
+    protected IInlineFlowProvider FlowEngine 
+    { 
+        get 
+        { 
+            return _vm; 
+        } 
+    }
+    
+    protected TModel Model 
+    {
+        get 
+        { 
+            return FlowEngine.ModelUntyped as TModel; 
+        }
+    }
+
+    protected async Task ActionButtonClick(string binding)
+    {
+        await FlowEngine.SubmitForm(binding);
+        NavigateToForm();
+    }
+
+    protected void NavigateToForm()
+    {
+        if (FlowEngine.Context.ExecutionResult.FlowState == BlazorForms.Flows.Definitions.TaskExecutionFlowStateEnum.Finished)
+        {
+            _navi.NavigateTo("/");
+            return;
+        }
+
+        if (!FlowEngine.Context.ExecutionResult.IsFormTask)
+        {
+            throw new ApplicationException("Flow is in incorrect state, form is expected");    
+        }
+
+        _navi.NavigateTo(FlowEngine.Context.ExecutionResult.FormId.LastWord());
+    }
+}

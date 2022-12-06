@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MatBlazor" Version="2.8.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.9" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\flows\BlazorForms.Flows.Engine\BlazorForms.Flows.Engine.csproj" />
+    <ProjectReference Include="..\..\..\src\platform\BlazorForms.Platform.WebAssembly\BlazorForms.Platform.WebAssembly.csproj" />
+    <ProjectReference Include="..\..\..\src\rendering\BlazorForms.Rendering.MaterialBlazor\BlazorForms.Rendering.MaterialBlazor.csproj" />
+    <ProjectReference Include="..\..\..\src\wasm\BlazorForms.Wasm.InlineFlows\BlazorForms.Wasm.InlineFlows.csproj" />
+    <ProjectReference Include="..\..\BlazorFormsDemoModels\BlazorFormsDemoModels.csproj" />
+    <ProjectReference Include="..\Shared\BlazorFormsDemoWasmNew.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

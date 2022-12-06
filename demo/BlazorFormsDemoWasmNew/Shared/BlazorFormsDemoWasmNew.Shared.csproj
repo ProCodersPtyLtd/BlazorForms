@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\flows\BlazorForms.Flows.Definitions\BlazorForms.Flows.Definitions.csproj" />
+    <ProjectReference Include="..\..\..\src\forms\BlazorForms.Forms.Definitions\BlazorForms.Forms.Definitions.csproj" />
+    <ProjectReference Include="..\..\..\src\rules\BlazorForms.FlowRules.Definition\BlazorForms.FlowRules.Definition.csproj" />
+    <ProjectReference Include="..\..\..\src\shared\BlazorForms.Shared\BlazorForms.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+</Project>

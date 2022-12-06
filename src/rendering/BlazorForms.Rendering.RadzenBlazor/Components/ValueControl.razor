@@ -1,0 +1,22 @@
+﻿
+@code {
+    
+    [Parameter]
+    public object ObjectValue { get; set; }
+
+    protected static string Normalize(params string[] variants)
+    {
+        return Choose(variants)?
+            .ToLower()
+            .ReplaceLineEndings("_")
+            .Replace('\t', '_')
+            .Replace(' ', '_')
+            .Replace('-', '_');
+    }
+
+    protected static string Choose(params string[] variants)
+    {
+        return variants?.FirstOrDefault(x => !string.IsNullOrWhiteSpace(x))?.Trim();
+    }
+
+}

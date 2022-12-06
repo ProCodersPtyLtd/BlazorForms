@@ -1,0 +1,10 @@
+﻿@page "/demoFormV2/{store:bool}"
+
+<PageTitle>Form V2</PageTitle>
+
+<DynamicForm FlowName="@typeof(BlazorFormsDemoFlows.FluentArtelProjectSettingsFlow).FullName" Pk="0" AllowAnonymousAccess="true" AllowFlowStorage="@Store" NavigationSuccess="/"/>
+
+@code {
+    [Parameter]
+    public bool Store { get; set; }
+}

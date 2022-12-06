@@ -1,0 +1,448 @@
+﻿@using BlazorForms.Rendering.State
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.FlowRules
+@using BlazorForms.Platform
+@using BlazorForms.Shared
+@using BlazorForms.Rendering.Interfaces
+@using BlazorForms.Forms
+
+@inject IFlowRunProvider _flowRunProvider
+@inject IFormViewModel _vm
+@inject NavigationManager _navigationManager
+@inject NotificationService _notificationService
+@inject DialogService _dialogService
+
+@if (_vm.FormAccessDenied && !IsDefaultReadonlyView)
+{
+    @*if (FlowRunId != 0 && !_navigationManager.Uri.Contains($"readonly-form-generic/{FlowRunId}/true"))
+        {
+        _navigationManager.NavigateTo($"readonly-form-generic/{FlowRunId}/true", true);
+        }
+        else *@
+    {
+        <div>Form Access Denied</div>
+        <hr/>
+        <div>Assigned User: @_vm.FormAssignedUser</div>
+    }
+}
+
+@if (_loading)
+{
+    <RadzenProgressBar Indeterminate="true" Style="min-width: 50%; margin: auto;"></RadzenProgressBar>
+}
+else if (string.IsNullOrEmpty(FlowName))
+{
+    <RadzenHeading Size="H6">FlowName parameter must be provided</RadzenHeading>
+}
+else if (_vm.ModelUntyped == null)
+{
+    <RadzenHeading Size="H6">Form Model Not Found</RadzenHeading>
+}
+else
+{
+    <div class="container" @onkeydown="@KeyPress">
+        <div class="content">
+
+            @if (!string.IsNullOrEmpty(_vm.FormData?.DisplayName))
+            {
+                <div class="row">
+                    <div class="col col-12">
+                        <RadzenHeading Size="H4">@_vm.FormData.DisplayName</RadzenHeading>
+                    </div>
+                </div>
+            }
+
+            <div class="row">
+                <div class="col col-12">
+                    <CascadingValue Value="@_vm">
+                        <FormContent ModelValueChanged="@ModelActionChanged"/>
+                    </CascadingValue>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col col-12">
+                    <RadzenProgressBar
+                        Mode="@(_formLocked ? ProgressBarMode.Indeterminate : ProgressBarMode.Determinate)"
+                        Visible="@_formLocked"/>
+                </div>
+            </div>
+
+            @*buttons*@
+            <div class="row">
+                <div class="col col-12" style="text-align: center">
+                    @if (_vm.ActionFields != null && _vm.ActionFields.Count() > 0)
+                    {
+                        foreach (var action in _vm.ActionFields)
+                        {
+                            if (action.DisplayProperties.Visible)
+                            {
+                                <RadzenButton Id="@action.Name" ButtonStyle="ButtonStyle.Light" Disabled="@_formLocked" Click="@(async () => await ActionButtonClick(action.Binding.Binding, action.DisplayProperties.Caption))">@action.DisplayProperties.Caption</RadzenButton>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Disabled="@_formLocked">Cancel</RadzenButton>
+                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Disabled="@_formLocked">@_vm.SaveActionName</RadzenButton>
+
+                        @if (ValidateButton)
+                        {
+                            <RadzenButton ButtonStyle="ButtonStyle.Light" Click="@ValidateClick" Disabled="@_formLocked">Validate</RadzenButton>
+                        }
+
+                        @if (!string.IsNullOrEmpty(_vm.RejectActionName))
+                        {
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Click="@(async () => await SubmitClick(_vm.RejectAction.Binding.Binding))" Disabled="@_formLocked">@_vm.RejectActionName</RadzenButton>
+                        }
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Click="@(async () => await SubmitClick(_vm.SubmitAction.Binding.Binding))" Disabled="@_formLocked">@_vm.SubmitActionName</RadzenButton>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _loading = true;
+
+    private bool _formLocked = false;
+
+    [Parameter]
+    public string Pk { get; set; }
+
+    [Parameter]
+    public virtual string FlowName { get; set; }
+
+    [Parameter]
+    public bool IsDefaultReadonlyView { get; set; }
+
+    [Parameter]
+    public string NavigationSuccess { get; set; }
+
+    [Parameter]
+    public string NavigationCancel { get; set; }
+
+    [Parameter]
+    public EventCallback<FormSubmittedArgs> FormSubmitted { get; set; }
+
+    [Parameter]
+    public bool ValidateButton { get; set; }
+
+    [Parameter]
+    public bool AllowAnonymousAccess { get; set; }
+
+    [Parameter]
+    public bool AllowFlowStorage { get; set; }
+
+    // This parameter is used to show a form for executed flow
+    [Parameter]
+    public string RefId { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+    // We load form once, and every time when parameters changed
+        await Reload();
+        await base.OnParametersSetAsync();
+    }
+
+    private async Task Reload()
+    {
+        try
+        {
+            _vm.SetBaseUri(_navigationManager.BaseUri);
+            _vm.FormSettings.AllowAnonymousAccess = AllowAnonymousAccess;
+            _vm.FormSettings.AllowFlowStorage = AllowFlowStorage;
+            await _vm.InitiateFlow(FlowName, RefId, Pk);
+
+            _loading = false;
+            StateHasChanged();
+        }
+        catch (Exception exc)
+        {
+            _vm.PopulateException(exc);
+            await ShowPopup();
+        }
+    }
+
+    private async Task ProcessSubmit(bool loadForm = false, bool refresh = false, string binding = null)
+    {
+        _formLocked = true;
+        StateHasChanged();
+
+        try
+        {
+            if (binding == ModelBinding.CloseButtonBinding)
+            {
+                CancelClick();
+                return;
+            }
+
+            var result = await _vm.TriggerRules(_vm.FormData.ProcessTaskTypeFullName, null, FormRuleTriggers.Submit);
+            _vm.Validations = result.Validations.AsEnumerable().Union(_vm.GetDynamicFieldValidations());
+
+            if (_vm.Validations.Any(v => v.ValidationResult == RuleValidationResult.Error))
+            {
+                _notificationService.Notify(NotificationSeverity.Error, "Please fix issues with input fields to Submit the form");
+                return;
+            }
+
+            // TODO fix threads deadlock
+            await Task.Run(async () => { await _vm.SubmitForm(ModelBinding.SubmitButtonBinding); });
+
+            var context = _vm.Context;
+
+            // if next task is form again
+            if (loadForm && context.ExecutionResult.IsFormTask)
+            {
+                await _vm.ReloadFormData();
+            }
+            else if (refresh)
+            {
+                _navigationManager.NavigateTo(_navigationManager.Uri, true);
+            }
+            else if (!string.IsNullOrEmpty(NavigationSuccess))
+            {
+                _navigationManager.NavigateTo(NavigationSuccess);
+            }
+            else
+            {
+                await FormSubmitted.InvokeAsync(new FormSubmittedArgs {Context = new BlazorForms.Flows.FlowContext(_vm.Context, _vm.ModelUntyped)});
+            }
+        }
+        catch (Exception exc)
+        {
+            _vm.PopulateException(exc);
+            await ShowPopup();
+        }
+        finally
+        {
+            _formLocked = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SubmitClick(string binding)
+    {
+        await ProcessSubmit(loadForm: true, binding: binding);
+    }
+
+
+    private async Task ModelActionChanged(ValueChangedArgs args)
+    {
+        if (args.Operation == ModelChangedOperation.Refresh)
+        {
+            _navigationManager.NavigateTo(_navigationManager.Uri, true);
+        }
+        else if (args.Operation == ModelChangedOperation.SubmitAndRefresh)
+        {
+            _loading = true;
+            await ProcessSubmit(refresh: true);
+        }
+    }
+
+    // to use from inherited forms
+    protected virtual async Task ModelChanged(ValueChangedArgs args)
+    {
+        if (args.Operation != ModelChangedOperation.Default)
+        {
+            StateHasChanged();
+
+            if (args.Operation == ModelChangedOperation.SubmitAndRefresh)
+            {
+                await ModelActionChanged(args);
+            }
+            return;
+        }
+
+        if (args.Binding.BindingType != BlazorForms.Shared.FieldBindingType.ActionButton)
+        {
+            _vm.ModelNaviSetValue(args.Binding.ResolvedBinding, args.NewValue);
+        }
+        try
+        {
+            await _vm.TriggerRules(_vm.FormData.ProcessTaskTypeFullName, args.Binding);
+            StateHasChanged();
+        }
+        catch (Exception exc)
+        {
+            _vm.PopulateException(exc);
+            await ShowPopup();
+        }
+    }
+
+    protected FieldControlDetails GetField(string binding)
+    {
+    // ToDo: only one default group supported for POC
+        var field = _vm.FieldsGrouped.First().First(f => f.Binding.Binding == binding);
+        return field;
+    }
+
+    protected async Task KeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await ProcessSubmit(loadForm: true);
+        }
+        else if (e.Key == "Escape")
+        {
+            CancelClick();
+        }
+    }
+
+    protected void CancelClick()
+    {
+        if (!string.IsNullOrEmpty(NavigationCancel))
+        {
+            _navigationManager.NavigateTo(NavigationCancel);
+        }
+        else if (!string.IsNullOrEmpty(NavigationSuccess))
+        {
+            _navigationManager.NavigateTo(NavigationSuccess);
+        }
+    }
+
+    protected async Task CancelFinishClick(string binding)
+    {
+        _formLocked = true;
+        StateHasChanged();
+
+        try
+        {
+            if (!string.IsNullOrEmpty(NavigationCancel))
+            {
+                _navigationManager.NavigateTo(NavigationCancel);
+            }
+            else if (!string.IsNullOrEmpty(NavigationSuccess))
+            {
+                _navigationManager.NavigateTo(NavigationSuccess);
+            }
+        }
+        finally
+        {
+            _formLocked = false;
+            StateHasChanged();
+        }
+    }
+
+    protected async Task ValidateClick()
+    {
+        _formLocked = true;
+        StateHasChanged();
+        try
+        {
+            var result = await _vm.TriggerRules(_vm.FormData.ProcessTaskTypeFullName, null, FormRuleTriggers.Submit);
+            _vm.Validations = result.Validations.AsEnumerable().Union(_vm.GetDynamicFieldValidations());
+            StateHasChanged();
+        }
+        finally
+        {
+            _formLocked = false;
+            StateHasChanged();
+        }
+    }
+
+    protected async Task ActionButtonClick(string binding, string caption)
+    {
+        _formLocked = true;
+        StateHasChanged();
+        try
+        {
+    //await _vm.ActionButtonClick(binding);
+            switch (binding)
+            {
+                case ModelBinding.CloseButtonBinding:
+                    CancelClick();
+                    break;
+
+                case ModelBinding.CloseFinishButtonBinding:
+                    await CancelFinishClick(binding);
+                    break;
+
+                case ModelBinding.ValidateButtonBinding:
+                    await ValidateClick();
+                    break;
+
+                case ModelBinding.SubmitButtonBinding:
+                    await ProcessSubmit(loadForm: true);
+                    break;
+
+                case ModelBinding.SubmitCloseButtonBinding:
+                    await ProcessSubmit(loadForm: false);
+                    break;
+
+                case ModelBinding.SaveButtonBinding:
+                    await ProcessSave(binding);
+                    break;
+
+                case ModelBinding.RejectButtonBinding:
+                    await ProcessReject(binding, caption);
+                    break;
+            }
+        }
+        catch (Exception exc)
+        {
+            _vm.PopulateException(exc);
+            await ShowPopup();
+        }
+        finally
+        {
+            _formLocked = false;
+            StateHasChanged();
+        }
+    }
+
+    protected async Task ProcessSave(string actionBinding)
+    {
+        await _vm.SaveForm(actionBinding, _vm.SaveActionName);
+        _navigationManager.NavigateTo(NavigationSuccess);
+    }
+
+    private async Task ProcessReject(string binding, string caption)
+    {
+        if (await _dialogService.Confirm(caption) != true)
+            return;
+
+        _formLocked = true;
+        StateHasChanged();
+
+        try
+        {
+            if (binding == ModelBinding.CloseButtonBinding)
+            {
+                CancelClick();
+                return;
+            }
+
+            // ToDo: fix threads deadlock
+            await Task.Run(async () => { await _vm.RejectForm(binding, _vm.RejectActionName); });
+
+            _navigationManager.NavigateTo(NavigationSuccess);
+        }
+        finally
+        {
+            _formLocked = false;
+            StateHasChanged();
+        }
+    }
+
+    protected async Task ShowPopup()
+    {
+        if (_vm.ExceptionType != null && _vm.ExceptionType != typeof(FlowStopException).Name)
+        {
+            _notificationService.Notify(NotificationSeverity.Warning, "Operation failed", "Please notify BlazorForms Support");
+            await _vm.SaveException();
+        }
+    }
+
+}

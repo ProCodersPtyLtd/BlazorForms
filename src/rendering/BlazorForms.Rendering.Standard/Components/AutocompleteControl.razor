@@ -1,0 +1,149 @@
+﻿@using MatBlazor
+@using BlazorForms.Rendering.State
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+
+@inject IDynamicFieldValidator FieldValidator
+
+@if (Field.DisplayProperties.Disabled)
+{
+    <FluentTextField
+        Value="@TextValue"
+        Disabled="@true"
+        Style="width: 100%;" />
+}
+else
+{
+    <div class="mat-autocomplete-list-wrapper">
+        <FluentTextField
+            Id="@MyId"
+            Value="@SearchText"
+            Disabled="@Field.DisplayProperties.Disabled"
+            Required="@Field.DisplayProperties.Required"
+            @oninput="@TextChanged"
+            @onfocus="@OpenPopup"
+            @onfocusout="@ClosePopup"
+            Style="width: 100%;" />
+        
+        @if (IsOpened)
+        {
+            <div class="mat-autocomplete-list-popup">
+                <MatList @ref="ListRef" SingleSelection="true">
+                    @foreach (string item in GetOptions())
+                    {
+                        var template = item.ToLower();
+                        var searchValue = TextValue == null ? "" : TextValue;
+                        if (template.Contains(searchValue.ToLower()))
+                        {
+                            <MatListItem OnMouseDown="@((e) => ValueChanged(@item))">
+                                @item
+                            </MatListItem>
+                        }
+                    }
+                </MatList>
+            </div>
+        }
+        <ValidatorControl Validations="@AllValidations"></ValidatorControl>
+    </div>
+}
+
+
+@code {
+    [CascadingParameter]
+    public IFormViewModel ViewModel { get; set; }
+
+    [Parameter]
+    public int RowIndex { get; set; }
+
+    [Parameter]
+    public FieldControlDetails Field { get; set; }
+    [Parameter]
+    public string Caption { get; set; }
+    [Parameter]
+    public string Name { get; set; }
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    [Parameter]
+    public string TextValue { get; set; }
+
+    [Parameter]
+    public string ItemsBinding { get; set; }
+    [Parameter]
+    public string NameBinding { get; set; }
+
+    [Parameter]
+    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    [Parameter]
+    public bool Password { get; set; }
+
+    public MatList ListRef;
+
+    private bool IsOpened;
+    private string SearchText;
+
+    private string MyId
+    {
+        get
+        {
+            return $"{Field.Group}-{Field.Name}-{Field.Caption}-{RowIndex}";
+        }
+    }
+
+    private IEnumerable<string> GetOptions()
+    {
+        var options = ViewModel.ModelNaviGetItems(ItemsBinding).Select(item => ViewModel.PathNavi.GetValue(item, NameBinding) as string);
+        return options;
+    }
+
+    private RuleExecutionResult _localValidation;
+    private IEnumerable<RuleExecutionResult> AllValidations { get { return FieldValidator.PrepareValidations(Validations, _localValidation); } }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        SearchText = TextValue;   
+    }
+
+    void OpenPopup()
+    {
+        IsOpened = true;
+        StateHasChanged();
+    }
+
+    void ClosePopup()
+    {
+        IsOpened = false;
+        StateHasChanged();
+    }
+
+    void TextChanged(ChangeEventArgs ev)
+    {
+        //If text changed - clear binding value, as we choose it from dropdown list
+        //Only update searching list
+
+        var val = (string)ev.Value;
+        if (TextValue == val)
+        {
+            return;
+        }
+
+        TextValue = val;
+        if (TextValue == "")
+        {
+            _localValidation = FieldValidator.Validate(Field, val);
+            ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = TextValue, RowIndex = RowIndex });
+        }
+        StateHasChanged();
+    }
+
+    void ValueChanged(string val)
+    {
+        SearchText = val;
+
+        _localValidation = FieldValidator.Validate(Field, val);
+        ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = val, RowIndex = RowIndex });
+        StateHasChanged();
+    }
+}

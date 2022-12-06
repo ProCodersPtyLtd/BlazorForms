@@ -1,0 +1,18 @@
+﻿@page "/inlineForm1"
+@using BlazorForms.Shared
+@using BlazorForms.Rendering.Interfaces
+
+@inherits InlineNavigationFormBase<BlazorFormsDemoModels.Models.NavigationModel1>
+
+<header>NavigationForm1</header>
+
+<p>
+    <label>Enter your name</label>
+    <input @bind="Model.UserName" />
+    <br />
+    <button @onclick="@(async () => await ActionButtonClick(ModelBinding.RejectButtonBinding))">Cancel</button>
+    <button @onclick="@(async () => await ActionButtonClick(ModelBinding.SubmitButtonBinding))">Ok</button>
+</p>
+
+@code {
+}

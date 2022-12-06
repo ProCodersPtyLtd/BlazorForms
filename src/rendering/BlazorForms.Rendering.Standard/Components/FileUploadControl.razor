@@ -1,0 +1,74 @@
+﻿@using BlazorForms.Rendering.State
+@using MatBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+@using System
+@using System.IO
+
+@inject IDynamicFieldValidator FieldValidator
+
+<MatFileUpload Id="@MyId" OnChange="@OnFileLoad" Label="Drop file here or Browse" Style="width: 100%;"></MatFileUpload>
+<p>@FileName</p>
+
+<ValidatorControl Validations="@AllValidations"></ValidatorControl>
+
+@code {
+    [Parameter]
+    public int RowIndex { get; set; }
+
+    [Parameter]
+    public FieldControlDetails Field { get; set; }
+
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    [Parameter]
+    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    private string FileName { get; set; }
+
+    private byte[] File { get; set; }
+
+    private string MyId
+    {
+        get
+        {
+            return $"{Field.Group}-{Field.Name}-{Field.Caption}-{RowIndex}";
+        }
+    }
+
+    private RuleExecutionResult _localValidation;
+    private IEnumerable<RuleExecutionResult> AllValidations {  get { return FieldValidator.PrepareValidations(Validations, _localValidation); } }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    private async Task OnFileLoad(IMatFileUploadEntry[] files)
+    {
+        try
+        {
+            var file = files.FirstOrDefault();
+            if (file == null)
+            {
+                return;
+            }
+
+            using (var stream = new MemoryStream())
+            {
+                await file.WriteToStreamAsync(stream);
+
+                FileName = file.Name;
+                File = stream.ToArray();
+
+                ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = File, RowIndex = RowIndex });
+            }
+        }
+
+        catch (Exception e)
+        {
+            FileName = $"Error:\r\n{e.Message}\r\n{e.StackTrace}";
+        }
+    }
+}

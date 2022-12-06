@@ -1,0 +1,30 @@
+﻿@using BlazorForms.Rendering.State
+@using MatBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using Microsoft.AspNetCore.Components.Web
+
+@inherits FieldControl
+
+@RenderLabel
+
+<RadzenTextBox
+    Value="@TextValue"
+    Disabled="@Field.DisplayProperties.Disabled"
+    Change="StringValueChanged"
+    class="w-100" />
+
+@RenderValidation
+
+@code {
+    
+    [Parameter]
+    public string TextValue { get; set; }
+
+    async Task StringValueChanged(string value)
+    {
+        TextValue = value;
+        await ObjectValueChanged(value);
+    }
+    
+}

@@ -1,0 +1,29 @@
+﻿@page "/inlineNavigationStart"
+@using BlazorForms.Rendering
+@using BlazorForms.Rendering.Interfaces
+@using BlazorForms.Shared
+@using BlazorFormsDemoWasmNew.Client.Flows
+
+@inherits InlineNavigationFormBase<BlazorFormsDemoModels.Models.NavigationModel1>
+
+@code {
+    //public readonly string FlowName = typeof(InlineNavigationFlow1).FullName;
+    public readonly string FlowName = typeof(InlineNavigationFlow2).FullName;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // We load form once, and every time when parameters changed
+        await Load();
+        await base.OnParametersSetAsync();
+    }
+
+    private async Task Load()
+    {
+        //FlowEngine.FormSettings.AllowAnonymousAccess = true;
+        //FlowEngine.FormSettings.AllowFlowStorage = false;
+
+        await FlowEngine.InitiateFlow(FlowName, null, null);
+
+        NavigateToForm();
+    }
+}

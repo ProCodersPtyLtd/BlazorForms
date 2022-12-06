@@ -1,0 +1,39 @@
+﻿@using BlazorForms.Rendering.State
+@using MatBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+
+<MatCheckbox Value="@(Value == true)" Disabled="@Field.DisplayProperties.Disabled" TValue="bool" ValueChanged="@(args => ValueChanged(args))"></MatCheckbox>
+<ValidatorControl Validations="@Validations"></ValidatorControl>
+
+@code {
+    [Parameter]
+    public int RowIndex { get; set; }
+
+    [Parameter]
+    public FieldControlDetails Field { get; set; }
+    [Parameter]
+    public string Caption { get; set; }
+    [Parameter]
+    public string Name { get; set; }
+    //[Parameter]
+    //public string ModelBinding { get; set; }
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    [Parameter]
+    public bool? Value { get; set; }
+
+    [Parameter]
+    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    void ValueChanged(bool? val)
+    {
+        Value = val;
+        ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = Value, RowIndex = RowIndex });
+    }
+}

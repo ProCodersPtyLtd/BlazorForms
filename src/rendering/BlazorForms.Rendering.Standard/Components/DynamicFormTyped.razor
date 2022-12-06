@@ -1,0 +1,26 @@
+﻿@using MatBlazor
+@using BlazorForms.Rendering.State
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.FlowRules
+@using BlazorForms.Platform
+@using BlazorForms.Shared
+@using BlazorForms.Rendering.Interfaces
+@using BlazorForms.Forms
+@using System.Diagnostics.CodeAnalysis
+@using System.Linq.Expressions
+
+@inherits DynamicForm
+@typeparam TItem
+
+@inject IFormViewModel _vm
+
+@code {
+    protected FieldControlDetails GetField<TProperty>([NotNullAttribute] Expression<Func<TItem, TProperty>> propertyExpression)
+    {
+        var bindingProperty = propertyExpression.Body.ToString().ReplaceLambdaVar();
+
+        // ToDo: only one default group supported for POC
+        var field = _vm.FieldsGrouped.First().First(f => f.Binding.Binding == bindingProperty);
+        return field;
+    } 
+}

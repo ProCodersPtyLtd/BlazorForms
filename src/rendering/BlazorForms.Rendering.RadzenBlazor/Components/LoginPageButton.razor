@@ -1,0 +1,15 @@
+﻿<RadzenButton ButtonStyle="ButtonStyle.Primary" Click="@LoginPageOnclick">@name</RadzenButton>
+
+@inject NavigationManager NavigationManager
+
+@code {
+
+    [Parameter]
+    public string name { get; set; }
+
+    private async Task LoginPageOnclick()
+    {
+        var url = "/";
+        NavigationManager.NavigateTo(url, forceLoad: true);
+    }
+}

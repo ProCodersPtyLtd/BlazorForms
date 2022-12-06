@@ -1,0 +1,36 @@
+﻿{
+  "$schema": "http://json-schema.org/schema#",
+  "name": "Test1",
+  "title": "Fact schema",
+  "type": "object",
+  "tags": [ "p1", "p2" ],
+  "definitions": {
+
+    "basicAddress": {
+      "type": "object",
+      "comment": "This is an address",
+      "properties": {
+        "BasicAddressId": {
+          "type": "int",
+          "primaryKey": "true"
+        },
+        "City": {
+          "type": "string",
+          "comment": "This is a city"
+        },
+        "State": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 2
+        },
+        "Street": {
+          "type": "string"
+        },
+        "ZipCode": {
+          "type": "string"
+        }
+      }
+    }
+
+  }
+}

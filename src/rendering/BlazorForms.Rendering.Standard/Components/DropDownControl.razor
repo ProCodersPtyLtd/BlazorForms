@@ -1,0 +1,92 @@
+﻿@using BlazorForms.Rendering.State
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+
+@inject IDynamicFieldValidator FieldValidator
+
+@if (Field.DisplayProperties.Disabled)
+{
+    var value = !string.IsNullOrWhiteSpace(TextValue) ? _items.FirstOrDefault(x => x.Key == TextValue)?.Value : null;
+
+    <FluentTextField
+        Value="@value"
+        Disabled="@true"
+        Style="width: 100%;" />
+}
+else
+{
+    <FluentSelect
+        TValue="string"
+        Value="@TextValue"
+        ValueChanged="@(args => ValueChanged(args))"
+        Style="width: 100%;"
+        Items="@_items"
+    />
+}
+<ValidatorControl Validations="@AllValidations"></ValidatorControl>
+
+@code {
+    [CascadingParameter]
+    public IFormViewModel ViewModel { get; set; }
+
+    [Parameter]
+    public int RowIndex { get; set; }
+
+    [Parameter]
+    public FieldControlDetails Field { get; set; }
+    [Parameter]
+    public string Caption { get; set; }
+    [Parameter]
+    public string Name { get; set; }
+    [Parameter]
+    public string ModelBinding { get; set; }
+    [Parameter]
+    public string ItemsBinding { get; set; }
+    [Parameter]
+    public string IdBinding { get; set; }
+    [Parameter]
+    public string NameBinding { get; set; }
+
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    [Parameter]
+    public string TextValue { get; set; }
+
+    [Parameter]
+    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    private IEnumerable<RuleExecutionResult> AllValidations
+    {
+        get
+        {
+            return FieldValidator.PrepareValidations(Validations, _localValidation);
+
+        }
+    }
+
+    private RuleExecutionResult _localValidation;
+    private IEnumerable<Option<string>> _items;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var items = ViewModel.ModelNaviGetItems(ItemsBinding);
+        _items = items.Select(i => new Option<string>
+        {
+            Key = ViewModel.PathNavi.GetValue(i, IdBinding).ToString(),
+            Value = ViewModel.PathNavi.GetValue(i, NameBinding).ToString()
+        }).ToArray();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+    }
+
+    void ValueChanged(string val)
+    {
+        TextValue = val;
+        _localValidation = FieldValidator.Validate(Field, val);
+        ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = TextValue, RowIndex = RowIndex });
+    }
+}

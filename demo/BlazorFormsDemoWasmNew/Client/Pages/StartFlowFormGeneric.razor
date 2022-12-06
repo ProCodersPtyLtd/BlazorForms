@@ -1,0 +1,17 @@
+﻿@page "/start-flow-form-generic/{flowName}/{Pk}"
+@using BlazorForms.Rendering.MaterialBlazor.Components
+
+<PcAuthorizeView>
+        <DynamicFormSilent FlowName="@FlowName" Pk="@Pk" IsDefaultReadonlyView="false" NavigationSuccess="/" />
+</PcAuthorizeView>
+
+@code {
+    [Parameter]
+    public string FlowName { get; set; }
+
+    [Parameter]
+    public string Pk { get; set; }
+
+}
+
+

@@ -1,0 +1,27 @@
+﻿@page "/list"
+@using BlazorForms.Rendering.Interfaces
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.Rendering.State
+
+@inject IDialogFormViewModel DialogVM
+@inject DialogService _dialogService
+
+<DynamicListForm FlowType="BlazorFormsDemoFlows.Flows.SampleListFlow" ShowFilters="true" ShowSorting="true" />
+
+<RadzenButton Click="OpenDialogClick" Text="Open Dialog" />
+
+@code {
+    private async Task OpenDialogClick()
+    {
+        // TODO YB Check the record created in SampleListFlow.ViewDataCallbackTask
+        await DialogVM.LoadDialog("BlazorFormsDemoFlows.Flows.SampleSilentFlow",
+                new FlowParamsGeneric { ItemId = "0", Operation = BlazorForms.Shared.FlowReferenceOperation.New });
+        var result = (FormSubmittedArgs)await _dialogService.OpenAsync<DynamicDialogForm>(DialogVM.FormData.DisplayName, new Dictionary<string, object>
+        {
+            {nameof(DynamicDialogForm.DialogViewModel), DialogVM}
+        });
+        if (result is null)
+            return;
+        StateHasChanged();
+    }
+}

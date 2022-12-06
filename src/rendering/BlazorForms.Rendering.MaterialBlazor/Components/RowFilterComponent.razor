@@ -1,0 +1,421 @@
+﻿@using BlazorForms.Flows.Definitions
+@using BlazorForms.Shared
+@using BlazorForms.Shared.Extensions
+@using BlazorForms.Shared.Reflection
+@using BlazorForms.Platform.Definitions.Shared
+@using BlazorForms.Rendering.State
+@using MatBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+@using System.Globalization
+
+@inject IJsonPathNavigator PathNavi
+@inject IClientDateService ClientDateService
+
+<style>
+
+    .date-filter-width {
+        min-width: 108px;
+        max-width: max-content;
+    }
+
+    .decimal-filter-width {
+        min-width: 60px;
+        max-width: auto;
+    }
+
+    .text-filter-width {
+        min-width: 90px;
+        max-width: auto;
+    }
+
+    .tooltip {
+        border-bottom: 1px dotted #0077AA;
+        cursor: help;
+    }
+
+        .tooltip::after {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 8px 8px 8px 0px;
+            box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.5);
+            color: #FFF;
+            content: attr(data-tooltip);
+            opacity: 0;
+            position: absolute;
+            visibility: hidden;
+            transition: all 0.4s ease-in-out;
+            z-index: 10;
+            word-wrap: normal;
+        }
+
+        .tooltip:not([data-tooltip=""]):not([data-tooltip=null]):hover:after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+</style>
+
+<MatSortHeaderRow>
+    @foreach (var col in ViewModel.VisibleColumns)
+    {
+        @*@if (col?.ControlType == "Table" ||
+       col?.DisplayProperties == null ||
+       col?.DisplayProperties?.Visible == false)
+        {
+            continue;
+        }*@
+        <MatSortHeader>
+            @if (col?.DisplayProperties.FilterType == FieldFilterType.Select)
+            {
+                var selectField = GetSelectField(col);
+
+                <MatSelect Value="@GetFilterValue(col)" TValue="string" ValueChanged="@(arg => FilterValueChanged(col, arg))" Style="width: 100%;">
+                    <MatOptionString> </MatOptionString>
+                    @foreach (var country in PathNavi.GetItems(ViewModel.Model, selectField.Binding.ItemsBinding))
+                    {
+                        <MatOption Value=@PathNavi.GetValue(country, selectField.Binding.IdBinding).AsString()>@PathNavi.GetValue(country, selectField.Binding.NameBinding)</MatOption>
+                    }
+                </MatSelect>
+            }
+            else if (col?.DisplayProperties.FilterType == FieldFilterType.MultiSelect)
+            {
+                var selectField = GetSelectField(col);
+                <div class="MultiSelectEditorContainer" style="margin-left: 15px">
+
+                    <MatButton Outlined="true" OnClick="@Open" RefBack="@buttonForwardRef" Dense="true" TrailingIcon="filter_list" Label="@buttonLabel" />
+
+                    <MatMenu @ref="Menu" TargetForwardRef="@buttonForwardRef">
+                        <div class="MultiSelectMenuContent">
+                            @{
+                                foreach (var country in PathNavi.GetItems(ViewModel.Model, selectField.Binding.ItemsBinding))
+                                {
+                                    string Item = @PathNavi.GetValue(country, selectField.Binding.NameBinding).AsString();
+                                    bool IsChecked = GetIsChecked(Item);
+                                    <div class="CheckBoxContainer">
+                                        <MatCheckbox Value="@IsChecked" TValue="bool" ValueChanged="@((value) => CheckedChanged(Item, col))" Label="@Item"></MatCheckbox>
+                                    </div>
+                                }
+                            }
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-sm" style="text-align:left">
+                                        <MatButton Outlined="true" OnClick="@Close" Dense="true" TrailingIcon="check" Label="Confirm" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </MatMenu>
+                </div>
+            }
+            else if (col?.DisplayProperties.FilterType == FieldFilterType.DateExpressionFromDate)
+            {
+                <span class="tooltip" data-tooltip="@GetDateTimeToolTip(@GetDateFilterValue(col))">
+                    <MatDatePicker Class="date-filter-width" Label="From" Value="@GetDateFilterValue(col)" TValue="DateTime?" ValueChanged="@(arg => DateFilterValueChanged(col, arg))"></MatDatePicker>
+                </span>
+
+            }
+            else if (col?.DisplayProperties.FilterType == FieldFilterType.DateExpressionToDate)
+            {
+                <span class="tooltip" data-tooltip="@GetDateTimeToolTip(@GetDateFilterValue(col))">
+                    <MatDatePicker Class="date-filter-width" Label="To" Value="@GetDateFilterValue(col)" TValue="DateTime?" ValueChanged="@(arg => DateFilterValueChanged(col, arg))"></MatDatePicker>
+                </span>
+            }
+            else if (col?.DisplayProperties.FilterType == FieldFilterType.DateExpressionEqual)
+            {
+                <span class="tooltip" data-tooltip="@GetDateTimeToolTip(@GetDateFilterValue(col))">
+                    <MatDatePicker Class="date-filter-width" Label="Equal" Value="@GetDateFilterValue(col)" TValue="DateTime?" ValueChanged="@(arg => DateFilterValueChanged(col, arg))"></MatDatePicker>
+                </span>
+            }
+            else if (col?.DisplayProperties.FilterType == FieldFilterType.DateExpressionRange)
+            {
+                <div class="FirstDate">
+                    <span class="tooltip" data-tooltip="@GetDateTimeToolTip(GetFirstDateFilterValue(col))">
+                        <MatDatePicker Class="date-filter-width" Label="From" Value="@GetFirstDateFilterValue(col)" TValue="DateTime?"
+                               ValueChanged="@(arg => DateRangeFirstFilterValueChanged(col, arg))"> 
+                        </MatDatePicker>
+                    </span>
+
+                    <span class="tooltip" data-tooltip="@GetDateTimeToolTip(@GetSecondDateFilterValue(col))">
+                        <MatDatePicker Class="date-filter-width" style="margin-top: 10px;" Label="To" Value="@GetSecondDateFilterValue(col)" TValue="DateTime?"
+                               ValueChanged="@(arg => DateRangeSecondFilterValueChanged(col, arg))">
+                        </MatDatePicker>
+                    </span>
+                </div>
+            }
+            else if (col?.DisplayProperties.FilterType == FieldFilterType.DecimalEqual)
+            {
+                <MatTextField Class="decimal-filter-width" Value="@GetDecimalFilterValue(col)" Label="Equal" Icon="filter_list"
+                      TValue="decimal?" ValueChanged="@(async (a) => await DecimalFilterValueChanged(col, a))" Outlined="true"></MatTextField>
+            }
+            else if (col?.DisplayProperties.FilterType == FieldFilterType.DecimalLessThan)
+            {
+                <MatTextField Class="decimal-filter-width" Value="@GetDecimalFilterValue(col)" Label="Less" Icon="filter_list"
+                      TValue="decimal?" ValueChanged="@(async (a) => await DecimalFilterValueChanged(col, a))" Outlined="true"></MatTextField>
+            }
+            else if (col?.DisplayProperties.FilterType == FieldFilterType.DecimalGreaterThan)
+            {
+                <MatTextField Class="decimal-filter-width" Value="@GetDecimalFilterValue(col)" Label="Greater" Icon="filter_list"
+                      TValue="decimal?" ValueChanged="@(async (a) => await DecimalFilterValueChanged(col, a))" Outlined="true"></MatTextField>
+            }
+            else if (col?.DisplayProperties.FilterType == FieldFilterType.DecimalRange)
+            {
+                <div class="FirstDate">
+
+                    <MatTextField Class="decimal-filter-width" Label="Greater" Value="@GetFirstDecimalFilterValue(col)" TValue="decimal?"
+                          ValueChanged="@(arg => DecimalRangeFirstFilterValueChanged(col, arg))">
+                    </MatTextField>
+
+                    <MatTextField Class="decimal-filter-width" style="margin-top: 10px;" Label="Less" Value="@GetSecondDecimalFilterValue(col)" TValue="decimal?"
+                          ValueChanged="@(arg => DecimalRangeSecondFilterValueChanged(col, arg))">
+                    </MatTextField>
+
+                </div>
+            }
+            else
+            {
+                <span class="tooltip" data-tooltip="@GetFilterValue(col)">
+                <MatTextField Class="text-filter-width" Value="@GetFilterValue(col)" Label="@col?.DisplayProperties?.Caption" Icon="filter_list"
+                      TValue="string" ValueChanged="@(async (a) => await FilterValueChanged(col, a))" Outlined="true"></MatTextField>
+                      </span>
+            }
+        </MatSortHeader>
+    }
+    @if (ViewModel.ContextMenuActions != null)
+    {
+        <th></th>
+    }
+
+</MatSortHeaderRow>
+
+@code {
+    [CascadingParameter]
+    public IListFormViewModel ViewModel { get; set; }
+
+    [Parameter]
+    public string FlowType { get; set; }
+    [Parameter]
+    public FlowParamsGeneric FlowParams { get; set; }
+    //[Parameter]
+    //public DynamicListFormController Controller { get; set; }
+    [Parameter]
+    public string PK { get; set; }
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    private List<string> SelectedItems { get; set; } = new List<string> { };
+
+    private string buttonLabel = "";
+    private string StringSelectedItems;
+    private string CurrentSelection;
+    private bool check = false;
+    private DateTime? DateValue { get; set; }
+
+    ForwardRef buttonForwardRef = new ForwardRef();
+    BaseMatMenu Menu;
+
+    private DateTime? GetDateFilterValue(FieldControlDetails col)
+    {
+        var field = col as FieldControlDetails;
+        return ViewModel.GetDateFilter(field);
+    }
+
+    private DateTime? GetFirstDateFilterValue(FieldControlDetails col)
+    {
+        var field = col as FieldControlDetails;
+        return ViewModel.GetDateFilter(field, FieldFilterPositionType.FirstControl);
+    }
+
+    private DateTime? GetSecondDateFilterValue(FieldControlDetails col)
+    {
+        var field = col as FieldControlDetails;
+        return ViewModel.GetDateFilter(field, FieldFilterPositionType.SecondControl);
+    }
+
+    private decimal? GetDecimalFilterValue(FieldControlDetails col)
+    {
+        var field = col as FieldControlDetails;
+        return ViewModel.GetDecimalFilter(field);
+    }
+
+    private decimal? GetFirstDecimalFilterValue(FieldControlDetails col)
+    {
+        var field = col as FieldControlDetails;
+        return ViewModel.GetDecimalFilter(field, FieldFilterPositionType.FirstControl);
+    }
+
+    private decimal? GetSecondDecimalFilterValue(FieldControlDetails col)
+    {
+        var field = col as FieldControlDetails;
+        return ViewModel.GetDecimalFilter(field, FieldFilterPositionType.SecondControl);
+    }
+
+    private string GetFilterValue(FieldControlDetails col)
+    {
+        var field = col as FieldControlDetails;
+        return ViewModel.GetFilter(field);
+    }
+
+    private async Task DateRangeFirstFilterValueChanged(FieldControlDetails col, DateTime? value)
+    {
+        await DateRangeFilterValueChanged(col, value, FieldFilterPositionType.FirstControl);
+    }
+
+    private async Task DateRangeSecondFilterValueChanged(FieldControlDetails col, DateTime? value)
+    {
+        await DateRangeFilterValueChanged(col, value, FieldFilterPositionType.SecondControl);
+    }
+
+    private async Task DateRangeFilterValueChanged(FieldControlDetails col, DateTime? value, FieldFilterPositionType position)
+    {
+        var field = col as FieldControlDetails;
+        value = await ClientDateService.GetLocalDateTime(value);
+        if(value.HasValue)
+        {
+            ViewModel.SetFilterValue(field, value.Value.ToString(PlatformConstants.BaseDateFormat), position);            
+        }
+        else
+        {            
+            ViewModel.SetFilterValue(field, null, position);
+        }        
+        ViewModel.QueryOptions.AllowFiltering = true;
+        await ViewModel.LoadListForm(FlowType, PK, FlowParams);
+        await ModelValueChanged.InvokeAsync(new ValueChangedArgs { });
+    }
+
+    private async Task DecimalRangeFirstFilterValueChanged(FieldControlDetails col, decimal? value)
+    {
+        await DecimalRangeFilterValueChanged(col, value, FieldFilterPositionType.FirstControl);
+    }
+    private async Task DecimalRangeSecondFilterValueChanged(FieldControlDetails col, decimal? value)
+    {
+        await DecimalRangeFilterValueChanged(col, value, FieldFilterPositionType.SecondControl);
+    }
+
+    private async Task DecimalRangeFilterValueChanged(FieldControlDetails col, decimal? value, FieldFilterPositionType position)
+    {
+        var field = col as FieldControlDetails;
+        ViewModel.SetFilterValue(field, value.AsString(), position);
+        ViewModel.QueryOptions.AllowFiltering = true;
+        await ViewModel.LoadListForm(FlowType, PK, FlowParams);
+        await ModelValueChanged.InvokeAsync(new ValueChangedArgs { });
+    }
+
+    private async Task FilterValueChanged(FieldControlDetails col, string value)
+    {
+        var field = col as FieldControlDetails;
+        ViewModel.SetFilterValue(field, value);
+        ViewModel.QueryOptions.AllowFiltering = true;
+        await ViewModel.LoadListForm(FlowType, PK, FlowParams);
+        await ModelValueChanged.InvokeAsync(new ValueChangedArgs { });
+    }
+
+    private async Task DateFilterValueChanged(FieldControlDetails col, DateTime? value)
+    {
+        var field = col as FieldControlDetails;
+        value = await ClientDateService.GetLocalDateTime(value);
+        if(value.HasValue)
+        {
+            ViewModel.SetFilterValue(field, value.Value.ToString(PlatformConstants.BaseDateFormat));
+        }
+        else
+        {            
+            ViewModel.SetFilterValue(field, null);
+        }
+        ViewModel.QueryOptions.AllowFiltering = true;
+        await ViewModel.LoadListForm(FlowType, PK, FlowParams);
+        await ModelValueChanged.InvokeAsync(new ValueChangedArgs { });
+    }
+
+    private async Task DecimalFilterValueChanged(FieldControlDetails col, decimal? value)
+    {
+        var field = col as FieldControlDetails;
+        ViewModel.SetFilterValue(field, value.AsString());
+        ViewModel.QueryOptions.AllowFiltering = true;
+        await ViewModel.LoadListForm(FlowType, PK, FlowParams);
+        await ModelValueChanged.InvokeAsync(new ValueChangedArgs { });
+    }
+
+    private FieldControlDetails GetSelectField(FieldControlDetails field)
+    {
+        var result = ViewModel.Columns.FirstOrDefault(f => f.Name == field.DisplayProperties.FilterRefField);
+        return result;
+    }
+
+    private async Task Open(MouseEventArgs e)
+    {
+        await this.Menu.OpenAsync();
+    }
+
+    private async Task Close(MouseEventArgs e)
+    {
+        await this.Menu.CloseAsync();
+    }
+
+    private void GetButtonLabel()
+    {
+        if (SelectedItems.Count() == 0)
+        {
+            buttonLabel = "All";
+        }
+        else if (SelectedItems.Count() == 1)
+        {
+            buttonLabel = @CurrentSelection;
+        }
+        else
+        {
+            buttonLabel = "Many";
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        StringSelectedItems = String.Join("; ", SelectedItems);
+        CurrentSelection = StringSelectedItems;
+        GetButtonLabel();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        DateValue = await ClientDateService.GetLocalDateTime(DateValue);
+    }
+
+    private bool GetIsChecked(string Item)
+    {
+        var IsChecked = true;
+
+        IsChecked = !string.IsNullOrWhiteSpace(SelectedItems.Where(I => I == Item).FirstOrDefault());
+
+        return IsChecked;
+    }
+
+    private async void CheckedChanged(string item, FieldControlDetails col)
+    {
+
+        if (!SelectedItems.Contains(item))
+        {
+            SelectedItems.Add(item);
+        }
+        else
+        {
+            SelectedItems.Remove(item);
+        }
+
+        CurrentSelection = String.Join("; ", SelectedItems);
+        await FilterValueChanged(col, CurrentSelection);
+        GetButtonLabel();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private string GetDateTimeToolTip(DateTime? dateToHint)
+    {
+        if (dateToHint.HasValue)
+        {
+            return dateToHint.Value.ToShortDateString();
+        }
+        else
+        {
+            return "";
+        }
+    }
+}

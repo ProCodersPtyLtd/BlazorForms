@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Nuspec\contentFiles\any\any\BlazorForms.Example.Link\**" />
+    <EmbeddedResource Remove="Nuspec\contentFiles\any\any\BlazorForms.Example.Link\**" />
+    <None Remove="Nuspec\contentFiles\any\any\BlazorForms.Example.Link\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MatBlazor" Version="2.8.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\flows\BlazorForms.Flows.Definitions\BlazorForms.Flows.Definitions.csproj" />
+    <ProjectReference Include="..\..\forms\BlazorForms.Forms.Definitions\BlazorForms.Forms.Definitions.csproj" />
+    <ProjectReference Include="..\..\rendering\BlazorForms.Rendering\BlazorForms.Rendering.csproj" />
+    <ProjectReference Include="..\..\rules\BlazorForms.FlowRules.Definition\BlazorForms.FlowRules.Definition.csproj" />
+    <ProjectReference Include="..\..\shared\BlazorForms.Shared\BlazorForms.Shared.csproj" />
+    <ProjectReference Include="..\BlazorForms.Platform.Definitions\BlazorForms.Platform.Definitions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Nuspec\contentFiles\any\any\" />
+    <Folder Include="Nuspec\contentFiles\any\any\BlazorForms.Example.Link\" />
+  </ItemGroup>
+
+</Project>

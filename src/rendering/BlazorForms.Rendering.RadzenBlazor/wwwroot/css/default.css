@@ -1,0 +1,69 @@
+﻿.pz-field-percent {
+    background-color: white;
+}
+
+.pz-field-percent .pz-field-percent-icon {
+    position: relative;
+    opacity: 50%;
+    height: 0;
+    overflow-y: visible;
+    text-align: right;
+    top: 0.1rem;
+    right: 1.3rem;
+}
+
+.pz-field-percent .pz-field-percent-input {
+    position: relative;
+}
+
+.pz-field-percent .pz-field-percent-input span {
+    background-color: transparent;
+}
+
+.pz-field-percent .pz-field-percent-input input[type='text'] {
+    padding-right: 3rem !important;
+    text-align: right;
+}
+
+.pz-field-money {
+    background-color: white;
+}
+
+.pz-field-money .pz-field-money-icon {
+    position: relative;
+    opacity: 50%;
+    top: 0.35rem;
+    left: 0.3rem;
+    height: 0;
+    overflow-y: visible;
+}
+
+.pz-field-money .pz-field-money-currency {
+    position: relative;
+    opacity: 50%;
+    font-size: 0.875em;
+    font-weight: bold;
+    top: 0.35rem;
+    line-height: 1.5rem;
+    left: 2rem;
+    height: 0;
+    overflow-y: visible;
+}
+
+.pz-field-money .pz-field-money-input span {
+    background-color: transparent;
+}
+
+.pz-field-money .pz-field-money-input input[type='text'] {
+    padding-left: 4rem !important;
+    text-align: right;
+}
+
+.pz-field-money i {
+    position: relative;
+}
+
+.pz-field-form-group-content {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}

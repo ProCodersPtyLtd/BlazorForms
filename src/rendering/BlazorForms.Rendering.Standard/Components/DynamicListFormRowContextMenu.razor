@@ -1,0 +1,41 @@
+﻿@using MatBlazor
+@using BlazorForms.Rendering.Types
+
+<td>
+    @{
+        var nextMenuId = MatBlazorRow.Id;
+    }
+    <MatIconButton Icon="more_horiz" OnClick="@ContextMenuClick" @ref="_contextButton">
+        @*<i class="fa fa-github" aria-hidden="true"></i>*@
+    </MatIconButton>
+    <MatMenu @ref="@_contextMenu">
+        @foreach (var action in Actions)
+        {
+            <MatList>
+                <MatListItem OnClick="@(() => OnContextMenuItemClick.InvokeAsync(new DynamicListFormRowContextMenuItemClickArgs { Pk = Pk, Action = action}))">@action</MatListItem>
+            </MatList>
+        }
+    </MatMenu>
+</td>
+
+@code {
+    [CascadingParameter]
+    TableRow MatBlazorRow { get; set; }
+
+    [Parameter]
+    public List<string> Actions { get; set; }
+
+    [Parameter]
+    public string Pk { get; set; }
+
+    [Parameter]
+    public EventCallback<DynamicListFormRowContextMenuItemClickArgs> OnContextMenuItemClick { get; set; }
+
+    private BaseMatIconButton _contextButton;
+    private BaseMatMenu _contextMenu;
+
+    private void ContextMenuClick()
+    {
+        _contextMenu.OpenAsync(_contextButton.Ref);
+    }
+}

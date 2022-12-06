@@ -1,0 +1,72 @@
+﻿@page "/demoCustomFormTyped"
+@inherits DynamicFormTyped<BlazorForms.Platform.Crm.Artel.ArtelProjectSettingsModel>
+
+@using BlazorForms.Forms
+@using BlazorForms.Rendering.Interfaces
+@using BlazorForms.Rendering.State
+@using BlazorForms.Flows.Definitions
+
+@inject IFormViewModel _vm
+
+<style>
+    .pz-grid-align {
+        align-items: center;
+    }
+
+    .pz-clean-margin {
+        margin: 0px;
+    }
+
+    .pz-group-grid {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+</style>
+
+<PageTitle>Demo Custom Form</PageTitle>
+
+<CascadingValue Value="@_vm">
+    
+    <header>@_vm.FormData.DisplayName</header>
+
+    <div class="mat-layout-grid" @onkeydown="@KeyPress" style="padding:0">
+        <div class="mat-layout-grid-inner pz-grid-align" style="justify-items:center">
+
+            @{
+                var f = GetField(p => p.Project.Name);
+            }
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12 mat-subtitle2">
+                @f.DisplayProperties.Caption
+            </div>
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                <SimpleControl ModelChanged="@ModelChanged" ModelBinding="" Field="@f" /> 
+            </div>
+
+            @{
+                f = GetField(p => p.Project.BaseCurrencySearch);
+            }
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12 mat-subtitle2">
+                @f.DisplayProperties.Caption
+            </div>
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                <SimpleControl ModelChanged="@ModelChanged" ModelBinding="" Field="@f" />
+            </div>
+
+            @{
+                f = GetField(p => p.Project.PaymentFrequencyCode);
+            }
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12 mat-subtitle2">
+                @f.DisplayProperties.Caption
+            </div>
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                <SimpleControl ModelChanged="@ModelChanged" ModelBinding="" Field="@f" />
+            </div>
+
+        </div>
+    </div>
+</CascadingValue>
+
+
+@code {
+    public override string FlowName { get; set; } = typeof(BlazorFormsDemoFlows.FluentArtelProjectSettingsFlow).FullName;
+}

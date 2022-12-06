@@ -1,0 +1,58 @@
+﻿@using MatBlazor
+@using BlazorForms.Rendering.State
+@using BlazorForms.Rendering.Interfaces
+
+@if (Controller.ModelUntyped == null)
+{
+    <MatHeadline6>No Model Found</MatHeadline6>
+}
+else
+{
+    <!-- FormContent -->
+    <div id="pz-form" class="mat-layout-grid" style="padding:0">
+        <div class="mat-layout-grid-inner">
+            @foreach (var group in Controller.FieldsGrouped)
+            {
+                <div id="pz-group-@group.Key" class="mat-layout-grid-cell mat-layout-grid-cell-span-@CellSpan">
+                    <FormGroupContent Group="@group" ModelValueChanged="@ModelChanged" />
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+
+    [CascadingParameter]
+    public IFormViewModel Controller { get; set; } // TODO rename to ViewModel everywhere
+
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    async Task ModelChanged(ValueChangedArgs args)
+    {
+        if (args.Operation != ModelChangedOperation.Default)
+        {
+            StateHasChanged();
+            if (args.Operation == ModelChangedOperation.Refresh)
+            {               
+                return;
+            }
+            else if (args.Operation == ModelChangedOperation.SubmitAndRefresh)
+            {               
+                await ModelValueChanged.InvokeAsync(args);
+            }
+        }
+    }
+
+    private int CellSpan
+    {
+        get {
+            switch (Controller.FieldsGrouped.Count())
+            {
+                case 1: return 12;
+                default: return 6;
+            }
+        }
+    }
+}

@@ -1,0 +1,42 @@
+﻿@using BlazorForms.Rendering.State
+@using MatBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Shared.DataStructures
+
+@inherits FieldControl
+
+@RenderLabel
+
+<div class="w-100 pz-field-percent">
+    <div class="pz-field-percent-icon">
+        <RadzenIcon Icon="%"/>
+    </div>
+    <div class="pz-field-percent-input">
+        <RadzenNumeric
+            TValue="decimal?"
+            Min="0"
+            Max="100"
+            Step="0.01"
+            Value="@PercentValue"
+            Disabled="@Field.DisplayProperties.Disabled"
+            ValueChanged="DecimalValueChanged"
+            class="w-100">
+        </RadzenNumeric>
+    </div>
+</div>
+
+@RenderValidation
+
+@code {
+
+    [Parameter]
+    public decimal? PercentValue { get; set; }
+
+    async Task DecimalValueChanged(decimal? value)
+    {
+        PercentValue = value;
+        await ObjectValueChanged(value);
+    }
+
+}

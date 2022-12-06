@@ -1,0 +1,69 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">BlazorFormsDemoRadzenApp</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="list">
+                <span class="oi oi-list" aria-hidden="true"></span> SampleListFlow
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="start-flow-form-generic/BlazorFormsDemoFlows.ArtelProjectSettingsFlow/0">
+                <span class="oi oi-plus" aria-hidden="true"></span> Project Settings
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="start-flow-form-generic/BlazorFormsDemoFlows.FluentArtelProjectSettingsFlow/0">
+                <span class="oi oi-plus" aria-hidden="true"></span> Fluent Project Settings
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="custom-start-flow-form/0">
+                <span class="oi oi-plus" aria-hidden="true"></span> Custom Flow Start
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="demoForm/false">
+                <span class="oi oi-plus" aria-hidden="true"></span> Demo Form
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="demoForm/true">
+                <span class="oi oi-plus" aria-hidden="true"></span> Demo Form Store
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="demoCustomForm">
+                <span class="oi oi-plus" aria-hidden="true"></span> Demo Custom Layout
+            </NavLink>
+        </div>
+         <div class="nav-item px-3">
+            <NavLink class="nav-link" href="demoCustomFormTyped">
+                <span class="oi oi-plus" aria-hidden="true"></span> Custom Layout Typed
+            </NavLink>
+        </div>
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

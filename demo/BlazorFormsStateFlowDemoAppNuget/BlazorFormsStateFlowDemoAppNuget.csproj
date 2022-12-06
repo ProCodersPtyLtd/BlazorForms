@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\BlazorFormsStateFlowDemoApp\BusinessObjects\DocumentApi.cs" Link="BusinessObjects\DocumentApi.cs" />
+    <Compile Include="..\BlazorFormsStateFlowDemoApp\BusinessObjects\DocumentFlow.cs" Link="BusinessObjects\DocumentFlow.cs" />
+    <Compile Include="..\BlazorFormsStateFlowDemoApp\BusinessObjects\DocumentFlowBase.cs" Link="BusinessObjects\DocumentFlowBase.cs" />
+    <Compile Include="..\BlazorFormsStateFlowDemoApp\BusinessObjects\DocumentModel.cs" Link="BusinessObjects\DocumentModel.cs" />
+    <Compile Include="..\BlazorFormsStateFlowDemoApp\BusinessObjects\DocumentViewModel.cs" Link="BusinessObjects\DocumentViewModel.cs" />
+    <Compile Include="..\BlazorFormsStateFlowDemoApp\BusinessObjects\ServiceCollectionExtensions.cs" Link="BusinessObjects\ServiceCollectionExtensions.cs" />
+    <Compile Include="..\BlazorFormsStateFlowDemoApp\BusinessObjects\WorkingDaysCustomTransitionTrigger.cs" Link="BusinessObjects\WorkingDaysCustomTransitionTrigger.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BlazorForms" Version="0.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="BusinessObjects\" />
+  </ItemGroup>
+
+</Project>

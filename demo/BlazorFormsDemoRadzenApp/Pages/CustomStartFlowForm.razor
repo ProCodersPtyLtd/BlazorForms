@@ -1,0 +1,40 @@
+﻿@page "/custom-start-flow-form/{EntityId}"
+
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.Platform
+
+@inject NavigationManager NavigationManager
+@inject IFlowRunProvider FlowRunProvider
+
+<PcAuthorizeView>
+    <DynamicForm FlowName="@_flowName" RefId="@_refId" IsDefaultReadonlyView="false" AllowAnonymousAccess="true" NavigationSuccess="/" 
+        AllowFlowStorage="false" />
+</PcAuthorizeView>
+
+@code {
+    [Parameter]
+    public string EntityId { get; set; }
+
+    private string _flowName { get; set; }
+    private string _refId { get; set; }
+    private bool _isInitialised { get; set; } = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _flowName = "BlazorFormsDemoFlows.FluentArtelProjectSettingsFlow";
+
+            var flowParams = new FlowParamsGeneric { ItemId = EntityId, Operation = BlazorForms.Shared.FlowReferenceOperation.Edit, 
+                ParentItemId = "1" };
+
+            var userDetailsFlow = await FlowRunProvider.ExecuteFlow(_flowName, null, flowParams);
+            _refId = userDetailsFlow.RefId;
+            _isInitialised = true;
+            StateHasChanged();
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+}
+
+

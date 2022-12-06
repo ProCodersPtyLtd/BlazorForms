@@ -1,0 +1,15 @@
+﻿<MatButton Raised="true" OnClick="@LoginPageOnclick">@name</MatButton>
+
+@inject NavigationManager NavigationManager
+
+@code {
+
+    [Parameter]
+    public string name { get; set; }
+
+    private async Task LoginPageOnclick()
+    {
+        var url = "/";
+        NavigationManager.NavigateTo(url, forceLoad: true);
+    }
+}

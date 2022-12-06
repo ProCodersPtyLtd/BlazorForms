@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="11.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\flows\BlazorForms.Flows.Definitions\BlazorForms.Flows.Definitions.csproj" />
+    <ProjectReference Include="..\..\proxy\BlazorForms.Proxyma\BlazorForms.Proxyma.csproj" />
+    <ProjectReference Include="..\..\rules\BlazorForms.FlowRules\BlazorForms.FlowRules.csproj" />
+    <ProjectReference Include="..\..\shared\BlazorForms.Shared\BlazorForms.Shared.csproj" />
+    <ProjectReference Include="..\BlazorForms.Platform.Definitions\BlazorForms.Platform.Definitions.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,69 @@
+﻿@using BlazorForms.Rendering.State
+@using MatBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+@using BlazorForms.Rendering.Model 
+
+@inject IDynamicFieldValidator FieldValidator
+
+    @RenderContent
+
+@code {
+    [Parameter]
+    // public RenderFragment<CustomComponentData> RenderContent { get; set; }
+    public RenderFragment RenderContent { get; set; }
+
+    //[Parameter]
+    //public int RowIndex { get; set; }
+
+    //[Parameter]
+    //public FieldControlDetails Field { get; set; }
+    //[Parameter]
+    //public string Caption { get; set; }
+    //[Parameter]
+    //public string Name { get; set; }
+    ////[Parameter]
+    ////public string ModelBinding { get; set; }
+    //[Parameter]
+    //public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    //[Parameter]
+    //public string TextValue { get; set; }
+
+    //[Parameter]
+    //public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    //[Parameter]
+    //public bool Password { get; set; }
+
+    //private string MyId
+    //{
+    //    get
+    //    {
+    //        return $"{Field.Group}-{Field.Name}-{Field.Caption}-{RowIndex}";
+    //    }
+    //}
+
+    //private string MyType
+    //{
+    //    get
+    //    {
+    //        return Password ? "password" : string.Empty;
+    //    }
+    //}
+
+    //private RuleExecutionResult _localValidation;
+    //private IEnumerable<RuleExecutionResult> AllValidations {  get { return FieldValidator.PrepareValidations(Validations, _localValidation); } }
+
+    //protected override async Task OnInitializedAsync()
+    //{
+    //}
+
+    //void ValueChanged(string val)
+    //{
+    //    TextValue = val;
+    //    _localValidation = FieldValidator.Validate(Field, val);
+    //    ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = TextValue, RowIndex = RowIndex });
+    //}
+}

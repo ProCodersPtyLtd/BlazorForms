@@ -1,0 +1,60 @@
+﻿@using BlazorForms.Rendering.Types
+
+<td>
+    @{
+        var nextMenuId = MatBlazorRow.Id;
+    }
+    <MatIconButton Icon="more_horiz" OnClick="@(async() => await @ContextMenuClick())" @ref="_contextButton">
+        @*<i class="fa fa-github" aria-hidden="true"></i>*@
+    </MatIconButton>
+    <MatMenu @ref="@_contextMenu">
+        @foreach (var action in Actions)
+        {
+            <MatList>
+                <MatListItem OnClick="@(async () => await OnMatListItemClick(Pk, action))">@action</MatListItem>
+            </MatList>
+        }
+    </MatMenu>
+</td>
+
+@code {
+    [CascadingParameter]
+    TableRow MatBlazorRow { get; set; }
+
+    [CascadingParameter]
+    IListFormViewModel ViewModel { get; set; }
+
+    [Parameter]
+    public List<string> Actions { get; set; }
+
+    [Parameter]
+    public string Pk { get; set; }
+
+    [Parameter]
+    public EventCallback<DynamicListFormRowContextMenuItemClickArgs> OnContextMenuItemClick { get; set; }
+
+    private BaseMatIconButton _contextButton;
+    private BaseMatMenu _contextMenu;
+
+    private async Task ContextMenuClick()
+    {
+        // trigger ContextMenuClicking rule
+        if (ViewModel != null)
+        {
+            await ViewModel.ContextMenuClicking(Pk);
+        }
+
+        await _contextMenu.OpenAsync(_contextButton.Ref);
+    }
+
+    private async Task OnMatListItemClick(string pk, string action)
+    {
+        var arg = new DynamicListFormRowContextMenuItemClickArgs 
+        { 
+            Pk = pk,
+            Action = action 
+        };
+        await OnContextMenuItemClick.InvokeAsync(arg);
+    }
+
+}

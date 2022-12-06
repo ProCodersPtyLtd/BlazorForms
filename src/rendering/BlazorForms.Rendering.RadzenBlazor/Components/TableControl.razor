@@ -1,0 +1,115 @@
+﻿@using BlazorForms.Rendering.State
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Platform
+@using BlazorForms.Shared
+
+@inject IDynamicFormContentController ContentController
+@inject IUserViewDataResolver DataResolver
+
+<RadzenDataGrid TItem="Tuple<int, object>" Items="@ListData" class="mat-elevation-z5" AllowSelection="true">
+    <Columns>
+        @foreach (var col in Columns)
+        {
+            if (col?.DisplayProperties?.Visible != true || col.ControlType == "Table")
+            {
+                continue;
+            }
+            <RadzenDataGridColumn TItem="Tuple<int, object>" Title="@col.DisplayProperties.Caption">
+                <Template Context="row">
+                    @if (col.Binding.BindingType == FieldBindingType.TableColumnSingleSelect)
+                    {
+                        <DropDownColumnControl RowIndex="@row.Item1" Name="@(col.Name)" Field="@col" TextValue="@GetValue(col, row.Item2).AsString()"
+                                               ItemsBinding="@col.Binding.ItemsBinding"
+                                               IdBinding="@col.Binding.IdBinding" NameBinding="@col.Binding.NameBinding" ModelBinding="@col.Binding.Binding"
+                                               ModelValueChanged="@ModelChanged"/>
+                    }
+                    else
+                    {
+                        @GetValue(col, row.Item2)
+                    }
+                </Template>
+            </RadzenDataGridColumn>
+        }
+    </Columns>
+</RadzenDataGrid>
+
+<ValidatorControl Validations="@Validations"></ValidatorControl>
+
+@code {
+
+    [CascadingParameter]
+    public IFormViewModel Controller { get; set; }
+
+    [Parameter]
+    public FieldControlDetails Table { get; set; }
+
+    [Parameter]
+    public string Caption { get; set; }
+
+    [Parameter]
+    public List<FieldControlDetails> Columns { get; set; }
+
+    [Parameter]
+    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    private Tuple<int, object>[] ListData;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        GetListData();
+    }
+
+    private void GetListData()
+    {
+        if (Controller?.FormData is null)
+        {
+            return;
+        }
+
+        var listData = Controller.ModelNaviGetItems(Table.Binding.TableBinding).ToArray();
+        ListData = new Tuple<int, object>[listData.Length];
+        for (var i = 0; i < listData.Length; i++)
+            ListData[i] = new Tuple<int, object>(i, listData[i]);
+    }
+
+    private object GetValue(FieldControlDetails col, object item) => ContentController.PathNavi.GetValue(item, col.Binding.Binding);
+
+    void ModelChanged(ValueChangedArgs args)
+    {
+    }
+
+    IEnumerable<RuleExecutionResult> GetValidations(string modelBinding)
+    {
+        return Controller.Validations.Where(v => v.AffectedField == modelBinding);
+    }
+
+
+    private List<FieldControlDetails> ColumnList()
+    {
+        return Columns.ToList();
+    }
+
+    private void OnSelected(string pk)
+    {
+    }
+
+    private string[][] GetGridData()
+    {
+        if (ContentController.Model == null)
+        {
+            return null;
+        }
+
+        var gridModel = ContentController.PathNavi.GetValue(ContentController.Model, Table.Binding.TableBinding);
+        var data = DataResolver.ResolveData(Table.Binding.TableBinding, Columns, ContentController.Model);
+        var jaggedData = ConvertHelper.ConvertToJaggedArray(data);
+        return jaggedData;
+    }
+
+}

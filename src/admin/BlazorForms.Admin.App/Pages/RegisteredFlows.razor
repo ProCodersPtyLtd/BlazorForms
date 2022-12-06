@@ -1,0 +1,23 @@
+﻿@page "/_BlazorForms/admin/registered-flows"
+@using BlazorForms.Rendering.Interfaces
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.Rendering.State
+
+@inject IDialogFormViewModel DialogVM
+
+<DynamicListForm FlowType="BlazorForms.Admin.BusinessObjects.RegisteredFlows.RegisteredListFlow" ShowFilters="true" ShowSorting="true" />
+
+<MatButton OnClick="OpenDialogClick">Open Dialog</MatButton>
+
+@code {
+    private async Task OpenDialogClick()
+    {
+        await Task.Run(async () =>
+        {
+            //await DialogVM.LoadDialog("BlazorForms.SampleSilentFlow2", 
+            //    new FlowParamsGeneric { ItemId = "0", Operation = BlazorForms.Shared.FlowReferenceOperation.New });
+        });
+
+        StateHasChanged();
+    }
+}

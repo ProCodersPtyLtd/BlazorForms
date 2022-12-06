@@ -1,0 +1,513 @@
+﻿@using MatBlazor
+@using BlazorForms.Rendering.State
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.FlowRules
+@using BlazorForms.Platform
+@using BlazorForms.Shared
+
+@inject IFlowRunProvider _flowRunProvider
+@inject IDynamicFormContentController _contentController
+@inject NavigationManager _navigationManager
+@inject IMatToaster Toaster
+
+@if (_contentController.FormAccessDenied && !IsDefaultReadonlyView)
+{
+    @*if (FlowRunId != 0 && !_navigationManager.Uri.Contains($"readonly-form-generic/{FlowRunId}/true"))
+        {
+            _navigationManager.NavigateTo($"readonly-form-generic/{FlowRunId}/true", true);
+        }
+        else *@
+    {
+        <div>Form Access Denied</div>
+        <MatDivider></MatDivider>
+        <div>Assigned User: @_contentController.FormAssignedUser</div>
+    }
+}
+
+@if (_loading)
+{
+    <MatProgressBar Indeterminate="true" Style="min-width: 50%; margin: auto;"></MatProgressBar>
+}
+else if (string.IsNullOrEmpty(FlowName))
+{
+    <MatHeadline6>FlowName parameter must be provided</MatHeadline6>
+}
+else if (_contentController.Model == null)
+{
+    <MatHeadline6>Form Model Not Found</MatHeadline6>
+}
+else
+{
+    <!-- DynamicFormSilent -->
+    <div class="mat-layout-grid" @onkeydown="@KeyPress" style="padding:0">
+        <div class="mat-layout-grid-inner" style="justify-items:center">
+
+            @if (!string.IsNullOrEmpty(_contentController.FormData?.DisplayName))
+            {
+                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                    <MatHeadline4>@_contentController.FormData.DisplayName</MatHeadline4>
+                </div>
+            }
+
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                <DynamicFormContent Controller="@_contentController" ModelValueChanged=@ModelChanged/>
+            </div>
+
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12" style="min-width: 100%;">
+                <MatProgressBar Indeterminate="@_formLocked" Closed="@(!_formLocked)"></MatProgressBar>
+            </div>
+
+            @*buttons*@
+            <div class="mat-layout-grid mat-layout-grid-cell-span-12">
+                <div class="mat-layout-grid-inner" style="display:flex;">
+
+                    @if (_contentController.ActionFields != null && _contentController.ActionFields.Count() > 0)
+                    {
+                        @foreach (var action in _contentController.ActionFields)
+                        {
+                            @if (action.DisplayProperties.Visible)
+                            {
+                                <div class="mat-layout-grid-cell">
+                                    <MatButton Id="@action.Name" Unelevated="true" Disabled="@_formLocked" OnClick="@(async () => await ActionButtonClick(action.Binding.Binding, action.DisplayProperties.Caption))">@action.DisplayProperties.Caption</MatButton>
+                                </div>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <div class="mat-layout-grid-cell">
+                            <MatButton Outlined="true" Disabled="@_formLocked">Cancel</MatButton>
+                        </div>
+                        <div class="mat-layout-grid-cell">
+                            <MatButton Unelevated="true" Disabled="@_formLocked">@_contentController.SaveActionName</MatButton>
+                        </div>
+
+                        @if (ValidateButton)
+                        {
+                            <div class="mat-layout-grid-cell">
+                                <MatButton Unelevated="true" OnClick="@ValidateClick" Disabled="@_formLocked">Validate</MatButton>
+                            </div>
+                        }
+
+
+                        @if (!string.IsNullOrEmpty(_contentController.RejectActionName))
+                        {
+                            <div class="mat-layout-grid-cell">
+                                <MatButton Raised="true" OnClick="@(async() => await SubmitClick(_contentController.RejectAction.Binding.Binding))" Disabled="@_formLocked">@_contentController.RejectActionName</MatButton>
+                            </div>
+                        }
+                        <div class="mat-layout-grid-cell">
+                            <MatButton Raised="true" OnClick="@(async() => await SubmitClick(_contentController.SubmitAction.Binding.Binding))" Disabled="@_formLocked">@_contentController.SubmitActionName</MatButton>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <MatDialog @bind-IsOpen="@_alertDialogIsOpen">
+        <MatDialogTitle>Please fix issues with input fields to Submit the form</MatDialogTitle>
+        <MatDialogActions>
+            <MatButton OnClick="@(e => { _alertDialogIsOpen = false; })">OK</MatButton>
+        </MatDialogActions>
+    </MatDialog>
+
+    <MatDialog @bind-IsOpen="@_dialogIsOpen">
+        <MatDialogTitle>@_matDialogTitle</MatDialogTitle>
+        <MatDialogActions>
+            <MatButton OnClick="@(async (args) => await SubmitDialog(args, false))">No</MatButton>
+            <MatButton OnClick="@(async (args) => await SubmitDialog(args, true))">Yes</MatButton>
+        </MatDialogActions>
+    </MatDialog>
+}
+<MatToastContainer />
+<MatPortalHost></MatPortalHost>
+
+@code {
+    private bool _loading = true;
+
+    private bool _formLocked = false;
+
+    private bool _alertDialogIsOpen = false;
+
+    private bool _dialogIsOpen = false;
+    private string _matDialogTitle = string.Empty;
+    private string _buttonBinding = string.Empty;
+
+    [Parameter]
+    public string Pk { get; set; }
+    [Parameter]
+    public string FlowName { get; set; }
+
+    [Parameter]
+    public bool IsDefaultReadonlyView { get; set; }
+
+    [Parameter]
+    public string NavigationSuccess { get; set; }
+
+    [Parameter]
+    public string NavigationCancel { get; set; }
+
+    [Parameter]
+    public EventCallback<FormSubmittedArgs> FormSubmitted { get; set; }
+
+    [Parameter]
+    public bool ValidateButton { get; set; }
+
+    [Parameter]
+    public bool AnonymousAccess { get; set; }
+
+    async Task ModelChanged(ValueChangedArgs args)
+    {
+        if (args.Operation == ModelChangedOperation.Refresh)
+        {
+            _navigationManager.NavigateTo(_navigationManager.Uri, true);
+        }
+        else if (args.Operation == ModelChangedOperation.SubmitAndRefresh)
+        {
+            _loading = true;
+            await ProcessSubmit(refresh: true);
+        }       
+    }
+
+    private void KeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            ProcessSubmit(true);
+        }
+        else if (e.Key == "Escape")
+        {
+            CancelClick();
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            if (firstRender)
+            {
+                _contentController.AnonymousAccess = AnonymousAccess;
+                _contentController.NoFlowStorage = true;
+                await _contentController.InitiateFlow(FlowName, null, Pk);
+
+                await LoadForm();
+                _loading = false;
+                StateHasChanged();
+            }
+
+            await base.OnAfterRenderAsync(firstRender);
+        }
+        catch (Exception exc)
+        {
+            _contentController.PopulateException(exc);
+            ShowPopup();
+        }
+    }
+
+    private async Task LoadForm()
+    {
+        //try
+        //{
+        //    if (string.IsNullOrEmpty(RefId))
+        //    {
+        //        return;
+        //    }
+
+        //    if (IsDefaultReadonlyView)
+        //    {
+        //        await _contentController.LoadFlowDefaultForm(RefId);
+        //    }
+        //    else
+        //    {
+        //        await _contentController.LoadFormForFlow(FlowName, RefId);
+
+        //        // render default view if access denied
+        //        if (_contentController.FormAccessDenied)
+        //        {
+        //            IsDefaultReadonlyView = true;
+        //            await _contentController.LoadFlowDefaultForm(RefId);
+        //        }
+        //    }
+        //}
+        //catch (Exception exc)
+        //{
+        //    _contentController.PopulateException(exc);
+        //    ShowPopup();
+        //}
+    }
+
+    private void CancelClick()
+    {
+        if (!string.IsNullOrEmpty(NavigationCancel))
+        {
+            _navigationManager.NavigateTo(NavigationCancel);
+        }
+        else if (!string.IsNullOrEmpty(NavigationSuccess))
+        {
+            _navigationManager.NavigateTo(NavigationSuccess);
+        }
+    }
+
+    private async Task CancelFinishClick(string binding)
+    {
+        _formLocked = true;
+        StateHasChanged();
+
+        try
+        {
+            if (!string.IsNullOrEmpty(NavigationCancel))
+            {
+                _navigationManager.NavigateTo(NavigationCancel);
+            }
+            else if (!string.IsNullOrEmpty(NavigationSuccess))
+            {
+                _navigationManager.NavigateTo(NavigationSuccess);
+            }
+        }
+        finally
+        {
+            _formLocked = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ValidateClick()
+    {
+        _formLocked = true;
+        StateHasChanged();
+        try
+        {
+            var result = await _contentController.TriggerRules(_contentController.FormData.ProcessTaskTypeFullName, null, FormRuleTriggers.Submit);
+            _contentController.Validations = result.Validations.AsEnumerable().Union(_contentController.GetDynamicFieldValidations());
+            StateHasChanged();
+        }
+        finally
+        {
+            _formLocked = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ActionButtonClick(string binding, string caption)
+    {
+        _formLocked = true;
+        StateHasChanged();
+        try
+        {
+            //await _contentController.ActionButtonClick(binding);
+            switch (binding)
+            {
+                case ModelBinding.CloseButtonBinding:
+                    CancelClick();
+                    break;
+
+                case ModelBinding.CloseFinishButtonBinding:
+                    await CancelFinishClick(binding);
+                    break;
+
+                case ModelBinding.ValidateButtonBinding:
+                    await ValidateClick();
+                    break;
+
+                case ModelBinding.SubmitButtonBinding:
+                    await ProcessSubmit(loadForm: true);
+                    break;
+
+                case ModelBinding.SubmitCloseButtonBinding:
+                    await ProcessSubmit(loadForm: false);
+                    break;
+
+                case ModelBinding.SaveButtonBinding:
+                    await ProcessSave(binding);
+                    break;
+
+                case ModelBinding.RejectButtonBinding:
+                    await ProcessReject(binding, caption);
+                    break;
+            }
+        }
+        catch (Exception exc)
+        {
+            _contentController.PopulateException(exc);
+            ShowPopup();
+        }
+        finally
+        {
+            _formLocked = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ProcessSave(string actionBinding)
+    {
+        //await _contentController.SaveForm(RefId, actionBinding, _contentController.SaveActionName);
+        _navigationManager.NavigateTo(NavigationSuccess);
+    }
+
+    private async Task ProcessSubmit(bool loadForm = false, bool refresh = false)
+    {
+        try
+        {
+            var result = await _contentController.TriggerRules(_contentController.FormData.ProcessTaskTypeFullName, null, FormRuleTriggers.Submit);
+            _contentController.Validations = result.Validations.AsEnumerable().Union(_contentController.GetDynamicFieldValidations());
+
+            if (_contentController.Validations.Any(v => v.ValidationResult == RuleValidationResult.Error))
+            {
+                await ShowAlert();
+                //await MatDialogService.AlertAsync("Please fix issues with input fields above to Submit the form");
+                return;
+            }
+
+            // ToDo: fix threads deadlock
+            await Task.Run(async () =>
+            {
+                //await _contentController.SubmitFormForFlow(RefId, ModelBinding.SubmitButtonBinding, _contentController.SubmitActionName);
+                await _contentController.SubmitSilentFlowForm(FlowName, ModelBinding.SubmitButtonBinding);
+            });
+
+            var context = _contentController.Context;
+
+            // if next task is form again
+            if (loadForm && context.ExecutionResult.IsFormTask && await _contentController.CheckUserAccessFlowContext(_contentController.FormData, context))
+            //if (context.ExecutionResult.IsFormTask && (string.IsNullOrEmpty(context.AssignedUser) || context.AssignedUser == _authState.UserLogin))
+            {
+                // reload page
+                _contentController.ClearData();
+                await LoadForm();
+            }
+            else if (refresh)
+            {
+                _navigationManager.NavigateTo(_navigationManager.Uri, true);   
+            }
+            else if (!string.IsNullOrEmpty(NavigationSuccess))
+            {
+                _navigationManager.NavigateTo(NavigationSuccess);
+            }
+            else
+            {
+                await FormSubmitted.InvokeAsync(new FormSubmittedArgs { Context = _contentController.Context });
+            }
+        }
+        catch (Exception exc)
+        {
+            _contentController.PopulateException(exc);
+            ShowPopup();
+        }
+    }
+
+    private async Task ShowAlert()
+    {
+        _alertDialogIsOpen = true;
+    }
+
+    private async Task SubmitClick(string binding)
+    {
+        _formLocked = true;
+        StateHasChanged();
+        try
+        {
+            if (binding == ModelBinding.CloseButtonBinding)
+            {
+                CancelClick();
+                return;
+            }
+
+            var result = await _contentController.TriggerRules(_contentController.FormData.ProcessTaskTypeFullName, null, FormRuleTriggers.Submit);
+            _contentController.Validations = result.Validations.AsEnumerable().Union(_contentController.GetDynamicFieldValidations());
+
+            if (_contentController.Validations.Any(v => v.ValidationResult == RuleValidationResult.Error))
+            {
+                return;
+            }
+
+            // ToDo: fix threads deadlock
+            await Task.Run(async () =>
+            {
+                //await _contentController.SubmitFormForFlow(RefId, binding);
+                await _contentController.SubmitSilentFlowForm(FlowName, binding);
+            });
+
+            var context = _contentController.Context;
+
+            // if next task is form again
+            if (context.ExecutionResult.IsFormTask && await _contentController.CheckUserAccessFlowContext(_contentController.FormData, context))
+            //if (context.ExecutionResult.IsFormTask && context.AssignedUser != null && context.AssignedUser == _authState.UserLogin)
+            {
+                // reload page
+                _contentController.ClearData();
+                await LoadForm();
+            }
+            else if (!string.IsNullOrEmpty(NavigationSuccess))
+            {
+                _navigationManager.NavigateTo(NavigationSuccess);
+            }
+            else
+            {
+                await FormSubmitted.InvokeAsync(new FormSubmittedArgs { Context = _contentController.Context });
+            }
+        }
+        catch (Exception exc)
+        {
+            _contentController.PopulateException(exc);
+            ShowPopup();
+        }
+        finally
+        {
+            _formLocked = false;
+            StateHasChanged();
+        }
+    }
+
+   private async Task SubmitDialog(MouseEventArgs args, bool isConfirmed)
+    {
+        if (isConfirmed)
+        {
+            _formLocked = true;
+            StateHasChanged();
+
+            try
+            {
+                if (_buttonBinding == ModelBinding.CloseButtonBinding)
+                {
+                    CancelClick();
+                    return;
+                }
+
+                // ToDo: fix threads deadlock
+                await Task.Run(async () =>
+                {
+                    //await _contentController.RejectFormForFlow(RefId, buttonBinding, _contentController.RejectActionName);
+                });
+
+
+                _navigationManager.NavigateTo(NavigationSuccess);
+
+            }
+            finally
+            {
+                _formLocked = false;
+                StateHasChanged();
+            }
+        }
+        _dialogIsOpen = false;
+    }
+
+    private async Task ProcessReject(string binding, string caption)
+    {
+        _dialogIsOpen = true;
+        _matDialogTitle = $"{caption}?";
+        _buttonBinding = binding;
+    }
+
+    public async Task ShowPopup()
+    {
+        if (_contentController.ExceptionType != null && _contentController.ExceptionType != typeof(FlowStopException).Name)
+        {
+            Toaster.Add("Operation failed. Please notify BlazorForms Support", MatToastType.Warning);
+
+            _contentController.SaveException(_navigationManager.BaseUri);
+        }
+    }
+}

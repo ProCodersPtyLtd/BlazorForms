@@ -1,0 +1,167 @@
+﻿@using BlazorForms.Rendering.State
+@using BlazorForms.FlowRules
+@using BlazorForms.Forms
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.Shared
+
+@inject NotificationService _notificationService
+@inject NavigationManager _navigationManager
+
+<style>
+    .pz-clean-margin {
+        margin: 0px;
+    }
+</style>
+
+@if (!string.IsNullOrEmpty(Group.Key))
+{
+    <RadzenHeading Size="H6" class="pz-clean-margin">@Group.Key</RadzenHeading>
+}
+<div id="pz-group-container-@Group.Key" class="container">
+    <div class="content">
+        @foreach (var field in Group)
+        {
+            @if (field.ControlType == null
+                 || field.DisplayProperties?.Visible == false
+                 || field.Binding.BindingType is FieldBindingType.TableColumn
+                     or FieldBindingType.TableColumnSingleSelect
+                     or FieldBindingType.TableColumnContextMenu)
+            {
+                continue;
+            }
+
+            switch (field.ControlType)
+            {
+                case "TableOld":
+                    <RadzenHeading Size="H2" Text="@field.DisplayProperties?.Caption" class="col col-12" />
+                    <div class="col col-12">
+                        <GridControl Table="field" Columns="@Controller.Tables[field.Binding.TableBinding]" Caption="@field.DisplayProperties?.Caption"
+                                     Validations="@GetValidations(field.Binding.ResolvedBinding)"/>
+                    </div>
+                    break;
+                case "Table":
+                    <RadzenHeading Size="H2" Text="@field.DisplayProperties?.Caption" class="col col-12" />
+                    <div class="col col-12">
+                        @*<TableControl Controller="@Controller" Table="field" Columns="@Controller.Tables[field.Binding.TableBinding]" Caption="@field.DisplayProperties.Caption"
+                    Validations="@GetValidations(field.Binding.ResolvedBinding)" />*@
+                        <GridControl Table="field" Columns="@Controller.Tables[field.Binding.TableBinding]" Caption="@field.DisplayProperties?.Caption"
+                                     ModelChanged="@ModelChanged" Validations="@GetValidations(field.Binding.ResolvedBinding)"/>
+                    </div>
+                    break;
+                case "Repeater":
+                    <RadzenHeading Size="H2" Text="@field.DisplayProperties?.Caption" class="col col-12" />
+                    <div class="col col-12">
+                        <RepeaterControl Table="field" Columns="@Controller.Repeaters[field.Binding.TableBinding]" Caption="@field.DisplayProperties?.Caption"
+                                         Validations="@GetValidations(field.Binding.ResolvedBinding)" ModelValueChanged="@ModelChanged"/>
+                    </div>
+                    break;
+                case "SelectableList":
+                    <RadzenHeading Size="H2" Text="@field.DisplayProperties?.Caption" class="col col-12" />
+                    <div class="col col-12">
+                        <SelectableListControl Table="field" Data="@Controller.GetSelectableListData(field)" Caption="@field.DisplayProperties?.Caption"
+                                               ModelValueChanged="@ModelChanged" Validations="@GetValidations(field.Binding.ResolvedBinding)"/>
+                    </div>
+                    break;
+                case "TextArea":
+                case "Header":
+                case "Subtitle":
+                    <div class="col col-12">
+                        <DynamicSimpleControl Controller="@Controller" ModelChanged="@ModelChanged" ModelBinding="" Field="@field"/>
+                    </div>
+                    break;
+                case "Label":
+                    @if (field.DisplayProperties?.NoCaption == true)
+                    {
+                        <div class="col col-12">
+                            <DynamicSimpleControl Controller="@Controller" ModelChanged="@ModelChanged" ModelBinding="" Field="@field"/>
+                        </div>
+                    }
+                    else
+                    {
+                        <RadzenHeading Size="H2" Text="@field.DisplayProperties?.Caption" class="col col-6" />
+                        <div class="col col-6">
+                            <DynamicSimpleControl Controller="@Controller" ModelChanged="@ModelChanged" ModelBinding="" Field="@field"/>
+                        </div>
+                    }
+                    break;
+                default:
+                    @if (field.Binding.BindingType == FieldBindingType.ActionButton)
+                    {
+                        <div class="col col-12">
+                            <DynamicSimpleControl Controller="@Controller" ModelChanged="@ModelChanged" ModelBinding="" Field="@field"/>
+                        </div>
+                    }
+                    else
+                    {
+                        @if (field.DisplayProperties?.Required == true)
+                        {
+                            <RadzenHeading Size="H2" Text='@($"{field.DisplayProperties.Caption} *")' class="col col-6" />
+                        }
+                        else
+                        {
+                            <RadzenHeading Size="H2" Text="@field.DisplayProperties?.Caption" class="col col-6" />
+                        }
+
+                        <div class="col col-6">
+                            <DynamicSimpleControl Controller="@Controller" ModelChanged="@ModelChanged" ModelBinding="" Field="@field"/>
+                        </div>
+                    }
+                    break;
+            }
+        }
+    </div>
+</div>
+
+@code {
+
+    [CascadingParameter]
+    public IFormViewModel Controller { get; set; }
+
+    [Parameter]
+    public IGrouping<string, FieldControlDetails> Group { get; set; }
+
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    async Task ModelChanged(ValueChangedArgs args)
+    {
+        if (args.Operation != ModelChangedOperation.Default)
+        {
+            StateHasChanged();
+
+            if (args.Operation == ModelChangedOperation.SubmitAndRefresh)
+            {
+                await ModelValueChanged.InvokeAsync(args);
+            }
+            return;
+        }
+
+        if (args.Binding.BindingType != FieldBindingType.ActionButton)
+        {
+            Controller.ModelNaviSetValue(args.Binding.ResolvedBinding, args.NewValue);
+        }
+        try
+        {
+            await Controller.TriggerRules(Controller.FormData.ProcessTaskTypeFullName, args.Binding);
+            StateHasChanged();
+        }
+        catch (Exception exc)
+        {
+            await ShowPopup();
+        }
+    }
+
+    IEnumerable<RuleExecutionResult> GetValidations(string modelBinding)
+    {
+        return Controller.Validations.Where(v => v.AffectedField == modelBinding);
+    }
+
+    public async Task ShowPopup()
+    {
+        if (Controller.ExceptionType != null && Controller.ExceptionType != typeof(FlowStopException).Name)
+        {
+            _notificationService.Notify(NotificationSeverity.Warning, "Operation failed", "Please notify BlazorForms Support");
+        }
+    }
+
+}

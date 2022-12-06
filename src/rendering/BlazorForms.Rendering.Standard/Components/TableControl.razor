@@ -1,0 +1,153 @@
+﻿@using BlazorForms.Rendering.State
+@using MatBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Platform
+@using BlazorForms.Shared
+
+@inject IDynamicFormContentController ContentController
+@inject IUserViewDataResolver DataResolver
+
+@if (GetListData() != null)
+{
+    int row = 0;
+
+    <MatTable Items="@ListData" class="mat-elevation-z5" AllowSelection="true">
+        <MatTableHeader>
+            @*<th hidden="hidden"></th>*@
+            @foreach (var col in Columns)
+            {
+                @if (col?.ControlType == "Table" || col?.DisplayProperties == null || col?.DisplayProperties?.Visible == false)
+                {
+                    continue;
+                }
+
+                <th>@col?.DisplayProperties?.Caption</th>
+            }
+        </MatTableHeader>
+        <MatTableRow>
+
+            @{
+                string id = "";
+            }
+
+            @for (int i = 0; i < Columns.Count(); i++)
+                {
+                    int colIndex = i;
+                    var col = Columns[colIndex];
+
+                @if (col?.ControlType == "Table" || col?.DisplayProperties == null || col?.DisplayProperties?.Visible == false)
+                    {
+                        if (col?.DisplayProperties?.IsPrimaryKey == true)
+                        {
+                            id = @GetValue(col, row).AsString();
+                        }
+
+                        continue;
+                    }
+
+                    if (col?.Binding.BindingType == FieldBindingType.TableColumnSingleSelect)
+                    {
+                    <td>
+                        <DropDownColumnControl RowIndex="@row" Name="@(col.Name)" Field="@col" TextValue="@GetValue(col, row).AsString()"
+                                            ItemsBinding="@col.Binding.ItemsBinding"
+                                            IdBinding="@col.Binding.IdBinding" NameBinding="@col.Binding.NameBinding" ModelBinding="@col.Binding.Binding"
+                                            ModelValueChanged="@ModelChanged" />
+                    </td>
+                    }
+                    else
+                    {
+                    <td>@GetValue(col, row)</td>
+                    }
+
+
+                @*<td>@Controller.ModelNaviGetValue(col.Binding.Binding)?.ToString()</td>*@
+
+                }
+
+            @{row++; }
+
+        </MatTableRow>
+    </MatTable>
+}
+
+<ValidatorControl Validations="@Validations"></ValidatorControl>
+
+@code {
+    [Parameter]
+    public IDynamicFormContentController Controller { get; set; }
+    [Parameter]
+    public FieldControlDetails Table { get; set; }
+    [Parameter]
+    public string Caption { get; set; }
+    [Parameter]
+    public List<FieldControlDetails> Columns { get; set; }
+    [Parameter]
+    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    private List<object> ListData;
+
+    private List<object> GetListData()
+    {
+        if (Controller.Model == null)
+        {
+            return null;
+        }
+
+        ListData = Controller.ModelNaviGetItems(Table.Binding.TableBinding).ToList();
+        return ListData;
+    }
+
+    private object GetValue(FieldControlDetails col, int row)
+    {
+        if(row >= ListData.Count)
+        {
+            return null;
+        }
+
+        var item = ListData[row];
+        var val = ContentController.PathNavi.GetValue(item, col.Binding.Binding);
+        return val;
+    }
+
+    void ModelChanged(ValueChangedArgs args)
+    { }
+
+    IEnumerable<RuleExecutionResult> GetValidations(string modelBinding)
+    {
+        return Controller.Validations.Where(v => v.AffectedField == modelBinding);
+    }
+
+
+
+
+
+
+    private List<FieldControlDetails> ColumnList()
+    {
+        return Columns.ToList();
+    }
+
+    private void OnSelected(string pk)
+    {
+
+    }
+
+
+    private string[][] GetGridData()
+    {
+        if (ContentController.Model == null)
+        {
+            return null;
+        }
+
+        var gridModel = ContentController.PathNavi.GetValue(ContentController.Model, Table.Binding.TableBinding);
+        var data = DataResolver.ResolveData(Table.Binding.TableBinding, Columns, ContentController.Model);
+        var jaggedData = ConvertHelper.ConvertToJaggedArray(data);
+        return jaggedData;
+    }
+}

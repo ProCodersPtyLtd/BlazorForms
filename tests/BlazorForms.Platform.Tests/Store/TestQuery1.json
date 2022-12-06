@@ -1,0 +1,31 @@
+﻿{
+  "name": "Query1",
+  "schemaName": "Test1",
+  "tags": [ "p1", "p2" ],
+  "query": {
+    "comment":  "Test Query 1",
+    "fields": {
+      "id": {
+        "field": {
+          "objectAlias": "address",
+          "fieldName": "BasicAddressId"
+        },
+        "operation": "",
+        "rawExpression": ""
+      },
+      "city": {
+        "field": {
+          "objectAlias": "address",
+          "fieldName": "City"
+        },
+        "operation": "",
+        "rawExpression": ""
+      }
+    },
+    "tables": {
+      "address": {
+        "tableName": "BasicAddress"
+      }
+    }
+  }
+}

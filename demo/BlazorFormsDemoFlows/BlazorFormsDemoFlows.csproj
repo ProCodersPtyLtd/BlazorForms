@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Forms\FieldSetSampleForm1.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Forms\FieldSetSampleForm1.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\platform\BlazorForms.Platform\BlazorForms.Platform.csproj" />
+    <ProjectReference Include="..\BlazorFormsDemoModels\BlazorFormsDemoModels.csproj" />
+  </ItemGroup>
+
+</Project>

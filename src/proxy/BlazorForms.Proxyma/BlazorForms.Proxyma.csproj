@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Castle.Core" Version="5.1.0" />
+    <PackageReference Include="Castle.Core.AsyncInterceptor" Version="2.1.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.3.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\shared\BlazorForms.Shared\BlazorForms.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

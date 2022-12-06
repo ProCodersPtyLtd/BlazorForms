@@ -1,0 +1,146 @@
+﻿@using BlazorForms.Platform.Definitions.Shared
+@using BlazorForms.Rendering.State
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.Shared
+
+@inject DialogService _dialogService
+@inject IDynamicFieldValidator _fieldValidator
+@inject NotificationService _notificationService
+@inject NavigationManager _navigationManager
+
+@if (DialogViewModel.FormData != null && DialogViewModel.ItemId != null)
+{
+    <div @onkeydown="@KeyPress" style="width:100%; overflow-x: hidden">
+        <div class="col-12">
+            <CascadingValue Value="@(DialogViewModel as IFormViewModel)">
+                <FormContent ModelValueChanged="@ModelActionChanged" />
+            </CascadingValue>
+        </div>
+        <div class="col col-12 text-right">
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Click="@CancelClick" Disabled="@_formLocked">Cancel</RadzenButton>
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Click="@ValidateClick" Disabled="@_formLocked">Validate</RadzenButton>
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" Click="@SubmitClick" Disabled="@_formLocked">@DialogViewModel.SubmitActionName</RadzenButton>
+        </div>
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public IDialogFormViewModel DialogViewModel { get; set; }
+
+    [Parameter]
+    public bool AllowAnonymousAccess { get; set; }
+
+    [Parameter]
+    public bool AllowFlowStorage { get; set; }
+
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelActionChanged { get; set; }
+
+    [Parameter]
+    public bool ValidateButton { get; set; }
+
+    private bool _formLocked = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+    // We load form once, and every time when parameters changed
+        await Setup();
+        await base.OnParametersSetAsync();
+    }
+
+    // Dialog never appears itself, the only way to show dialog is through DialogVM.LoadDialog(...)
+    private async Task Setup()
+    {
+        DialogViewModel.SetBaseUri(_navigationManager.BaseUri);
+        DialogViewModel.FormSettings.AllowAnonymousAccess = AllowAnonymousAccess;
+        DialogViewModel.FormSettings.AllowFlowStorage = AllowFlowStorage;
+    }
+
+    private void KeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            SubmitClick();
+        }
+    }
+
+    private async Task CancelClick()
+    {
+        CloseDialog();
+    }
+
+    private async Task ValidateClick()
+    {
+        _formLocked = true;
+        StateHasChanged();
+        try
+        {
+            await DialogViewModel.ValidateDialog();
+            StateHasChanged();
+        }
+        catch (Exception exc)
+        {
+            DialogViewModel.PopulateException(exc);
+            await ShowPopup();
+        }
+        finally
+        {
+            _formLocked = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SubmitClick()
+    {
+        _formLocked = true;
+        StateHasChanged();
+        try
+        {
+            await Task.Run(async () => { await DialogViewModel.SubmitDialog(); });
+
+            _dialogService.Close(new FormSubmittedArgs {Context = null});
+        }
+        catch (Exception exc)
+        {
+            DialogViewModel.PopulateException(exc);
+            await ShowPopup();
+        }
+        finally
+        {
+            _formLocked = false;
+            StateHasChanged();
+        }
+    }
+
+    private void CloseDialog()
+    {
+        DialogViewModel.DialogIsOpen = false;
+        _dialogService.Close();
+        StateHasChanged();
+    }
+
+    public async Task ShowPopup()
+    {
+        if (DialogViewModel.ExceptionType != null && DialogViewModel.ExceptionType != typeof(FlowStopException).Name)
+        {
+            _notificationService.Notify(NotificationSeverity.Error, $"Operation failed", DialogViewModel.ExceptionMessage);
+
+            await Task.Run(async () =>
+            {
+                var flowParams = new FlowParamsGeneric();
+                flowParams.Operation = FlowReferenceOperation.QuickAction;
+                flowParams[PlatformConstants.BaseUri] = _navigationManager.BaseUri;
+                flowParams["Type"] = DialogViewModel.ExceptionType;
+                flowParams["Message"] = DialogViewModel.ExceptionMessage;
+                flowParams["StackTrace"] = DialogViewModel.ExceptionStackTrace;
+
+                await DialogViewModel.RunActionFlow("BlazorForms.Platform.ErrorEditFlow", flowParams, false);
+            });
+        }
+    }
+
+}

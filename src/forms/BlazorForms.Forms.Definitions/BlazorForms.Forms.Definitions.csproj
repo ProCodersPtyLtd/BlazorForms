@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Base\**" />
+    <Compile Remove="Model\**" />
+    <EmbeddedResource Remove="Base\**" />
+    <EmbeddedResource Remove="Model\**" />
+    <None Remove="Base\**" />
+    <None Remove="Model\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="FluentForms\Rules\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\shared\BlazorForms.Shared\BlazorForms.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

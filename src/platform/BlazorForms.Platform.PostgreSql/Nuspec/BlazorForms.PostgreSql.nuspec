@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>BlazorForms.PostgreSql</id>
+    <version>0.6.0</version>
+    <authors>Binoculars X</authors>
+    <owners>Binoculars X</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>BlazorForms is a declarative Flows, Forms, Rules framework for controlled project development and maintenance. PostgreSQL extensions.</description>
+    <copyright>Copyright (c) 2022 Binoculars X</copyright>
+    <tags>blazor declarative dynamic flow form rule framework postgresql db</tags>
+    <dependencies>
+		<group targetFramework="netcoreapp3.1">
+      <dependency id="BlazorForms" version="0.6.0" />
+      <dependency id="Npgsql" version="4.1.5" />
+		</group>
+    </dependencies>
+    <contentFiles>
+      <files include="**\*.json" buildAction="None" />
+      <files include="**\*.cmd" buildAction="None" />
+      <files include="**\*.txt" buildAction="None" />
+      <files include="**\*.sql" buildAction="None" />
+    </contentFiles>
+  </metadata>
+  <files>
+    <file src="readme.txt" />
+    <file src="contentFiles\any\any\BlazorForms.PostgreSql.Link\*" target="contentFiles\any\any\BlazorForms.PostgreSql.Link"/>
+    <file src="..\bin\Release\netcoreapp3.1\BlazorForms.Platform.PostgreSql.dll" target="lib\netcoreapp3.1\BlazorForms.Platform.PostgreSql.dll" />
+  </files>
+</package>

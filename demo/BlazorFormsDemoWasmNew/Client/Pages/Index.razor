@@ -1,0 +1,19 @@
+﻿@page "/"
+
+<PageTitle>Index</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+@*<DynamicForm FlowName="BlazorForms.SampleSilentFlow" Pk="0" RefId="@RefId" NoFlowStorage="false" AnonymousAccess="true" NavigationSuccess="/" />
+*@
+@code {
+    private int currentCount = 0;
+    private string RefId { get; set; }
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}

@@ -1,0 +1,41 @@
+﻿@using BlazorForms.Rendering.State
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Shared.DataStructures
+
+@inherits FieldControl
+
+@RenderLabel
+
+<div class="w-100 pz-field-money">
+    <div class="pz-field-money-icon">
+        <RadzenIcon Icon="monetization_on"/>
+    </div>
+    <div class="pz-field-money-currency">
+        <RadzenLabel Text="@MoneyValue?.Currency"/>
+    </div>
+    <div class="pz-field-money-input">
+        <RadzenNumeric
+            TValue="decimal?"
+            Step="0.01"
+            Value="@MoneyValue?.Amount"
+            Disabled="@Field.DisplayProperties.Disabled"
+            ValueChanged="DecimalValueChanged"
+            class="w-100"/>
+    </div>
+</div>
+
+@RenderValidation
+
+@code {
+    
+    [Parameter]
+    public Money MoneyValue { get; set; }
+
+    async Task DecimalValueChanged(decimal? value)
+    {
+        MoneyValue.Amount = value;
+        await ObjectValueChanged(MoneyValue);
+    }
+   
+}

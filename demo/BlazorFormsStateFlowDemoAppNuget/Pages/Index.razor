@@ -1,0 +1,82 @@
+﻿@page "/"
+@using BlazorForms.Rendering.State
+@using BlazorFormsStateFlowDemoApp.BusinessObjects
+@using BlazorFormsStateFlowDemoApp.Components
+
+@inject DocumentViewModel _vm
+
+<div>
+    <input type="checkbox" id="EnableStorage" name="EnableStorage" @bind-value="@_vm.IsStorageEnabled"/>
+    <label for="EnableStorage">Enable Storage</label>
+</div>
+
+<button type="button" class="btn btn-primary" @onclick="NewDocument">New Document</button>
+<button type="button" class="btn btn-secondary" @onclick="ChangeAndSync">Change and sync</button>
+
+<hr />
+
+<TransactionTable Model="_vm.NewTransactions" Header="New" ModelChanged="ModelChanged"></TransactionTable>
+<TransactionTable Model="_vm.AssignedTransactions" Header="Assigned" ModelChanged="ModelChanged"></TransactionTable>
+<TransactionTable Model="_vm.UnderInvestigationTransactions" Header="Under Review" ModelChanged="ModelChanged"></TransactionTable>
+<TransactionTable Model="_vm.EscalatedTransactions" Header="Alarmed" ModelChanged="ModelChanged"></TransactionTable>
+<TransactionTable Model="_vm.ClosedTransactions" Header="Closed" ModelChanged="ModelChanged"></TransactionTable>
+
+<br />
+
+<h6>Flow Code</h6>
+<button type="button" class="btn btn-success" @onclick="Apply">Apply this Flow</button>
+
+<span class="label label-danger">@_vm.CodeChanged</span>
+
+@if (_vm.CompilationErrors != null)
+{
+    <div class="row-nospace-sm">
+        <div class="col-sm-12 forms-nospace">
+            <label>Validation errors</label>
+            <textarea id="rulesErrorsMemo" rows="10" readonly="readonly" style="width: 100%; color: red; background-color: black" value="@_vm.CompilationErrors" />
+        </div>
+    </div>
+}
+
+<textarea id="w3review" name="w3review" rows="30" style="width: 100%" @onkeydown="CodeKeyPressed" @bind="_vm.FlowCode"></textarea>
+
+@code {
+    protected override void OnInitialized()
+    {
+        _vm.OnChanged = VmChanged;
+    }
+
+    void VmChanged()
+    {
+        StateHasChanged();
+    }
+
+    async Task ModelChanged(ValueChangedArgs args)
+    {
+        StateHasChanged();
+    }
+
+    async Task NewDocument()
+    {
+        await _vm.CreateTransaction();
+        StateHasChanged();
+    }
+
+    async Task ChangeAndSync()
+    {
+        await _vm.RandomChangeTransactionAndSync();
+        StateHasChanged();
+    }
+
+    async Task Apply()
+    {
+        _vm.ApplyFlowCode();
+        StateHasChanged();
+    }
+
+    void CodeKeyPressed()
+    {
+        _vm.CodeChanged = "(changed)";
+        StateHasChanged();
+    }
+}

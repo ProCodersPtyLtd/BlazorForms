@@ -1,0 +1,18 @@
+﻿@page "/navigationForm3"
+@using BlazorForms.Shared
+@using BlazorForms.Rendering.Interfaces
+
+@inherits NavigationFormBase<BlazorFormsDemoModels.Models.NavigationModel1>
+
+<header>NavigationForm3</header>
+
+<p>
+    <label>@Vm.Model.UserName</label>
+    <br />
+    <label>You have been registered</label>
+    <br />
+    <button @onclick="@(async () => await ActionButtonClick(ModelBinding.SubmitButtonBinding))">Ok</button>
+</p>
+
+@code {
+}

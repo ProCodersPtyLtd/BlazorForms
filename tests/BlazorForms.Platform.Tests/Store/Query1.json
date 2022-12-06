@@ -1,0 +1,100 @@
+﻿{
+  "Name": "query1",
+  "SchemaName": "TestSchema1",
+  "Tags": null,
+  "Query": {
+    "QueryAlias": null,
+    "Comment": null,
+    "Fields": {
+      "p_id": {
+        "FieldAlias": "p_id",
+        "Field": {
+          "ObjectAlias": "p",
+          "FieldName": "project_id"
+        },
+        "Operation": null,
+        "RawExpression": null
+      },
+      "p_name": {
+        "FieldAlias": "p_name",
+        "Field": {
+          "ObjectAlias": "p",
+          "FieldName": "name"
+        },
+        "Operation": null,
+        "RawExpression": null
+      },
+      "alc_id": {
+        "FieldAlias": "alc_id",
+        "Field": {
+          "ObjectAlias": "a",
+          "FieldName": "allocation_id"
+        },
+        "Operation": null,
+        "RawExpression": null
+      },
+      "prj_id": {
+        "FieldAlias": "prj_id",
+        "Field": {
+          "ObjectAlias": "a",
+          "FieldName": "project_id"
+        },
+        "Operation": null,
+        "RawExpression": null
+      }
+    },
+    "Tables": {
+      "p": {
+        "ObjectAlias": "p",
+        "TableName": "project"
+      },
+      "a": {
+        "ObjectAlias": "a",
+        "TableName": "allocation"
+      }
+    },
+    "SubQueries": null,
+    "Joins": [
+      {
+        "LeftObjectAlias": "p",
+        "LeftFieldAlias": "project_id",
+        "LeftComplexFieldAliases": null,
+        "RightObjectAlias": "a",
+        "RightFieldAlias": "project_id",
+        "RightComplexFieldAliases": null,
+        "JoinType": null
+      }
+    ],
+    "GroupByFields": null,
+    "Having": null,
+    "Where": {
+      "Expression": {
+        "ScalarParam": null,
+        "FieldParam": null,
+        "Left": {
+          "ScalarParam": null,
+          "FieldParam": {
+            "FieldAlias": "alc_id",
+            "Field": {
+              "ObjectAlias": "a",
+              "FieldName": "allocation_id"
+            },
+            "Operation": null,
+            "RawExpression": null
+          },
+          "Left": null,
+          "Operator": "field",
+          "Right": null
+        },
+        "Operator": "=",
+        "Right": {
+          "ScalarParam": "@allocation_id",
+          "FieldParam": null,
+          "Left": null,
+          "Operator": "param",
+          "Right": null
+        }
+      }
+    }
+  }
+}

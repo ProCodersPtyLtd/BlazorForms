@@ -1,0 +1,27 @@
+﻿@page "/navigationStart"
+@using BlazorForms.Rendering
+@using BlazorForms.Rendering.Interfaces
+@using BlazorForms.Shared
+
+@inherits NavigationFormBase<BlazorFormsDemoModels.Models.NavigationModel1>
+
+@code {
+    public const string FlowName = "BlazorFormsDemoFlows.Flows.NavigationFlow1";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // We load form once, and every time when parameters changed
+        await Load();
+        await base.OnParametersSetAsync();
+    }
+
+    private async Task Load()
+    {
+        Vm.FormSettings.AllowAnonymousAccess = true;
+        Vm.FormSettings.AllowFlowStorage = false;
+
+        await Vm.InitiateFlow(FlowName, null, null);
+
+        NavigateToForm();
+    }
+}

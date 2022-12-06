@@ -1,0 +1,188 @@
+﻿@using MatBlazor
+@using BlazorForms.Rendering.State
+@using BlazorForms.FlowRules
+@using BlazorForms.Forms
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.Shared
+
+@inject IMatToaster Toaster
+@inject NavigationManager _NavigationManager
+
+<style>
+    .pz-grid-align {
+        align-items: center;
+    }
+
+    .pz-clean-margin {
+        margin: 0px;
+    }
+
+    .pz-group-grid {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+</style>
+
+@if (!string.IsNullOrEmpty(Group.Key))
+{
+    <MatHeadline6 class="pz-clean-margin">@Group.Key</MatHeadline6>
+}
+<div id="pz-group-container-@Group.Key" class="mat-layout-grid pz-group-grid">
+    <div class="mat-layout-grid-inner pz-grid-align">
+        @foreach (var field in Group)
+        {
+            @if (field.ControlType == null || field.DisplayProperties?.Visible == false || field.Binding.BindingType == BlazorForms.Shared.FieldBindingType.TableColumn
+             || field.Binding.BindingType == BlazorForms.Shared.FieldBindingType.TableColumnSingleSelect
+             || field.Binding.BindingType == BlazorForms.Shared.FieldBindingType.TableColumnContextMenu)
+            {
+                continue;
+            }
+
+            @if (field.ControlType == "TableOld")
+            {
+                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12 mat-subtitle2">@field.DisplayProperties.Caption</div>
+
+                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                    <GridControl Table="field" Columns="@Controller.Tables[field.Binding.TableBinding]" Caption="@field.DisplayProperties.Caption"
+                                 Validations="@GetValidations(field.Binding.ResolvedBinding)" />
+                </div>
+
+                continue;
+            }
+            else if (field.ControlType == "Table")
+            {
+                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12 mat-subtitle2">@field.DisplayProperties.Caption</div>
+                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                    @*<TableControl Controller="@Controller" Table="field" Columns="@Controller.Tables[field.Binding.TableBinding]" Caption="@field.DisplayProperties.Caption"
+                    Validations="@GetValidations(field.Binding.ResolvedBinding)" />*@
+                    <GridControl Table="field" Columns="@Controller.Tables[field.Binding.TableBinding]" Caption="@field.DisplayProperties.Caption"
+                                 ModelChanged="@ModelChanged" Validations="@GetValidations(field.Binding.ResolvedBinding)" />
+                </div>
+                continue;
+            }
+            else if (field.ControlType == "Repeater")
+            {
+                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12 mat-subtitle2">@field.DisplayProperties.Caption</div>
+                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                    <RepeaterControl Controller="@Controller" Table="field" Columns="@Controller.Repeaters[field.Binding.TableBinding]" Caption="@field.DisplayProperties.Caption"
+                                     Validations="@GetValidations(field.Binding.ResolvedBinding)" ModelValueChanged="@ModelChanged" />
+                </div>
+                continue;
+            }
+            else if (field.ControlType == "SelectableList")
+            {
+                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12 mat-subtitle2">@field.DisplayProperties.Caption</div>
+                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                    <SelectableListControl Table="field" Data="@Controller.GetSelectableListData(field)" Caption="@field.DisplayProperties.Caption"
+                                           ModelValueChanged="@ModelChanged" Validations="@GetValidations(field.Binding.ResolvedBinding)" />
+                </div>
+                continue;
+            }
+            else if (field.ControlType == "TextArea" || field.ControlType == "Header" || field.ControlType == "Subtitle")
+            {
+                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                    <DynamicSimpleControl Controller="@Controller" ModelChanged="@ModelChanged" ModelBinding="" Field="@field" />
+                </div>
+            }
+            else if (field.ControlType == "Label")
+            {
+               @if (field.DisplayProperties.NoCaption == true)
+                {
+                    <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                        <DynamicSimpleControl Controller="@Controller" ModelChanged="@ModelChanged" ModelBinding="" Field="@field" />
+                    </div>
+                }
+                else
+                {
+                    <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6 mat-subtitle2">@field.DisplayProperties.Caption</div>
+                    <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
+                        <DynamicSimpleControl Controller="@Controller" ModelChanged="@ModelChanged" ModelBinding="" Field="@field" />
+                    </div>
+                }
+            }
+            else
+            {
+                @if (field.Binding.BindingType == BlazorForms.Shared.FieldBindingType.ActionButton)
+                {
+                    <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                        <DynamicSimpleControl Controller="@Controller" ModelChanged="@ModelChanged" ModelBinding="" Field="@field" />
+                    </div>
+                }
+                else
+                {
+                    @if (field.DisplayProperties.Required)
+                    {
+                        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6 mat-subtitle2">@field.DisplayProperties.Caption *</div>
+                    }
+                    else
+                    {
+                        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6 mat-subtitle2">@field.DisplayProperties.Caption</div>
+                    }
+
+                    <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
+                       <DynamicSimpleControl Controller="@Controller" ModelChanged="@ModelChanged" ModelBinding="" Field="@field" />
+                    </div>
+                }
+
+            }
+        }
+    </div>
+</div>
+<MatToastContainer />
+
+@code {
+
+    [Parameter]
+    public IDynamicFormContentController Controller { get; set; }
+
+    [Parameter]
+    public IGrouping<string, FieldControlDetails> Group { get; set; }
+
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    async Task ModelChanged(ValueChangedArgs args)
+    {
+        if (args.Operation != ModelChangedOperation.Default)
+        {
+            StateHasChanged(); 
+
+            if (args.Operation == ModelChangedOperation.SubmitAndRefresh)
+            {              
+                await ModelValueChanged.InvokeAsync(args);                
+            }  
+            return;
+        }        
+
+        if (args.Binding.BindingType != BlazorForms.Shared.FieldBindingType.ActionButton)
+        {
+            Controller.ModelNaviSetValue(args.Binding.ResolvedBinding, args.NewValue);
+        }
+        try
+        {
+            await Controller.TriggerRules(Controller.FormData.ProcessTaskTypeFullName, args.Binding);
+            StateHasChanged();
+        }
+        catch (Exception exc)
+        {
+            await Controller.PopulateException(exc);
+            await ShowPopup();
+        }
+    }
+
+    IEnumerable<RuleExecutionResult> GetValidations(string modelBinding)
+    {
+        return Controller.Validations.Where(v => v.AffectedField == modelBinding);
+    }
+
+    public async Task ShowPopup()
+    {
+        if (Controller.ExceptionType != null && Controller.ExceptionType != typeof(FlowStopException).Name)
+        {
+            Toaster.Add("Operation failed. Please notify BlazorForms Support", MatToastType.Warning);
+
+            await Controller.SaveException(_NavigationManager.BaseUri);
+        }
+    }
+
+}

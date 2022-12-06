@@ -1,0 +1,63 @@
+﻿{
+    "FullName": "Platform.Crm.Business.Clients.ProjectListEditFlow",
+    "Fields": [
+        {
+          "Field": {
+            "Binding": {
+              "Binding": "$.Ext['ExtraProject'].Data.InventoryCode",
+              "ItemsBinding": null,
+              "IdBinding": null,
+              "NameBinding": null,
+              "TableBinding": null,
+              "TargetBinding": null,
+              "Parameters": null,
+              "BindingType": 1,
+              "BindingControlType": "BlazorForms.Shared.BindingControlType, BlazorForms.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+              "ActionType": 0,
+              "ContextMenuActions": null,
+              "IsResolved": true
+            },
+            "Name": "InventoryCodeControl",
+            "Group": null,
+            "Caption": "",
+            "ControlType": "BlazorForms.Forms.TextEdit, BlazorForms.Forms.Definitions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+            "DisplayProperties": {
+              "Name": "InventoryCodeControl",
+              "Caption": "Inventory Code",
+              "Visible": true,
+              "Disabled": false,
+              "Required": false,
+              "Highlighted": false,
+              "Password": false,
+              "Hint": null,
+              "IsPrimaryKey": false,
+              "Binding": {
+                "Binding": "$.Ext['ExtraProject'].Data.InventoryCode",
+                "ItemsBinding": null,
+                "IdBinding": null,
+                "NameBinding": null,
+                "TableBinding": null,
+                "TargetBinding": null,
+                "Parameters": null,
+                "BindingType": 1,
+                "BindingControlType": "BlazorForms.Shared.BindingControlType, BlazorForms.Shared, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ActionType": 0,
+                "ContextMenuActions": null,
+                "IsResolved": true
+              }
+            },
+            "Fields": null,
+            "FlowRules": [],
+            "Order": 100
+          },
+            "IsOverride": false
+        }
+    ],
+    "Dependencies": [
+        {
+            "Name": "projectExt",
+            "TypeCode": "ModelExtension",
+            "ItemStoreCode": "table_project"
+        }
+    ]
+}

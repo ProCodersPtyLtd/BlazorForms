@@ -1,0 +1,17 @@
+﻿@page "/navigationForm2"
+@using BlazorForms.Shared
+@using BlazorForms.Rendering.Interfaces
+
+@inherits NavigationFormBase<BlazorFormsDemoModels.Models.NavigationModel1>
+
+<header>NavigationForm2</header>
+
+<p>
+    <label>@Vm.Model.WelcomeText</label>
+    <br />
+    <button @onclick="@(async () => await ActionButtonClick(ModelBinding.RejectButtonBinding))">Cancel</button>
+    <button @onclick="@(async () => await ActionButtonClick(ModelBinding.SubmitButtonBinding))">Ok</button>
+</p>
+
+@code {
+}

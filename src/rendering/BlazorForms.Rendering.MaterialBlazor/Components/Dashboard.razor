@@ -1,0 +1,24 @@
+﻿@inherits ComponentBase
+
+@using BlazorForms.Rendering.Types
+@using Microsoft.AspNetCore.Components.Rendering
+<h3>Dashboard Control</h3>
+<div class="grid-layout">
+    @foreach (var element in Params.Widgets!)
+    {
+        <div data-grid="@element" class="grid-item" style="grid-area: @GetGridAreaStyle(element);">
+            <DynamicComponent Type="@element.WidgetType" Parameters="@element.Parameters"></DynamicComponent>
+        </div>
+    }
+</div>
+
+@code {
+
+    [Parameter]
+    public DashboardParams Params { get; init; }
+
+    private string GetGridAreaStyle(DashboardWidget element)
+    {
+        return $"{element.Row} / {element.Col} / span {element.RowSpan} / span {element.ColSpan}";
+    }
+}

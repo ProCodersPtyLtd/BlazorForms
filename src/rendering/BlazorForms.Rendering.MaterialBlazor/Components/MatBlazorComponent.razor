@@ -1,0 +1,23 @@
+﻿@using Microsoft.JSInterop
+@inject IJSRuntime JS
+
+@code {
+    private Lazy<Task<IJSObjectReference>> _moduleTask;
+
+    private static bool _rendered;
+
+    protected override async Task OnInitializedAsync()
+    //protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        //if (!_rendered)
+        {
+            _rendered = true;
+
+            var module = await JS.InvokeAsync<IJSObjectReference>(
+                    "import", "./_content/BlazorForms.Rendering.MaterialBlazor/Components/MatBlazorComponent.razor.js");
+
+            //var module = await _moduleTask.Value;
+            await module.InvokeVoidAsync("includeJsCss");
+        }
+    }
+}

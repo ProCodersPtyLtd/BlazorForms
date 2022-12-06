@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\platform\BlazorForms.Platform.Cosmos\BlazorForms.Platform.Cosmos.csproj" />
+        <ProjectReference Include="..\..\src\platform\BlazorForms.Platform\BlazorForms.Platform.csproj" />
+        <ProjectReference Include="..\..\src\rendering\BlazorForms.Rendering.Standard\BlazorForms.Rendering.Standard.csproj" />
+        <ProjectReference Include="..\BlazorFormsDemoFlows\BlazorFormsDemoFlows.csproj" />
+        <ProjectReference Include="..\BlazorFormsDemoModels\BlazorFormsDemoModels.csproj" />
+    </ItemGroup>
+
+</Project>

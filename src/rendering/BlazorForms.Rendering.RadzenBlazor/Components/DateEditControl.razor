@@ -1,0 +1,44 @@
+﻿@using BlazorForms.Rendering.State
+@using MatBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+@using System.Globalization
+
+@inherits FieldControl
+
+@inject IClientDateService _clientDateService
+
+@RenderLabel
+
+<RadzenDatePicker
+    TValue="DateTime?"
+    AllowInput="@AllowInput"
+    Value="@_localDateValue"
+    Disabled="@Field.DisplayProperties.Disabled"
+    DateFormat="@_dateFormat.ShortDatePattern"
+    ValueChanged="DateTimeValueChanged"
+    class="w-100" />
+
+@RenderValidation
+
+@code {
+    [Parameter]
+    public bool AllowInput { get; set; } = true;
+    [Parameter]
+    public DateTime? DateValue { get; set; }
+
+    private DateTime? _localDateValue;
+    private DateTimeFormatInfo _dateFormat = CultureInfo.CurrentCulture.DateTimeFormat;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _localDateValue = await _clientDateService.GetLocalDateTime(DateValue);
+    }
+
+    async Task DateTimeValueChanged(DateTime? value)
+    {
+        _localDateValue = await _clientDateService.GetLocalDateTime(value);
+        await ObjectValueChanged(value);
+    }
+}

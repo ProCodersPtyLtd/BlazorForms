@@ -1,0 +1,164 @@
+﻿@using BlazorForms.Rendering.State
+@using MatBlazor
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.Shared
+
+@inject IDynamicFieldValidator FieldValidator
+@inject IMatToaster Toaster
+@inject NavigationManager _NavigationManager
+
+<style>
+    .pz-gilaog-grid-align {
+        display: flex;
+    }
+
+    .pz-dialog-content {
+        padding: 0 40px;
+    }
+</style>
+
+@if (DialogController.ContentController.FormData != null && DialogController.ItemId != null)
+{
+    <MatDialog @bind-IsOpen="@DialogController.DialogIsOpen">
+        <MatDialogTitle>@DialogController.ContentController.FormData.DisplayName</MatDialogTitle>
+        <MatDialogContent class="pz-dialog-content" @onkeydown="@KeyPress">
+            <DynamicFormContent Controller="@DialogController.ContentController" />
+        </MatDialogContent>
+        <MatDialogActions>
+            <!-- DynamicFormDialog -->
+            <div class="mat-layout-grid" style="display:flex">
+                <div class="mat-layout-grid-inner pz-gilaog-grid-align">
+                    <div class="mat-layout-grid-cell">
+                        <MatButton Outlined="true" OnClick="@CancelClick" Disabled="@FormLocked">Cancel</MatButton>
+                    </div>
+
+                    @if (ValidateButton)
+                    {
+                        <div class="mat-layout-grid-cell">
+                            <MatButton Unelevated="true" OnClick="@ValidateClick" Disabled="@FormLocked">Validate</MatButton>
+                        </div>
+                    }
+
+                    <div class="mat-layout-grid-cell">
+                        <MatButton Raised="true" OnClick="@SubmitClick" Disabled="@FormLocked">@DialogController.ContentController.SubmitActionName</MatButton>
+                    </div>
+                </div>
+            </div>
+        </MatDialogActions>
+    </MatDialog>
+    <MatToastContainer />
+}
+
+@code {
+
+    [Parameter]
+    public DynamicFormDialogController DialogController { get; set; }
+
+    [Parameter]
+    public EventCallback<FormSubmittedArgs> FormSubmitted { get; set; }
+
+    [Parameter]
+    public bool ValidateButton { get; set; }
+
+    private bool FormLocked = false;
+
+    private void KeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            SubmitClick();
+        }
+    }
+
+    private async Task CancelClick()
+    {
+        CloseDialog();
+    }
+
+    private async Task ValidateClick()
+    {
+        FormLocked = true;
+        StateHasChanged();
+        try
+        {
+            var result = await DialogController.ContentController.TriggerRules(DialogController.ContentController.FormData.ProcessTaskTypeFullName, null, FormRuleTriggers.Submit);
+            DialogController.ContentController.Validations = result.Validations.AsEnumerable().Union(DialogController.ContentController.GetDynamicFieldValidations());
+            StateHasChanged();
+        }
+        catch (Exception exc)
+        {
+            DialogController.ContentController.PopulateException(exc);
+            ShowPopup();
+        }
+        finally
+        {
+            FormLocked = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SubmitClick()
+    {
+        FormLocked = true;
+        StateHasChanged();
+        try
+        {
+            var result = await DialogController.ContentController.TriggerRules(DialogController.ContentController.FormData.ProcessTaskTypeFullName, null, FormRuleTriggers.Submit);
+            DialogController.ContentController.Validations = result.Validations.AsEnumerable().Union(DialogController.ContentController.GetDynamicFieldValidations());
+
+            if (DialogController.ContentController.Validations.Any(v => v.ValidationResult == RuleValidationResult.Error))
+            {
+                return;
+            }
+
+            // ToDo: fix threads deadlock
+            await Task.Run(async () =>
+            {
+                await DialogController.ContentController.SubmitListItemForm(DialogController.RefId, DialogController.ContentController.SubmitActionName);
+            });
+
+            await FormSubmitted.InvokeAsync(new FormSubmittedArgs { Context = null });
+            DialogController.ContentController.ClearData();
+            DialogController.DialogIsOpen = false;
+        }
+        catch (Exception exc)
+        {
+            DialogController.ContentController.PopulateException(exc);
+            ShowPopup();
+        }
+        finally
+        {
+            FormLocked = false;
+            StateHasChanged();
+        }
+    }
+
+    private void CloseDialog()
+    {
+        DialogController.DialogIsOpen = false;
+    }
+
+    public async Task ShowPopup()
+    {
+        if (DialogController.ContentController.ExceptionType != null && DialogController.ContentController.ExceptionType != typeof(FlowStopException).Name)
+        {
+            Toaster.Add("Timesheet operation failed. Please notify BlazorForms Support", MatToastType.Warning);
+
+            await Task.Run(async () =>
+            {
+                var flowParams = new FlowParamsGeneric();                
+                flowParams.Operation = FlowReferenceOperation.QuickAction;
+                flowParams["BaseUri"] = _NavigationManager.BaseUri;
+                flowParams["Type"] = DialogController.ContentController.ExceptionType;
+                flowParams["Message"] = DialogController.ContentController.ExceptionMessage;
+                flowParams["StackTrace"] = DialogController.ContentController.ExceptionStackTrace;
+
+                await DialogController.ContentController.RunActionFlow("BlazorForms.Platform.Crm.Business.Admin.ErrorEditFlow", flowParams, false);
+            });
+
+            DialogController.ContentController.ClearException(false);
+        }
+    }
+}

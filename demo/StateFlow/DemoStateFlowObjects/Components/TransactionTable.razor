@@ -1,0 +1,179 @@
+﻿@using BlazorForms.Flows
+@using BlazorForms.Rendering.State
+@using BlazorFormsStateFlowDemoApp.BusinessObjects
+
+@inject DocumentViewModel _vm
+
+<style>
+    table {
+        text-align: left;
+        position: relative;
+        border-collapse: collapse;
+        background-color: #f6f6f6;
+    }
+    /* Spacing */
+    td, th {
+        border: 1px solid #999;
+        padding: 10px;
+        cursor: pointer;
+    }
+
+    th {
+        background: brown;
+        color: white;
+        border-radius: 0;
+        position: sticky;
+        top: 0;
+        padding: 5px;
+    }
+
+    .primary {
+        background-color: #000000
+    }
+
+    tfoot > tr {
+        background: black;
+        color: white;
+    }
+
+    tbody > tr:hover {
+        background-color: #ffc107;
+    }
+
+    /*.row {
+        cursor: pointer
+    }
+
+        .row:hover {
+            background-color: #c2d8ff
+        }*/
+
+    .Selected {
+        background-color: #4781e9
+    }
+    
+    .Selected:hover {
+        background-color: #83aefb
+    }
+</style>
+
+@*<div style="border:1px solid black;">*@
+
+<h6>@Header</h6>
+
+@if (_stateDetails != null)
+{
+    <table>
+        <tr>
+            @foreach (var transition in _stateDetails.CurrentStateTransitions)
+            {
+                @if (@transition.IsButtonTrigger())
+                {
+                    var btn = @transition.GetTrigger() as ButtonTransitionTrigger;
+                    var selector = btn.GetSelector();
+
+                    if (selector != null)
+                    {
+                        <td>
+                            <select class="form-control" @bind="_selectedTransaction.TriggerSelectedValue">
+                                <option></option>
+                                @foreach (var item in selector.Values)
+                                {
+                                    <option value="@item">@item</option>
+                                }
+                            </select>
+                        </td>
+                    }
+
+                    <td>
+                        <button class="form-control" @onclick="async (args) => await OnTransitionClick(btn.Text, transition)">@btn.Text</button>
+                    </td>
+                }
+            }
+        </tr>
+    </table>
+    <br/>
+}
+
+    <table>
+        @*<caption style="caption-side:top">@Header</caption>*@
+        <tr>
+            <th>Id</th>
+            <th>Account</th>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Found Issue</th>
+            <th>Created User</th>
+            <th>Assignee</th>
+            <th>State</th>
+            <th>Status</th>
+            <th>Resolution</th>
+        </tr>
+
+@if (Model.Count() > 0)
+{
+        @foreach (var line in Model)
+        {
+            <tr @onclick="(async (args) => await Select(line.Document.TransactionId))" class="@GetRowClass(line.Document.TransactionId)">
+                <td >@line.Document.TransactionId</td>
+                <td>@line.Document.AccountId</td>
+                <td>@line.Document.Date.ToString("dd/MM/yyyy")</td>
+                <td>@line.Document.Amount.Value.ToString("N2")</td>
+                <td>@line.Document.FoundIssue</td>
+                <td>@line.Document.CreatedUser</td>
+                <td>@line.AssignedUser</td>
+                <td>@line.State</td>
+                <td>@line.StatusMessage</td>
+                <td>@line.Resolution</td>
+            </tr>
+        }
+}
+    </table>
+
+    <hr/>
+
+@*</div>*@
+
+@code {
+    [Parameter]
+    public List<DocumentModel> Model { get; set; }
+
+    [Parameter]
+    public string Header { get; set; }
+
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelChanged { get; set; }
+
+    private StateFlowTaskDetails _stateDetails;
+    private DocumentModel _selectedTransaction;
+
+    private async Task OnTransitionClick(string text, TransitionDef transition)
+    {
+        await _vm.TransitionClicked(text, transition, _selectedTransaction);
+        ClearSelection();
+        await ModelChanged.InvokeAsync(null);
+    }
+
+    private async Task Select(string id)
+    {
+        ClearSelection();
+        var tran = Model.First(t => t.Document.TransactionId == id);
+        tran.Selected = true;
+        _selectedTransaction = tran;
+        _stateDetails = await _vm.GetTransactionSelectorData(id);
+        StateHasChanged();
+    }
+
+    private void ClearSelection()
+    {
+        Model.ForEach(t => t.Selected = false);
+        _selectedTransaction = null;
+        _stateDetails = null;
+    }
+
+    private string GetRowClass(string id)
+    {
+        var result = Model.First(t => t.Document.TransactionId == id).Selected ? "Selected" : "";
+        return result;
+    }
+}

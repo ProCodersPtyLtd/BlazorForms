@@ -1,0 +1,69 @@
+﻿@using BlazorForms.Rendering.State
+@using MatBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+
+@inherits FieldControl
+
+@RenderLabel
+
+@if (Field.DisplayProperties.Disabled)
+{
+    <RadzenTextBox Value="@TextValue" Disabled="@true" class="w-100" />
+}
+else
+{
+    <RadzenAutoComplete
+        Data="@Options"
+        TextProperty="Value"
+        MinLength="0"
+        Value="@SearchValue"
+        Disabled="@Field.DisplayProperties.Disabled"
+        ValueChanged="StringValueChanged"
+        class="w-100"/>
+}
+
+@RenderValidation
+
+@code {
+    [CascadingParameter]
+    public IFormViewModel ViewModel { get; set; }
+
+    [Parameter]
+    public string TextValue { get; set; }
+
+    [Parameter]
+    public string ItemsBinding { get; set; }
+    [Parameter]
+    public string NameBinding { get; set; }
+
+    [Parameter]
+    public bool Password { get; set; }
+
+    public IList<KeyValuePair<string, string>> Options { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Options = ViewModel
+            .ModelNaviGetItems(ItemsBinding)
+            .Select(item => ViewModel.PathNavi.GetValue(item, NameBinding) as string)
+            .Select(str => new KeyValuePair<string, string>(str, str))
+            .ToArray();
+
+        SearchValue = TextValue;
+        
+        base.OnInitialized();
+    }
+
+    public string SearchValue { get; set; }
+
+    async Task StringValueChanged(string value)
+    {
+        if (!Options.Any(x => x.Value == value))
+            return;
+
+        TextValue = value;
+        await ObjectValueChanged(TextValue);
+    }
+}

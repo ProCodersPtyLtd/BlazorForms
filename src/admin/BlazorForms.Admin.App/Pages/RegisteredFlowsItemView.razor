@@ -1,0 +1,11 @@
+﻿@page "/_BlazorForms/admin/registered-flows/{item}"
+@using BlazorForms.Rendering.Interfaces
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.Rendering.State
+
+<label>@Item</label>
+
+@code {
+    [Parameter]
+    public string Item { get; set; }
+}

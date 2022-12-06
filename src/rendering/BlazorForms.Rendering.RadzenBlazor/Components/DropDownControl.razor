@@ -1,0 +1,60 @@
+﻿@using BlazorForms.Rendering.State
+@using MatBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+
+@inherits FieldControl
+
+@RenderLabel
+
+<RadzenDropDown
+    TValue="string"
+    SelectedItem="@SelectedValue"
+    Data="@_items"
+    ValueProperty="Key"
+    TextProperty="Value"
+    Disabled="@Field.DisplayProperties.Disabled"
+    ValueChanged="StringValueChanged"
+    class="w-100"
+/>
+
+@RenderValidation
+
+@code {
+    [CascadingParameter]
+    public IFormViewModel ViewModel { get; set; }
+
+    [Parameter]
+    public string ModelBinding { get; set; }
+    [Parameter]
+    public string ItemsBinding { get; set; }
+    [Parameter]
+    public string IdBinding { get; set; }
+    [Parameter]
+    public string NameBinding { get; set; }
+
+    [Parameter]
+    public string TextValue { get; set; }
+
+    [Parameter]
+    public KeyValuePair<string, string>? SelectedValue { get; set; }
+
+    private IEnumerable<KeyValuePair<string, string>> _items;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var items = ViewModel.ModelNaviGetItems(ItemsBinding);
+        _items = items.Select(i => new KeyValuePair<string, string>( ViewModel.PathNavi.GetValue(i, IdBinding).ToString(),
+            ViewModel.PathNavi.GetValue(i, NameBinding).ToString()));
+
+        if (SelectedValue is null && !string.IsNullOrWhiteSpace(TextValue))
+            SelectedValue = _items.FirstOrDefault(x => x.Key == TextValue);
+    }
+
+    async Task StringValueChanged(string value)
+    {
+        TextValue = value;
+        await ObjectValueChanged(value);
+    }
+}
