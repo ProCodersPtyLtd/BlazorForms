@@ -6,6 +6,6 @@
         public virtual int PersonId { get; set; }
         public virtual string? Phone { get; set; }
         public virtual string? Email { get; set; }
-        public virtual DateTime LastUpdatedOn { get; set; }
+        public virtual DateTime? LastUpdatedOn { get; set; }
     }
 }

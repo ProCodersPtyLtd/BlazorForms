@@ -7,8 +7,8 @@ namespace CrmLightDemoApp.Onion.Services.Model
 {
     public class PersonModel : PersonContactDetails, IFlowModel
     {
-        public ExpandoObject Bag => throw new NotImplementedException();
+        public virtual ExpandoObject Bag { get; set; } = new ExpandoObject();
 
-        public Dictionary<string, DynamicRecordset> Ext => throw new NotImplementedException();
+        public virtual Dictionary<string, DynamicRecordset> Ext { get; set; } = new Dictionary<string, DynamicRecordset>();
     }
 }

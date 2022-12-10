@@ -19,7 +19,7 @@ namespace BlazorForms.Rendering
         public ClientBrowserService(IJSRuntime jsRuntime, NavigationManager navigationManager)
         {
             _moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-                "import", "./_content/BlazorForms.Rendering.MaterialBlazor/BlazorInterop.js").AsTask());
+                "import", "./_content/BlazorForms.Rendering.MaterialBlazor/timeZone.js").AsTask());
 
             //_jsRuntime = jsRuntime;
             _navigationManager = navigationManager;

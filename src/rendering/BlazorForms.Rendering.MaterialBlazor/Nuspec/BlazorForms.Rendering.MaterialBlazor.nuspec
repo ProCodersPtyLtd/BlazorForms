@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
-    <id>BlazorForms.MaterialBlazor</id>
+    <id>BlazorForms.Rendering.MaterialBlazor</id>
     <version>0.3.3</version>
     <authors>Pro Coders</authors>
     <owners>Pro Coders</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>BlazorForms.MaterialBlazor is a rendering library for BlazorForms framework that helps to create flows, forms and rules</description>
+    <description>BlazorForms.Rendering.MaterialBlazor is a rendering library for BlazorForms framework that helps to create flows, forms and rules</description>
     <copyright>Copyright (c) 2022 Pro Coders PTY LTD</copyright>
 	<license type="expression">MIT</license>
     <tags>blazor flow dynamic form forms rule framework</tags>
@@ -27,7 +27,10 @@
     </contentFiles>
   </metadata>
   <files>
-	<!--<file src="contentFiles\any\any\_content\BlazorForms.Rendering.MaterialBlazor\Components\*" target="contentFiles\any\any\_content\BlazorForms.Rendering.MaterialBlazor\Components"/>-->
+	<file src="..\wwwroot\*.js" target="staticwebassets\"/>
+	<file src="..\wwwroot\*.css" target="staticwebassets\"/>
+	<file src="..\Components\*.js" target="staticwebassets\Components"/>
+	<file src="..\Components\*.css" target="staticwebassets\Components"/>
     <file src="..\bin\Release\net6.0\BlazorForms.Rendering.MaterialBlazor.dll" target="lib\net6.0\BlazorForms.Rendering.MaterialBlazor.dll" />
   </files>
 </package>
