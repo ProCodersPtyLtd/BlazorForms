@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="BlazorForms" Version="0.3.5" />
-    <PackageReference Include="BlazorForms.Rendering.MaterialBlazor" Version="0.3.5" />
+    <PackageReference Include="BlazorForms.Rendering.MaterialBlazor" Version="0.3.6" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
     <PackageReference Include="MudBlazor" Version="6.1.4" />
   </ItemGroup>

@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <AssemblyVersion>0.3.5</AssemblyVersion>
-	  <PackageVersion>0.3.5</PackageVersion>
+    <AssemblyVersion>0.3.6</AssemblyVersion>
+	  <PackageVersion>0.3.6</PackageVersion>
 	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
 	  <Copyright>Pro Coders PTY LTD</Copyright>
 	  <Description>A rendering library for BlazorForms framework that helps to create flows, forms and rules</Description>
@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BlazorForms" Version="0.3.5" />
+    <PackageReference Include="BlazorForms.Rendering" Version="0.3.5" />
     <PackageReference Include="MatBlazor" Version="2.8.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components" Version="6.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.9" />
