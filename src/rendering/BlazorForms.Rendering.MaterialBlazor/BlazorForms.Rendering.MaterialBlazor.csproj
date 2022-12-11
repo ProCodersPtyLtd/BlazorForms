@@ -2,8 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <AssemblyVersion>0.3.4</AssemblyVersion>
-	  <PackageVersion>0.3.4</PackageVersion>
+    <AssemblyVersion>0.3.5</AssemblyVersion>
+	  <PackageVersion>0.3.5</PackageVersion>
+	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
+	  <Copyright>Pro Coders PTY LTD</Copyright>
+	  <Description>A rendering library for BlazorForms framework that helps to create flows, forms and rules</Description>
+	  <Company>Pro Coders PTY LTD</Company>
+	  <PackageTags>blazor;flow;dynamic;form;forms;rule;framework</PackageTags>
+	  <Authors>Pro Coders PTY LTD</Authors>
   </PropertyGroup>
 
   <ItemGroup>
