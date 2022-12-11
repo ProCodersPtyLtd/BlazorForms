@@ -29,7 +29,7 @@ services.AddServerSideBlazorForms();
 services.AddBlazorFormsApplicationParts("BlazorForms.");           // if you want to use examples from BlazorForms.Example.Link without changing namespace
 services.AddBlazorFormsApplicationParts("BlazorFormsDemoBlazorApp");    // put root namespace of your project instead of BlazorApp1
 services.AddBlazorFormsApplicationParts("BlazorFormsDemoFlows");    // put root namespace of your project instead of BlazorApp1
-services.AddBlazorFormsMatBlazor();
+services.AddBlazorFormsMaterialBlazor();
 
 // to build
 //services.AddSingleton<IFlowRepository, MockFlowRepository>();

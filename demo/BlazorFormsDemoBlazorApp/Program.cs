@@ -30,16 +30,17 @@ services.AddRazorPages();
 
 services.AddServerSideBlazorForms();
 //services.AddBlazorFormsCosmos();
-services.AddBlazorFormsApplicationParts("BlazorForms.");           // if you want to use examples from BlazorForms.Example.Link without changing namespace
-services.AddBlazorFormsApplicationParts("BlazorFormsDemoBlazorApp");    // put root namespace of your project instead of BlazorApp1
-services.AddBlazorFormsApplicationParts("BlazorFormsDemoFlows");    // put root namespace of your project instead of BlazorApp1
-services.AddBlazorFormsMatBlazor();
+//services.AddBlazorFormsApplicationParts("BlazorForms.");           // if you want to use examples from BlazorForms.Example.Link without changing namespace
+//services.AddBlazorFormsApplicationParts("BlazorFormsDemoBlazorApp");    // put root namespace of your project instead of BlazorApp1
+//services.AddBlazorFormsApplicationParts("xyz123");    // put root namespace of your project instead of BlazorApp1
+//services.AddBlazorFormsApplicationParts("BlazorFormsDemoFlows");    // put root namespace of your project instead of BlazorApp1
+services.AddBlazorFormsMaterialBlazor();
 
 // to build
 //services.AddSingleton<IFlowRepository, MockFlowRepository>();
-services.AddScoped(typeof(ContentLoader), typeof(ContentLoader));
-services.AddSingleton(typeof(IFlowRepository), typeof(SqlFlowRepository));
-services.AddSingleton<ITenantedScope, MockTenantedScope>();
+//services.AddScoped(typeof(ContentLoader), typeof(ContentLoader));
+//services.AddSingleton(typeof(IFlowRepository), typeof(SqlFlowRepository));
+//services.AddSingleton<ITenantedScope, MockTenantedScope>();
 services.AddBlazorFormsServerModelAssemblyTypes(typeof(ArtelProjectSettingsModel));
 services.AddBlazorFormsRenderingFlows();
 #endregion

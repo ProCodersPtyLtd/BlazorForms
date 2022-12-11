@@ -19,7 +19,7 @@ builder.Services.AddBlazorFormsWebAssembly();
 builder.Services.AddBlazorFormsModelAssemblyTypes(typeof(Program));       // types in Blazor Apllication Client assembly (if you have models there)
 builder.Services.AddBlazorFormsModelAssemblyTypes(typeof(SampleModel1));
 builder.Services.AddBlazorFormsModelAssemblyTypes(typeof(ArtelProjectSettingsModel));
-builder.Services.AddBlazorFormsMatBlazor();
+builder.Services.AddBlazorFormsMaterialBlazor();
 
 #region InlineFlows
 builder.Services.AddWasmInlineFlows();

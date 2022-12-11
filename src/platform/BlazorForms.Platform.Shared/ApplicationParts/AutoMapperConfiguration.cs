@@ -9,6 +9,7 @@ using System.Text;
 [assembly: InternalsVisibleTo("BlazorForms.Tests.Framework")]
 [assembly: InternalsVisibleTo("BlazorForms.Integration.Tests")]
 [assembly: InternalsVisibleTo("BlazorApp2.Server")]
+[assembly: InternalsVisibleTo("BlazorForms.Platform")]
 [assembly: InternalsVisibleTo("BlazorForms.IntegrationTests.Server")]
 namespace BlazorForms.Platform.Shared.ApplicationParts
 {

@@ -18,14 +18,8 @@ builder.Services.AddMudServices();
 
 // BlazorForms
 builder.Services.AddServerSideBlazorForms();
-builder.Services.AddBlazorFormsMatBlazor();
-// Temp
-var services = builder.Services;
-services.AddSingleton(typeof(IFlowRepository), typeof(SqlFlowRepository));
-services.AddSingleton<ITenantedScope, MockTenantedScope>();
-services.AddBlazorFormsApplicationParts("BlazorForms.");
-services.AddBlazorFormsApplicationParts("CrmLightDemoApp");
-services.AddBlazorFormsServerModelAssemblyTypes(typeof(PersonEditFlow));
+builder.Services.AddBlazorFormsMaterialBlazor();
+builder.Services.AddBlazorFormsServerModelAssemblyTypes(typeof(PersonEditFlow));
 
 var app = builder.Build();
 

@@ -8,7 +8,7 @@ namespace BlazorForms
 {
     public static class BlazorFormsRenderingMatBlazorServiceCollectionExtensions
     {
-        public static IServiceCollection AddBlazorFormsMatBlazor([NotNull] this IServiceCollection serviceCollection)
+        public static IServiceCollection AddBlazorFormsMaterialBlazor([NotNull] this IServiceCollection serviceCollection)
         {
             serviceCollection.AddMatBlazor();
 
