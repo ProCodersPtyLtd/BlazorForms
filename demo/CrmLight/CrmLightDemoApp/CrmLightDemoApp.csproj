@@ -16,4 +16,8 @@
     <PackageReference Include="MudBlazor" Version="6.1.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!--<ProjectReference Include="..\..\..\src\platform\BlazorForms.Platform\BlazorForms.Platform.csproj" />-->
+  </ItemGroup>
+
 </Project>

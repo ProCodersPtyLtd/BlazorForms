@@ -40,7 +40,7 @@ namespace CrmLightDemoApp.Onion.Infrastructure
             _peopleCache.Add(data.GetCopy());
         }
 
-        public async Task<List<PersonContactDetails>> GetAllWithContactsAsync()
+        public async Task<List<PersonDetails>> GetAllWithContactsAsync()
         {
             throw new NotImplementedException();
         }

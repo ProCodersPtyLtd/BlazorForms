@@ -2,6 +2,7 @@ using BlazorForms;
 using BlazorForms.Flows.Definitions;
 using BlazorForms.Platform;
 using BlazorForms.Platform.Stubs;
+using CrmLightDemoApp.Onion;
 using CrmLightDemoApp.Onion.Services.Flow;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -12,6 +13,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+
+// Register Onion dependencies
+builder.Services.AddOnionDependencies();
 
 // MudBlazor
 builder.Services.AddMudServices();

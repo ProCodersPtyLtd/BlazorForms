@@ -5,7 +5,7 @@ using System.Dynamic;
 
 namespace CrmLightDemoApp.Onion.Services.Model
 {
-    public class PersonModel : PersonContactDetails, IFlowModel
+    public class PersonModel : Person, IFlowModel
     {
         public virtual ExpandoObject Bag { get; set; } = new ExpandoObject();
 
