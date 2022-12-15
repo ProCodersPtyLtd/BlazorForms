@@ -1,0 +1,202 @@
+﻿@using BlazorForms.Platform.Definitions.Shared
+@using BlazorForms.Rendering.State
+@using MudBlazor
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.Shared
+
+@inject IDynamicFieldValidator FieldValidator
+@inject ISnackbar Snackbar
+@inject NavigationManager _navigationManager
+
+<style>
+    .pz-dilaog-grid-align {
+        display: flex;
+    }
+
+    .pz-dialog-content {
+        padding: 0 40px;
+    }
+</style>
+
+@if (DialogViewModel.FormData != null && DialogViewModel.ItemId != null)
+{
+    <div @onkeydown="@KeyPress">
+        <MudDialog @bind-IsVisible="@DialogViewModel.DialogIsOpen" @onkeydown="@KeyPress" DefaultFocus="DefaultFocus.LastChild">
+        <TitleContent>@DialogViewModel.FormData.DisplayName</TitleContent>
+        <DialogContent>
+
+            <MudTextField T="string" Label="Name"></MudTextField>
+
+            <CascadingValue Value="@(DialogViewModel as IFormViewModel)">
+                <FormContent ModelValueChanged=@ModelActionChanged />
+            </CascadingValue>
+
+        </DialogContent>
+        <DialogActions>
+            <div class="mat-layout-grid" style="display:flex">
+                <div class="mat-layout-grid-inner pz-dilaog-grid-align">
+                    <div class="mat-layout-grid-cell">
+                        <MudButton Variant="Variant.Filled" OnClick="@CancelClick" Disabled="@_formLocked">Cancel</MudButton>
+                    </div>
+
+                    @if (ValidateButton)
+                    {
+                        <div class="mat-layout-grid-cell">
+                            <MudButton Variant="Variant.Filled" OnClick="@ValidateClick" Disabled="@_formLocked">Validate</MudButton>
+                        </div>
+                    }
+
+                    <div class="mat-layout-grid-cell">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@SubmitClick" Disabled="@_formLocked">@DialogViewModel.SubmitActionName</MudButton>
+                    </div>
+                </div>
+            </div>
+        </DialogActions>
+    </MudDialog>
+    </div>
+}
+
+@code {
+    [CascadingParameter] 
+    MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public IDialogFormViewModel DialogViewModel { get; set; }
+
+    [Parameter]
+    public bool AllowAnonymousAccess { get; set; }
+
+    [Parameter]
+    public bool AllowFlowStorage { get; set; }
+
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelActionChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<FormSubmittedArgs> FormSubmitted { get; set; }
+
+    [Parameter]
+    public object FormSubmittedObj { get; set; }
+
+    [Parameter]
+    public bool ValidateButton { get; set; }
+
+    private bool _formLocked = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // We load form once, and every time when parameters changed
+        await Setup();
+        await base.OnParametersSetAsync();
+    }
+
+    // Dialog never appears itself, the only way to show dialog is through DialogVM.LoadDialog(...)
+    private async Task Setup()
+    {
+        DialogViewModel.SetBaseUri(_navigationManager.BaseUri);
+        DialogViewModel.FormSettings.AllowAnonymousAccess = AllowAnonymousAccess;
+        DialogViewModel.FormSettings.AllowFlowStorage = AllowFlowStorage;        
+    }
+
+    // ToDo: not working
+    private void KeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            SubmitClick();
+        }
+        else if (e.Key == "Esc")
+        {
+            CancelClick();
+        }
+    }
+
+    private async Task CancelClick()
+    {
+        CloseDialog();
+    }
+
+    private async Task ValidateClick()
+    {
+        _formLocked = true;
+        StateHasChanged();
+        try
+        {
+            await DialogViewModel.ValidateDialog();
+            StateHasChanged();
+        }
+        catch (Exception exc)
+        {
+            DialogViewModel.PopulateException(exc);
+            await ShowPopup();
+        }
+        finally
+        {
+            _formLocked = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SubmitClick()
+    {
+        _formLocked = true;
+        StateHasChanged();
+        try
+        {
+            await Task.Run(async () =>
+            {
+                await DialogViewModel.SubmitDialog();
+            });
+
+            if (FormSubmittedObj != null)
+            {
+                var callback = (EventCallback<FormSubmittedArgs>)FormSubmittedObj;
+                await callback.InvokeAsync(new FormSubmittedArgs { Context = null });
+            }
+            else
+            {
+                await FormSubmitted.InvokeAsync(new FormSubmittedArgs { Context = null });
+            }
+        }
+        catch (Exception exc)
+        {
+            DialogViewModel.PopulateException(exc);
+            await ShowPopup();
+        }
+        finally
+        {
+            _formLocked = false;
+            CloseDialog();
+            StateHasChanged();
+        }
+    }
+
+    private void CloseDialog()
+    {
+        MudDialog.Close(DialogResult.Ok(true));
+        DialogViewModel.DialogIsOpen = false;
+        StateHasChanged();
+    }
+
+    public async Task ShowPopup()
+    {
+        if (DialogViewModel.ExceptionType != null && DialogViewModel.ExceptionType != typeof(FlowStopException).Name)
+        {
+            Snackbar.Add($"Operation failed. {DialogViewModel.ExceptionMessage}", Severity.Error);
+
+            await Task.Run(async () =>
+            {
+                var flowParams = new FlowParamsGeneric();                
+                flowParams.Operation = FlowReferenceOperation.QuickAction;
+                flowParams[PlatformConstants.BaseUri] = _navigationManager.BaseUri;
+                flowParams["Type"] = DialogViewModel.ExceptionType;
+                flowParams["Message"] = DialogViewModel.ExceptionMessage;
+                flowParams["StackTrace"] = DialogViewModel.ExceptionStackTrace;
+
+                await DialogViewModel.RunActionFlow("BlazorForms.Platform.ErrorEditFlow", flowParams, false);
+            });
+        }
+    }
+}

@@ -1,0 +1,450 @@
+﻿@using Microsoft.JSInterop
+@using BlazorForms.Platform.Definitions.Shared
+@using BlazorForms.Rendering.State
+@using BlazorForms.Shared
+@using BlazorForms.Platform
+@using BlazorForms.Shared.Extensions;
+@using BlazorForms.Rendering.Validation
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.FlowRules
+@using BlazorForms.Forms
+@using BlazorForms.Shared.Reflection
+@using System.Globalization
+@using BlazorForms.Rendering.Types
+
+@inject IDynamicFieldValidator FieldValidator
+@inject IListFormViewModel ViewModel
+@inject IDialogFormViewModel DialogVM
+@inject NavigationManager _navigationManager
+@inject IJSRuntime jsRuntime
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<style>
+    .pz-table {
+        margin-top: 40px;
+    }
+
+    .pz-ref-button {
+        margin-left: 1rem;
+        margin-top: 0.5rem;
+        width: auto;
+    }
+
+    th.mud-table-cell {
+        background-color: lightgray !important;
+    }
+
+</style>
+
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<CascadingValue Value="@ViewModel">
+
+@if (loading)
+{
+        <MudProgressLinear Indeterminate="@FormLocked" Color="Color.Primary" Style="min-width:50%;" />
+}
+else if (ViewModel.ListData != null)
+{
+    <MudTable Items="@GetListData()">
+        <HeaderContent>
+            @foreach (var c in ViewModel.VisibleColumns!)
+            {
+                    var col = c;
+                    <MudTh>@col?.DisplayProperties?.Caption</MudTh>
+            }
+            
+            @if (ViewModel.ContextMenuActions != null)
+            {
+                    <MudTh>Actions</MudTh>
+            }
+
+        </HeaderContent>
+        <RowTemplate>
+            @if (ViewModel.ListData.Length > 0)
+            {
+                <MudTd hidden="hidden">@context[0]</MudTd>
+
+                @for (int i = 0; i < ViewModel.VisibleColumns.Count; i++)
+                {
+                        var ind = i;
+
+                        <MudTd style="white-space: pre;" @onclick="@(e => RowOnClick(context[0]))">@context[ind + 1]</MudTd>
+                }
+
+                @*Context Menu*@
+                @*@if (ViewModel.ContextMenuActions != null)
+                {
+                    <DynamicListFormRowContextMenu Pk="@context[0]"
+                                        Actions="@ViewModel.ContextMenuActions" OnContextMenuItemClick="@(async args => await ContextMenuItemClick(args.Pk, args.Action))" />
+                }*@
+            }
+            else
+            {
+                <MudTd colspan="@ViewModel?.Columns?.Count" Class="pz-no-records-text"><MudText Typo="Typo.body2">No Records</MudText></MudTd>
+            }
+        </RowTemplate>
+        @*<FooterContent>
+            @if (ViewModel.ListData.Length == 0)
+            {
+                <MudTFootRow>
+                    <MudTd colspan="@ViewModel?.Columns?.Count"><MudText Typo="Typo.body2">No Records</MudText></MudTd>
+                </MudTFootRow>
+            }
+        </FooterContent>*@
+        <PagerContent>
+            <MudTablePager PageSizeOptions="@(new int[] { 10, 50, 100 })"></MudTablePager>
+        </PagerContent>
+    </MudTable>
+}
+    @*Ref Buttons*@
+    @if (ViewModel.ReferenceButtonActions != null && ViewModel.ReferenceButtonActions.Count > 0)
+    {
+        <div class="mat-layout-grid mat-layout-grid-align-right">
+            <div class="mat-layout-grid-cell">
+                @foreach (var action in ViewModel.ReferenceButtonActions)
+                {
+                    <MudButton Variant="Variant.Filled" OnClick="@(async () => await RefButtonClick(action))" Class="pz-ref-button" Disabled="@FormLocked">@action</MudButton>
+                }
+            </div>
+        </div>
+    }
+
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public string FlowType { get; set; }
+
+    [Parameter]
+    public bool AllowAnonymousAccess { get; set; }
+
+    [Parameter]
+    public bool AllowFlowStorage { get; set; }
+
+    [Parameter]
+    public string PK { get; set; }
+
+    [Parameter]
+    public string ParentItemPk { get; set; }
+
+    [Parameter]
+    public FlowParamsGeneric FlowParams { get; set; }
+
+    [Parameter]
+    public bool ShowFilters { get; set; }
+
+    [Parameter]
+    public bool ShowSorting { get; set; }
+
+    [Parameter]
+    public bool SupressExceptions { get; set; }
+
+    private IEnumerable<FormDetails> _fields;
+
+    private bool loading = true;
+    private bool FormLocked = false;
+    string DialogPk = null;
+
+    //BaseMatIconButton MainMenuButton;
+    //BaseMatMenu MainMenu;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // We load form once, and every time when parameters changed
+        await Reload();
+        await base.OnParametersSetAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task Reload()
+    {
+        try
+        {
+            var flowParams = FlowParams ?? new FlowParamsGeneric();
+            flowParams.ItemId = ParentItemPk;
+
+            await ViewModel.LoadListForm(FlowType, PK, flowParams, true);
+
+            loading = false;
+            StateHasChanged();
+        }
+        catch (Exception exc)
+        {
+            ViewModel.PopulateException(exc);
+            await ShowPopup();
+        }
+    }
+
+    //private async Task MainMenuClick()
+    //{
+    //    try
+    //    {
+    //        await MainMenu.OpenAsync(MainMenuButton.Ref);
+    //    }
+    //    catch (Exception exc)
+    //    {
+    //        ViewModel.PopulateException(exc);
+    //    }
+    //    finally
+    //    {
+    //        await ShowPopup();
+    //    }
+    //}
+
+    private async Task MainMenuItemClick(string action)
+    {
+        try
+        {
+            await ViewModel.NavigateActionFlow(action);
+        }
+        catch (Exception exc)
+        {
+            ViewModel.PopulateException(exc);
+            await ShowPopup();
+        }
+    }
+
+    private async Task RefButtonClick(string action)
+    {
+        FormLocked = true;
+        try
+        {
+            var flowAction = ViewModel.ReferenceButtonActionsDictionary[action];
+            if (flowAction.Operation == FlowReferenceOperation.DialogForm)
+            {
+                var options = new DialogOptions { CloseOnEscapeKey = true };
+                var dialogParameters = new DialogParameters();
+                dialogParameters["DialogViewModel"] = DialogVM;
+                dialogParameters["FormSubmitted"] = new EventCallback<FormSubmittedArgs>(this, DialogFormSubmitted);
+                dialogParameters["AllowAnonymousAccess"] = AllowAnonymousAccess;
+                dialogParameters["AllowFlowStorage"] = AllowFlowStorage;
+
+                var flowParams = FlowParams ?? new FlowParamsGeneric();
+                flowParams.ItemId = "";
+                flowParams.Operation = flowAction.Operation;
+                flowParams[PlatformConstants.BaseUri] = _navigationManager.BaseUri;
+
+                DialogPk = "";
+                await Task.Run(async () =>
+                {
+                    await DialogVM.LoadDialog(flowAction.FlowFullName, flowParams);
+                });
+
+                DialogService.Show<FlowDialogForm>(null, dialogParameters, options);
+            }
+            else if (flowAction.IsNavigation)
+            {
+                var path = string.Format(flowAction.NavigationFormat);
+                _navigationManager.NavigateTo(path);
+            }
+            else
+            {
+                await ViewModel.NavigateReferenceButtonActionFlow(action);
+            }
+            StateHasChanged();
+        }
+        catch (Exception exc)
+        {
+            ViewModel.PopulateException(exc);
+            await ShowPopup();
+        }
+        finally
+        {
+            FormLocked = false;
+        }
+    }
+
+    private string[][] GetListData()
+    {
+        return ViewModel.ListData.Length > 0 ? ViewModel.ListData : new string[1][] { Enumerable.Range(0, ViewModel.Columns.Count).Select(i => string.Empty).ToArray() };
+    }
+
+    private async Task ContextMenuItemClick(string pk, string action)
+    {
+        try
+        {
+            DialogPk = pk;
+
+            var flowAction = ViewModel.ContextMenuActionsDictionary[action];
+
+            if (flowAction.IsNavigation)
+            {
+                var path = string.Format(flowAction.NavigationFormat, pk);
+
+                if (flowAction.Operation == FlowReferenceOperation.OpenInNewTab)
+                {
+                    await jsRuntime.InvokeAsync<object>("open", path, "_blank");
+                }
+                else
+                {
+                    _navigationManager.NavigateTo(path);
+                    StateHasChanged();
+                }
+            }
+            else
+            {
+                if (flowAction.Operation == FlowReferenceOperation.QuickAction)
+                {
+                    // Action Flow
+                    await Task.Run(async () =>
+                    {
+                        var flowParams = FlowParams ?? new FlowParamsGeneric();
+                        flowParams.ItemId = pk;
+                        flowParams.Operation = flowAction.Operation;
+
+                        await ViewModel.RunActionFlow(flowAction.FlowFullName, flowParams);
+                    });
+
+                    await ShowNotification(flowAction.Name);
+                }
+                else
+                {
+                    // Dialog Action
+                    var flowParams = FlowParams ?? new FlowParamsGeneric();
+                    flowParams.ItemId = pk;
+                    flowParams.Operation = flowAction.Operation;
+                    flowParams[PlatformConstants.BaseUri] = _navigationManager.BaseUri;
+
+                    await Task.Run(async () =>
+                    {
+                        await DialogVM.LoadDialog(flowAction.FlowFullName, flowParams);
+                    });
+
+                    var warnings = DialogVM.Validations.Where(v => v.ValidationResult == RuleValidationResult.Error).ToList();
+
+                    if (warnings.Count > 0)
+                    {
+                        foreach (var w in warnings)
+                        {
+                            await ShowWarning(w.ValidationMessage);
+                        }
+                    }
+                    StateHasChanged();
+
+                }
+            }
+        }
+        catch (Exception exc)
+        {
+            ViewModel.PopulateException(exc);
+            await ShowPopup();
+        }
+    }
+
+    private async Task RowOnClick(string pk)
+    {
+        try
+        {
+            if (ViewModel.ContextMenuActions != null)
+            {
+                if (ViewModel.ContextMenuActions.Count > 0)
+                {
+                    DialogPk = pk;
+
+                    var flowAction = ViewModel.ContextMenuActionsDictionary[ViewModel.ContextMenuActions[0]];
+
+                    if (flowAction.IsNavigation)
+                    {
+                        var path = string.Format(flowAction.NavigationFormat, pk);
+                        _navigationManager.NavigateTo(path);
+                    }
+                    else
+                    {
+                        await Task.Run(async () =>
+                        {
+                            var flowParams = FlowParams ?? new FlowParamsGeneric();
+                            flowParams.ItemId = pk;
+                            flowParams.Operation = flowAction.Operation;
+                            flowParams[PlatformConstants.BaseUri] = _navigationManager.BaseUri;
+
+                            await DialogVM.LoadDialog(flowAction.FlowFullName, flowParams);
+                        });
+                    }
+
+                    StateHasChanged();
+                }
+            }
+        }
+        catch (Exception exc)
+        {
+            ViewModel.PopulateException(exc);
+            await ShowPopup();
+        }
+    }
+
+    private async Task OnSelected(string pk)
+    {
+        DialogPk = pk;
+        StateHasChanged();
+    }
+
+    private async Task DialogFormSubmitted(FormSubmittedArgs args)
+    {
+        var flowParams = FlowParams ?? new FlowParamsGeneric();
+        flowParams.ItemId = ParentItemPk;
+
+        await ViewModel.LoadListForm(FlowType, PK, flowParams);
+        DialogPk = null;
+        StateHasChanged();
+    }
+
+    public async Task ShowPopup()
+    {
+        if (!SupressExceptions && ViewModel.ExceptionType != null && ViewModel.ExceptionType != typeof(FlowStopException).Name)
+        {
+            Snackbar.Add($"Operation failed. {ViewModel.ExceptionMessage}", Severity.Error);
+        }
+
+        await ViewModel.SaveException();
+    }
+
+    public async Task ShowNotification(string message)
+    {
+        Snackbar.Add(message, Severity.Success);
+    }
+
+    //public async Task SortData(MatSortChangedEvent sort)
+    //{
+    //    var direction = new SortDirection();
+    //    switch (sort.Direction)
+    //    {
+    //        case MatSortDirection.None:
+    //            direction = SortDirection.None;
+    //            break;
+    //        case MatSortDirection.Asc:
+    //            direction = SortDirection.Desc;
+    //            break;
+    //        case MatSortDirection.Desc:
+    //            direction = SortDirection.Asc;
+    //            break;
+    //        default:
+    //            break;
+    //    }
+    //    ViewModel.QueryOptions.SortColumn = sort.SortId.ToString();
+    //    ViewModel.QueryOptions.SortDirection = direction;
+    //    ViewModel.QueryOptions.AllowSort = true;
+    //    await ViewModel.LoadListForm(FlowType, PK, FlowParams);
+    //}
+
+    public async Task ShowWarning(string message)
+    {
+        Snackbar.Add(message, Severity.Warning);
+    }
+
+    async Task ModelChanged(ValueChangedArgs args)
+    {
+        StateHasChanged();
+    }
+}

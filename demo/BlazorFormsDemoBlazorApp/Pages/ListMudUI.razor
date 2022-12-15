@@ -1,0 +1,26 @@
+﻿@page "/list3"
+@using BlazorForms.Rendering.Interfaces
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.Rendering.State
+
+@inject IDialogFormViewModel DialogVM
+
+<FlowListForm FlowType="BlazorFormsDemoFlows.Flows.SampleListShortFlow" ShowFilters="false" ShowSorting="true" />
+
+@code {
+    private async Task OpenDialogClick()
+    {
+        await Task.Run(async () =>
+        {
+            await DialogVM.LoadDialog("BlazorForms.SampleSilentFlow2", 
+                new FlowParamsGeneric { ItemId = "0", Operation = BlazorForms.Shared.FlowReferenceOperation.New });
+        });
+
+        StateHasChanged();
+    }
+
+    private async Task FormSubmitted(FormSubmittedArgs args)
+    {
+        
+    }
+}

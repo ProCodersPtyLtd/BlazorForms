@@ -58,7 +58,6 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        var module = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/BlazorForms.Rendering.MaterialBlazor/BlazorInterop.js");
     }
 
     protected override async Task OnInitializedAsync()
@@ -71,8 +70,15 @@
 
     async Task ValueChanged(DateTime? val)
     {
+        await Log("val=" + val.ToString());
         _localDateValue = await ClientDateService.GetLocalDateTime(val);
+        await Log("localVal="+_localDateValue.ToString());
         _localValidation = FieldValidator.Validate(Field, val);
         await ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = val, RowIndex = RowIndex });
+    }
+
+    protected async Task Log(string text)
+    {
+        await JS.InvokeAsync<string>("console.log", text);
     }
 }

@@ -26,7 +26,7 @@ namespace BlazorForms.Rendering
             context.RegisteredAssemblies.AddRange(asms);
 
             // KnownTypes
-            context.ServiceCollection.AddScoped<IClientBrowserService, ClientBrowserService>();
+            context.ServiceCollection.AddScoped<IClientBrowserService, MaterialClientBrowserService>();
             context.ServiceCollection.AddScoped<IClientDateService, ClientDateService>();
         }
     }

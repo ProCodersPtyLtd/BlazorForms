@@ -39,9 +39,12 @@ namespace BlazorForms
 
         public static IServiceCollection AddServerSideBlazorForms([NotNull] this IServiceCollection serviceCollection)
         {
+            serviceCollection.AddBlazorFormsApplicationParts("BlazorForms.");
+
             serviceCollection
                 .AddScoped<IAuthState, MockAuthState>()
                 .AddTransient<ILogStreamer, MockLogStreamer>()
+                .AddSingleton<ITenantedScope, MockTenantedScope>()
 
                 .AddSingleton(typeof(IFlowParser), typeof(FlowParser))
                 .AddSingleton<Castle.DynamicProxy.IProxyGenerator, Castle.DynamicProxy.ProxyGenerator>()
@@ -69,7 +72,7 @@ namespace BlazorForms
                 //.AddSingleton(typeof(IFlowRepository), typeof(SqlFlowRepository))
                 .AddSingleton(typeof(IFlowRunIdGenerator), typeof(SqlFlowRunIdGenerator))
                 //.AddSingleton(typeof(IFlowRunIdGenerator), typeof(NpgsqlFlowRunIdGenerator)) //Postgres
-                //.AddSingleton(typeof(IFlowRepository), typeof(SqlFlowRepository))
+                .AddSingleton(typeof(IFlowRepository), typeof(SqlFlowRepository))
                 .AddSingleton(typeof(IAssemblyRegistrator), typeof(PlatformAssemblyRegistrator))
                 .AddSingleton(typeof(IProxyScopeConfiguration), typeof(PlatformProxyScopeConfiguration))
                 .AddSingleton(typeof(IKnownTypesBinder), typeof(KnownTypesBinder))

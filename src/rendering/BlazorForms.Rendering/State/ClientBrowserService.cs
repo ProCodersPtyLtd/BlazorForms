@@ -6,6 +6,7 @@ using BlazorForms.Platform.Definitions.Shared;
 
 namespace BlazorForms.Rendering
 {
+    // ToDo: this is default implementation pointing to MaterialBlazor - you need to implement similar service in each new rendering lib
     public class ClientBrowserService : IClientBrowserService
     {
         //private readonly IJSRuntime _jsRuntime;
@@ -19,7 +20,7 @@ namespace BlazorForms.Rendering
         public ClientBrowserService(IJSRuntime jsRuntime, NavigationManager navigationManager)
         {
             _moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-                "import", "./_content/BlazorForms.Rendering.MaterialBlazor/BlazorInterop.js").AsTask());
+                "import", "./_content/BlazorForms.Rendering.MaterialBlazor/timeZone.js").AsTask());
 
             //_jsRuntime = jsRuntime;
             _navigationManager = navigationManager;

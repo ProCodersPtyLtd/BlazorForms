@@ -5,6 +5,6 @@ namespace CrmLightDemoApp.Onion.Services.Model
 {
     public class PersonListModel : FlowModelBase
     {
-        public virtual List<PersonContactDetails>? Data { get; set; }
+        public virtual List<Person>? Data { get; set; }
     }
 }

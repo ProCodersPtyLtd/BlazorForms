@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
@@ -11,6 +11,7 @@
         <ProjectReference Include="..\..\src\platform\BlazorForms.Platform\BlazorForms.Platform.csproj" />
         <ProjectReference Include="..\..\src\rendering\BlazorForms.Rendering.Flows\BlazorForms.Rendering.Flows.csproj" />
         <ProjectReference Include="..\..\src\rendering\BlazorForms.Rendering.MaterialBlazor\BlazorForms.Rendering.MaterialBlazor.csproj" />
+        <ProjectReference Include="..\..\src\rendering\BlazorForms.Rendering.MudBlazorUI\BlazorForms.Rendering.MudBlazorUI.csproj" />
         <ProjectReference Include="..\BlazorFormsDemoFlows\BlazorFormsDemoFlows.csproj" />
         <ProjectReference Include="..\BlazorFormsDemoModels\BlazorFormsDemoModels.csproj" />
     </ItemGroup>

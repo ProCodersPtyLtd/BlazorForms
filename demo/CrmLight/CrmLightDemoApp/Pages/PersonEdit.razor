@@ -1,0 +1,11 @@
+﻿@page "/person-edit/{pk}"
+
+<DynamicForm FlowName="@typeof(CrmLightDemoApp.Onion.Services.Flow.PersonEditFlow).FullName" Pk="@Pk" 
+    AllowAnonymousAccess="true" AllowFlowStorage="false" NavigationSuccess="/person-list" />
+
+
+@code {
+    [Parameter]
+    public string Pk { get; set; }
+
+}

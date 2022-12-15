@@ -10,9 +10,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BlazorForms" Version="0.3.2" />
-    <PackageReference Include="BlazorForms.MaterialBlazor" Version="0.3.2" />
+    <PackageReference Include="BlazorForms" Version="0.4.1" />
+    <PackageReference Include="BlazorForms.Rendering.MaterialBlazor" Version="0.4.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
+    <PackageReference Include="MudBlazor" Version="6.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--<ProjectReference Include="..\..\..\src\platform\BlazorForms.Platform\BlazorForms.Platform.csproj" />-->
   </ItemGroup>
 
 </Project>

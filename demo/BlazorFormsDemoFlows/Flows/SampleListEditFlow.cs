@@ -32,7 +32,7 @@ namespace BlazorFormsDemoFlows.Flows
 
             if (_blink)
             {
-                throw new Exception("Dialog Flow ERROR 5");
+                // throw new Exception("Dialog Flow ERROR 5");
             }
         }
 

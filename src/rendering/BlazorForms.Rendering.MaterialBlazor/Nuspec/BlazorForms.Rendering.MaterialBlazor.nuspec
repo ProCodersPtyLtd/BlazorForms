@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>BlazorForms.Rendering.MaterialBlazor</id>
+    <version>0.3.3</version>
+    <authors>Pro Coders</authors>
+    <owners>Pro Coders</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>BlazorForms.Rendering.MaterialBlazor is a rendering library for BlazorForms framework that helps to create flows, forms and rules</description>
+    <copyright>Copyright (c) 2022 Pro Coders PTY LTD</copyright>
+	<license type="expression">MIT</license>
+    <tags>blazor flow dynamic form forms rule framework</tags>
+    <dependencies>
+		<group targetFramework="net6.0">
+			<dependency id="Microsoft.AspNetCore.Components" version="6.0.9" />
+			<dependency id="Microsoft.AspNetCore.Components.Web" version="6.0.9" />
+			<dependency id="MatBlazor" version="2.8.0" />
+			<dependency id="BlazorForms" version="0.3.1" />
+		</group>
+    </dependencies>
+    <contentFiles>
+      <files include="**\*.json" buildAction="None" />
+      <files include="**\*.cmd" buildAction="None" />
+      <files include="**\*.txt" buildAction="None" />
+      <files include="**\*.sql" buildAction="None" />
+      <files include="**\*.js" buildAction="None" />
+    </contentFiles>
+  </metadata>
+  <files>
+	<file src="..\wwwroot\*.js" target="staticwebassets\"/>
+	<file src="..\wwwroot\*.css" target="staticwebassets\"/>
+	<file src="..\Components\*.js" target="staticwebassets\Components"/>
+	<file src="..\Components\*.css" target="staticwebassets\Components"/>
+    <file src="..\bin\Release\net6.0\BlazorForms.Rendering.MaterialBlazor.dll" target="lib\net6.0\BlazorForms.Rendering.MaterialBlazor.dll" />
+  </files>
+</package>

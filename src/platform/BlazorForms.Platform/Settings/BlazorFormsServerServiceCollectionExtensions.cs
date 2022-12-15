@@ -15,6 +15,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Text;
+using BlazorForms.Platform.Shared.ApplicationParts;
 
 namespace BlazorForms
 {
@@ -23,6 +24,8 @@ namespace BlazorForms
         public static IServiceCollection AddBlazorFormsServerModelAssemblyTypes([NotNullAttribute] this IServiceCollection serviceCollection, Type anyAssemblyType)
         {
             var assembly = anyAssemblyType.GetTypeInfo().Assembly;
+            PlatformAssemblyRegistrator.InitializeConfiguration(new Assembly[] { assembly });
+
             var types = assembly.GetTypes().ToList();
 
             types.AddRange(new Type[] {
