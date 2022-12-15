@@ -11,7 +11,7 @@ namespace CrmLightDemoApp.Onion
         public static IServiceCollection AddOnionDependencies([NotNullAttribute] this IServiceCollection serviceCollection)
         {
             serviceCollection
-                .AddScoped<IPersonRepository, PersonRepository>()
+                .AddSingleton<IPersonRepository, PersonRepository>()
                 ;
             return serviceCollection;
         }

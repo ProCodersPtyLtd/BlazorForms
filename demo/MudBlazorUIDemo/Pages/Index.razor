@@ -1,0 +1,62 @@
+﻿@page "/"
+
+@inject ISnackbar Snackbar
+
+<MudTable Items="@Elements.Take(4)" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+    <HeaderContent>
+        <MudTh>Nr</MudTh>
+        <MudTh>Sign</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Position</MudTh>
+        <MudTh>Molar mass</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Nr">@context.Number</MudTd>
+        <MudTd DataLabel="Sign">@context.Sign</MudTd>
+        <MudTd DataLabel="Name">@context.Name</MudTd>
+        <MudTd DataLabel="Position" HideSmall="_hidePosition">@context.Position</MudTd>
+        <MudTd DataLabel="Molar mass">@context.Molar</MudTd>
+    </RowTemplate>
+</MudTable>
+
+<MudSwitch @bind-Checked="_hidePosition">Hide <b>position</b> when Breakpoint=Xs</MudSwitch>
+<MudSwitch @bind-Checked="_loading">Show Loading</MudSwitch>
+
+<MudSnackbarProvider />
+
+@code {
+    private bool _hidePosition;
+    private bool _loading;
+    private IEnumerable<Element> Elements = new List<Element>();
+    private string[][] Data;
+    private int ColumnCount = 3;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Elements = new Element[]
+        {
+            new Element { Number = 1, Sign = "H", Name = "Hydrogen", Position = 0, Molar = 1.00794 },
+            new Element { Number = 2, Sign = "He", Name = "Helium", Position = 17, Molar = 4.002602 },
+        };
+
+        Data = new string[][] { new string[] { "1", "2", "3" }, new string[] { "11", "12", "13" } };
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopStart;
+            Snackbar.Add("The page is loaded", Severity.Success);
+        }
+    }
+
+    public class Element
+    {
+        public int Number { get; set; }
+        public string Sign { get; set; }
+        public string Name { get; set; }
+        public int Position { get; set; }
+        public double Molar { get; set; }
+    }
+}

@@ -120,6 +120,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CrmLight", "CrmLight", "{D8
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrmLightDemoApp", "..\demo\CrmLight\CrmLightDemoApp\CrmLightDemoApp.csproj", "{96BA8EDE-6873-4DD3-80ED-B69E632C2708}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorForms.Rendering.MudBlazorUI", "rendering\BlazorForms.Rendering.MudBlazorUI\BlazorForms.Rendering.MudBlazorUI.csproj", "{F56CE325-5B81-4EE6-A5C7-7D92A597EF8E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MudBlazorUIDemo", "..\demo\MudBlazorUIDemo\MudBlazorUIDemo.csproj", "{F4AB9149-905A-4319-ADA8-86E5C88BCF20}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -314,6 +318,14 @@ Global
 		{96BA8EDE-6873-4DD3-80ED-B69E632C2708}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96BA8EDE-6873-4DD3-80ED-B69E632C2708}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{96BA8EDE-6873-4DD3-80ED-B69E632C2708}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F56CE325-5B81-4EE6-A5C7-7D92A597EF8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F56CE325-5B81-4EE6-A5C7-7D92A597EF8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F56CE325-5B81-4EE6-A5C7-7D92A597EF8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F56CE325-5B81-4EE6-A5C7-7D92A597EF8E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4AB9149-905A-4319-ADA8-86E5C88BCF20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4AB9149-905A-4319-ADA8-86E5C88BCF20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4AB9149-905A-4319-ADA8-86E5C88BCF20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4AB9149-905A-4319-ADA8-86E5C88BCF20}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -372,6 +384,8 @@ Global
 		{9812AB07-4F6F-4004-8B50-6A1E6BBFE031} = {993F5DB1-686B-418D-8A5A-8235C86139D3}
 		{D8BB6C11-2FF3-4DB4-A727-1F2B8F5309C6} = {B9B1795A-8436-4FFA-B8E4-9EB1EA5A8D99}
 		{96BA8EDE-6873-4DD3-80ED-B69E632C2708} = {D8BB6C11-2FF3-4DB4-A727-1F2B8F5309C6}
+		{F56CE325-5B81-4EE6-A5C7-7D92A597EF8E} = {217AEE85-7C9A-487C-9739-1E93F6C3E935}
+		{F4AB9149-905A-4319-ADA8-86E5C88BCF20} = {B9B1795A-8436-4FFA-B8E4-9EB1EA5A8D99}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C1EF108-97F0-41A0-8507-C75FE328A4A3}

@@ -8,6 +8,7 @@ using BlazorForms;
 using BlazorFormsDemoBlazorApp.Data;
 using BlazorFormsDemoFlows;
 using BlazorForms.Rendering.MaterialBlazor;
+using BlazorFormsDemoFlows.Flows;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,7 +43,11 @@ services.AddBlazorFormsMaterialBlazor();
 //services.AddSingleton(typeof(IFlowRepository), typeof(SqlFlowRepository));
 //services.AddSingleton<ITenantedScope, MockTenantedScope>();
 services.AddBlazorFormsServerModelAssemblyTypes(typeof(ArtelProjectSettingsModel));
+services.AddBlazorFormsServerModelAssemblyTypes(typeof(SampleListShortFlow));
 services.AddBlazorFormsRenderingFlows();
+
+// MudBlazor
+services.AddBlazorFormsMudBlazorUI();
 #endregion
 
 var app = builder.Build();
