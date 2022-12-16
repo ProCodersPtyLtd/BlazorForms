@@ -13,7 +13,7 @@ else
             @foreach (var group in ViewModel.FieldsGrouped)
             {
                 <div id="pz-group-@group.Key" class="mat-layout-grid-cell mat-layout-grid-cell-span-@CellSpan">
-                    @*<FormGroupContent Group="@group" ModelValueChanged="@ModelChanged" />*@
+                    <FormGroupContent Group="@group" ModelValueChanged="@ModelChanged" />
                 </div>
             }
         </div>

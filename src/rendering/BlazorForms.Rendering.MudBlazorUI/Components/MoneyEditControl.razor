@@ -1,0 +1,53 @@
+﻿@using BlazorForms.Rendering.State
+@using MudBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Shared.DataStructures
+
+<MudTextField InputType="InputType.Number" AdornmentIcon="@Icons.Material.Filled.AttachMoney" Adornment="Adornment.Start" 
+    Value="@MoneyValue?.Amount" Disabled="@Field.DisplayProperties.Disabled" Required="@Field.DisplayProperties.Required"
+    T="decimal?" ValueChanged="@(a => ValueChanged(a))" Label="@MoneyValue?.Currency" Style="width: 100%;" Variant="Variant.Filled"/>
+
+<ValidatorControl Validations="@Validations"></ValidatorControl>
+
+@code {
+    [Parameter]
+    public int RowIndex { get; set; }
+
+    [Parameter]
+    public FieldControlDetails Field { get; set; }
+    [Parameter]
+    public string Caption { get; set; }
+    [Parameter]
+    public string Name { get; set; }
+    //[Parameter]
+    //public string ModelBinding { get; set; }
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    [Parameter]
+    public Money MoneyValue { get; set; }
+
+    [Parameter]
+    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    void ValueChanged(object val)
+    {
+        decimal dec;
+
+        if (decimal.TryParse(val.ToString(), out dec))
+        {
+            MoneyValue.Amount = dec;
+        }
+        else
+        {
+            MoneyValue.Amount = null;
+        }
+
+        ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = MoneyValue, RowIndex = RowIndex });
+    }
+}

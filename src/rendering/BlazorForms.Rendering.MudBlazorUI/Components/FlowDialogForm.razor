@@ -27,8 +27,6 @@
         <TitleContent>@DialogViewModel.FormData.DisplayName</TitleContent>
         <DialogContent>
 
-            <MudTextField T="string" Label="Name"></MudTextField>
-
             <CascadingValue Value="@(DialogViewModel as IFormViewModel)">
                 <FormContent ModelValueChanged=@ModelActionChanged />
             </CascadingValue>
@@ -76,9 +74,6 @@
 
     [Parameter]
     public EventCallback<FormSubmittedArgs> FormSubmitted { get; set; }
-
-    [Parameter]
-    public object FormSubmittedObj { get; set; }
 
     [Parameter]
     public bool ValidateButton { get; set; }
@@ -150,14 +145,10 @@
                 await DialogViewModel.SubmitDialog();
             });
 
-            if (FormSubmittedObj != null)
-            {
-                var callback = (EventCallback<FormSubmittedArgs>)FormSubmittedObj;
-                await callback.InvokeAsync(new FormSubmittedArgs { Context = null });
-            }
-            else
+            if (!DialogViewModel.DialogIsOpen)
             {
                 await FormSubmitted.InvokeAsync(new FormSubmittedArgs { Context = null });
+                CloseDialog();
             }
         }
         catch (Exception exc)
@@ -168,7 +159,6 @@
         finally
         {
             _formLocked = false;
-            CloseDialog();
             StateHasChanged();
         }
     }

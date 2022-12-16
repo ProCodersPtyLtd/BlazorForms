@@ -49,7 +49,8 @@
 }
 else if (ViewModel.ListData != null)
 {
-    <MudTable Items="@GetListData()">
+        <MudTable T="string[]" Items="@GetListData()" Hover="true" Breakpoint="Breakpoint.Sm" Dense="true"
+            OnRowClick="@(async (args) => await @RowClickEvent(args))">
         <HeaderContent>
             @foreach (var c in ViewModel.VisibleColumns!)
             {
@@ -72,15 +73,16 @@ else if (ViewModel.ListData != null)
                 {
                         var ind = i;
 
-                        <MudTd style="white-space: pre;" @onclick="@(e => RowOnClick(context[0]))">@context[ind + 1]</MudTd>
+                        <MudTd style="white-space: pre;">@context[ind + 1]</MudTd>
                 }
 
                 @*Context Menu*@
-                @*@if (ViewModel.ContextMenuActions != null)
+                @if (ViewModel.ContextMenuActions != null)
                 {
-                    <DynamicListFormRowContextMenu Pk="@context[0]"
-                                        Actions="@ViewModel.ContextMenuActions" OnContextMenuItemClick="@(async args => await ContextMenuItemClick(args.Pk, args.Action))" />
-                }*@
+                    <MudTd style="white-space: pre;">
+                        <ListFormRowContextMenu Pk="@context[0]" OnContextMenuItemClick="@(async args => await ContextMenuItemClick(args.Pk, args.Action))" />
+                    </MudTd>
+                }
             }
             else
             {
@@ -224,13 +226,6 @@ else if (ViewModel.ListData != null)
             var flowAction = ViewModel.ReferenceButtonActionsDictionary[action];
             if (flowAction.Operation == FlowReferenceOperation.DialogForm)
             {
-                var options = new DialogOptions { CloseOnEscapeKey = true };
-                var dialogParameters = new DialogParameters();
-                dialogParameters["DialogViewModel"] = DialogVM;
-                dialogParameters["FormSubmitted"] = new EventCallback<FormSubmittedArgs>(this, DialogFormSubmitted);
-                dialogParameters["AllowAnonymousAccess"] = AllowAnonymousAccess;
-                dialogParameters["AllowFlowStorage"] = AllowFlowStorage;
-
                 var flowParams = FlowParams ?? new FlowParamsGeneric();
                 flowParams.ItemId = "";
                 flowParams.Operation = flowAction.Operation;
@@ -242,7 +237,7 @@ else if (ViewModel.ListData != null)
                     await DialogVM.LoadDialog(flowAction.FlowFullName, flowParams);
                 });
 
-                DialogService.Show<FlowDialogForm>(null, dialogParameters, options);
+                ShowDialog();
             }
             else if (flowAction.IsNavigation)
             {
@@ -264,6 +259,17 @@ else if (ViewModel.ListData != null)
         {
             FormLocked = false;
         }
+    }
+
+    private void ShowDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var dialogParameters = new DialogParameters();
+        dialogParameters["DialogViewModel"] = DialogVM;
+        dialogParameters["FormSubmitted"] = new EventCallback<FormSubmittedArgs>(this, DialogFormSubmitted);
+        dialogParameters["AllowAnonymousAccess"] = AllowAnonymousAccess;
+        dialogParameters["AllowFlowStorage"] = AllowFlowStorage;
+        DialogService.Show<FlowDialogForm>(null, dialogParameters, options);
     }
 
     private string[][] GetListData()
@@ -322,6 +328,8 @@ else if (ViewModel.ListData != null)
                         await DialogVM.LoadDialog(flowAction.FlowFullName, flowParams);
                     });
 
+                    ShowDialog();
+
                     var warnings = DialogVM.Validations.Where(v => v.ValidationResult == RuleValidationResult.Error).ToList();
 
                     if (warnings.Count > 0)
@@ -341,6 +349,11 @@ else if (ViewModel.ListData != null)
             ViewModel.PopulateException(exc);
             await ShowPopup();
         }
+    }
+
+    private async Task RowClickEvent(TableRowClickEventArgs<string[]> args)
+    {
+        await RowOnClick(args.Item[0]);
     }
 
     private async Task RowOnClick(string pk)
@@ -371,6 +384,8 @@ else if (ViewModel.ListData != null)
 
                             await DialogVM.LoadDialog(flowAction.FlowFullName, flowParams);
                         });
+
+                        ShowDialog();
                     }
 
                     StateHasChanged();

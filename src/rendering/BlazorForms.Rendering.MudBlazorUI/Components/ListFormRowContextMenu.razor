@@ -1,0 +1,50 @@
+﻿@using BlazorForms.Rendering.Types
+@using MudBlazor
+
+<MudMenu @ref="@_contextMenu">
+    <ActivatorContent>
+        <MudIconButton Icon="@selectedIcon" Size="Size.Small" OnClick="@(async() => await @ContextMenuClick())" />
+    </ActivatorContent>
+    <ChildContent>
+        @foreach (var action in ViewModel.ContextMenuActions)
+        {
+            <MudMenuItem OnClick="@(async () => await OnMenuItemClick(Pk, action))">@action</MudMenuItem>
+        }
+    </ChildContent>
+</MudMenu>
+
+@code {
+    [CascadingParameter]
+    IListFormViewModel ViewModel { get; set; }
+
+    [Parameter]
+    public string Pk { get; set; }
+
+    [Parameter]
+    public EventCallback<DynamicListFormRowContextMenuItemClickArgs> OnContextMenuItemClick { get; set; }
+
+    private MudMenu _contextMenu;
+    private string selectedIcon = Icons.Material.TwoTone.MoreHoriz;
+
+    private async Task ContextMenuClick()
+    {
+        // trigger ContextMenuClicking rule
+        if (ViewModel != null)
+        {
+            await ViewModel.ContextMenuClicking(Pk);
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task OnMenuItemClick(string pk, string action)
+    {
+        var arg = new DynamicListFormRowContextMenuItemClickArgs 
+        { 
+            Pk = pk,
+            Action = action 
+        };
+        await OnContextMenuItemClick.InvokeAsync(arg);
+    }
+
+}

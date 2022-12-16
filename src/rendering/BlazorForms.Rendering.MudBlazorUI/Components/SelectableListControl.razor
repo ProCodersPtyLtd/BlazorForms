@@ -1,0 +1,51 @@
+﻿@using BlazorForms.Rendering.State
+@using MudBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Platform
+
+@inject IUserViewDataResolver DataResolver
+
+@if (Data != null && Data.Count > 0)
+{
+    <MudList Clickable="true"  TwoLine="true" Style="width: 100%;">
+        @foreach (var item in Data)
+        {
+            <MudListItem id="@item.Id.ToString()" OnClick="@(async (args) => await OnClick(item.Id))" Text="@item.PrimaryText" >
+                @item.SecondaryText
+            </MudListItem>
+        }
+    </MudList>
+}
+
+<ValidatorControl Validations="@Validations"></ValidatorControl>
+
+@code {
+    // ToDo: it is not finished control! Do we really need it?
+
+    [Parameter]
+    public FieldControlDetails Table { get; set; }
+    [Parameter]
+    public string Caption { get; set; }
+
+    [Parameter]
+    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    [Parameter]
+    public List<SelectableListItem> Data { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        //Data = GetData();
+    }
+
+    private async Task OnClick(int id)
+    {
+        var item = Data.FirstOrDefault(x => x.Id == id).Object;
+        //ModelValueChanged.InvokeAsync(new ValueChangedArgs { ModelBinding = Table.ModelTargetBinding, NewValue = item });
+        await ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Table.Binding, NewValue = item });
+    }
+}

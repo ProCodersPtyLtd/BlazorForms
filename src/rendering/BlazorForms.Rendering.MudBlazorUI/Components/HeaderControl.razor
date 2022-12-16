@@ -1,0 +1,13 @@
+﻿@using BlazorForms.Rendering.State
+@using MudBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+@using BlazorForms.Shared
+
+<MudText Typo="Typo.h6">@ObjectValue.AsString()</MudText>
+
+@code {
+    [Parameter]
+    public object ObjectValue { get; set; }
+}

@@ -1,0 +1,85 @@
+﻿@using BlazorForms.Rendering.State
+@using MudBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+@using System.Globalization
+@using Microsoft.JSInterop
+
+@inject IClientDateService ClientDateService
+@inject IDynamicFieldValidator FieldValidator
+@inject IJSRuntime JS
+
+<MudDatePicker Editable="true" Date="@_localDateValue" Disabled="@Field.DisplayProperties.Disabled" Required="@Field.DisplayProperties.Required" 
+    DateFormat="@_dateFormat.ShortDatePattern"
+    DateChanged="@ValueChanged" Style="width: 100%;"></MudDatePicker>
+
+<ValidatorControl Validations="@AllValidations"></ValidatorControl>
+
+@code {
+    [Parameter]
+    public int RowIndex { get; set; }
+    [Parameter]
+    public string Caption { get; set; }
+    [Parameter]
+    public FieldControlDetails Field { get; set; }
+    [Parameter]
+    public string Name { get; set; }
+    //[Parameter]
+    //public string ModelBinding { get; set; }
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+    [Parameter]
+    public bool AllowInput { get; set; } = true;
+    [Parameter]
+    public DateTime? DateValue { get; set; }
+    [Parameter]
+    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    private DateTime? _localDateValue;
+    private DateTimeFormatInfo _dateFormat = CultureInfo.CurrentCulture.DateTimeFormat;
+
+    private IEnumerable<RuleExecutionResult> AllValidations
+    {
+        get
+        {
+            var result = new List<RuleExecutionResult>();
+
+            if (_localValidation != null)
+            {
+                result.Add(_localValidation);
+            }
+
+            result.AddRange(Validations);
+            return result;
+        }
+    }
+
+    private RuleExecutionResult _localValidation;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _localDateValue = await ClientDateService.GetLocalDateTime(DateValue);
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    { }
+
+    async Task ValueChanged(DateTime? val)
+    {
+        await Log("val=" + val.ToString());
+        _localDateValue = await ClientDateService.GetLocalDateTime(val);
+        await Log("localVal="+_localDateValue.ToString());
+        _localValidation = FieldValidator.Validate(Field, val);
+        await ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = val, RowIndex = RowIndex });
+    }
+
+    protected async Task Log(string text)
+    {
+        await JS.InvokeAsync<string>("console.log", text);
+    }
+}
