@@ -10,8 +10,8 @@
 @inject IDynamicFieldValidator FieldValidator
 @inject IJSRuntime JS
 
-<MudDatePicker Editable="true" Date="@_localDateValue" Disabled="@Field.DisplayProperties.Disabled"  
-    DateFormat="@_dateFormat.ShortDatePattern"
+<MudDatePicker Editable="true" Date="@_localDateValue" Disabled="@Field.DisplayProperties.Disabled"
+               Mask="@(new DateMask("dd/MM/yyyy"))" DateFormat="dd/MM/yyyy"
     DateChanged="@ValueChanged" Style="width: 100%;" Variant="Variant"/>
 
 <ValidatorControl Validations="@AllValidations"></ValidatorControl>
@@ -77,6 +77,11 @@
     // when it is converted first time the date becomes local in control and in Model and we don't need to convert it here anymore
     // however when Model is saved to database all dates must be converted to UTC - it is a responcibility of a data access developer
     protected override async Task OnParametersSetAsync()
+    {
+        //_localDateValue = await ClientDateService.GetLocalDateTime(DateValue);
+    }
+
+    protected override async Task OnInitializedAsync()
     {
         _localDateValue = await ClientDateService.GetLocalDateTime(DateValue);
     }

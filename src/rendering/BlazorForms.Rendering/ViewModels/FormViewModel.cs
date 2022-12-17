@@ -394,6 +394,9 @@ namespace BlazorForms.Rendering
         public async Task<RuleEngineExecutionResult> TriggerRules(string formName, FieldBinding modelBinding, FormRuleTriggers? trigger = null, 
             int rowIndex = 0)
         {
+            // Clear validations for this binding
+            Validations = Validations.Where(v => v.AffectedField != modelBinding?.ResolvedBinding).ToList();
+
             var allFields = GetAllFields();
             var field = allFields.FirstOrDefault(f => f.Binding.Key == modelBinding?.Key);
 
@@ -431,7 +434,8 @@ namespace BlazorForms.Rendering
                     }
                 }
 
-                Validations = ruleResult.Validations.AsEnumerable();
+                //Validations = ruleResult.Validations.AsEnumerable();
+                Validations = Validations.Union(ruleResult.Validations);
                 return ruleResult;
             }
 

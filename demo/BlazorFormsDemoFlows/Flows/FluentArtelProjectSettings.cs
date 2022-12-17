@@ -115,7 +115,7 @@ namespace BlazorFormsDemoFlows
         {
             Model.Project = new ArtelProjectDetails
             {
-                Name = "Project1",
+                //Name = "Project1",
                 StartDate= DateTime.Now.Date.ToUniversalTime(),
                 BaseCurrencySearch = "USD",
                 PaymentFrequencyDay = 1,

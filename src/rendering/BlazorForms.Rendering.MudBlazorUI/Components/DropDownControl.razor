@@ -15,7 +15,7 @@
 }
 else
 {
-    <MudSelect Value="@TextValue" T="string" ValueChanged="@(args => ValueChanged(args))" Style="width: 100%;"
+    <MudSelect Value="@TextValue" T="string" ValueChanged="@(async (args) => await ValueChanged(args))" Style="width: 100%;"
            Variant="Variant" AnchorOrigin="Origin.BottomCenter">
         @foreach (var item in _items)
         {
@@ -86,10 +86,10 @@ else
     {
     }
 
-    void ValueChanged(string val)
+    async Task ValueChanged(string val)
     {
         TextValue = val;
         _localValidation = FieldValidator.Validate(Field, val);
-        ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = TextValue, RowIndex = RowIndex });
+        await ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = TextValue, RowIndex = RowIndex });
     }
 }
