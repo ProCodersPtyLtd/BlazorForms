@@ -23,15 +23,15 @@ namespace BlazorFormsDemoFlows
 
             f.Property(p => p.Project.Name).IsRequired();
 
-            f.Property(p => p.Project.StartDate);
+            f.Property(p => p.Project.StartDate).IsRequired();
 
             f.Property(p => p.Project.BaseCurrencySearch).EditWithOptions(e => e.CurrencyListRef, m => m.ShortName)
-                .Label("Base Currency").Control(typeof(Autocomplete)).Rule(typeof(CurrencyEntered));
+                .IsRequired().Label("Base Currency").Control(typeof(Autocomplete)).Rule(typeof(CurrencyEntered));
 
-            f.Property(p => p.Project.InitialSharePrice).Label("Initial Share Price").Control(typeof(MoneyEdit));
-            f.Property(p => p.Project.DefaultSharesPaymentProportionPercent).Label("Default Shares/Money Payment Proportion").Control(typeof(PercentEdit));
+            f.Property(p => p.Project.InitialSharePrice).IsRequired().Label("Initial Share Price").Control(typeof(MoneyEdit));
+            f.Property(p => p.Project.DefaultSharesPaymentProportionPercent).IsRequired().Label("Default Shares/Money Payment Proportion").Control(typeof(PercentEdit));
 
-            f.Property(p => p.Project.PaymentFrequencyCode).Dropdown(p => p.FrequencyRef, m => m.Code, m => m.Name);
+            f.Property(p => p.Project.PaymentFrequencyCode).IsRequired().Dropdown(p => p.FrequencyRef, m => m.Code, m => m.Name);
             f.Property(p => p.Project.PaymentFrequencyDay).Label("Day of Month").Control(typeof(TextEdit));
             f.Property(p => p.Project.PaymentNotification).Label("Notify on Payment Sent");
 

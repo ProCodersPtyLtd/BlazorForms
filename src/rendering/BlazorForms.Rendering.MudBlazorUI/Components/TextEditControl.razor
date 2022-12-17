@@ -7,7 +7,7 @@
 
 @inject IDynamicFieldValidator FieldValidator
 
-<MudTextField id="@MyId" Value="@ObjectValue.AsString()" Disabled="@Field.DisplayProperties.Disabled" Required="@Field.DisplayProperties.Required"
+<MudTextField id="@MyId" Value="@ObjectValue.AsString()" Disabled="@Field.DisplayProperties.Disabled" 
               T="string" ValueChanged="@(a => ValueChanged(a))" InputType="@MyType" Style="width: 100%;" Variant="Variant" />
 
 <ValidatorControl Validations="@AllValidations"></ValidatorControl>

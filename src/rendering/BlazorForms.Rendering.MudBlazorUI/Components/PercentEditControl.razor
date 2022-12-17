@@ -5,7 +5,7 @@
 @using BlazorForms.Shared.DataStructures
 
 <MudTextField InputType="InputType.Number" AdornmentText="%" Adornment="Adornment.End" Value="@PercentValue" Disabled="@Field.DisplayProperties.Disabled"
-              Required="@Field.DisplayProperties.Required" T="decimal?" ValueChanged="@(a => ValueChanged(a))" 
+              T="decimal?" ValueChanged="@(a => ValueChanged(a))" 
               Style="width: 100%;" Variant="Variant"/>
 
 <ValidatorControl Validations="@Validations"></ValidatorControl>
@@ -40,7 +40,7 @@
     {
         decimal dec;
 
-        if (decimal.TryParse(val.ToString(), out dec))
+        if (decimal.TryParse(val?.ToString(), out dec))
         {
             PercentValue = dec;
         }

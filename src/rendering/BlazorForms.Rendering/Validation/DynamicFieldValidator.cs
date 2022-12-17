@@ -40,6 +40,7 @@ namespace BlazorForms.Rendering.Validation
                 {
                     case "TextEdit":
                     case "DropDown":
+                    case "Autocomplete":
                         failed = string.IsNullOrWhiteSpace(Convert.ToString(value));
                         break;
                     case "DateEdit":

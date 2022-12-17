@@ -63,7 +63,7 @@
     {
         var options = ViewModel.ModelNaviGetItems(ItemsBinding)
             .Select(item => ViewModel.PathNavi.GetValue(item, NameBinding) as string)
-            .Where(item => item.Contains(pattern));
+            .Where(item => item.Contains(pattern ?? ""));
 
         return options;
     }

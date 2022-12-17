@@ -10,7 +10,7 @@
 @inject IDynamicFieldValidator FieldValidator
 @inject IJSRuntime JS
 
-<MudDatePicker Editable="true" Date="@_localDateValue" Disabled="@Field.DisplayProperties.Disabled" Required="@Field.DisplayProperties.Required" 
+<MudDatePicker Editable="true" Date="@_localDateValue" Disabled="@Field.DisplayProperties.Disabled"  
     DateFormat="@_dateFormat.ShortDatePattern"
     DateChanged="@ValueChanged" Style="width: 100%;" Variant="Variant"/>
 
@@ -49,21 +49,23 @@
     private DateTime? _localDateValue;
     private DateTimeFormatInfo _dateFormat = CultureInfo.CurrentCulture.DateTimeFormat;
 
-    private IEnumerable<RuleExecutionResult> AllValidations
-    {
-        get
-        {
-            var result = new List<RuleExecutionResult>();
+    private IEnumerable<RuleExecutionResult> AllValidations { get { return FieldValidator.PrepareValidations(Validations, _localValidation); } }
 
-            if (_localValidation != null)
-            {
-                result.Add(_localValidation);
-            }
+    //private IEnumerable<RuleExecutionResult> AllValidations
+    //{
+    //    get
+    //    {
+    //        var result = new List<RuleExecutionResult>();
 
-            result.AddRange(Validations);
-            return result;
-        }
-    }
+    //        if (_localValidation != null)
+    //        {
+    //            result.Add(_localValidation);
+    //        }
+
+    //        result.AddRange(Validations);
+    //        return result;
+    //    }
+    //}
 
     private RuleExecutionResult _localValidation;
 
