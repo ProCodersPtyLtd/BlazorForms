@@ -16,7 +16,7 @@
 else
 {
     <MudSelect Value="@TextValue" T="string" ValueChanged="@(args => ValueChanged(args))" Style="width: 100%;"
-           Variant="Variant.Filled" AnchorOrigin="Origin.BottomCenter">
+           Variant="Variant" AnchorOrigin="Origin.BottomCenter">
         @foreach (var item in _items)
         {
             <MudSelectItem Value="@item.Key">@item.Value</MudSelectItem>
@@ -27,6 +27,9 @@ else
 <ValidatorControl Validations="@AllValidations"></ValidatorControl>
 
 @code {
+    [CascadingParameter]
+    public Variant Variant { get; set; }
+
     [CascadingParameter]
     public IFormViewModel ViewModel { get; set; }
 

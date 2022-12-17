@@ -20,6 +20,7 @@
     }
 </style>
 
+<CascadingValue Value="Variant">
 @if (DialogViewModel.FormData != null && DialogViewModel.ItemId != null)
 {
     <div @onkeydown="@KeyPress">
@@ -55,8 +56,12 @@
     </MudDialog>
     </div>
 }
+</CascadingValue>
 
 @code {
+    [Parameter]
+    public Variant Variant { get; set; } = Variant.Filled;
+
     [CascadingParameter] 
     MudDialogInstance MudDialog { get; set; }
 

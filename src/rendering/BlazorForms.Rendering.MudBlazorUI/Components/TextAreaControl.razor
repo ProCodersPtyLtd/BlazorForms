@@ -7,11 +7,14 @@
 @inject IDynamicFieldValidator FieldValidator
 
 <MudTextField Value="@TextValue" ReadOnly="@Field.DisplayProperties.Disabled" Required="@Field.DisplayProperties.Required" Lines="3" FullWidth="true"
-              T="string" ValueChanged="@(a => ValueChanged(a))" Label="@Field.DisplayProperties.Caption" Style="width: 100%;" Variant="Variant.Filled"/>
+              T="string" ValueChanged="@(a => ValueChanged(a))" Label="@Field.DisplayProperties.Caption" Style="width: 100%;" Variant="Variant"/>
 
 <ValidatorControl Validations="@AllValidations"></ValidatorControl>
 
 @code {
+    [CascadingParameter]
+    public Variant Variant { get; set; }
+
     [Parameter]
     public int RowIndex { get; set; }
 

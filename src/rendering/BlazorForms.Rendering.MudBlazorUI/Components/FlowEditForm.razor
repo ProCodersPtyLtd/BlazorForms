@@ -20,6 +20,7 @@
     <div>Assigned User: @_vm.FormAssignedUser</div>
 }
 
+<CascadingValue Value="Variant">
 @if (_loading)
 {
     <MudProgressLinear Indeterminate="true" Style="min-width: 50%; margin: auto;"></MudProgressLinear>
@@ -104,6 +105,7 @@ else
         </div>
     </div>
 }
+</CascadingValue>
 
 <MudThemeProvider />
 <MudDialogProvider />
@@ -117,6 +119,9 @@ else
     private bool _dialogIsOpen = false;
     private string _matDialogTitle = string.Empty;
     private string _buttonBinding = string.Empty;
+
+    [Parameter]
+    public Variant Variant { get; set; } = Variant.Filled;
 
     [Parameter]
     public string Pk { get; set; }

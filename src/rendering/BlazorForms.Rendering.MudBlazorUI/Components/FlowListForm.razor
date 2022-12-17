@@ -41,6 +41,7 @@
 <MudDialogProvider />
 <MudSnackbarProvider />
 
+<CascadingValue Value="Variant">
 <CascadingValue Value="@ViewModel">
 
 @if (loading)
@@ -116,8 +117,12 @@ else if (ViewModel.ListData != null)
     }
 
 </CascadingValue>
+</CascadingValue>
 
 @code {
+    [Parameter]
+    public Variant Variant { get; set; } = Variant.Filled;
+
     [Parameter]
     public string FlowType { get; set; }
 
@@ -269,6 +274,7 @@ else if (ViewModel.ListData != null)
         dialogParameters["FormSubmitted"] = new EventCallback<FormSubmittedArgs>(this, DialogFormSubmitted);
         dialogParameters["AllowAnonymousAccess"] = AllowAnonymousAccess;
         dialogParameters["AllowFlowStorage"] = AllowFlowStorage;
+        dialogParameters["Variant"] = Variant;
         DialogService.Show<FlowDialogForm>(null, dialogParameters, options);
     }
 

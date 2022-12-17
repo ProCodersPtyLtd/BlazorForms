@@ -6,11 +6,14 @@
 
 <MudTextField InputType="InputType.Number" AdornmentIcon="@Icons.Material.Filled.AttachMoney" Adornment="Adornment.Start" 
     Value="@MoneyValue?.Amount" Disabled="@Field.DisplayProperties.Disabled" Required="@Field.DisplayProperties.Required"
-    T="decimal?" ValueChanged="@(a => ValueChanged(a))" Label="@MoneyValue?.Currency" Style="width: 100%;" Variant="Variant.Filled"/>
+    T="decimal?" ValueChanged="@(a => ValueChanged(a))" Label="@MoneyValue?.Currency" Style="width: 100%;" Variant="Variant"/>
 
 <ValidatorControl Validations="@Validations"></ValidatorControl>
 
 @code {
+    [CascadingParameter]
+    public Variant Variant { get; set; }
+
     [Parameter]
     public int RowIndex { get; set; }
 
