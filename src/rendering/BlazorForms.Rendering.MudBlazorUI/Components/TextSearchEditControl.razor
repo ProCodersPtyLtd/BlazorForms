@@ -5,7 +5,7 @@
 @using Microsoft.AspNetCore.Components.Web
 
 <MudTextField Value="@TextValue" Disabled="@Field.DisplayProperties.Disabled" Required="@Field.DisplayProperties.Required"
-               OnInternalInputChanged=@(args => { ValueChanged(args); }) Style="width: 100%;"></MudTextField>
+              OnInternalInputChanged=@(args => { ValueChanged(args); }) Style="width: 100%;" Variant="Variant.Filled"></MudTextField>
 
 <ValidatorControl Validations="@Validations"></ValidatorControl>
 

@@ -65,7 +65,9 @@ else
                             if (action.DisplayProperties.Visible)
                             {
                                 <div class="mat-layout-grid-cell">
-                                    <MudButton Id="@action.Name" DisableElevation="true" Disabled="@_formLocked" OnClick="@(async () => await ActionButtonClick(action.Binding.Binding, action.DisplayProperties.Caption))">@action.DisplayProperties.Caption</MudButton>
+                                    <MudButton Id="@action.Name" DisableElevation="true" Disabled="@_formLocked" 
+                                    OnClick="@(async () => await ActionButtonClick(action.Binding.Binding, action.DisplayProperties.Caption))"
+                                    Variant="Variant.Filled" >@action.DisplayProperties.Caption</MudButton>
                                 </div>
                             }
                         }
@@ -309,14 +311,14 @@ else
 
     protected async Task KeyPress(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter")
-        {
-            await ProcessSubmit(loadForm: true);
-        }
-        else if (e.Key == "Escape")
-        {
-            CancelClick();
-        }
+        //if (e.Key == "Enter")
+        //{
+        //    await ProcessSubmit(loadForm: true);
+        //}
+        //else if (e.Key == "Escape")
+        //{
+        //    CancelClick();
+        //}
     }
 
     protected void CancelClick()

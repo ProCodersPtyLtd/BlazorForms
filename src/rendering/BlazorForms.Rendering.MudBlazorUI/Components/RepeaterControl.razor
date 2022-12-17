@@ -18,6 +18,11 @@
         background: #ebebeb;
     }
 
+    .repeater-table>:not(caption)>*>* {
+        padding: 0.01rem 0.1rem !important;
+        border-bottom-width: 0px !important;
+    }
+
     .pz-add-button {
         margin-top: 20px;
     }
@@ -37,7 +42,7 @@
 
 @if (Columns != null)
 {
-    <table mat-table class="table">
+    <table mat-table class="table repeater-table">
         @*Render header*@
 
         @if (@Table.Binding.TableBinding == "$.Timesheet.Records")
@@ -98,26 +103,18 @@
                         @if (RepeaterParameters?.IsLineEditing == true)
                         {
                             <td>
-                                <MudIconButton Icon="create" OnClick="@(async (args) => await EditClick(args, @row))"></MudIconButton>
+                                <MudIconButton Icon="@Icons.Material.TwoTone.Create" OnClick="@(async (args) => await EditClick(args, @row))"></MudIconButton>
                             </td>
                         }
 
                         <td>
-                            <MudIconButton Icon="delete_forever" OnClick="@(async (args) => await DelClick(args, @row))"></MudIconButton>
+                            <MudIconButton Icon="@Icons.Material.TwoTone.DeleteForever" OnClick="@(async (args) => await DelClick(args, @row))"></MudIconButton>
                         </td>
                     }
                 </tr>
             }
         }
     </table>
-
-    <MudDialog @bind-IsOpen="@_dialogIsOpen">
-        <DialogContent>Delete current row?</DialogContent>
-        <DialogActions>
-            <MudButton Variant="Variant.Filled" OnClick="@(async (args) => await SubmitDialog(args, false))">No</MudButton>
-            <MudButton Variant="Variant.Filled" OnClick="@(async (args) => await SubmitDialog(args, true))">Yes</MudButton>
-        </DialogActions>
-    </MudDialog>
 
     @if (RepeaterParameters?.IsFixedList == true)
     {
@@ -151,14 +148,7 @@
 
     private int _newRow { get; set; } = -1;
 
-    private bool _dialogIsOpen = false;
     private int _rowIndex;
-
-
-    private void OpenDialog()
-    {        
-        _dialogIsOpen = true;
-    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -176,7 +166,7 @@
     {
         _isModelChanged = true;
         ViewModel.ModelNaviSetValue(Table.Binding.TableBinding, args.RowIndex, args.Binding.Binding, args.NewValue);
-        //var cellModelBinding = $"{Table.Binding.TableBinding}[{args.RowIndex}]{args.Binding.Binding.Replace("$", "")}";
+
         try
         {
             var task = await ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, args.Binding, rowIndex: args.RowIndex);
@@ -207,10 +197,7 @@
     private FieldControlDetails GetField(int row, FieldControlDetails col)
     {
         var field = ViewModel.GetRowField(col, row);
-        //var field = _reflectionProvider.CloneObject(col);
-        //field.Binding.ResolveKey(new FieldBindingArgs { RowIndex = row });
-        //string modelBinding = $"{Table.ModelTableBinding}[{row}]{col.ModelBinding.Replace("$", "")}";
-        //return field;
+
         if (RepeaterParameters.IsLineEditing)
         {
             field.DisplayProperties.Disabled = row == RepeaterParameters.CurrentRow ? false : true;
@@ -220,73 +207,50 @@
 
     private async Task AddClick()
     {
-        //if (IsModelChanged)
-        //{
-        //    await SaveDialog();
-        //}
-        //else
-        {            
-            var itemType = ListData.GetType().GetGenericArguments()[0];
-            var newItem = Activator.CreateInstance(itemType);
-            var list = ListData as System.Collections.IList;
-            list.Add(newItem);
-            RepeaterParameters.CurrentRow = list.Count - 1;
-            _newRow = (int)RepeaterParameters.CurrentRow;
+        var itemType = ListData.GetType().GetGenericArguments()[0];
+        var newItem = Activator.CreateInstance(itemType);
+        var list = ListData as System.Collections.IList;
+        list.Add(newItem);
+        RepeaterParameters.CurrentRow = list.Count - 1;
+        _newRow = (int)RepeaterParameters.CurrentRow;
 
-            // register fields for new row
-            foreach (var col in Columns)
-            {
-                GetField(list.Count - 1, col);
-            }
-
-            // trigger rule after rendering (new fields should be created by GetField())
-            var task = await ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, Table.Binding, FormRuleTriggers.ItemAdded, list.Count - 1);
-            StateHasChanged();
-        }
-    }
-
-    private async Task SubmitDialog(MouseEventArgs args, bool answer)
-    {
-        _dialogIsOpen = false;
-        if (answer)
+        // register fields for new row
+        foreach (var col in Columns)
         {
-            _isModelChanged = _newRow > -1 ? false : true;
-            _newRow = -1;
-            var list = ListData as System.Collections.IList;
-            list.RemoveAt(_rowIndex);
-            RepeaterParameters.CurrentRow = null;
-
-            // refresh row fields
-            ViewModel.ClearRowFields();
-
-            for(int i = 0; i < list.Count; i++)
-            {
-                foreach (var col in Columns)
-                {
-                    GetField(i, col);
-                }
-            }
+            GetField(list.Count - 1, col);
         }
+
+        // trigger rule after rendering (new fields should be created by GetField())
+        var task = await ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, Table.Binding, FormRuleTriggers.ItemAdded, list.Count - 1);
+        StateHasChanged();
     }
 
     private async Task DelClick(MouseEventArgs args, int rowIndex)
     {
         _rowIndex = rowIndex;
-        _dialogIsOpen = true;
+        _isModelChanged = _newRow > -1 ? false : true;
+        _newRow = -1;
+        var list = ListData as System.Collections.IList;
+        list.RemoveAt(_rowIndex);
+        RepeaterParameters.CurrentRow = null;
+
+        // refresh row fields
+        ViewModel.ClearRowFields();
+
+        for (int i = 0; i < list.Count; i++)
+        {
+            foreach (var col in Columns)
+            {
+                GetField(i, col);
+            }
+        }
     }
 
     private async Task EditClick(MouseEventArgs args, int rowIndex)
     {
-        //if (IsModelChanged)
-        //{
-        //    await SaveDialog();
-        //}
-        //else
-        {
-            RepeaterParameters.CurrentRow = rowIndex;
-            var task = await ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, Table.Binding, FormRuleTriggers.ItemChanged, rowIndex);
-            StateHasChanged();
-        }
+        RepeaterParameters.CurrentRow = rowIndex;
+        var task = await ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, Table.Binding, FormRuleTriggers.ItemChanged, rowIndex);
+        StateHasChanged();
     }
 
     public async Task ShowPopup()

@@ -15,7 +15,8 @@
 }
 else
 {
-    <MudSelect Value="@TextValue" T="string" ValueChanged="@(args => ValueChanged(args))" Style="width: 100%;">
+    <MudSelect Value="@TextValue" T="string" ValueChanged="@(args => ValueChanged(args))" Style="width: 100%;"
+           Variant="Variant.Filled" AnchorOrigin="Origin.BottomCenter">
         @foreach (var item in _items)
         {
             <MudSelectItem Value="@item.Key">@item.Value</MudSelectItem>

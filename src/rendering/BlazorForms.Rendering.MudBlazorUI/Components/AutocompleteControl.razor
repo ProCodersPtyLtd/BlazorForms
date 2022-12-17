@@ -6,15 +6,12 @@
 
 @inject IDynamicFieldValidator FieldValidator
 
-    <div class="mat-autocomplete-list-wrapper">
         <MudAutocomplete T="string" Value="@SearchText" SearchFunc="@GetOptions" Disabled="@Field.DisplayProperties.Disabled"
                      OnInternalInputChanged=@TextChanged ValueChanged=@ValueChanged
-                     ResetValueOnEmptyText="true" CoerceText="true" CoerceValue="true" />
+                     ResetValueOnEmptyText="true" CoerceText="true" CoerceValue="true" 
+                     Style="width: 100%;" Variant="Variant.Filled" />
 
         <ValidatorControl Validations="@AllValidations"></ValidatorControl>
-    </div>
-}
-
 
 @code {
     [CascadingParameter]
@@ -61,7 +58,10 @@
 
     private async Task<IEnumerable<string>> GetOptions(string pattern)
     {
-        var options = ViewModel.ModelNaviGetItems(ItemsBinding).Select(item => ViewModel.PathNavi.GetValue(item, NameBinding) as string);
+        var options = ViewModel.ModelNaviGetItems(ItemsBinding)
+            .Select(item => ViewModel.PathNavi.GetValue(item, NameBinding) as string)
+            .Where(item => item.Contains(pattern));
+
         return options;
     }
 

@@ -12,7 +12,7 @@
 
 <MudDatePicker Editable="true" Date="@_localDateValue" Disabled="@Field.DisplayProperties.Disabled" Required="@Field.DisplayProperties.Required" 
     DateFormat="@_dateFormat.ShortDatePattern"
-    DateChanged="@ValueChanged" Style="width: 100%;"></MudDatePicker>
+    DateChanged="@ValueChanged" Style="width: 100%;" Variant="Variant.Filled"/>
 
 <ValidatorControl Validations="@AllValidations"></ValidatorControl>
 
@@ -61,7 +61,7 @@
     {
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         _localDateValue = await ClientDateService.GetLocalDateTime(DateValue);
     }
@@ -71,9 +71,7 @@
 
     async Task ValueChanged(DateTime? val)
     {
-        await Log("val=" + val.ToString());
-        _localDateValue = await ClientDateService.GetLocalDateTime(val);
-        await Log("localVal="+_localDateValue.ToString());
+        _localDateValue = val;
         _localValidation = FieldValidator.Validate(Field, val);
         await ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = val, RowIndex = RowIndex });
     }

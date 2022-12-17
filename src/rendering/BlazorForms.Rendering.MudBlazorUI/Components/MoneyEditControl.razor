@@ -39,7 +39,7 @@
     {
         decimal dec;
 
-        if (decimal.TryParse(val.ToString(), out dec))
+        if (decimal.TryParse(val?.ToString(), out dec))
         {
             MoneyValue.Amount = dec;
         }
