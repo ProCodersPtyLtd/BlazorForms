@@ -1,4 +1,5 @@
 ﻿@using BlazorForms.Rendering.State
+@using BlazorForms.Shared.DataStructures;
 @using Microsoft.AspNetCore.Components.Forms;
 @using MudBlazor
 @using BlazorForms.Forms
@@ -77,12 +78,15 @@
 
             foreach (var file in files)
             {
-                var buffer = new byte[file.Size];
-                await file.OpenReadStream().ReadAsync(buffer);
-
                 _fileNames.Add(file.Name);
 
-                await ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = buffer, RowIndex = RowIndex });
+                using (var stream = new MemoryStream())
+                {
+                    await file.OpenReadStream().CopyToAsync(stream);
+                    var fileDetails = new FileDetails { Name = file.Name, Content = stream.ToArray() };
+
+                    await ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = fileDetails, RowIndex = RowIndex });
+                }
             }
         }
 

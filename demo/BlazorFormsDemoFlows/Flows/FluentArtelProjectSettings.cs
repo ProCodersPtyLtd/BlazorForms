@@ -35,7 +35,7 @@ namespace BlazorFormsDemoFlows
             f.Property(p => p.Project.PaymentFrequencyDay).Label("Day of Month").Control(typeof(TextEdit));
             f.Property(p => p.Project.PaymentNotification).Label("Notify on Payment Sent");
 
-            f.Property(p => p.Project.RoadmapAttached).Label("Roadmap Attached").Control(typeof(FileUpload));
+            f.Property(p => p.Project.RoadmapFile).Label("Roadmap Attached").Control(typeof(FileUpload));
 
             f.Repeater(t => t.Roles, e =>
             {
@@ -116,6 +116,7 @@ namespace BlazorFormsDemoFlows
             Model.Project = new ArtelProjectDetails
             {
                 Name = "Project1",
+                StartDate= DateTime.Now.Date.ToUniversalTime(),
                 BaseCurrencySearch = "USD",
                 PaymentFrequencyDay = 1,
                 DefaultSharesPaymentProportionPercent = 50m,
@@ -140,6 +141,7 @@ namespace BlazorFormsDemoFlows
 
         private async Task SaveAsync()
         {
+            var isUtc = Model.Project.StartDate.Value.Kind == DateTimeKind.Utc;
             Model.Message = "Form submitted successfully.";
         }
     }

@@ -22,5 +22,6 @@ namespace BlazorForms.Platform.Crm.Domain.Models.Artel
         public virtual int PaymentFrequencyDay { get; set; }
         public virtual bool PaymentNotification { get; set; }
         public virtual byte[] RoadmapAttached { get; set; }
+        public virtual FileDetails RoadmapFile { get; set; }
     }
 }
