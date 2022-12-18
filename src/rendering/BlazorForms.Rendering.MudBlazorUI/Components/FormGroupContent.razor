@@ -28,8 +28,8 @@
 {
     <MudText Typo="Typo.h6" class="pz-clean-margin">@Group.Key</MudText>
 }
-<div id="pz-group-container-@Group.Key" class="mat-layout-grid pz-group-grid">
-    <div class="mat-layout-grid-inner pz-grid-align">
+
+        <MudGrid Spacing="1" Justify="Justify.Center" class="pz-grid-align">
 
         @foreach (var field in Group)
         {
@@ -43,94 +43,113 @@
 
             @if (field.ControlType == "TableOld")
             {
-                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12 mat-subtitle2">@field.DisplayProperties.Caption</div>
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle2" class="pz-subtitle2">@field.DisplayProperties.Caption</MudText> 
+                </MudItem>
 
-                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                <MudItem xs="12">
                     <GridControl Table="field" Columns="@ViewModel.Tables[field.Binding.TableBinding]" Caption="@field.DisplayProperties.Caption"
                                  Validations="@GetValidations(field.Binding.ResolvedBinding)" />
-                </div>
+                </MudItem>
 
                 continue;
             }
             else if (field.ControlType == "Table")
             {
-                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12 mat-subtitle2">@field.DisplayProperties.Caption</div>
-                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
-                    @*<TableControl Controller="@Controller" Table="field" Columns="@Controller.Tables[field.Binding.TableBinding]" Caption="@field.DisplayProperties.Caption"
-                    Validations="@GetValidations(field.Binding.ResolvedBinding)" />*@
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle2" class="pz-subtitle2">@field.DisplayProperties.Caption</MudText>
+                </MudItem>
+
+                <MudItem xs="12">
                     <GridControl Table="field" Columns="@ViewModel.Tables[field.Binding.TableBinding]" Caption="@field.DisplayProperties.Caption"
                                  ModelChanged="@ModelChanged" Validations="@GetValidations(field.Binding.ResolvedBinding)" />
-                </div>
+                </MudItem>
                 continue;
             }
             else if (field.ControlType == "Repeater")
             {
-                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12 mat-subtitle2">@field.DisplayProperties.Caption</div>
-                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle2" class="pz-subtitle2">@field.DisplayProperties.Caption</MudText>
+                </MudItem>
+
+                <MudItem xs="12">
                     <RepeaterControl Table="field" Columns="@ViewModel.Repeaters[field.Binding.TableBinding]" Caption="@field.DisplayProperties.Caption"
                                      Validations="@GetValidations(field.Binding.ResolvedBinding)" ModelValueChanged="@ModelChanged" />
-                </div>
+                </MudItem>
                 continue;
             }
             else if (field.ControlType == "SelectableList")
             {
-                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12 mat-subtitle2">@field.DisplayProperties.Caption</div>
-                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle2" class="pz-subtitle2">@field.DisplayProperties.Caption</MudText>
+                </MudItem>
+
+                <MudItem xs="12">
                     <SelectableListControl Table="field" Data="@ViewModel.GetSelectableListData(field)" Caption="@field.DisplayProperties.Caption"
                                            ModelValueChanged="@ModelChanged" Validations="@GetValidations(field.Binding.ResolvedBinding)" />
-                </div>
+                </MudItem>
                 continue;
             }
             else if (field.ControlType == "TextArea" || field.ControlType == "Header" || field.ControlType == "Subtitle")
             {
-                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                <MudItem xs="12" class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
                     <SimpleControl ModelChanged="@ModelChanged" ModelBinding="" Field="@field" />
-                </div>
+                </MudItem>
             }
             else if (field.ControlType == "Label")
             {
                @if (field.DisplayProperties.NoCaption == true)
                 {
-                    <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                    <MudItem xs="12" class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
                         <SimpleControl ModelChanged="@ModelChanged" ModelBinding="" Field="@field" />
-                    </div>
+                    </MudItem>
                 }
                 else
                 {
-                    <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6 mat-subtitle2">@field.DisplayProperties.Caption</div>
-                    <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
+                    <MudItem xs="6" class="mat-layout-grid-cell mat-layout-grid-cell-span-6 mat-subtitle2">
+                        <MudText Typo="Typo.subtitle2" class="pz-subtitle2">@field.DisplayProperties.Caption</MudText>
+                    </MudItem>
+                        
+                    <MudItem xs="6" class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
                         <SimpleControl ModelChanged="@ModelChanged" ModelBinding="" Field="@field" />
-                    </div>
+                    </MudItem>
                 }
             }
             else
             {
                 @if (field.Binding.BindingType == BlazorForms.Shared.FieldBindingType.ActionButton)
                 {
-                    <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                    <MudItem xs="12" class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
                         <SimpleControl ModelChanged="@ModelChanged" ModelBinding="" Field="@field" />
-                    </div>
+                    </MudItem>
                 }
                 else
                 {
                     @if (field.DisplayProperties.Required)
                     {
-                        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6 mat-subtitle2">@field.DisplayProperties.Caption *</div>
+                        <MudItem xs="6" class="mat-layout-grid-cell mat-layout-grid-cell-span-6 mat-subtitle2">
+                            <MudText Typo="Typo.subtitle2" class="pz-subtitle2">@field.DisplayProperties.Caption *</MudText>
+                        </MudItem>
                     }
                     else
                     {
-                        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6 mat-subtitle2">@field.DisplayProperties.Caption</div>
+                        <MudItem xs="6" class="mat-layout-grid-cell mat-layout-grid-cell-span-6 mat-subtitle2">
+                            <MudText Typo="Typo.subtitle2" class="pz-subtitle2">@field.DisplayProperties.Caption</MudText>
+                        </MudItem>
                     }
 
-                    <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
+                        <MudItem xs="6" class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
                        <SimpleControl ModelChanged="@ModelChanged" ModelBinding="" Field="@field" />
-                    </div>
+                    </MudItem>
                 }
 
             }
         }
-    </div>
-</div>
+
+        </MudGrid>
+
+
+
 
 @code {
 

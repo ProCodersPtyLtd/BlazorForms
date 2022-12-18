@@ -1,21 +1,24 @@
 using BlazorForms;
+using BlazorForms.Platform.Crm.Artel;
+using BlazorFormsDemoFlows.Flows;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor.Services;
-using MudBlazorUIDemo.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
 
-var services = builder.Services;
 
 // MudBlazor
-builder.Services.AddMudServices();
+var services = builder.Services;
+services.AddServerSideBlazorForms();
 services.AddBlazorFormsMudBlazorUI();
+services.AddBlazorFormsServerModelAssemblyTypes(typeof(ArtelProjectSettingsModel));
+services.AddBlazorFormsServerModelAssemblyTypes(typeof(SampleListShortFlow));
+
 
 var app = builder.Build();
 

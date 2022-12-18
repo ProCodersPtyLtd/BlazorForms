@@ -13,6 +13,33 @@
 @inject ISnackbar Snackbar
 @inject IJSRuntime JS
 
+<style>
+    .pz-grid-align {
+        align-items: center;
+    }
+
+    .pz-clean-margin {
+        margin: 0px;
+    }
+
+    .pz-group-grid {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .pz-progress {
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+</style>
+
+@if (!MudBlazorProvidersDefined)
+{
+    <MudThemeProvider />
+    <MudDialogProvider />
+    <MudSnackbarProvider />
+}
+
 @if (_vm.FormAccessDenied && !IsDefaultReadonlyView)
 {
     <div>Form Access Denied</div>
@@ -35,90 +62,90 @@ else if (_vm.ModelUntyped == null)
 }
 else
 {
-    <div class="mat-layout-grid" @onkeydown="@KeyPress" style="padding:0">
-        <div class="mat-layout-grid-inner" style="justify-items:center">
+    <MudGrid Spacing="1" Justify="Justify.Center" class="pz-grid-align pz-group-grid" style="padding:0">
+        <MudItem xs="7">
+
+    <div @onkeydown="@KeyPress" style="padding:0">
+        <div style="justify-items:center">
 
             @if (!string.IsNullOrEmpty(_vm.FormData?.DisplayName))
             {
-                <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                <div>
                     <MudText Typo="Typo.h4">@_vm.FormData.DisplayName</MudText>
                 </div>
             }
 
-            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+            <div>
                 <CascadingValue Value="@_vm">
                     <FormContent ModelValueChanged=@ModelActionChanged />
                 </CascadingValue>
             </div>
 
-            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12" style="min-width: 100%;">
+            <div style="min-width: 100%;" class="pz-progress">
                 <MudProgressLinear Indeterminate="@_formLocked" Closed="@(!_formLocked)"></MudProgressLinear>
             </div>
 
-            @*buttons*@
-            <div class="mat-layout-grid mat-layout-grid-cell-span-12">
-                <div class="mat-layout-grid-inner" style="display:flex;">
+            @*<MudDivider DividerType="DividerType.FullWidth" Class="my-2" />*@
 
-                    @if (_vm.ActionFields != null && _vm.ActionFields.Count() > 0)
+            @*buttons*@
+            <div class="d-flex flex-row flex-grow-1 gap-2 justify-center">
+
+                @if (_vm.ActionFields != null && _vm.ActionFields.Count() > 0)
+                {
+                    foreach (var action in _vm.ActionFields)
                     {
-                        foreach (var action in _vm.ActionFields)
+                        if (action.DisplayProperties.Visible)
                         {
-                            if (action.DisplayProperties.Visible)
-                            {
-                                <div class="mat-layout-grid-cell">
-                                    <MudButton Id="@action.Name" DisableElevation="true" Disabled="@_formLocked" 
+                            <div class="d-inline-flex">
+                                <MudButton Id="@action.Name" DisableElevation="true" Disabled="@_formLocked" 
                                     OnClick="@(async () => await ActionButtonClick(action.Binding.Binding, action.DisplayProperties.Caption))"
                                     Variant="Variant.Filled" >@action.DisplayProperties.Caption</MudButton>
-                                </div>
-                            }
+                            </div>
                         }
                     }
-                    else
+                }
+                else
+                {
+                    <div class="d-inline-flex">
+                        <MudButton Variant="Variant.Outlined" Disabled="@_formLocked">Cancel</MudButton>
+                    </div>
+
+                    <div class="d-inline-flex">
+                        <MudButton Variant="Variant.Filled" DisableElevation="true" Disabled="@_formLocked">@_vm.SaveActionName</MudButton>
+                    </div>
+
+                    @if (ValidateButton)
                     {
-                        <div class="mat-layout-grid-cell">
-                            <MudButton Variant="Variant.Outlined" Disabled="@_formLocked">Cancel</MudButton>
-                        </div>
-                        <div class="mat-layout-grid-cell">
-                            <MudButton Variant="Variant.Filled" DisableElevation="true" Disabled="@_formLocked">@_vm.SaveActionName</MudButton>
-                        </div>
-
-                        @if (ValidateButton)
-                        {
-                            <div class="mat-layout-grid-cell">
-                                <MudButton Variant="Variant.Filled" DisableElevation="true" OnClick="@ValidateClick" Disabled="@_formLocked">Validate</MudButton>
-                            </div>
-                        }
-
-
-                        @if (!string.IsNullOrEmpty(_vm.RejectActionName))
-                        {
-                            <div class="mat-layout-grid-cell">
-                                <MudButton Variant="Variant.Filled" OnClick="@(async() => await SubmitClick(_vm.RejectAction.Binding.Binding))" Disabled="@_formLocked">@_vm.RejectActionName</MudButton>
-                            </div>
-                        }
-                        <div class="mat-layout-grid-cell">
-                            <MudButton Variant="Variant.Filled" OnClick="@(async() => await SubmitClick(_vm.SubmitAction.Binding.Binding))" Disabled="@_formLocked">@_vm.SubmitActionName</MudButton>
+                        <div class="d-inline-flex">
+                            <MudButton Variant="Variant.Filled" DisableElevation="true" OnClick="@ValidateClick" Disabled="@_formLocked">Validate</MudButton>
                         </div>
                     }
-                </div>
+
+
+                    @if (!string.IsNullOrEmpty(_vm.RejectActionName))
+                    {
+                        <div class="d-inline-flex">
+                            <MudButton Variant="Variant.Filled" OnClick="@(async() => await SubmitClick(_vm.RejectAction.Binding.Binding))" Disabled="@_formLocked">@_vm.RejectActionName</MudButton>
+                        </div>
+                    }
+
+                    <div class="d-inline-flex">
+                        <MudButton Variant="Variant.Filled" OnClick="@(async() => await SubmitClick(_vm.SubmitAction.Binding.Binding))" Disabled="@_formLocked">@_vm.SubmitActionName</MudButton>
+                    </div>
+                }
+                
             </div>
         </div>
     </div>
+        
+        </MudItem>
+    </MudGrid>
 }
 </CascadingValue>
 
-<MudThemeProvider />
-<MudDialogProvider />
-<MudSnackbarProvider />
-
 @code {
-    private bool _loading = true;
-
-    private bool _formLocked = false;
-
-    private bool _dialogIsOpen = false;
-    private string _matDialogTitle = string.Empty;
-    private string _buttonBinding = string.Empty;
+    [Parameter]
+    public bool MudBlazorProvidersDefined { get; set; }
 
     [Parameter]
     public Variant Variant { get; set; } = Variant.Filled;
@@ -151,6 +178,14 @@ else
 
     [Parameter]
     public bool SupressExceptions { get; set; }
+
+    private bool _loading = true;
+
+    private bool _formLocked = false;
+
+    private bool _dialogIsOpen = false;
+    private string _matDialogTitle = string.Empty;
+    private string _buttonBinding = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {

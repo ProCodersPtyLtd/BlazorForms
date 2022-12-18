@@ -1,4 +1,4 @@
-﻿@page "/list3"
+﻿@page "/flow-list-form"
 @using BlazorForms.Rendering.Interfaces
 @using BlazorForms.Flows.Definitions
 @using BlazorForms.Rendering.State
@@ -14,7 +14,7 @@
 </div>
 
 <FlowListForm FlowType="BlazorFormsDemoFlows.Flows.SampleListShortFlow" ShowFilters=showFilters ShowSorting=showSorting ShowPagination=showPages
-    Variant="MudBlazor.Variant.Outlined" />
+              MudBlazorProvidersDefined=true Variant="MudBlazor.Variant.Outlined" />
 
 @code {
     private bool showPages = false;

@@ -37,9 +37,12 @@
 
 </style>
 
-<MudThemeProvider />
-<MudDialogProvider />
-<MudSnackbarProvider />
+@if (!MudBlazorProvidersDefined)
+{
+    <MudThemeProvider />
+    <MudDialogProvider />
+    <MudSnackbarProvider />
+}
 
 <CascadingValue Value="Variant">
 <CascadingValue Value="@ViewModel">
@@ -50,7 +53,7 @@
 }
 else if (ViewModel.ListData != null)
 {
-        <MudTable T="string[]" Items="@GetListData()" Hover="true" Breakpoint="Breakpoint.Sm" Dense="true"
+        <MudTable T="string[]" Items="@GetListData()" Hover="true" Breakpoint="Breakpoint.Sm" Dense="true" RowsPerPage=20
             OnRowClick="@(async (args) => await @RowClickEvent(args))">
         <HeaderContent>
             @foreach (var c in ViewModel.VisibleColumns!)
@@ -99,7 +102,10 @@ else if (ViewModel.ListData != null)
             }
         </FooterContent>*@
         <PagerContent>
-            <MudTablePager PageSizeOptions="@(new int[] { 10, 50, 100 })"></MudTablePager>
+            @if (ShowPagination)
+            {
+                <MudTablePager PageSizeOptions="@(new int[] { 20, 50, 100 })"></MudTablePager>
+            }
         </PagerContent>
     </MudTable>
 }
@@ -124,6 +130,9 @@ else if (ViewModel.ListData != null)
     public Variant Variant { get; set; } = Variant.Filled;
 
     [Parameter]
+    public bool MudBlazorProvidersDefined { get; set; }
+
+    [Parameter]
     public string FlowType { get; set; }
 
     [Parameter]
@@ -140,6 +149,9 @@ else if (ViewModel.ListData != null)
 
     [Parameter]
     public FlowParamsGeneric FlowParams { get; set; }
+
+    [Parameter]
+    public bool ShowPagination { get; set; }
 
     [Parameter]
     public bool ShowFilters { get; set; }

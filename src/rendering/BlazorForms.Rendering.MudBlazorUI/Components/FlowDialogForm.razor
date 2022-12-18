@@ -34,22 +34,20 @@
 
         </DialogContent>
         <DialogActions>
-            <div class="mat-layout-grid" style="display:flex">
-                <div class="mat-layout-grid-inner pz-dilaog-grid-align">
-                    <div class="mat-layout-grid-cell">
-                        <MudButton Variant="Variant.Filled" OnClick="@CancelClick" Disabled="@_formLocked">Cancel</MudButton>
-                    </div>
+            <div class="d-flex flex-row flex-grow-1 gap-2 justify-end pz-dialog-content">
+                <div class="d-inline-flex">
+                    <MudButton Variant="Variant.Filled" OnClick="@CancelClick" Disabled="@_formLocked">Cancel</MudButton>
+                </div>
 
-                    @if (ValidateButton)
-                    {
-                        <div class="mat-layout-grid-cell">
-                            <MudButton Variant="Variant.Filled" OnClick="@ValidateClick" Disabled="@_formLocked">Validate</MudButton>
-                        </div>
-                    }
-
-                    <div class="mat-layout-grid-cell">
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@SubmitClick" Disabled="@_formLocked">@DialogViewModel.SubmitActionName</MudButton>
+                @if (ValidateButton)
+                {
+                    <div class="d-inline-flex">
+                        <MudButton Variant="Variant.Filled" OnClick="@ValidateClick" Disabled="@_formLocked">Validate</MudButton>
                     </div>
+                }
+
+                <div class="d-inline-flex">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@SubmitClick" Disabled="@_formLocked">@DialogViewModel.SubmitActionName</MudButton>
                 </div>
             </div>
         </DialogActions>

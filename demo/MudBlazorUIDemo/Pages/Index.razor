@@ -2,6 +2,27 @@
 
 @inject ISnackbar Snackbar
 
+<style>
+    .pz-grid-align {
+        align-items: center;
+        width: auto;
+        grid-column-end: span 12;
+    }
+
+    .pz-clean-margin {
+        margin: 0px;
+    }
+
+    .pz-group-grid {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .pz-form-button {
+        width: 120px;
+    }
+</style>
+
 <MudTable Items="@Elements.Take(4)" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
     <HeaderContent>
         <MudTh>Nr</MudTh>
@@ -22,7 +43,44 @@
 <MudSwitch @bind-Checked="_hidePosition">Hide <b>position</b> when Breakpoint=Xs</MudSwitch>
 <MudSwitch @bind-Checked="_loading">Show Loading</MudSwitch>
 
-<MudSnackbarProvider />
+<MudGrid Spacing="1" Justify="Justify.Center" class="pz-grid-align pz-group-grid">
+    <MudItem xs="7">
+    
+        <MudGrid Spacing="1" Justify="Justify.Center" class="pz-grid-align">
+            <MudItem xs="6">
+                <MudText Typo="Typo.subtitle2" class="pz-subtitle1">First Name *</MudText>
+            </MudItem>
+            <MudItem xs="6"> 
+                <MudTextField Text="Ivanov" T="string" Style="width: 100%;" Variant="Variant.Filled" />
+            </MudItem>
+
+            <MudItem xs="6">
+                <MudText Typo="Typo.subtitle2" class="pz-subtitle1">First Name *</MudText>
+            </MudItem>
+            <MudItem xs="6">
+                <MudTextField Text="Petrov" T="string" Style="width: 100%;" Variant="Variant.Filled" />
+            </MudItem>
+        </MudGrid>
+
+        <MudDivider DividerType="DividerType.FullWidth" Class="my-2" />
+
+        <div class="d-flex flex-row flex-grow-1 gap-2 justify-center pz-group-grid" Elevation="0">
+            <div class="d-inline-flex">
+                <MudButton Variant="Variant.Filled" DisableElevation="true" class="pz-form-button">Cancel</MudButton>
+            </div>
+            <div class="d-inline-flex ">
+                <MudButton Variant="Variant.Filled" DisableElevation="true" class="pz-form-button">Validate</MudButton>
+            </div>
+            <div class="d-inline-flex">
+                <MudButton Variant="Variant.Filled" DisableElevation="true" class="pz-form-button">Save</MudButton>
+            </div>
+        </div>
+
+    </MudItem>
+</MudGrid>
+
+
+@*<MudSnackbarProvider />*@
 
 @code {
     private bool _hidePosition;
@@ -46,8 +104,8 @@
     {
         if (firstRender)
         {
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopStart;
-            Snackbar.Add("The page is loaded", Severity.Success);
+            //Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopStart;
+            //Snackbar.Add("The page is loaded", Severity.Success);
         }
     }
 

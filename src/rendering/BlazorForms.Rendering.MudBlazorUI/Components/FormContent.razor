@@ -8,15 +8,13 @@
 }
 else
 {
-    <div id="pz-form" class="mat-layout-grid" style="padding:0">
-        <div class="mat-layout-grid-inner">
-            @foreach (var group in ViewModel.FieldsGrouped)
-            {
-                <div id="pz-group-@group.Key" class="mat-layout-grid-cell mat-layout-grid-cell-span-@CellSpan">
-                    <FormGroupContent Group="@group" ModelValueChanged="@ModelChanged" />
-                </div>
-            }
-        </div>
+    <div id="pz-form" style="padding:0">
+        @foreach (var group in ViewModel.FieldsGrouped)
+        {
+            <div id="pz-group-@group.Key" class="mat-layout-grid-cell mat-layout-grid-cell-span-@CellSpan">
+                <FormGroupContent Group="@group" ModelValueChanged="@ModelChanged" />
+            </div>
+        }
     </div>
 }
 

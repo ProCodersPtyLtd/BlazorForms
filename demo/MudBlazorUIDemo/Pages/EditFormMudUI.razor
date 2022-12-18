@@ -1,0 +1,13 @@
+﻿@page "/flow-edit-form/{store:bool}"
+
+@using BlazorForms.Rendering.MudBlazorUI.Components
+
+<PageTitle>Form V2</PageTitle>
+
+<FlowEditForm FlowName="@typeof(BlazorFormsDemoFlows.FluentArtelProjectSettingsFlow).FullName" Pk="0" AllowAnonymousAccess="true" 
+    AllowFlowStorage="@Store" NavigationSuccess="/" MudBlazorProvidersDefined=true Variant="MudBlazor.Variant.Outlined"/>
+
+@code {
+    [Parameter]
+    public bool Store { get; set; }
+}
