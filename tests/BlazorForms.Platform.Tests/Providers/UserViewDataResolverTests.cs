@@ -1,6 +1,8 @@
 ﻿using BlazorForms.Forms;
 using BlazorForms.Platform.Definitions.Shared;
 using BlazorForms.Platform.Tests.FluentForms;
+using BlazorForms.Shared;
+using BlazorForms.Shared.FastReflection;
 using BlazorForms.Tests.Framework.Core;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -15,12 +17,16 @@ namespace BlazorForms.Platform.Tests.Providers
     {
         private IFlowRunProvider _provider;
         private ServiceProvider _serviceProvider;
+        private IModelBindingNavigator _modelBindingNavigator;
+        private IJsonPathNavigator _jsonPathNavigator;
 
         public UserViewDataResolverTests()
         {
             var creator = new FlowRunProviderCreator();
             _provider = creator.GetFlowRunProvider();
             _serviceProvider = creator.ServiceProvider;
+            _modelBindingNavigator = _serviceProvider.GetRequiredService<IModelBindingNavigator>();
+            _jsonPathNavigator = _serviceProvider.GetRequiredService<IJsonPathNavigator>();
         }
 
         [Fact]
@@ -33,14 +39,14 @@ namespace BlazorForms.Platform.Tests.Providers
         [Fact]
         public void NewResolverWithoutFormaTest()
         {
-            var resolver = new UserViewDataResolverJsonPath();
+            var resolver = new UserViewDataResolverJsonPath(_jsonPathNavigator, _modelBindingNavigator);
             TestResolveData(resolver);
         }
 
         [Fact]
         public void NewResolverFormaTest()
         {
-            var resolver = new UserViewDataResolverJsonPath();
+            var resolver = new UserViewDataResolverJsonPath(_jsonPathNavigator, _modelBindingNavigator);
             var data = GetResolvedData(resolver);
             Assert.Equal("5/12/1987", data[0, 4]);
         }
@@ -60,6 +66,9 @@ namespace BlazorForms.Platform.Tests.Providers
         private void TestResolveData(IUserViewDataResolver resolver)
         {
             var data = GetResolvedData(resolver);
+
+            Assert.Equal(2, data.GetLength(0));
+            Assert.Equal(8, data.GetLength(1));
 
             Assert.Equal("101", data[0,0]);
             Assert.Equal("Ben", data[0,1]);

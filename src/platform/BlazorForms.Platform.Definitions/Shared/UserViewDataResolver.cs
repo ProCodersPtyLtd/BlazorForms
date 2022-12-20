@@ -14,13 +14,13 @@ namespace BlazorForms.Platform
     // if PK Column is visible - it will be duplicated at its position
     public class UserViewDataResolver : IUserViewDataResolver
     {
-        public string[,] ResolveData(FormDetails formDetails, IFlowModel model, ILogStreamer _logStreamer)
+        public string[,] ResolveData(FormDetails formDetails, IFlowModel model, ILogStreamer logStreamer)
         { 
             var tableField = formDetails.Fields.First(f => !string.IsNullOrEmpty(f.Binding.TableBinding));
 
             if(tableField == null)
             {
-                _logStreamer.TrackException(new Exception($"Cannot find table for data resolution in {formDetails.Name}"));
+                logStreamer.TrackException(new Exception($"Cannot find table for data resolution in {formDetails.Name}"));
                 throw new Exception($"Cannot find table for data resolution in {formDetails.Name}");
             }
 

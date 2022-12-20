@@ -103,6 +103,7 @@ namespace BlazorForms.Tests.Framework.Core
             serviceCollection.AddScoped<IStoreDatabaseDriver, MockStoreDatabaseDriver>();
 
             serviceCollection.AddScoped<IJsonPathNavigator, JsonPathNavigator>();
+            serviceCollection.AddScoped<IModelBindingNavigator, ModelBindingNavigator>();
             // Admin Objects
             serviceCollection.AddScoped(typeof(IFlowDataProvider), typeof(FlowDataProvider));
 
