@@ -21,7 +21,7 @@
             LastName = _lastNames[_rand.Next(0, _lastNames.Length - 1)];
             var y = 1900 + _rand.Next(0, 150);
             var m = _rand.Next(1, 12);
-            var d = _rand.Next(0, 3);
+            var d = _rand.Next(0, 30);
             DOB = new DateTime(y, m, 1);
             DOB = DOB.Value.AddDays(d);
         }

@@ -73,7 +73,7 @@ namespace MudBlazorUIDemo.Flows
                 e.Property(p => p.CustomerId).IsPrimaryKey();
                 e.Property(p => p.FirstName).Label("First Name").Filter(FieldFilterType.TextStarts);
                 e.Property(p => p.LastName).Label("Last Name").Filter(FieldFilterType.TextStarts);
-                e.Property(p => p.AddrCount);
+                e.Property(p => p.DOB).Format("dd/MM/yyyy");
                 e.Property(p => p.Phone);
                 e.Property(p => p.EmailAddress);
                 e.Property(p => p.CompanyName);
