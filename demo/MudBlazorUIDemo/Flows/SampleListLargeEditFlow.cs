@@ -2,11 +2,10 @@
 using BlazorForms.Flows;
 using BlazorForms.Forms;
 using BlazorForms.Shared;
-using BlazorFormsDemoModels.Models;
 
-namespace BlazorFormsDemoFlows.Flows
+namespace MudBlazorUIDemo.Flows
 {
-    public class SampleListEditFlow : FluentFlowBase<CustAddrCount>
+    public class SampleListLargeEditFlow : FluentFlowBase<CustomerModel>
     {
         private static bool _blink = true;
 
@@ -14,7 +13,7 @@ namespace BlazorFormsDemoFlows.Flows
         {
             this
                 .Begin(LoadData)
-                .NextForm(typeof(SampleListEditForm))
+                .NextForm(typeof(SampleListLargeEditForm))
                 //.NextForm(typeof(TestCustAddrCountFormList))
                 .End(SaveData);
         }
@@ -41,17 +40,17 @@ namespace BlazorFormsDemoFlows.Flows
         }
     }
 
-    public class SampleListEditForm : FormEditBase<CustAddrCount>
+    public class SampleListLargeEditForm : FormEditBase<CustomerModel>
     {
-        protected override void Define(FormEntityTypeBuilder<CustAddrCount> f)
+        protected override void Define(FormEntityTypeBuilder<CustomerModel> f)
         {
-            f.DisplayName = "Client Address Count Form";
+            f.DisplayName = "Client Edit Form";
 
             f.Property(p => p.FirstName).IsRequired();
             f.Property(p => p.LastName).IsRequired();
             f.Property(p => p.DOB).IsRequired();
             f.Property(p => p.ModifiedDate).Format("dd/MM/yyyy");
-            f.Property(p => p.AddrCount).Rule(typeof(SampleListEditRule11), FormRuleTriggers.Loaded);
+            f.Property(p => p.AddrCount).Rule(typeof(SampleListLargeEditRule11), FormRuleTriggers.Loaded);
 
             // Additional Buttons invisible in Dialog Mode
             f.Button(ButtonActionTypes.Close, "OK");
@@ -61,11 +60,11 @@ namespace BlazorFormsDemoFlows.Flows
         }
     }
 
-    public class SampleListEditRule11 : FlowRuleAsyncBase<CustAddrCount>
+    public class SampleListLargeEditRule11 : FlowRuleAsyncBase<CustomerModel>
     {
         public override string RuleCode => this.GetType().Name;
 
-        public override async Task Execute(CustAddrCount model)
+        public override async Task Execute(CustomerModel model)
         {
             if (model.AddrCount == 0)
             {
@@ -74,11 +73,11 @@ namespace BlazorFormsDemoFlows.Flows
         }
     }
 
-    public class SampleEditFormExampleRule : FlowRuleAsyncBase<CustAddrCount>
+    public class SampleEditFormExampleRule : FlowRuleAsyncBase<CustomerModel>
     {
-        public override string RuleCode => "SLR-004";
+        public override string RuleCode => "SLLR-004";
 
-        public override async Task Execute(CustAddrCount model)
+        public override async Task Execute(CustomerModel model)
         {
         }
     }

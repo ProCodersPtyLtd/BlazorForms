@@ -10,11 +10,11 @@
 @inject IDynamicFieldValidator FieldValidator
 @inject IJSRuntime JS
 
-<MudDatePicker Editable="true" Date="@_localDateValue" Disabled="@Field.DisplayProperties.Disabled"
-               Mask="@(new DateMask("dd/MM/yyyy"))" DateFormat="dd/MM/yyyy"
-    DateChanged="@ValueChanged" Style="width: 100%;" Variant="Variant"/>
+<MudDatePicker Editable=true Date=@_localDateValue Disabled=@Field.DisplayProperties.Disabled
+                DateFormat=@_dateFormat 
+               DateChanged=@ValueChanged Style="width: 100%;" Variant=Variant/>
 
-<ValidatorControl Validations="@AllValidations"></ValidatorControl>
+<ValidatorControl Validations="@AllValidations"/>
 
 @code {
     [CascadingParameter]
@@ -47,31 +47,17 @@
     public IEnumerable<RuleExecutionResult> Validations { get; set; }
 
     private DateTime? _localDateValue;
-    private DateTimeFormatInfo _dateFormat = CultureInfo.CurrentCulture.DateTimeFormat;
-
+    private string _dateFormat = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
+    private DateMask _mask;
     private IEnumerable<RuleExecutionResult> AllValidations { get { return FieldValidator.PrepareValidations(Validations, _localValidation); } }
-
-    //private IEnumerable<RuleExecutionResult> AllValidations
-    //{
-    //    get
-    //    {
-    //        var result = new List<RuleExecutionResult>();
-
-    //        if (_localValidation != null)
-    //        {
-    //            result.Add(_localValidation);
-    //        }
-
-    //        result.AddRange(Validations);
-    //        return result;
-    //    }
-    //}
-
     private RuleExecutionResult _localValidation;
 
     protected override async Task OnParametersSetAsync()
     {
-
+        if (!string.IsNullOrEmpty(Field.DisplayProperties.Format))
+        {
+            _dateFormat = Field.DisplayProperties.Format;
+        }
     }
 
     protected override async Task OnInitializedAsync()

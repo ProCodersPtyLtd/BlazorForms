@@ -242,6 +242,7 @@ namespace BlazorForms.Forms
                     Name = field.Name,
                     FilterType = field.FilterType,
                     FilterRefField = field.FilterRefField,
+                    Format= field.Format,
 
                     // new binding concept
                     Binding = field.Binding,

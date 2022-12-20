@@ -24,9 +24,9 @@ namespace BlazorForms.Rendering
 
         public string[][]? ListData { get; private set; }
         public List<FieldControlDetails>? Columns { get; private set; }
-        public List<FieldControlDetails>? VisibleColumns { get; private set; }
+        public List<FieldControlDetails>? VisibleColumns { get; private set; } = new List<FieldControlDetails>();
         public FormDetails? FormData { get; private set; }
-        public QueryOptions? QueryOptions { get; private set; }
+        public QueryOptions? QueryOptions { get; private set; } = new QueryOptions();
         public IFlowModel? Model { get; private set; }
         public FlowParamsGeneric? FlowParams { get; private set; }
         public Exception? ExecutionException { get; private set; }
@@ -198,15 +198,15 @@ namespace BlazorForms.Rendering
             Columns = null;
             VisibleColumns = null;
 
-            QueryOptions = new QueryOptions
-            {
-                PageIndex = 0,
-                PageSize = 1000,
-                SortDirection = SortDirection.Desc,
-                SortColumn = "Created",
-                AllowFiltering = false,
-                AllowPagination = true
-            };
+            //QueryOptions = new QueryOptions
+            //{
+            //    //PageIndex = 0,
+            //    //PageSize = 1000,
+            //    //SortDirection = SortDirection.Desc,
+            //    //SortColumn = "Created",
+            //    //AllowFiltering = false,
+            //    //AllowPagination = true
+            //};
 
             FlowParams = new FlowParamsGeneric 
             { 

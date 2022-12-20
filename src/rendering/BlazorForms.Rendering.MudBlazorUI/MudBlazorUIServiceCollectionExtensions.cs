@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Reflection;
 using MudBlazor;
 using BlazorForms.Rendering;
-using BlazorForms.Rendering.MudBlazorUI;
+using BlazorForms.Rendering.MudBlazorUI.Logic;
 
 namespace BlazorForms
 {

@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using BlazorForms.Platform.Definitions.Shared;
 
-namespace BlazorForms.Rendering.MudBlazorUI
+namespace BlazorForms.Rendering.MudBlazorUI.Logic
 {
-    public class MudBlazorUIClientBrowserService : IClientBrowserService
+    public class MudBlazorUIClientBrowserService : IClientBrowserService, IAsyncDisposable
     {
         //private readonly IJSRuntime _jsRuntime;
         private readonly NavigationManager _navigationManager;
@@ -23,6 +23,15 @@ namespace BlazorForms.Rendering.MudBlazorUI
 
             //_jsRuntime = jsRuntime;
             _navigationManager = navigationManager;
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (_moduleTask.IsValueCreated)
+            {
+                var module = await _moduleTask.Value;
+                await module.DisposeAsync();
+            }
         }
 
         public async ValueTask<TimeSpan> GetLocalDateTimeOffset()
@@ -47,9 +56,9 @@ namespace BlazorForms.Rendering.MudBlazorUI
                 var timezoneName = await module.InvokeAsync<string>("blazorGetTimezone");
                 // i.e. Australia/Sydney       
                 var windowsTimeZone = TimeZoneFormats.OlsonToWindowsTimeZones[timezoneName];
-                
+
                 var tzi = TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZone);
-                    
+
                 return tzi;
             }
 

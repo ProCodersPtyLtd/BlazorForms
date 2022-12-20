@@ -23,7 +23,27 @@
     }
 </style>
 
-<MudTable Items="@Elements.Take(4)" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+<div class="d-flex flex-wrap mt-4">
+    <MudSwitch @bind-Checked="@Options.Virtualize" Color="Color.Primary">Virtualize</MudSwitch>
+
+    <MudSwitch T=bool Checked="@Options.ShowSearch" CheckedChanged="@((a) => { Options.ShowSearch = a; RefreshCustomContent(); })"
+               Color="Color.Primary">Show Search</MudSwitch>
+
+    <MudSwitch T=bool Checked="@Options.ShowPagination" CheckedChanged="@((a) => { Options.ShowPagination = a; RefreshCustomContent(); })"
+               Color="Color.Primary">Show Pages</MudSwitch>
+
+    <MudSwitch @bind-Checked="@Options.ShowSorting" Color="Color.Primary">Show Sorting</MudSwitch>
+    <MudSwitch @bind-Checked="@Options.ShowFilters" Color="Color.Primary">Show Filters</MudSwitch>
+</div>
+
+<MudTable Items="@Elements.Take(4)" Hover="true" ToolBarContent=ToolBar PagerContent=Pager Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+    @*<ToolBarContent>
+        <MudText Typo="Typo.h6">Periodic Elements</MudText>
+        <MudSpacer />
+        <MudTextField T="string" ValueChanged=@OnSearch Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>*@
+    
     <HeaderContent>
         <MudTh>Nr</MudTh>
         <MudTh>Sign</MudTh>
@@ -83,6 +103,81 @@
 @*<MudSnackbarProvider />*@
 
 @code {
+    ListFormOptions Options = new ListFormOptions {  };
+
+    RenderFragment ToolBar { get; set; }
+    RenderFragment Pager { get; set; }
+
+    private void OnSearch(string text)
+    {
+    }
+
+    void RefreshCustomContent()
+    {
+        if (Options.ShowSearch)
+        {
+            ToolBar = (builder) =>
+            {
+                builder.OpenComponent(0, typeof(ToolBar));
+                builder.AddAttribute(4, "OnSearch", new EventCallback<string>(this, OnSearch));
+                builder.CloseComponent();
+                //builder.OpenComponent(0, typeof(MudText));
+                //builder.AddAttribute(1, "Typo", Typo.h6);
+
+                //builder.AddAttribute(2, "ChildContent", (RenderFragment)((builder2) =>
+                //{
+                //    builder2.AddContent(3, "Periodic Elements");
+                //}));
+
+                ////builder.AddContent(2, "Periodic Elements");
+                //builder.CloseComponent();
+
+                //builder.OpenComponent(1, typeof(MudSpacer));
+                //builder.CloseComponent();
+
+                //builder.OpenComponent(2, typeof(MudTextField<string>));
+                //builder.AddAttribute(3, "Placeholder", "Search");
+                //builder.AddAttribute(4, "ValueChanged", new EventCallback<string>(this, OnSearch));
+                //builder.AddAttribute(5, "Adornment", Adornment.Start);
+                //builder.AddAttribute(6, "PlaceAdornmentIconholder", Icons.Material.Filled.Search);
+                //builder.AddAttribute(7, "IconSize", Size.Medium);
+                //builder.AddAttribute(8, "Class", "mt-0");
+                //builder.CloseComponent();
+            };
+        }
+        else
+        {
+            ToolBar = null;
+        }
+
+        if (Options.ShowPagination)
+        {
+            Pager = (builder) =>
+            {
+                builder.OpenComponent(0, typeof(MudTablePager));
+                builder.AddAttribute(0, "PageSizeOptions", new int[] { 20, 50, 100 });
+                builder.CloseComponent();
+            };
+        }
+        else
+        {
+            Pager = null;
+        }
+
+        StateHasChanged();
+    }
+
+    
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+        }
+
+        
+    }
+
     private bool _hidePosition;
     private bool _loading;
     private IEnumerable<Element> Elements = new List<Element>();
@@ -98,16 +193,10 @@
         };
 
         Data = new string[][] { new string[] { "1", "2", "3" }, new string[] { "11", "12", "13" } };
+
+        
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            //Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopStart;
-            //Snackbar.Add("The page is loaded", Severity.Success);
-        }
-    }
 
     public class Element
     {

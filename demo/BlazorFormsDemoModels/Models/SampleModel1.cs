@@ -47,7 +47,8 @@ namespace BlazorFormsDemoModels.Models
         public virtual String FirstName { get; set; }
         public virtual String LastName { get; set; }
         public virtual String MiddleName { get; set; }
-        public virtual DateTime ModifiedDate { get; set; }
+        public virtual DateTime? DOB { get; set; }
+        public virtual DateTime? ModifiedDate { get; set; }
         public virtual bool NameStyle { get; set; }
         public virtual String PasswordHash { get; set; }
         public virtual String PasswordSalt { get; set; }

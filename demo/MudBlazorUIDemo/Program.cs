@@ -4,6 +4,7 @@ using BlazorFormsDemoFlows.Flows;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor.Services;
+using MudBlazorUIDemo.Flows;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +19,7 @@ services.AddServerSideBlazorForms();
 services.AddBlazorFormsMudBlazorUI();
 services.AddBlazorFormsServerModelAssemblyTypes(typeof(ArtelProjectSettingsModel));
 services.AddBlazorFormsServerModelAssemblyTypes(typeof(SampleListShortFlow));
-
+services.AddBlazorFormsServerModelAssemblyTypes(typeof(SampleListLargeFlow));
 
 var app = builder.Build();
 

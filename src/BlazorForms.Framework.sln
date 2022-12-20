@@ -120,9 +120,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CrmLight", "CrmLight", "{D8
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrmLightDemoApp", "..\demo\CrmLight\CrmLightDemoApp\CrmLightDemoApp.csproj", "{96BA8EDE-6873-4DD3-80ED-B69E632C2708}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorForms.Rendering.MudBlazorUI", "rendering\BlazorForms.Rendering.MudBlazorUI\BlazorForms.Rendering.MudBlazorUI.csproj", "{F56CE325-5B81-4EE6-A5C7-7D92A597EF8E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorForms.Rendering.MudBlazorUI", "rendering\BlazorForms.Rendering.MudBlazorUI\BlazorForms.Rendering.MudBlazorUI.csproj", "{F56CE325-5B81-4EE6-A5C7-7D92A597EF8E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MudBlazorUIDemo", "..\demo\MudBlazorUIDemo\MudBlazorUIDemo.csproj", "{F4AB9149-905A-4319-ADA8-86E5C88BCF20}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MudBlazorUIDemo", "..\demo\MudBlazorUIDemo\MudBlazorUIDemo.csproj", "{F4AB9149-905A-4319-ADA8-86E5C88BCF20}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

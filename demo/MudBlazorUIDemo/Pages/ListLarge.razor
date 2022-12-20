@@ -1,4 +1,4 @@
-﻿@page "/flow-list-form"
+﻿@page "/flow-list-form-large"
 @using BlazorForms.Rendering.Interfaces
 @using BlazorForms.Flows.Definitions
 @using BlazorForms.Rendering.State
@@ -9,18 +9,21 @@
 
 <div class="d-flex flex-wrap mt-4">
     <MudSwitch @bind-Checked="@Options.Virtualize" Color="Color.Primary">Virtualize</MudSwitch>
+    <MudSwitch @bind-Checked="@Options.ShowSearch" Color="Color.Primary">Show Search</MudSwitch>
     <MudSwitch @bind-Checked="@Options.ShowPagination" Color="Color.Primary">Show Pages</MudSwitch>
     <MudSwitch @bind-Checked="@Options.ShowSorting" Color="Color.Primary">Show Sorting</MudSwitch>
     <MudSwitch @bind-Checked="@Options.ShowFilters" Color="Color.Primary">Show Filters</MudSwitch>
 </div>
 
-<FlowListForm FlowType="BlazorFormsDemoFlows.Flows.SampleListShortFlow" Options="Options" />
+<FlowListForm FlowType="MudBlazorUIDemo.Flows.SampleListLargeFlow" Options="Options" />
 
 @code {
     private ListFormOptions Options = new ListFormOptions
         {
             Variant = Variant.Outlined,
-            Virtualize = true,
-            MudBlazorProvidersDefined = true
+            //Virtualize = true,
+            MudBlazorProvidersDefined = true,
+            //ServerSideDataOptimization = true,
+            ShowPagination = true,
         };
 }
