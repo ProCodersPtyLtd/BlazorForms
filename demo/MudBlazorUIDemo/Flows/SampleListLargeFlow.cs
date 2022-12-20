@@ -10,6 +10,7 @@ using MudBlazor;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.CodeAnalysis;
+using BlazorForms.Shared.FastReflection;
 
 namespace MudBlazorUIDemo.Flows
 {
@@ -36,6 +37,13 @@ namespace MudBlazorUIDemo.Flows
             }
         }
 
+        private readonly IModelBindingNavigator _modelBindingNavigator;
+
+        public SampleListLargeFlow(IModelBindingNavigator modelBindingNavigator)
+        {  
+            _modelBindingNavigator = modelBindingNavigator;
+        }
+
         public override async Task<CustomerListModel> LoadDataAsync(QueryOptions queryOptions)
         {
             var result = new CustomerListModel();
@@ -50,28 +58,32 @@ namespace MudBlazorUIDemo.Flows
                     .ToList();
             }
 
-            if (queryOptions.AllowSort)
+            if (queryOptions.AllowSort && !string.IsNullOrWhiteSpace(queryOptions.SortColumn))
             {
+                // fast reflection is used
+                var codeGetter = ExpressionTreeReflectionHelper.CreateGetter(data.First().GetType(), queryOptions.SortColumn);
+                data = data.OrderByDirection(queryOptions.SortDirection, m => codeGetter(m));
 
-                switch (queryOptions.SortColumn)
-                {
-                    case "FirstName":
-                        data = data.OrderByDirection(queryOptions.SortDirection, m => m.FirstName);
-                        break;
-                    case "LastName":
-                        data = data.OrderByDirection(queryOptions.SortDirection, m => m.LastName);
-                        break;
-                    case "CustomerId":
-                        data = data.OrderByDirection(queryOptions.SortDirection, m => m.CustomerId);
-                        break;
-                    case "DOB":
-                        data = data.OrderByDirection(queryOptions.SortDirection, m => m.DOB);
-                        break;
-                    default:
-                        // reflection will be executed for each item in the collection - not too effective
-                        data = data.OrderByDirection(queryOptions.SortDirection, m => m.GetType().GetProperty(queryOptions.SortColumn).GetValue(m, null));
-                        break;
-                }
+                // Too much coding but very efficient
+                //switch (queryOptions.SortColumn)
+                //{
+                //    case "FirstName":
+                //        data = data.OrderByDirection(queryOptions.SortDirection, m => m.FirstName);
+                //        break;
+                //    case "LastName":
+                //        data = data.OrderByDirection(queryOptions.SortDirection, m => m.LastName);
+                //        break;
+                //    case "CustomerId":
+                //        data = data.OrderByDirection(queryOptions.SortDirection, m => m.CustomerId);
+                //        break;
+                //    case "DOB":
+                //        data = data.OrderByDirection(queryOptions.SortDirection, m => m.DOB);
+                //        break;
+                //    default:
+                //        // reflection will be executed for each item in the collection - not too effective
+                //        data = data.OrderByDirection(queryOptions.SortDirection, m => m.GetType().GetProperty(queryOptions.SortColumn).GetValue(m, null));
+                //        break;
+                //}
             }
 
             if (queryOptions.AllowPagination)
