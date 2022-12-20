@@ -12,13 +12,11 @@ namespace BlazorForms.Platform.Definitions.Shared
 {
     public class UserViewDataResolverJsonPath : IUserViewDataResolver
     {
-        private readonly IJsonPathNavigator _jsonNavigator;
         private readonly IModelBindingNavigator _bindingNavigator;
 
-        public UserViewDataResolverJsonPath(IJsonPathNavigator jsonNavigator, IModelBindingNavigator navigator)
+        public UserViewDataResolverJsonPath(IModelBindingNavigator navigator)
         {
             _bindingNavigator = navigator;
-            _jsonNavigator = jsonNavigator;
         }
 
         public string[,] ResolveData(FormDetails formDetails, IFlowModel model, ILogStreamer logStreamer)
@@ -36,7 +34,7 @@ namespace BlazorForms.Platform.Definitions.Shared
 
         public string[,] ResolveData(string tableName, IEnumerable<FieldControlDetails> columns, IFlowModel model)
         {
-            var list = _jsonNavigator.GetItems(model, tableName).ToList();
+            var list = _bindingNavigator.GetItems(model, tableName).ToList();
             //var fields = columns.Where(f => !string.IsNullOrEmpty(f.Binding.TableBinding));
             var tableColumns = columns.Where(f => f.Binding.TableBinding == tableName && f.Binding.BindingType == FieldBindingType.TableColumn && f.DisplayProperties?.Visible == true);
             var pkColumn = columns.FirstOrDefault(f => f.Binding.TableBinding == tableName && f.Binding.BindingType == FieldBindingType.TableColumn && f.DisplayProperties?.IsPrimaryKey == true);

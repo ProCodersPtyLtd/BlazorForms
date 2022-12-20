@@ -62,21 +62,28 @@ namespace BlazorForms.Rendering.Interfaces
         FieldControlDetails GetFieldByName(string name);
         IEnumerable<RuleExecutionResult> GetDynamicFieldValidations();
         Task<bool> CheckFormUserAccess(FormDetails form, UserViewAccessInformation accessInfo, IFlowModel model, FlowParamsGeneric flowParams);
+        void ClearRowFields();
 
         // ModelNavi
+        [Obsolete]
         object ModelNaviGetValueObject(string modelBinding);
+        [Obsolete]
         string ModelNaviGetValue(string modelBinding);
+        [Obsolete]
         object ModelNaviGetValue(string tableBinding, int rowIndex, string modelBinding);
+        [Obsolete]
         void ModelNaviSetValue(string modelBinding, object val);
+        [Obsolete]
         void ModelNaviSetValue(string tableBinding, int rowIndex, string modelBinding, object val);
+        [Obsolete]
         IEnumerable<object> ModelNaviGetItems(string itemsBinding);
-        void ClearRowFields();
 
         // FastReflection
         object FieldGetValue(object model, FieldBinding binding);
         object FieldGetNameValue(object model, FieldBinding binding);
         object FieldGetIdValue(object model, FieldBinding binding);
         IEnumerable<object> FieldGetItemsValue(object model, FieldBinding binding);
+        IEnumerable<object> FieldGetItemsValue(object model, string modelBinding);
         IEnumerable<object> FieldGetTableValue(object model, FieldBinding binding);
         object FieldGetRowValue(object model, FieldBinding binding, int rowIndex);
         void FieldSetValue(object model, FieldBinding binding, object value);

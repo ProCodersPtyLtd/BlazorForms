@@ -18,7 +18,6 @@ namespace BlazorForms.Platform.Tests.Providers
         private IFlowRunProvider _provider;
         private ServiceProvider _serviceProvider;
         private IModelBindingNavigator _modelBindingNavigator;
-        private IJsonPathNavigator _jsonPathNavigator;
 
         public UserViewDataResolverTests()
         {
@@ -26,7 +25,6 @@ namespace BlazorForms.Platform.Tests.Providers
             _provider = creator.GetFlowRunProvider();
             _serviceProvider = creator.ServiceProvider;
             _modelBindingNavigator = _serviceProvider.GetRequiredService<IModelBindingNavigator>();
-            _jsonPathNavigator = _serviceProvider.GetRequiredService<IJsonPathNavigator>();
         }
 
         [Fact]
@@ -39,14 +37,14 @@ namespace BlazorForms.Platform.Tests.Providers
         [Fact]
         public void NewResolverWithoutFormaTest()
         {
-            var resolver = new UserViewDataResolverJsonPath(_jsonPathNavigator, _modelBindingNavigator);
+            var resolver = new UserViewDataResolverJsonPath(_modelBindingNavigator);
             TestResolveData(resolver);
         }
 
         [Fact]
         public void NewResolverFormaTest()
         {
-            var resolver = new UserViewDataResolverJsonPath(_jsonPathNavigator, _modelBindingNavigator);
+            var resolver = new UserViewDataResolverJsonPath(_modelBindingNavigator);
             var data = GetResolvedData(resolver);
             Assert.Equal("5/12/1987", data[0, 4]);
         }

@@ -22,6 +22,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Reflection;
 using BlazorForms.Shared.FastReflection;
+using BlazorForms.Platform.Definitions.Shared;
 
 namespace BlazorForms
 {
@@ -67,7 +68,8 @@ namespace BlazorForms
                 .AddScoped<IFluentFlowRunEngine, FluentFlowRunEngine>()
                 .AddScoped<IStateFlowRunEngine, StateFlowRunEngine>()
 
-                .AddSingleton<IUserViewDataResolver, UserViewDataResolver>()
+                //.AddSingleton<IUserViewDataResolver, UserViewDataResolver>()
+                .AddSingleton<IUserViewDataResolver, UserViewDataResolverJsonPath>()
                 .AddScoped(typeof(IFlowRunStorage), typeof(FlowRunStorage))
                 //.AddSingleton(typeof(IFlowRepository), typeof(SqlFlowRepository))
                 .AddSingleton(typeof(IFlowRunIdGenerator), typeof(SqlFlowRunIdGenerator))
@@ -83,7 +85,7 @@ namespace BlazorForms
                 // BlazorForms rendering
                 .AddSingleton<IJsonPathNavigator, JsonPathNavigator>()
                 .AddScoped<IModelNavigator, ModelNavigator>()
-                .AddScoped<IModelBindingNavigator, ModelBindingNavigator>()
+                .AddSingleton<IModelBindingNavigator, ModelBindingNavigator>()
                 .AddScoped<IFormViewModel, FormViewModel>()
                 .AddScoped(typeof(IFormViewModel<>), typeof(FormViewModel<>))
                 .AddScoped<IListFormViewModel, ListFormViewModel>()

@@ -61,7 +61,7 @@
 
     private async Task<IEnumerable<string>> GetOptions(string pattern)
     {
-        var options = ViewModel.ModelNaviGetItems(ItemsBinding)
+        var options = ViewModel.FieldGetItemsValue(ViewModel.ModelUntyped, ItemsBinding)
             .Select(item => ViewModel.PathNavi.GetValue(item, NameBinding) as string)
             .Where(item => item.Contains(pattern ?? ""));
 

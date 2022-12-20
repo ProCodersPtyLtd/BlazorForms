@@ -197,7 +197,7 @@
             return null;
         }
 
-        ListData = ViewModel.ModelNaviGetItems(Table.Binding.TableBinding);
+        ListData = ViewModel.FieldGetItemsValue(ViewModel.ModelUntyped, Table.Binding.TableBinding);
         return ListData;
     }
 

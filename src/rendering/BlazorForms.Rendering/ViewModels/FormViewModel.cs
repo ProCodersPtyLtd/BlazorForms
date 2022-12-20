@@ -501,37 +501,44 @@ namespace BlazorForms.Rendering
             return false;
         }
 
+        // ToDo: try to move all calls from _modelNavi to _modelBindingNavigator
         // Model Navigation
+        [Obsolete]
         public object ModelNaviGetValueObject(string modelBinding)
         {
             _modelNavi.SetModel(ModelUntyped);
             return _modelNavi.GetValueObject(modelBinding);
         }
 
+        [Obsolete]
         public object ModelNaviGetValue(string tableBinding, int rowIndex, string modelBinding)
         {
             _modelNavi.SetModel(ModelUntyped);
             return _modelNavi.GetValue(tableBinding, rowIndex, modelBinding);
         }
 
+        [Obsolete]
         public string ModelNaviGetValue(string modelBinding)
         {
             _modelNavi.SetModel(ModelUntyped);
             return _modelNavi.GetValue(modelBinding);
         }
 
+        [Obsolete]
         public void ModelNaviSetValue(string modelBinding, object val)
         {
             _modelNavi.SetModel(ModelUntyped);
             _modelNavi.SetValue(modelBinding, val);
         }
 
+        [Obsolete]
         public void ModelNaviSetValue(string tableBinding, int rowIndex, string modelBinding, object val)
         {
             _modelNavi.SetModel(ModelUntyped);
             _modelNavi.SetValue(tableBinding, rowIndex, modelBinding, val);
         }
 
+        [Obsolete]
         public IEnumerable<object> ModelNaviGetItems(string itemsBinding)
         {
             _modelNavi.SetModel(ModelUntyped);
@@ -557,6 +564,11 @@ namespace BlazorForms.Rendering
         public IEnumerable<object> FieldGetItemsValue(object model, FieldBinding binding)
         {
             return _modelBindingNavigator.GetItems(model, binding);
+        }
+
+        public IEnumerable<object> FieldGetItemsValue(object model, string modelBinding)
+        {
+            return _modelBindingNavigator.GetItems(model, modelBinding);
         }
 
         public IEnumerable<object> FieldGetTableValue(object model, FieldBinding binding)
