@@ -8,10 +8,7 @@
 @inject IDialogFormViewModel DialogVM
 
 <div class="d-flex flex-wrap mt-4">
-    <MudSwitch @bind-Checked="@Options.Virtualize" Color="Color.Primary">Virtualize</MudSwitch>
-    <MudSwitch @bind-Checked="@Options.ShowPagination" Color="Color.Primary">Show Pages</MudSwitch>
     <MudSwitch @bind-Checked="@Options.ShowSorting" Color="Color.Primary">Show Sorting</MudSwitch>
-    <MudSwitch @bind-Checked="@Options.ShowFilters" Color="Color.Primary">Show Filters</MudSwitch>
 </div>
 
 <FlowListForm FlowType="BlazorFormsDemoFlows.Flows.SampleListShortFlow" Options="Options" />
@@ -20,7 +17,6 @@
     private ListFormOptions Options = new ListFormOptions
         {
             Variant = Variant.Outlined,
-            Virtualize = true,
             MudBlazorProvidersDefined = true
         };
 }

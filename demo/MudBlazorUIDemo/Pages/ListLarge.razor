@@ -8,11 +8,21 @@
 @inject IDialogFormViewModel DialogVM
 
 <div class="d-flex flex-wrap mt-4">
-    <MudSwitch @bind-Checked="@Options.Virtualize" Color="Color.Primary">Virtualize</MudSwitch>
-    <MudSwitch @bind-Checked="@Options.ShowSearch" Color="Color.Primary">Show Search</MudSwitch>
+    <div class="d-inline-flex">
+    <MudSelect Value="@Options.DataOptimization" T="DataOptimization" ValueChanged="@((a) => Options.DataOptimization = a)"
+               AnchorOrigin="Origin.BottomCenter" Style="width: 200px">
+        <MudSelectItem Value="DataOptimization.Virtualization">Virtualization</MudSelectItem>
+        @*<MudSelectItem Value="DataOptimization.VirtualPagination">VirtualPagination</MudSelectItem>*@
+        <MudSelectItem Value="DataOptimization.ServerPagination">ServerPagination</MudSelectItem>
+        <MudSelectItem Value="DataOptimization.None">None</MudSelectItem>
+        </MudSelect>
+    </div>
+
+    @*<MudSwitch @bind-Checked="@Options.Virtualize" Color="Color.Primary">Virtualize</MudSwitch>
     <MudSwitch @bind-Checked="@Options.ShowPagination" Color="Color.Primary">Show Pages</MudSwitch>
+    <MudSwitch @bind-Checked="@Options.ShowFilters" Color="Color.Primary">Show Filters</MudSwitch>*@
+    <MudSwitch @bind-Checked="@Options.ShowSearch" Color="Color.Primary">Show Search</MudSwitch>
     <MudSwitch @bind-Checked="@Options.ShowSorting" Color="Color.Primary">Show Sorting</MudSwitch>
-    <MudSwitch @bind-Checked="@Options.ShowFilters" Color="Color.Primary">Show Filters</MudSwitch>
 </div>
 
 <FlowListForm FlowType="MudBlazorUIDemo.Flows.SampleListLargeFlow" Options="Options" />
@@ -23,7 +33,9 @@
             Variant = Variant.Outlined,
             //Virtualize = true,
             MudBlazorProvidersDefined = true,
+            DataOptimization = DataOptimization.ServerPagination,
             //ServerSideDataOptimization = true,
-            ShowPagination = true,
+            //ShowPagination = true,
+            ToolBarCaption = "Customers",
         };
 }

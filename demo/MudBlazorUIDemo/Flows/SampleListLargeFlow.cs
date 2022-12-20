@@ -39,6 +39,13 @@ namespace MudBlazorUIDemo.Flows
             // query server data and take only 1K records
             var data = _bigData.ToList();
 
+            if (!string.IsNullOrWhiteSpace(queryOptions.SearchString))
+            {
+                data = data.Where(r =>  r.FirstName.Contains(queryOptions.SearchString, StringComparison.OrdinalIgnoreCase)
+                                        || r.LastName.Contains(queryOptions.SearchString, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
             if (queryOptions.AllowPagination)
             {
                 result.Data = data.Skip(queryOptions.PageIndex * queryOptions.PageSize).Take(queryOptions.PageSize).ToList();
@@ -46,7 +53,8 @@ namespace MudBlazorUIDemo.Flows
             }
             else
             {
-                result.Data = data.Take(1000).ToList();
+                // return only first 200 rows if pagination is not used
+                result.Data = data.Take(200).ToList();
                 queryOptions.PageReturnTotalCount = result.Data.Count;
             }
 

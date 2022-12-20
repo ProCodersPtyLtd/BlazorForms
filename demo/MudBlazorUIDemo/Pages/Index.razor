@@ -24,16 +24,11 @@
 </style>
 
 <div class="d-flex flex-wrap mt-4">
-    <MudSwitch @bind-Checked="@Options.Virtualize" Color="Color.Primary">Virtualize</MudSwitch>
 
     <MudSwitch T=bool Checked="@Options.ShowSearch" CheckedChanged="@((a) => { Options.ShowSearch = a; RefreshCustomContent(); })"
                Color="Color.Primary">Show Search</MudSwitch>
 
-    <MudSwitch T=bool Checked="@Options.ShowPagination" CheckedChanged="@((a) => { Options.ShowPagination = a; RefreshCustomContent(); })"
-               Color="Color.Primary">Show Pages</MudSwitch>
-
     <MudSwitch @bind-Checked="@Options.ShowSorting" Color="Color.Primary">Show Sorting</MudSwitch>
-    <MudSwitch @bind-Checked="@Options.ShowFilters" Color="Color.Primary">Show Filters</MudSwitch>
 </div>
 
 <MudTable Items="@Elements.Take(4)" Hover="true" ToolBarContent=ToolBar PagerContent=Pager Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
@@ -150,19 +145,7 @@
             ToolBar = null;
         }
 
-        if (Options.ShowPagination)
-        {
-            Pager = (builder) =>
-            {
-                builder.OpenComponent(0, typeof(MudTablePager));
-                builder.AddAttribute(0, "PageSizeOptions", new int[] { 20, 50, 100 });
-                builder.CloseComponent();
-            };
-        }
-        else
-        {
-            Pager = null;
-        }
+        
 
         StateHasChanged();
     }

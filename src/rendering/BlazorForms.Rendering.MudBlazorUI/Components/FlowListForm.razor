@@ -48,10 +48,11 @@
 <CascadingValue Value=ViewModel>
 
   
-        <MudTable T="string[]" Items=GetListData() Hover="true" Breakpoint="Breakpoint.Sm" Dense="true" @ref="TableRef"
-                  ToolBarContent=ToolBar PagerContent=Pager RowsPerPage=@GetPageSize() ServerData=GetServerDataDelegate()
-            OnRowClick="@(async (args) => await @RowClickEvent(args))" Height=@GetHeight() 
-            Virtualize=Options.Virtualize FixedHeader=Options.Virtualize>
+        <MudTable T="string[]" Items=ItemsData Hover="true" Breakpoint="Breakpoint.Sm" Dense="true" @ref="TableRef"
+                  ToolBarContent=ToolBar PagerContent=Pager ServerData=GetServerDataDelegate()
+            OnRowClick="@(async (args) => await @RowClickEvent(args))" Height=@GetHeight()
+                  Virtualize=@(Options.DataOptimization == DataOptimization.Virtualization) 
+                  FixedHeader=@(Options.DataOptimization == DataOptimization.Virtualization)>
 
         <HeaderContent>
             @if (ViewModel.VisibleColumns != null)
@@ -66,6 +67,10 @@
                 {
                         <MudTh>Actions</MudTh>
                 }
+            }
+            else
+            {
+                <MudTh></MudTh>
             }
 
         </HeaderContent>
@@ -98,7 +103,11 @@
                 }
 
             }
-        </RowTemplate>
+            else
+            {
+                <MudTd></MudTd>
+            }
+            </RowTemplate>
 
     </MudTable>
     
@@ -135,40 +144,62 @@
     [Parameter]
     public FlowParamsGeneric FlowParams { get; set; }
 
-    RenderFragment ToolBar { get; set; }
-    RenderFragment Pager { get; set; }
+    private IEnumerable<string[]> ItemsData { get; set; }
+    private RenderFragment ToolBar { get; set; }
+    private RenderFragment Pager { get; set; }
+
     private MudTable<string[]> TableRef;
-
-    //public MudTable<string[]> TableRef
-    //{
-    //    get { return _tableRef; }
-    //    set
-    //    {
-    //        _tableRef = value;
-    //        //_tableRef.ReloadServerData();
-    //    }
-    //}
-
-    int GetPageSize()
+    private string _searchString;
+    private IEnumerable<FormDetails> _fields;
+    private bool FormLocked = false;
+    string DialogPk = null;
+ 
+    protected override async Task OnParametersSetAsync()
     {
-        if (Options.ShowPagination)
+        // Clear Items
+        ItemsData = new List<string[]>();
+
+        // update custom rendering ToolBar, Pagination
+        RefreshCustomContent();
+
+        // We load form once, and every time when parameters changed
+        if (Options.UseReloadServerData())
         {
-            return Options.PageSize;
+            TableRef?.ReloadServerData();
+        }
+        else
+        {
+            await Reload();
+            ItemsData = GetListData();
         }
 
-        return 20;
+        StateHasChanged();
+    }
+
+    private async Task Reload()
+    {
+        try
+        {
+            var flowParams = FlowParams ?? new FlowParamsGeneric();
+            flowParams.ItemId = ParentItemPk;
+            ViewModel.QueryOptions.AllowPagination = Options.DataOptimization == DataOptimization.ServerPagination;
+
+            await ViewModel.LoadListForm(FlowType, PK, flowParams, true);
+
+            StateHasChanged();
+        }
+        catch (Exception exc)
+        {
+            ViewModel.PopulateException(exc);
+            await ShowPopup();
+        }
     }
 
     private async Task<TableData<string[]>> ServerReload(TableState state)
     {
         ViewModel.QueryOptions.SearchString = _searchString;
-        ViewModel.QueryOptions.AllowPagination = Options.ShowPagination;
-
-        if (Options.ShowPagination)
-        {
-            ViewModel.QueryOptions.PageIndex = state.Page;
-            ViewModel.QueryOptions.PageSize = state.PageSize;
-        }
+        ViewModel.QueryOptions.PageIndex = state.Page;
+        ViewModel.QueryOptions.PageSize = state.PageSize;
 
         await Reload();
         var result = new TableData<string[]> { Items = GetListData(), TotalItems = ViewModel.QueryOptions.PageReturnTotalCount };
@@ -177,7 +208,7 @@
 
     Func<TableState, Task<TableData<string[]>>> GetServerDataDelegate()
     {
-        return Options.ServerSideDataOptimization ? new Func<TableState, Task<TableData<string[]>>>(ServerReload) : null;
+        return Options.UseReloadServerData() ? new Func<TableState, Task<TableData<string[]>>>(ServerReload) : null;
     }
 
     //Action<IEnumerable<string[]>> GetItemsDelegate()
@@ -202,7 +233,8 @@
             ToolBar = null;
         }
 
-        if (Options.ShowPagination)
+        if (//Options.DataOptimization == DataOptimization.VirtualPagination || 
+            Options.DataOptimization == DataOptimization.ServerPagination)
         {
             Pager = (builder) =>
             {
@@ -219,43 +251,15 @@
         StateHasChanged();
     }
 
-    private string _searchString;
-
-    private IEnumerable<FormDetails> _fields;
-
-    private bool loading = true;
-    private bool FormLocked = false;
-    string DialogPk = null;
-
     private string GetHeight()
     {
-        if (Options.Virtualize)
+        if (Options.DataOptimization == DataOptimization.Virtualization)
         {
             return "680px";
         }
         else
         {
             return "";
-        }
-    }
-
-    //BaseMatIconButton MainMenuButton;
-    //BaseMatMenu MainMenu;
-
-    protected override async Task OnParametersSetAsync()
-    {
-        // update custome rendering
-        RefreshCustomContent();
-
-        // We load form once, and every time when parameters changed
-
-        if (Options.ServerSideDataOptimization)
-        {
-            //TableRef.ReloadServerData();
-        }
-        else
-        {
-            await Reload();
         }
     }
 
@@ -270,34 +274,7 @@
     {        
     }
 
-    private async Task Reload()
-    {
-        try
-        {
-            var flowParams = FlowParams ?? new FlowParamsGeneric();
-            flowParams.ItemId = ParentItemPk;
-            ViewModel.QueryOptions.AllowPagination = Options.ShowPagination;
-
-            //if (Options.ServerSideDataOptimization)
-            {
-                if (ViewModel.QueryOptions.PageSize == 0)
-                {
-                    ViewModel.QueryOptions.PageSize = Options.PageSize;
-                }
-            }
-
-            await ViewModel.LoadListForm(FlowType, PK, flowParams, true);
-
-            loading = false;
-            StateHasChanged();
-        }
-        catch (Exception exc)
-        {
-            ViewModel.PopulateException(exc);
-            await ShowPopup();
-        }
-    }
-
+    
     //private async Task MainMenuClick()
     //{
     //    try
