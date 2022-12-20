@@ -48,11 +48,11 @@
 <CascadingValue Value=ViewModel>
 
   
-        <MudTable T="string[]" Items=ItemsData Hover="true" Breakpoint="Breakpoint.Sm" Dense="true" @ref="TableRef"
-                  ToolBarContent=ToolBar PagerContent=Pager ServerData=GetServerDataDelegate()
-            OnRowClick="@(async (args) => await @RowClickEvent(args))" Height=@GetHeight()
-                  Virtualize=@(Options.DataOptimization == DataOptimization.Virtualization) 
-                  FixedHeader=@(Options.DataOptimization == DataOptimization.Virtualization)>
+    <MudTable T="string[]" Items=ItemsData Hover="true" Breakpoint="Breakpoint.Sm" Dense="true" @ref="TableRef"
+                ToolBarContent=ToolBar PagerContent=Pager ServerData=GetServerDataDelegate()
+                OnRowClick="@(async (args) => await @RowClickEvent(args))" Height=@GetHeight()
+                Virtualize=@(Options.DataOptimization == DataOptimization.Virtualization) 
+                FixedHeader=@(Options.DataOptimization == DataOptimization.Virtualization)>
 
         <HeaderContent>
             @if (ViewModel.VisibleColumns != null)
@@ -60,7 +60,16 @@
                 @foreach (var c in ViewModel.VisibleColumns!)
                 {
                         var col = c;
-                        <MudTh>@col?.DisplayProperties?.Caption</MudTh>
+                        <MudTh>
+                            @if (Options.ShowSorting)
+                            {
+                                <MudTableSortLabel SortLabel="@c.Name" T="string[]">@col?.DisplayProperties?.Caption</MudTableSortLabel>
+                            }
+                            else
+                            {
+                                @col?.DisplayProperties?.Caption
+                            }
+                        </MudTh>
                 }
             
                 @if (ViewModel.ContextMenuActions != null)
@@ -148,7 +157,7 @@
     private RenderFragment ToolBar { get; set; }
     private RenderFragment Pager { get; set; }
 
-    private MudTable<string[]> TableRef;
+    private MudTable<string[]>? TableRef;
     private string _searchString;
     private IEnumerable<FormDetails> _fields;
     private bool FormLocked = false;
@@ -183,6 +192,7 @@
             var flowParams = FlowParams ?? new FlowParamsGeneric();
             flowParams.ItemId = ParentItemPk;
             ViewModel.QueryOptions.AllowPagination = Options.DataOptimization == DataOptimization.ServerPagination;
+            ViewModel.QueryOptions.AllowSort = Options.ShowSorting;
 
             await ViewModel.LoadListForm(FlowType, PK, flowParams, true);
 
@@ -200,6 +210,8 @@
         ViewModel.QueryOptions.SearchString = _searchString;
         ViewModel.QueryOptions.PageIndex = state.Page;
         ViewModel.QueryOptions.PageSize = state.PageSize;
+        ViewModel.QueryOptions.SortColumn = state.SortLabel;
+        ViewModel.QueryOptions.SortDirection = (BlazorForms.Shared.SortDirection)state.SortDirection;
 
         await Reload();
         var result = new TableData<string[]> { Items = GetListData(), TotalItems = ViewModel.QueryOptions.PageReturnTotalCount };
@@ -233,8 +245,7 @@
             ToolBar = null;
         }
 
-        if (//Options.DataOptimization == DataOptimization.VirtualPagination || 
-            Options.DataOptimization == DataOptimization.ServerPagination)
+        if (Options.DataOptimization == DataOptimization.ServerPagination) //Options.DataOptimization == DataOptimization.VirtualPagination || 
         {
             Pager = (builder) =>
             {

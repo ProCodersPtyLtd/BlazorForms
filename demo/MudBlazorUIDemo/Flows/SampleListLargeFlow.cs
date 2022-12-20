@@ -6,6 +6,10 @@ using BlazorForms.Shared.Extensions;
 using BlazorForms.Shared;
 using BlazorForms.Flows.Definitions;
 using System.Linq;
+using MudBlazor;
+using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.CodeAnalysis;
 
 namespace MudBlazorUIDemo.Flows
 {
@@ -37,7 +41,7 @@ namespace MudBlazorUIDemo.Flows
             var result = new CustomerListModel();
 
             // query server data and take only 1K records
-            var data = _bigData.ToList();
+            var data = _bigData.AsEnumerable();
 
             if (!string.IsNullOrWhiteSpace(queryOptions.SearchString))
             {
@@ -46,14 +50,39 @@ namespace MudBlazorUIDemo.Flows
                     .ToList();
             }
 
+            if (queryOptions.AllowSort)
+            {
+
+                switch (queryOptions.SortColumn)
+                {
+                    case "FirstName":
+                        data = data.OrderByDirection(queryOptions.SortDirection, m => m.FirstName);
+                        break;
+                    case "LastName":
+                        data = data.OrderByDirection(queryOptions.SortDirection, m => m.LastName);
+                        break;
+                    case "CustomerId":
+                        data = data.OrderByDirection(queryOptions.SortDirection, m => m.CustomerId);
+                        break;
+                    case "DOB":
+                        data = data.OrderByDirection(queryOptions.SortDirection, m => m.DOB);
+                        break;
+                    default:
+                        // reflection will be executed for each item in the collection - not too effective
+                        data = data.OrderByDirection(queryOptions.SortDirection, m => m.GetType().GetProperty(queryOptions.SortColumn).GetValue(m, null));
+                        break;
+                }
+            }
+
             if (queryOptions.AllowPagination)
             {
                 result.Data = data.Skip(queryOptions.PageIndex * queryOptions.PageSize).Take(queryOptions.PageSize).ToList();
-                queryOptions.PageReturnTotalCount = data.Count;
+                queryOptions.PageReturnTotalCount = data.ToList().Count;
             }
             else
             {
-                // return only first 200 rows if pagination is not used
+                // return only first 200 rows if pagination is not used - user usually doesn't need thousands records to scroll,
+                // he can search of sort if is looking for some particular data
                 result.Data = data.Take(200).ToList();
                 queryOptions.PageReturnTotalCount = result.Data.Count;
             }

@@ -4,8 +4,8 @@ namespace BlazorForms.Shared
 {
     public enum SortDirection
     {
+        None,
         Asc,
         Desc,
-        None
     }
 }
