@@ -13,7 +13,7 @@
 @inject ISnackbar Snackbar
 @inject IJSRuntime JS
 
-@if (!MudBlazorProvidersDefined)
+@if (!Options.MudBlazorProvidersDefined)
 {
     <MudThemeProvider />
     <MudDialogProvider />
@@ -27,7 +27,8 @@
     <div>Assigned User: @_vm.FormAssignedUser</div>
 }
 
-<CascadingValue Value="Variant">
+<CascadingValue Value=FormOptions>
+
 @if (_loading)
 {
     <MudProgressLinear Indeterminate="true" Style="min-width: 50%; margin: auto;"></MudProgressLinear>
@@ -125,10 +126,9 @@ else
 
 @code {
     [Parameter]
-    public bool MudBlazorProvidersDefined { get; set; }
-
-    [Parameter]
-    public Variant Variant { get; set; } = Variant.Filled;
+    public EditFormOptions Options { get; set; } = new EditFormOptions();
+    
+    protected FormOptions FormOptions { get { return Options; } }
 
     [Parameter]
     public string Pk { get; set; }

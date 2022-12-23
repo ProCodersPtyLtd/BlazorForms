@@ -3,12 +3,12 @@
 @using BlazorForms.Forms
 @using BlazorForms.FlowRules
 
-<MudButton Variant="Variant" OnClick="@ButtonClick" Disabled="@Field.DisplayProperties.Disabled">@Field.DisplayProperties.Caption</MudButton>
+<MudButton Variant="FormOptions.Variant" OnClick="@ButtonClick" Disabled="@Field.DisplayProperties.Disabled">@Field.DisplayProperties.Caption</MudButton>
 <ValidatorControl Validations="@Validations"></ValidatorControl>
 
 @code {
     [CascadingParameter]
-    public Variant Variant { get; set; }
+    public FormOptions FormOptions { get; set; }
 
     [Parameter]
     public FieldControlDetails Field { get; set; }

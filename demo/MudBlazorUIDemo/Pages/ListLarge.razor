@@ -25,17 +25,22 @@
     <MudSwitch @bind-Checked="@Options.ShowSorting" Color="Color.Primary">Show Sorting</MudSwitch>
 </div>
 
-<FlowListForm FlowType="MudBlazorUIDemo.Flows.SampleListLargeFlow" Options="Options" />
+<FlowListForm FlowType="MudBlazorUIDemo.Flows.SampleListLargeFlow" Options="Options" EditFormOptions="EditFormOptions" />
 
 @code {
     private ListFormOptions Options = new ListFormOptions
+    {
+        Variant = Variant.Outlined,
+        //Virtualize = true,
+        MudBlazorProvidersDefined = true,
+        DataOptimization = DataOptimization.ServerPagination,
+        //ServerSideDataOptimization = true,
+        //ShowPagination = true,
+        ToolBarCaption = "Customers",
+    };
+
+    private EditFormOptions EditFormOptions = new EditFormOptions
         {
-            Variant = Variant.Outlined,
-            //Virtualize = true,
-            MudBlazorProvidersDefined = true,
-            DataOptimization = DataOptimization.ServerPagination,
-            //ServerSideDataOptimization = true,
-            //ShowPagination = true,
-            ToolBarCaption = "Customers",
+            Variant = Variant.Filled,
         };
 }

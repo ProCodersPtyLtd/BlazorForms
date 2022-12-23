@@ -9,13 +9,13 @@
         <MudAutocomplete T="string" Value="@SearchText" SearchFunc="@GetOptions" Disabled="@Field.DisplayProperties.Disabled"
                      OnInternalInputChanged=@TextChanged ValueChanged=@ValueChanged
                      ResetValueOnEmptyText="true" CoerceText="true" CoerceValue="true" 
-                     Style="width: 100%;" Variant="Variant" />
+                     Style="width: 100%;" Variant="FormOptions.Variant" />
 
         <ValidatorControl Validations="@AllValidations"></ValidatorControl>
 
 @code {
     [CascadingParameter]
-    public Variant Variant { get; set; }
+    public FormOptions FormOptions { get; set; }
 
     [CascadingParameter]
     public IFormViewModel ViewModel { get; set; }

@@ -8,13 +8,13 @@
 @inject IDynamicFieldValidator FieldValidator
 
 <MudTextField id="@MyId" Value="@ObjectValue.AsString()" Disabled="@Field.DisplayProperties.Disabled" 
-              T="string" ValueChanged="@(a => ValueChanged(a))" InputType="@MyType" Style="width: 100%;" Variant="Variant" />
+              T="string" ValueChanged="@(a => ValueChanged(a))" InputType="@MyType" Style="width: 100%;" Variant="FormOptions.Variant" />
 
 <ValidatorControl Validations="@AllValidations"></ValidatorControl>
 
 @code {
     [CascadingParameter]
-    public Variant Variant { get; set; }
+    public FormOptions FormOptions { get; set; }
 
     [Parameter]
     public int RowIndex { get; set; }

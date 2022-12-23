@@ -12,13 +12,13 @@
 
 <MudDatePicker Editable=true Date=@_localDateValue Disabled=@Field.DisplayProperties.Disabled
                 DateFormat=@_dateFormat 
-               DateChanged=@ValueChanged Style="width: 100%;" Variant=Variant/>
+               DateChanged=@ValueChanged Style="width: 100%;" Variant=FormOptions.Variant/>
 
 <ValidatorControl Validations="@AllValidations"/>
 
 @code {
     [CascadingParameter]
-    public Variant Variant { get; set; }
+    public FormOptions FormOptions { get; set; }
 
     [Parameter]
     public int RowIndex { get; set; }
@@ -58,6 +58,10 @@
         {
             _dateFormat = Field.DisplayProperties.Format;
         }
+        else if (!string.IsNullOrEmpty(FormOptions.DateFormat))
+        {
+            _dateFormat = FormOptions.DateFormat;
+        }
     }
 
     protected override async Task OnInitializedAsync()
@@ -75,10 +79,12 @@
             if (DateValue != null && DateValue.Value.Kind == DateTimeKind.Utc)
             {
                 _localDateValue = await ClientDateService.GetLocalDateTime(DateValue);
+                StateHasChanged();
             }
             else
             {
                 _localDateValue = DateValue;
+                StateHasChanged();
             }
         }
     }

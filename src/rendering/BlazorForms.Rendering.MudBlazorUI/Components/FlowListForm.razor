@@ -44,7 +44,7 @@
     <MudSnackbarProvider />
 }
 
-<CascadingValue Value=Options.Variant>
+<CascadingValue Value=FormOptions>
 <CascadingValue Value=ViewModel>
 
   
@@ -140,6 +140,11 @@
 @code {
     [Parameter]
     public ListFormOptions Options { get; set; } = new ListFormOptions();
+
+    protected FormOptions FormOptions { get { return Options; } }
+
+    [Parameter]
+    public EditFormOptions EditFormOptions { get; set; } = new EditFormOptions();
 
     [Parameter]
     public string FlowType { get; set; }
@@ -366,7 +371,7 @@
         dialogParameters["FormSubmitted"] = new EventCallback<FormSubmittedArgs>(this, DialogFormSubmitted);
         dialogParameters["AllowAnonymousAccess"] = Options.AllowAnonymousAccess;
         dialogParameters["AllowFlowStorage"] = Options.AllowFlowStorage;
-        dialogParameters["Variant"] = Options.Variant;
+        dialogParameters["Options"] = EditFormOptions;
         DialogService.Show<FlowDialogForm>(null, dialogParameters, options);
     }
 

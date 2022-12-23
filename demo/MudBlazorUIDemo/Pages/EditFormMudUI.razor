@@ -5,9 +5,16 @@
 <PageTitle>Form V2</PageTitle>
 
 <FlowEditForm FlowName="@typeof(BlazorFormsDemoFlows.FluentArtelProjectSettingsFlow).FullName" Pk="0" AllowAnonymousAccess="true" 
-    AllowFlowStorage="@Store" NavigationSuccess="/" MudBlazorProvidersDefined=true Variant="MudBlazor.Variant.Outlined"/>
+    AllowFlowStorage="@Store" NavigationSuccess="/" MudBlazorProvidersDefined=true Options="Options"/>
 
 @code {
     [Parameter]
     public bool Store { get; set; }
+
+    private EditFormOptions Options = new EditFormOptions
+        {
+            Variant = Variant.Outlined,
+            //Virtualize = true,
+            DateFormat = "dd/MM/yyyy",
+        };
 }

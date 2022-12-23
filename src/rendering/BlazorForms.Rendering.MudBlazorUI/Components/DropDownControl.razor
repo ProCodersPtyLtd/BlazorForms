@@ -16,7 +16,7 @@
 else
 {
     <MudSelect Value="@TextValue" T="string" ValueChanged="@(async (args) => await ValueChanged(args))" Style="width: 100%;"
-           Variant="Variant" AnchorOrigin="Origin.BottomCenter">
+           Variant="FormOptions.Variant" AnchorOrigin="Origin.BottomCenter">
         @foreach (var item in _items)
         {
             <MudSelectItem Value="@item.Key">@item.Value</MudSelectItem>
@@ -28,7 +28,7 @@ else
 
 @code {
     [CascadingParameter]
-    public Variant Variant { get; set; }
+    public FormOptions FormOptions { get; set; }
 
     [CascadingParameter]
     public IFormViewModel ViewModel { get; set; }
