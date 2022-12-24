@@ -1,6 +1,7 @@
 ﻿@page "/person-list"
 
-<DynamicListForm FlowType="@typeof(CrmLightDemoApp.Onion.Services.Flow.PersonListFlow).FullName" ShowFilters="false" ShowSorting="true" />
+<FlowListForm FlowType="@typeof(CrmLightDemoApp.Onion.Services.Flow.PersonListFlow).FullName"
+              Options="GlobalSettings.ListFormOptions" />
 
 @code {
 

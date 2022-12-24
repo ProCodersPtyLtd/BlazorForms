@@ -1,6 +1,7 @@
 ﻿using BlazorForms.Flows;
 using BlazorForms.Shared;
 using CrmLightDemoApp.Onion.Domain;
+using CrmLightDemoApp.Onion.Domain.Repositories;
 
 namespace CrmLightDemoApp.Onion.Infrastructure
 {
@@ -10,6 +11,8 @@ namespace CrmLightDemoApp.Onion.Infrastructure
     {
         private int _id = 0;
         private readonly List<Person> _peopleCache = new List<Person>();
+        private readonly List<Company> _companyCache = new List<Company>();
+        private readonly List<PersonCompanyLink> _personCompanyLinkCache = new List<PersonCompanyLink>();
 
         public async Task<int> CreateAsync(Person data)
         {

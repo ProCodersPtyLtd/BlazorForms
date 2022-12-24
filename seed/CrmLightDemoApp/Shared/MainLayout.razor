@@ -1,23 +1,5 @@
 ﻿@inherits LayoutComponentBase
 
-@*<PageTitle>CrmLightDemoApp</PageTitle>
-
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>*@
-
 <MudLayout>
 	<AppBar OnSidebarToggled="ToggleSidebar" OnThemeToggled="ToggleTheme" />
 
@@ -34,7 +16,7 @@
 
 @code {
 	private MudTheme _currentTheme = new MudTheme();
-	private bool _sidebarOpen = false;
+	private bool _sidebarOpen = true;
 
 
 	private void ToggleTheme(MudTheme changedTheme) => _currentTheme = changedTheme;

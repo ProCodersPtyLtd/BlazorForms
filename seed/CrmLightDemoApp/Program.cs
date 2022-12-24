@@ -36,7 +36,7 @@ builder.Services.AddMudServices(config =>
 
 // BlazorForms
 builder.Services.AddServerSideBlazorForms();
-builder.Services.AddBlazorFormsMaterialBlazor();
+builder.Services.AddBlazorFormsMudBlazorUI();
 builder.Services.AddBlazorFormsServerModelAssemblyTypes(typeof(PersonEditFlow));
 
 var app = builder.Build();

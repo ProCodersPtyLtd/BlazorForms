@@ -1,7 +1,7 @@
 ﻿using BlazorForms.Flows;
 using BlazorForms.Forms;
 using BlazorForms.Shared;
-using CrmLightDemoApp.Onion.Domain;
+using CrmLightDemoApp.Onion.Domain.Repositories;
 using CrmLightDemoApp.Onion.Services.Model;
 
 namespace CrmLightDemoApp.Onion.Services.Flow
@@ -34,7 +34,8 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             if (_flowContext.Params.ItemKeyAboveZero)
             {
                 var item = await _personRepository.GetByIdAsync(_flowContext.Params.ItemKey);
-                item.CopyTo(Model);
+                // item and Model have different types - we use reflection to copy similar properties
+                item.ReflectionCopyTo(Model);
             }
         }
 
@@ -63,8 +64,8 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             f.Property(p => p.Phone).IsReadOnly();
             f.Property(p => p.Email).IsReadOnly();
 
-            f.Button(ButtonActionTypes.Submit, "Edit");
             f.Button(ButtonActionTypes.Close, "Close");
+            f.Button(ButtonActionTypes.Submit, "Edit");
 
         }
     }
@@ -81,8 +82,8 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             f.Property(p => p.Phone);
             f.Property(p => p.Email);
 
-            f.Button(ButtonActionTypes.Submit, "Save");
             f.Button(ButtonActionTypes.Cancel, "Cancel");
+            f.Button(ButtonActionTypes.Submit, "Save");
 
         }
     }
