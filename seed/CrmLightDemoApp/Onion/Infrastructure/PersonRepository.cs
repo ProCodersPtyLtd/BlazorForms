@@ -5,42 +5,15 @@ using CrmLightDemoApp.Onion.Domain.Repositories;
 
 namespace CrmLightDemoApp.Onion.Infrastructure
 {
-    // this is repository emulator that stores all data in memory
-    // it stores and retrieves object copies, like a real database
-    public class PersonRepository : IPersonRepository
+    public class PersonRepository : Repository<Person>, IPersonRepository
     {
-        private int _id = 0;
-        private readonly List<Person> _peopleCache = new List<Person>();
-        private readonly List<Company> _companyCache = new List<Company>();
-        private readonly List<PersonCompanyLink> _personCompanyLinkCache = new List<PersonCompanyLink>();
-
-        public async Task<int> CreateAsync(Person data)
+        public PersonRepository()
         {
-            _id++;
-            data.Id = _id;
-            _peopleCache.Add(data.GetCopy());
-            return _id;
-        }
-
-        public async Task DeleteAsync(int id)
-        {
-            _peopleCache.Remove(_peopleCache.Single(x => x.Id == id));
-        }
-
-        public async Task<Person> GetByIdAsync(int id)
-        {
-            return _peopleCache.Single(x => x.Id == id).GetCopy();
-        }
-
-        public async Task<List<Person>> GetAllAsync()
-        {
-            return _peopleCache.Select(x => x.GetCopy()).ToList();
-        }
-
-        public async Task UpdateAsync(Person data)
-        {
-            await DeleteAsync(data.Id);
-            _peopleCache.Add(data.GetCopy());
+            // pre fill some data
+            _localCache.Add(new Person { Id = 1, FirstName = "Jack", LastName = "Wombat", BirthDate = new DateTime(1998, 10, 21) });
+            _localCache.Add(new Person { Id = 2, FirstName = "David", LastName = "Jones", BirthDate = new DateTime(1978, 12, 1) });
+            _localCache.Add(new Person { Id = 3, FirstName = "Louis", LastName = "Monero", BirthDate = new DateTime(2001, 3, 16) });
+            _id = 10;
         }
     }
 }

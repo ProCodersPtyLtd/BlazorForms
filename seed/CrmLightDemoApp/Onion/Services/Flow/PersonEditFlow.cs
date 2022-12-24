@@ -9,10 +9,12 @@ namespace CrmLightDemoApp.Onion.Services.Flow
     public class PersonEditFlow : FluentFlowBase<PersonModel>
     {
         private readonly IPersonRepository _personRepository;
+        private readonly IPersonCompanyRepository _personCompanyRepository;
 
-        public PersonEditFlow(IPersonRepository personRepository)
+        public PersonEditFlow(IPersonRepository personRepository, IPersonCompanyRepository personCompanyRepository)
         {
             _personRepository = personRepository;
+            _personCompanyRepository = personCompanyRepository;
         }
 
         public override void Define()
@@ -36,6 +38,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
                 var item = await _personRepository.GetByIdAsync(_flowContext.Params.ItemKey);
                 // item and Model have different types - we use reflection to copy similar properties
                 item.ReflectionCopyTo(Model);
+                Model.CompanyLinks = await _personCompanyRepository.GetByPersonIdAsync(Model.Id);
             }
         }
 

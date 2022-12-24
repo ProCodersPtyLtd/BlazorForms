@@ -5,45 +5,49 @@ using CrmLightDemoApp.Onion.Domain.Repositories;
 
 namespace CrmLightDemoApp.Onion.Infrastructure
 {
-    // this is repository emulator that stores all data in memory
-    // it stores and retrieves object copies, like a real database
-    public class PersonCompanyRepository : IPersonCompanyRepository
+    public class PersonCompanyRepository : Repository<PersonCompanyLink>, IPersonCompanyRepository
     {
-        private int _id = 0;
-        private readonly List<PersonCompanyLink> _personCompanyLinkCache = new List<PersonCompanyLink>();
+        private readonly IPersonRepository _personRepository;
+        private readonly ICompanyRepository _companyRepository;
+        private readonly IPersonCompanyLinkTypeRepository _personCompanyLinkTypeRepository;
 
-        public async Task<int> CreateAsync(PersonCompanyLink data)
-        {
-            _id++;
-            data.Id = _id;
-            _personCompanyLinkCache.Add(data.GetCopy());
-            return _id;
-        }
+        public PersonCompanyRepository(IPersonRepository personRepository, ICompanyRepository companyRepository,
+            IPersonCompanyLinkTypeRepository personCompanyLinkTypeRepository) 
+        { 
+            _personRepository = personRepository;
+            _companyRepository = companyRepository;
+            _personCompanyLinkTypeRepository = personCompanyLinkTypeRepository;
 
-        public async Task DeleteAsync(int id)
-        {
-            _personCompanyLinkCache.Remove(_personCompanyLinkCache.Single(x => x.Id == id));
-        }
-
-        public async Task<PersonCompanyLink> GetByIdAsync(int id)
-        {
-            return _personCompanyLinkCache.Single(x => x.Id == id).GetCopy();
-        }
-
-        public async Task<List<PersonCompanyLink>> GetAllAsync()
-        {
-            return _personCompanyLinkCache.Select(x => x.GetCopy()).ToList();
-        }
-
-        public async Task UpdateAsync(PersonCompanyLink data)
-        {
-            await DeleteAsync(data.Id);
-            _personCompanyLinkCache.Add(data.GetCopy());
+            // pre fill some data
+            _localCache.Add(new PersonCompanyLink { Id = 1, PersonId = 1, CompanyId = 2, LinkTypeId = 1 });
+            _localCache.Add(new PersonCompanyLink { Id = 1, PersonId = 3, CompanyId = 2, LinkTypeId = 4 });
+            _id = 10;
         }
 
         public async Task<List<PersonCompanyLinkDetails>> GetByPersonIdAsync(int personId)
         {
-            throw new NotImplementedException();
+            var list = _localCache.Where(x => !x.Deleted && x.PersonId == personId).Select(x => 
+            {
+                var item = new PersonCompanyLinkDetails();
+                x.ReflectionCopyTo(item);
+                return item;
+            }).ToList();
+
+            var person = await _personRepository.GetByIdAsync(personId);
+            var companyIds = list.Select(x => x.CompanyId).Distinct().ToList();
+            var companies = (await _companyRepository.GetListByIdsAsync(companyIds)).ToDictionary(x => x.Id, x => x);
+            var linkIds = list.Select(x => x.LinkTypeId).Distinct().ToList();
+            var links = (await _personCompanyLinkTypeRepository.GetListByIdsAsync(linkIds)).ToDictionary(x => x.Id, x => x);
+
+            foreach (var item in list)
+            {
+                item.LinkTypeName = links[item.LinkTypeId].Name;
+                item.PersonFirstName = person.FirstName;
+                item.PersonLastName = person.LastName;
+                item.CompanyName = companies[item.CompanyId].Name;
+            }
+
+            return list;
         }
 
         public async Task<List<PersonCompanyLinkDetails>> GetByCompanyIdAsync(int companyId)

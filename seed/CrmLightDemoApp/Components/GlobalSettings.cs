@@ -8,13 +8,15 @@ namespace CrmLightDemoApp.Components
         public static EditFormOptions EditFormOptions = new EditFormOptions 
         { 
             MudBlazorProvidersDefined = true, 
-            Variant = Variant.Filled 
+            Variant = Variant.Filled,
+            DateFormat = "dd/MM/yyyy",
         };
 
         public static ListFormOptions ListFormOptions = new ListFormOptions
         {
             MudBlazorProvidersDefined = true,
-            Variant = Variant.Filled
+            Variant = Variant.Filled,
+            DateFormat = "dd/MM/yyyy",
         };
     }
 }

@@ -10,8 +10,8 @@ namespace CrmLightDemoApp.Onion.Infrastructure
     public class Repository<T> : IRepository<T>
         where T : class, IEntity
     {
-        private int _id = 0;
-        private readonly List<T> _localCache = new List<T>();
+        protected int _id = 0;
+        protected readonly List<T> _localCache = new List<T>();
 
         public async Task<int> CreateAsync(T data)
         {
@@ -33,13 +33,23 @@ namespace CrmLightDemoApp.Onion.Infrastructure
 
         public async Task<List<T>> GetAllAsync()
         {
-            return _localCache.Select(x => x.GetCopy()).ToList();
+            return _localCache.Where(x => !x.Deleted).Select(x => x.GetCopy()).ToList();
         }
 
         public async Task UpdateAsync(T data)
         {
             await DeleteAsync(data.Id);
             _localCache.Add(data.GetCopy());
+        }
+
+        public async Task SoftDeleteAsync(int id)
+        {
+            _localCache.Single(x => x.Id == id).Deleted = true;
+        }
+
+        public async Task<List<T>> GetListByIdsAsync(IEnumerable<int> ids)
+        {
+            return _localCache.Where(x => !x.Deleted && ids.Contains(x.Id)).Select(x => x.GetCopy()).ToList();
         }
     }
 }

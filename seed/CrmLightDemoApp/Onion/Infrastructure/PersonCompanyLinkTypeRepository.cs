@@ -5,9 +5,17 @@ using CrmLightDemoApp.Onion.Domain.Repositories;
 
 namespace CrmLightDemoApp.Onion.Infrastructure
 {
-    // this is repository emulator that stores all data in memory
-    // it stores and retrieves object copies, like a real database
     public class PersonCompanyLinkTypeRepository : Repository<PersonCompanyLinkType>, IPersonCompanyLinkTypeRepository
     {
+        public PersonCompanyLinkTypeRepository() 
+        {
+            // pre fill some data
+            _localCache.Add(new PersonCompanyLinkType { Id = 1, Name = "Director" });
+            _localCache.Add(new PersonCompanyLinkType { Id = 2, Name = "Sales Person" });
+            _localCache.Add(new PersonCompanyLinkType { Id = 3, Name = "HR" });
+            _localCache.Add(new PersonCompanyLinkType { Id = 4, Name = "External Agent" });
+            _localCache.Add(new PersonCompanyLinkType { Id = 5, Name = "Employee" });
+            _id = 10;
+        }
     }
 }
