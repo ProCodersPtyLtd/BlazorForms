@@ -58,9 +58,9 @@
       <ProjectReference Include="..\..\demo\BlazorFormsDemoModels\BlazorFormsDemoModels.csproj" />
       <ProjectReference Include="..\platform\BlazorForms.Platform.Cosmos\BlazorForms.Platform.Cosmos.csproj" />
       <ProjectReference Include="..\platform\BlazorForms.Platform\BlazorForms.Platform.csproj" />
-      <ProjectReference Include="..\rendering\BlazorForms.Rendering.Flows\BlazorForms.Rendering.Flows.csproj" />
-      <ProjectReference Include="..\rendering\BlazorForms.Rendering.MaterialBlazor\BlazorForms.Rendering.MaterialBlazor.csproj" />
-      <ProjectReference Include="..\rendering\BlazorForms.Rendering.MudBlazorUI\BlazorForms.Rendering.MudBlazorUI.csproj" />
+      <ProjectReference Include="..\..\src\rendering\BlazorForms.Rendering.Flows\BlazorForms.Rendering.Flows.csproj" />
+      <ProjectReference Include="..\..\src\rendering\BlazorForms.Rendering.MaterialBlazor\BlazorForms.Rendering.MaterialBlazor.csproj" />
+      <ProjectReference Include="..\..\src\rendering\BlazorForms.Rendering.MudBlazorUI\BlazorForms.Rendering.MudBlazorUI.csproj" />
     </ItemGroup>
 
     <ItemGroup>
