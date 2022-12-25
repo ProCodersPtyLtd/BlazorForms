@@ -243,6 +243,7 @@ namespace BlazorForms.Forms
                     FilterType = field.FilterType,
                     FilterRefField = field.FilterRefField,
                     Format= field.Format,
+                    IsUnique = field.Unique,
 
                     // new binding concept
                     Binding = field.Binding,

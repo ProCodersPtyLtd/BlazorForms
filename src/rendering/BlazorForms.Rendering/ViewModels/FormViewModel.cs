@@ -17,6 +17,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BlazorForms.Shared.FastReflection;
+using System.Security.Cryptography.X509Certificates;
+using System.Collections;
+using System.Net.WebSockets;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 
 namespace BlazorForms.Rendering
 {
@@ -501,6 +505,48 @@ namespace BlazorForms.Rendering
             return false;
         }
 
+        public void CheckUniqueValidationRules(FieldControlDetails field)
+        {
+            if (!string.IsNullOrWhiteSpace(field.Binding.TableBinding))
+            {
+                // clean all validations fo this type
+                var message = "This field should be unique";
+                Validations = Validations.Where(v => v.ValidationMessage != message);
+                var columns = Repeaters[field.Binding.TableBinding];
+                var uniqueColumns = columns.Where(c => c.DisplayProperties.IsUnique);
+                var list = FieldGetItemsValue(ModelUntyped, field.Binding.TableBinding) as IEnumerable<object>;
+                var errors = new List<RuleExecutionResult>();
+
+                foreach (var f in uniqueColumns)
+                {
+                    var values = list.Select(x => FieldGetValue(x, f.Binding)).ToList();
+
+                    for (int i = 0; i < values.Count(); i++)
+                    {
+                        if (values.Where(v => v.ToString() == values[i].ToString()).Count() > 1)
+                        {
+                            //f.Binding.ResolveKey(new FieldBindingArgs { RowIndex = i });
+
+                            var validation = new RuleExecutionResult
+                            {
+                                AffectedField = f.Binding.GetResolvedKey(i),
+                                RuleCode = field.DisplayProperties.Caption,
+                                ValidationMessage = message,
+                                ValidationResult = RuleValidationResult.Error
+                            };
+
+                            errors.Add(validation);
+                        }
+                    }
+                }
+
+                if (errors.Any())
+                {
+                    Validations = Validations.Union(errors);
+                }
+            }
+        }
+
         // ToDo: try to move all calls from _modelNavi to _modelBindingNavigator
         // Model Navigation
         [Obsolete]
@@ -585,5 +631,7 @@ namespace BlazorForms.Rendering
         {
             _modelBindingNavigator.SetValue(model, binding, value);
         }
+
+        
     }
 }

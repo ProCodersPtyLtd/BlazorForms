@@ -177,6 +177,7 @@
         try
         {
             var task = await ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, args.Binding, rowIndex: args.RowIndex);
+            ViewModel.CheckUniqueValidationRules(Table);
             StateHasChanged();
 
             await ModelValueChanged.InvokeAsync(new ValueChangedArgs { Operation = ModelChangedOperation.Refresh });
