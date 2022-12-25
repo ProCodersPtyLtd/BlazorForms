@@ -7,12 +7,65 @@
 
 @inject IUserViewDataResolver DataResolver
 
+<style>
+    .pz-table {
+        margin-top: 40px;
+    }
 
-@if (@GetGridData().Length > 0)
+    .pz-ref-button {
+        margin-left: 1rem;
+        margin-top: 0.5rem;
+        width: auto;
+    }
+
+    th.mud-table-cell {
+        background-color: lightgray !important;
+    }
+
+</style>
+
+@{
+    var currentRow = 0;
+}
+
+<MudTable T="string[]" Items=GetGridData() Hover="true" Breakpoint="Breakpoint.Sm" Dense="true" @ref="TableRef"
+          Height=@GetHeight() Virtualize=true FixedHeader=true>
+                
+    <HeaderContent>
+        @foreach (var col in Columns)
+        {
+            @if (col?.ControlType == "Table" || col?.DisplayProperties?.Visible == false)
+            {
+                continue;
+            }
+
+            <MudTh>@col?.DisplayProperties?.Caption</MudTh>
+        }
+    </HeaderContent>
+         
+    <RowTemplate>
+        @if (GridDataCache[0] != null)
+        {
+            @for (int i = 0; i < ColumnList().Count; i++)
+            {
+                var currentColumn = i+1;
+                var rowIndex = currentRow;
+                <MudTd @onclick="@(async (args) => await RowOnClick(rowIndex, context[0]))">@context[currentColumn]</MudTd>
+            }
+            currentRow++;
+        }
+        else
+        {
+            <MudTd colspan="@Columns?.Count()" Class="pz-no-records-text"><MudText Typo="Typo.body2">No Records</MudText></MudTd>
+        }
+    </RowTemplate>
+</MudTable>
+
+@*@if (@GetGridData().Length > 0)
 {
     var currentRow = 0;
 
-    @*<MatTable Items="@GetGridData()" class="mat-elevation-z5" AllowSelection="true" >
+    <MatTable Items="@GetGridData()" class="mat-elevation-z5" AllowSelection="true" >
         <MatTableHeader>
             @foreach (var col in Columns)
             {
@@ -38,14 +91,13 @@
                 currentRow++;
             }
         </MatTableRow>
-    </MatTable>*@
-}
+    </MatTable>
+}*@
 <ValidatorControl Validations="@Validations"></ValidatorControl>
 
 @code {
     [CascadingParameter]
     public IFormViewModel ViewModel { get; set; }
-
     [Parameter]
     public FieldControlDetails Table { get; set; }
     [Parameter]
@@ -57,12 +109,22 @@
     [Parameter]
     public IEnumerable<RuleExecutionResult> Validations { get; set; }
 
+    private MudTable<string[]>? TableRef;
+
     protected override async Task OnInitializedAsync()
     {
     }
 
-    private void tdclick(object args)
+    private string GetHeight()
     {
+        if (1 == 2)
+        {
+            return "360px";
+        }
+        else
+        {
+            return "200px";
+        }
     }
 
     private List<FieldControlDetails> ColumnList()
@@ -106,7 +168,16 @@
         var gridModel = ViewModel.PathNavi.GetValue(ViewModel.ModelUntyped, Table.Binding.TableBinding);
         var data = DataResolver.ResolveData(Table.Binding.TableBinding, Columns, ViewModel.ModelUntyped);
         var jaggedData = ConvertHelper.ConvertToJaggedArray(data);
-        GridDataCache = jaggedData;
-        return jaggedData;
+
+        if (jaggedData.Length == 0)
+        {
+            GridDataCache = new string[1][];
+        }
+        else
+        {
+            GridDataCache = jaggedData;
+        }
+
+        return GridDataCache;
     }
 }

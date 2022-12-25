@@ -1,13 +1,13 @@
 ﻿using BlazorForms.Rendering.MudBlazorUI.Components;
 using MudBlazor;
 
-namespace CrmLightDemoApp.Components
+namespace CrmLightDemoApp
 {
     public static class GlobalSettings
     {
-        public static EditFormOptions EditFormOptions = new EditFormOptions 
-        { 
-            MudBlazorProvidersDefined = true, 
+        public static EditFormOptions EditFormOptions = new EditFormOptions
+        {
+            MudBlazorProvidersDefined = true,
             Variant = Variant.Filled,
             DateFormat = "dd/MM/yyyy",
         };

@@ -105,7 +105,10 @@ namespace BlazorForms.Shared.FastReflection
                 return;
             }
 
-            _jsonNavigator.SetValue(model, modelBinding.Binding, val);
+            if (!string.IsNullOrWhiteSpace(modelBinding.Binding))
+            {
+                _jsonNavigator.SetValue(model, modelBinding.Binding, val);
+            }
         }
 
         

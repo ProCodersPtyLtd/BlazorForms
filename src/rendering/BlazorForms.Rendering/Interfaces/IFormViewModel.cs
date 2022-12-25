@@ -48,7 +48,7 @@ namespace BlazorForms.Rendering.Interfaces
         Task InitiateFlow(string flowName, string refId, string pk);
         Task FinishFlow(string refId, string binding = null);
         Task ReloadFormData();
-        void CheckUniqueValidationRules(FieldControlDetails field);
+        List<RuleExecutionResult> CheckUniqueValidationRules(string tableBinding);
         Task<RuleEngineExecutionResult> TriggerRules(string formName, FieldBinding modelBinding, FormRuleTriggers? trigger = null, int rowIndex = 0);
         //Task<RuleEngineExecutionResult> TriggerFormLoadRulesRules();
         Task SaveForm(string actionBinding = null, string operationName = null);

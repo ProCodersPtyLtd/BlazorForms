@@ -42,6 +42,7 @@ namespace CrmLightDemoApp.Onion.Infrastructure
             foreach (var item in list)
             {
                 item.LinkTypeName = links[item.LinkTypeId].Name;
+                item.PersonFullName = $"{person.FirstName} {person.LastName}";
                 item.PersonFirstName = person.FirstName;
                 item.PersonLastName = person.LastName;
                 item.CompanyName = companies[item.CompanyId].Name;
@@ -52,7 +53,29 @@ namespace CrmLightDemoApp.Onion.Infrastructure
 
         public async Task<List<PersonCompanyLinkDetails>> GetByCompanyIdAsync(int companyId)
         {
-            throw new NotImplementedException();
+            var list = _localCache.Where(x => !x.Deleted && x.CompanyId == companyId).Select(x =>
+            {
+                var item = new PersonCompanyLinkDetails();
+                x.ReflectionCopyTo(item);
+                return item;
+            }).ToList();
+
+            var company = await _companyRepository.GetByIdAsync(companyId);
+            var personIds = list.Select(x => x.PersonId).Distinct().ToList();
+            var persons = (await _personRepository.GetListByIdsAsync(personIds)).ToDictionary(x => x.Id, x => x);
+            var linkIds = list.Select(x => x.LinkTypeId).Distinct().ToList();
+            var links = (await _personCompanyLinkTypeRepository.GetListByIdsAsync(linkIds)).ToDictionary(x => x.Id, x => x);
+
+            foreach (var item in list)
+            {
+                item.LinkTypeName = links[item.LinkTypeId].Name;
+                item.PersonFullName = $"{persons[item.PersonId].FirstName} {persons[item.PersonId].LastName}";
+                item.PersonFirstName = persons[item.PersonId].FirstName;
+                item.PersonLastName = persons[item.PersonId].LastName;
+                item.CompanyName = company.Name;
+            }
+
+            return list;
         }
     }
 }

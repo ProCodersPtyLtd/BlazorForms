@@ -78,9 +78,9 @@ else
                         if (action.DisplayProperties.Visible)
                         {
                             <div class="d-inline-flex">
-                                <MudButton Id="@action.Name" DisableElevation="true" Disabled="@_formLocked" 
-                                    OnClick="@(async () => await ActionButtonClick(action.Binding.Binding, action.DisplayProperties.Caption))"
-                                    Variant="Variant.Filled" >@action.DisplayProperties.Caption</MudButton>
+                                            <MudButton Id="@action.Name" Color="GetActionColor(action)" Disabled="@_formLocked"
+                                       OnClick="@(async () => await ActionButtonClick(action.Binding.Binding, action.DisplayProperties.Caption))"
+                                    Variant="Variant.Filled" DisableElevation="true" >@action.DisplayProperties.Caption</MudButton>
                             </div>
                         }
                     }
@@ -127,7 +127,7 @@ else
 @code {
     [Parameter]
     public EditFormOptions Options { get; set; } = new EditFormOptions();
-    
+
     protected FormOptions FormOptions { get { return Options; } }
 
     [Parameter]
@@ -166,6 +166,16 @@ else
     private bool _dialogIsOpen = false;
     private string _matDialogTitle = string.Empty;
     private string _buttonBinding = string.Empty;
+
+    private Color GetActionColor(FieldControlDetails action)
+    {
+        if (action.Binding.Binding == ModelBinding.SubmitButtonBinding)
+        {
+            return Color.Primary;
+        }
+
+        return Color.Default;
+    }
 
     protected override async Task OnInitializedAsync()
     {

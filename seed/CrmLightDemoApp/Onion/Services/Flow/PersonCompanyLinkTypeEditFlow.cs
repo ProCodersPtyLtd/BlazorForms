@@ -115,45 +115,4 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             f.Button(ButtonActionTypes.Close);
         }
     }
-
-    //public class PersonCompanyLinkTypeListFlow : ListFlowBase<PersonCompanyLinkTypeListModel, FormPersonCompanyLinkType>
-    //{
-    //    private readonly IPersonCompanyLinkTypeRepository _repository;
-
-        //    public PersonCompanyLinkTypeListFlow(IPersonCompanyLinkTypeRepository repository)
-        //    {
-        //        _repository = repository;
-        //    }
-
-        //    public override async Task<PersonCompanyLinkTypeListModel> LoadDataAsync(QueryOptions queryOptions)
-        //    {
-        //        var list = await _repository.GetAllAsync();
-        //        var result = new PersonListModel { Data = list };
-        //        return result;
-        //    }
-        //}
-
-        //public class FormPersonCompanyLinkType : FormListBase<PersonListModel>
-        //{
-        //    protected override void Define(FormListBuilder<PersonListModel> builder)
-        //    {
-        //        builder.List(p => p.Data, e =>
-        //        {
-        //            e.DisplayName = "People";
-
-        //            e.Property(p => p.Id).IsPrimaryKey();
-        //            e.Property(p => p.FirstName).Label("First Name").Filter(FieldFilterType.TextStarts);
-        //            e.Property(p => p.LastName).Label("Last Name").Filter(FieldFilterType.TextStarts);
-        //            e.Property(p => p.BirthDate).Label("Date of birth").Format("dd/MM/yyyy");
-        //            e.Property(p => p.Phone);
-        //            e.Property(p => p.Email);
-
-        //            e.ContextButton("Details", "person-edit/{0}");
-        //            //e.ContextButton("Edit", typeof(PersonEditFlow), FlowReferenceOperation.Edit);
-        //            //e.ContextButton("Delete", "person-delete/{0}");
-
-        //            e.NavigationButton("Add", "person-edit/0");
-        //        });
-        //    }
-        //}
 }

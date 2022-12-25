@@ -41,6 +41,9 @@ builder.Services.AddBlazorFormsServerModelAssemblyTypes(typeof(PersonEditFlow));
 
 var app = builder.Build();
 
+// BlazorForms
+app.BlazorFormsRun();
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -60,5 +63,3 @@ app.MapFallbackToPage("/_Host");
 
 app.Run();
 
-// BlazorForms
-app.BlazorFormsRun();

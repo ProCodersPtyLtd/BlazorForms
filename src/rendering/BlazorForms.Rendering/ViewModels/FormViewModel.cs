@@ -394,12 +394,15 @@ namespace BlazorForms.Rendering
         //    var ruleRequest = GetRuleRequest(Context.ExecutionResult.FormId, null, null, 0, allFields, ps);
         //    return await _flowRunProvider.ExecuteFormLoadRules(ruleRequest, ModelUntyped);
         //}
-
+                
         public async Task<RuleEngineExecutionResult> TriggerRules(string formName, FieldBinding modelBinding, FormRuleTriggers? trigger = null, 
             int rowIndex = 0)
         {
             // Clear validations for this binding
-            Validations = Validations.Where(v => v.AffectedField != modelBinding?.ResolvedBinding).ToList();
+            if (modelBinding != null)
+            {
+                Validations = Validations.Where(v => v.AffectedField == modelBinding?.ResolvedBinding).ToList();
+            }
 
             var allFields = GetAllFields();
             var field = allFields.FirstOrDefault(f => f.Binding.Key == modelBinding?.Key);
@@ -446,18 +449,39 @@ namespace BlazorForms.Rendering
             return null;
         }
 
+        private IEnumerable<RuleExecutionResult> TriggerUniqueRules()
+        {
+            var result = new List<RuleExecutionResult>();
+
+            if (Repeaters.Any())
+            {
+                foreach (var r in Repeaters.Keys)
+                {
+                    var errors = CheckUniqueValidationRules(r);
+                    result.AddRange(errors);
+                }
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// Validates every field including all Repeater rows
         /// </summary>
         /// <returns></returns>
         public IEnumerable<RuleExecutionResult> GetDynamicFieldValidations()
         {
+            // Clear all validations first
+            Validations = new List<RuleExecutionResult>();
+
             var allFields = GetAllFields().ToList();
 
             allFields = allFields.Where(x => !string.IsNullOrWhiteSpace(x.Binding.Binding) && x.Binding.IsResolved &&
                     x.Binding.BindingType != FieldBindingType.ActionButton).ToList();
 
             var result = new List<RuleExecutionResult>();
+            var uniqueValueValidations = TriggerUniqueRules();
+            result.AddRange(uniqueValueValidations);
 
             foreach (var x in allFields)
             {
@@ -505,17 +529,18 @@ namespace BlazorForms.Rendering
             return false;
         }
 
-        public void CheckUniqueValidationRules(FieldControlDetails field)
+        public List<RuleExecutionResult> CheckUniqueValidationRules(string tableBinding)
         {
-            if (!string.IsNullOrWhiteSpace(field.Binding.TableBinding))
+            var errors = new List<RuleExecutionResult>();
+
+            if (!string.IsNullOrWhiteSpace(tableBinding))
             {
                 // clean all validations fo this type
                 var message = "This field should be unique";
                 Validations = Validations.Where(v => v.ValidationMessage != message);
-                var columns = Repeaters[field.Binding.TableBinding];
+                var columns = Repeaters[tableBinding];
                 var uniqueColumns = columns.Where(c => c.DisplayProperties.IsUnique);
-                var list = FieldGetItemsValue(ModelUntyped, field.Binding.TableBinding) as IEnumerable<object>;
-                var errors = new List<RuleExecutionResult>();
+                var list = FieldGetItemsValue(ModelUntyped, tableBinding) as IEnumerable<object>;
 
                 foreach (var f in uniqueColumns)
                 {
@@ -523,14 +548,14 @@ namespace BlazorForms.Rendering
 
                     for (int i = 0; i < values.Count(); i++)
                     {
-                        if (values.Where(v => v.ToString() == values[i].ToString()).Count() > 1)
+                        if (values.Where(v => v?.ToString() == values[i]?.ToString()).Count() > 1)
                         {
                             //f.Binding.ResolveKey(new FieldBindingArgs { RowIndex = i });
 
                             var validation = new RuleExecutionResult
                             {
                                 AffectedField = f.Binding.GetResolvedKey(i),
-                                RuleCode = field.DisplayProperties.Caption,
+                                RuleCode = f.DisplayProperties.Caption,
                                 ValidationMessage = message,
                                 ValidationResult = RuleValidationResult.Error
                             };
@@ -545,6 +570,8 @@ namespace BlazorForms.Rendering
                     Validations = Validations.Union(errors);
                 }
             }
+
+            return errors;
         }
 
         // ToDo: try to move all calls from _modelNavi to _modelBindingNavigator
