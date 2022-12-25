@@ -237,6 +237,10 @@
         _rowIndex = rowIndex;
         _isModelChanged = _newRow > -1 ? false : true;
         _newRow = -1;
+
+        // trigger ItemDeleting rule
+        var task = await ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, Table.Binding, FormRuleTriggers.ItemDeleting, rowIndex);
+
         var list = ListData as System.Collections.IList;
         list.RemoveAt(_rowIndex);
         RepeaterParameters.CurrentRow = null;
@@ -251,6 +255,8 @@
                 GetField(i, col);
             }
         }
+
+        StateHasChanged();
     }
 
     private async Task EditClick(MouseEventArgs args, int rowIndex)

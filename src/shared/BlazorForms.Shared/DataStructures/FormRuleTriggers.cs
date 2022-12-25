@@ -19,5 +19,7 @@ namespace BlazorForms.Shared
         ItemChanged,
         [Description("ContextMenuClicking")]
         ContextMenuClicking,
+        [Description("ItemDeleting")]
+        ItemDeleting,
     }
 }

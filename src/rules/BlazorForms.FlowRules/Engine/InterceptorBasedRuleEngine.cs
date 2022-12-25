@@ -85,7 +85,8 @@ namespace BlazorForms.FlowRules
             if (parameters.TriggeredTriggerType == null)
             {
                 bindingDictionary = fields.ToDictionary(f => f.Binding.Key, f => f.Rules.Where(r => r.RuleTriggerType == FormRuleTriggers.Changed
-                    || r.RuleTriggerType == FormRuleTriggers.ItemAdded || r.RuleTriggerType == FormRuleTriggers.ItemChanged));
+                    || r.RuleTriggerType == FormRuleTriggers.ItemAdded || r.RuleTriggerType == FormRuleTriggers.ItemChanged
+                    || r.RuleTriggerType == FormRuleTriggers.ItemDeleting));
 
                 bindingRowIndexResolution = SpreadBindingRulesForLists(bindingDictionary, parameters.Model);
             }
@@ -109,7 +110,8 @@ namespace BlazorForms.FlowRules
 
                 var triggeredFields = bindingDictionary.Keys.Where(k => bindingDictionary[k].Any() && k?.Contains(FieldBinding.ColumnIndexMarker) == false).ToList();
 
-                if ((parameters.TriggeredTriggerType == FormRuleTriggers.ItemAdded || parameters.TriggeredTriggerType == FormRuleTriggers.ItemChanged) &&
+                if ((parameters.TriggeredTriggerType == FormRuleTriggers.ItemAdded || parameters.TriggeredTriggerType == FormRuleTriggers.ItemChanged
+                    || parameters.TriggeredTriggerType == FormRuleTriggers.ItemDeleting) &&
                     triggeredFields.Count > parameters.RowIndex)
                 {
                     var rowField = triggeredFields.ElementAt(parameters.RowIndex);
