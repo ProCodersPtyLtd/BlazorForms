@@ -1,0 +1,89 @@
+﻿@page "/demoFieldSet/{json:bool}"
+
+@using BlazorForms.Rendering.State
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.FlowRules
+@using BlazorForms.Platform
+@using BlazorForms.Shared
+@using BlazorForms.Rendering.Interfaces
+@using BlazorForms.Forms
+@using BlazorFormsDemoModels.Models
+@using System.Reflection
+
+@inject IFlowRunProvider _flowRunProvider
+
+<PageTitle>Field Set</PageTitle>
+
+@*<table>
+    <tr>
+        <td>
+            <FormFieldSet AllowAnonymousAccess="true" FormDetails="_formDetails" Model="_model" Group="Person" />
+        </td>
+        <td>
+            <FormFieldSet AllowAnonymousAccess="true" FormDetails="_formDetails" Model="_model" Group="Company" />
+        </td>
+    </tr>
+</table>*@
+
+<FormFieldSet AllowAnonymousAccess="true" FormDetails="_formDetails" Model="_model" Group="Person" />
+<hr />
+<FormFieldSet AllowAnonymousAccess="true" FormDetails="_formDetails" Model="_model" Group="Company" />
+
+
+@code {
+    [Parameter]
+    public bool Json { get; set; }
+
+    [Parameter]
+    public string FormId { get; set; }
+
+    [Parameter]
+    public string Group { get; set; }
+
+    private FormDetails _formDetails;
+    private IFlowModel _model;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // We load form once, and every time when parameters changed
+        await Reload();
+    }
+
+    private async Task Reload()
+    {
+        if (Json)
+        {
+            var assembly = Assembly.GetAssembly(typeof(BlazorFormsDemoFlows.Forms.FieldSetSampleForm1));
+            using (Stream stream = assembly.GetManifestResourceStream("BlazorFormsDemoFlows.Forms.FieldSetSampleForm1.json"))
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                var json = reader.ReadToEnd();
+                _formDetails = BlazorForms.Forms.Definitions.JsonForms.JsonFormConverter.FromJsonForm(json);
+            }
+        }
+        else
+        {
+            FormId = "BlazorFormsDemoFlows.Forms.FieldSetSampleForm1";
+            _formDetails = await _flowRunProvider.GetFormDetails(FormId);
+        }
+
+        //var json = System.Text.Json.JsonSerializer.Serialize(_formDetails);
+        //var storeForm = BlazorForms.Forms.Definitions.JsonForms.JsonFormConverter.ToJsonForm(_formDetails);
+        //var jsonStore = System.Text.Json.JsonSerializer.Serialize(storeForm);
+
+        //_formDetails = BlazorForms.Forms.Definitions.JsonForms.JsonFormConverter.FromJsonForm(storeForm);
+
+        _model = new FieldSetModel1
+        {
+            Name = "Ali Hasan",
+            Amount = new BlazorForms.Shared.DataStructures.Money(99.95m, "CNY"),
+            Company = "Indigo PTY LTD",
+            Abn = "45 163 423 95",
+            Addresses = new List<CustAddrCount>(new CustAddrCount[] 
+            { 
+                new CustAddrCount { Phone = "1234567890", Title = "Mr", FirstName = "Ivan", LastName = "Petrov" },
+                new CustAddrCount { Phone = "0423456700", Title = "Mrs", FirstName = "Vera", LastName = "Petrova" },
+            }),
+        };
+    }
+}

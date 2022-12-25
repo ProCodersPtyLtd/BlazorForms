@@ -1,0 +1,113 @@
+﻿@page "/demoLayoutForm"
+
+@using BlazorForms.Platform.Crm.Artel
+@using BlazorForms.Platform.Crm.Domain.Models.Artel
+@using BlazorForms.Rendering.State
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.FlowRules
+@using BlazorForms.Platform
+@using BlazorForms.Rendering.Types
+@using BlazorForms.Shared
+@using BlazorForms.Rendering.Interfaces
+@using BlazorForms.Forms
+@using BlazorForms.Shared.DataStructures
+@using BlazorFormsDemoModels.Models
+@using System.Reflection
+
+@inject IFlowRunProvider _flowRunProvider
+@inject IFormViewModel _vm
+@inject NavigationManager _navigationManager
+
+<PageTitle>Layout Form Demo</PageTitle>
+
+<LayoutForm Params="_layoutForm" />
+
+
+@code {
+    [Parameter]
+    public string FormId { get; set; }
+
+    private FormDetails _formDetails;
+    private IFlowModel _model;
+    private LayoutFormParams _layoutForm;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // We load form once, and every time when parameters changed
+        await Reload();
+    }
+
+    private async Task Reload()
+    {
+        FormId = "BlazorFormsDemoFlows.Forms.FluentFormGroupedArtelProjectSettings";
+        _formDetails = await _flowRunProvider.GetFormDetails(FormId);
+        LoadData();
+
+        _vm.SetBaseUri(_navigationManager.BaseUri);
+        _vm.FormSettings.AllowAnonymousAccess = true;
+        _vm.FormSettings.AllowFlowStorage = false;
+        await _vm.ApplyFormData(_formDetails, _model);
+
+        _layoutForm = new LayoutFormParams();
+
+        var left = new LayoutFormElement
+            {
+                 Row = 1,
+                 Col = 1,
+                 RowSpan = 3,
+                 ColSpan = 5,
+                 Group = _vm.FieldsGrouped.First(g => g.Key == "Left")
+            };
+        _layoutForm.Elements.Add(left);
+
+        var right = new LayoutFormElement
+            {
+                Row = 1,
+                Col = 6,
+                RowSpan = 3,
+                ColSpan = 5,
+                Group = _vm.FieldsGrouped.First(g => g.Key == "Right")
+            };
+        _layoutForm.Elements.Add(right);
+
+        var bottom = new LayoutFormElement
+            {
+                Row = 4,
+                Col = 1,
+                RowSpan = 6,
+                ColSpan = 12,
+                Group = _vm.FieldsGrouped.First(g => g.Key == "Bottom")
+            };
+        _layoutForm.Elements.Add(bottom);
+    }
+
+    private void LoadData()
+    {
+        var model = new ArtelProjectSettingsModel();
+        _model = model;
+
+        model.Project = new ArtelProjectDetails
+            {
+                Name = "Project1",
+                BaseCurrencySearch = "USD",
+                PaymentFrequencyDay = 1,
+                DefaultSharesPaymentProportionPercent = 50m,
+                InitialSharePrice = new Money() { Amount = 100, Currency = "USD" }
+            };
+
+        model.CurrencyListRef = (new Currency[] { new Currency { ShortName = "AUD" }, new Currency { ShortName = "USD" }, new Currency { ShortName = "BTC" }, }).ToList();
+
+        model.FrequencyRef = (new FrequencyTypeDetails[] { new FrequencyTypeDetails{ Name = "Monthly", Code = "Mon"}
+                , new FrequencyTypeDetails { Name = "Fortnightly", Code = "Frn" }, new FrequencyTypeDetails{ Name = "Weekly", Code = "Wek"} }).ToList();
+
+        model.Roles = (new ArtelRoleDetails[]
+        {
+                new ArtelRoleDetails { Name = "Investor", HourlyRate = new Money{ Amount = 0, Currency = "USD"} },
+                new ArtelRoleDetails { Name = "Project manager", HourlyRate = new Money{ Amount = 100, Currency = "USD"} },
+                new ArtelRoleDetails { Name = "Business analyst", HourlyRate = new Money{ Amount = 100, Currency = "USD"} },
+                new ArtelRoleDetails { Name = "Developer", HourlyRate = new Money{ Amount = 100, Currency = "USD"} },
+                new ArtelRoleDetails { Name = "Tester", HourlyRate = new Money{ Amount = 100, Currency = "USD"} },
+                new ArtelRoleDetails { Name = "Junior", HourlyRate = new Money{ Amount = 0, Currency = "USD"} },
+        }).ToList();
+    }
+}

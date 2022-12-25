@@ -1,0 +1,13 @@
+﻿@page "/counter"
+@using BlazorForms.Rendering.Flows
+
+<BlazorFormsFlowDiagram FlowType="typeof(BlazorFormsDemoFlows.DocumentFlow)" />
+
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}

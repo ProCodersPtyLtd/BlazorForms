@@ -1,0 +1,64 @@
+﻿@page "/demoCustomForm"
+@inherits DynamicForm
+
+@using BlazorForms.Forms
+@using BlazorForms.Rendering.Interfaces
+@using BlazorForms.Rendering.MaterialBlazor.Components;
+@using BlazorForms.Rendering.State
+@using BlazorForms.Flows.Definitions
+
+@inject IFormViewModel _vm
+
+<style>
+    .pz-grid-align {
+        align-items: center;
+    }
+
+    .pz-clean-margin {
+        margin: 0px;
+    }
+
+    .pz-group-grid {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+</style>
+
+<PageTitle>Demo Custom Form</PageTitle>
+
+<CascadingValue Value="@_vm">
+    
+    <div class="mat-layout-grid" @onkeydown="@KeyPress" style="padding:0">
+    @*<div class="mat-layout-grid pz-group-grid">*@
+    <div class="mat-layout-grid-inner pz-grid-align" style="justify-items:center">
+
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12 mat-subtitle2">
+            @GetField("$.Project.Name").DisplayProperties.Caption
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+            <SimpleControl ModelChanged="@ModelChanged" ModelBinding="" Field="@GetField("$.Project.Name")" />
+        </div>
+
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12 mat-subtitle2">
+            @GetField("$.Project.BaseCurrencySearch").DisplayProperties.Caption
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+            <SimpleControl ModelChanged="@ModelChanged" ModelBinding="" Field="@GetField("$.Project.BaseCurrencySearch")" />
+        </div>
+
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12 mat-subtitle2">
+            @GetField("$.Project.PaymentFrequencyCode").DisplayProperties.Caption
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+            <SimpleControl ModelChanged="@ModelChanged" ModelBinding="" Field="@GetField("$.Project.PaymentFrequencyCode")" />
+        </div>
+
+    </div>
+    @*</div>*@
+    </div>
+</CascadingValue>
+
+
+@code {
+    public override string FlowName { get; set; } = typeof(BlazorFormsDemoFlows.FluentArtelProjectSettingsFlow).FullName;
+}
