@@ -312,6 +312,7 @@ namespace BlazorForms.Platform.Tests.FluentForms
                 e.Property(p => p.FirstName).Label("Firts Name").Filter(FieldFilterType.TextStarts);
                 e.Property(p => p.LastName).Label("Last Name").Filter(FieldFilterType.TextStarts);
                 e.Property(p => p.AddrCount);
+                e.Property(p => p.DOB).Format("d/MM/yyyy");
                 e.Property(p => p.Phone);
                 e.Property(p => p.EmailAddress);
                 e.Property(p => p.CompanyName);

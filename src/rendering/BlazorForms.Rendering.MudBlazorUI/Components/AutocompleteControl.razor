@@ -1,0 +1,119 @@
+﻿@using BlazorForms.Rendering.State
+@using MudBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+
+@inject IDynamicFieldValidator FieldValidator
+
+        <MudAutocomplete T="string" Value="@SearchText" SearchFunc="@GetOptions" Disabled="@Field.DisplayProperties.Disabled"
+                     OnInternalInputChanged=@TextChanged ValueChanged=@ValueChanged
+                     ResetValueOnEmptyText="true" CoerceText="true" CoerceValue="true" 
+                     Style="width: 100%;" Variant="FormOptions.Variant" />
+
+        <ValidatorControl Validations="@AllValidations"></ValidatorControl>
+
+@code {
+    [CascadingParameter]
+    public FormOptions FormOptions { get; set; }
+
+    [CascadingParameter]
+    public IFormViewModel ViewModel { get; set; }
+
+    [Parameter]
+    public int RowIndex { get; set; }
+
+    [Parameter]
+    public FieldControlDetails Field { get; set; }
+    [Parameter]
+    public string Caption { get; set; }
+    [Parameter]
+    public string Name { get; set; }
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    [Parameter]
+    public string TextValue { get; set; }
+
+    [Parameter]
+    public string ItemsBinding { get; set; }
+    [Parameter]
+    public string NameBinding { get; set; }
+
+    [Parameter]
+    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    [Parameter]
+    public bool Password { get; set; }
+
+    //public MatList ListRef;
+
+    private bool IsOpened;
+    private string SearchText;
+
+    private string MyId
+    {
+        get
+        {
+            return $"{Field.Group}-{Field.Name}-{Field.Caption}-{RowIndex}";
+        }
+    }
+
+    private async Task<IEnumerable<string>> GetOptions(string pattern)
+    {
+        var options = ViewModel.FieldGetItemsValue(ViewModel.ModelUntyped, ItemsBinding)
+            .Select(item => ViewModel.PathNavi.GetValue(item, NameBinding) as string)
+            .Where(item => item.Contains(pattern ?? ""));
+
+        return options;
+    }
+
+    private RuleExecutionResult _localValidation;
+    private IEnumerable<RuleExecutionResult> AllValidations { get { return FieldValidator.PrepareValidations(Validations, _localValidation); } }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        SearchText = TextValue;   
+    }
+
+    void OpenPopup()
+    {
+        IsOpened = true;
+        StateHasChanged();
+    }
+
+    void ClosePopup()
+    {
+        IsOpened = false;
+        StateHasChanged();
+    }
+
+    void TextChanged(ChangeEventArgs ev)
+    {
+        //If text changed - clear binding value, as we choose it from dropdown list
+        //Only update searching list
+
+        var val = (string)ev.Value;
+        if (TextValue == val)
+        {
+            return;
+        }
+
+        TextValue = val;
+        if (TextValue == "")
+        {
+            _localValidation = FieldValidator.Validate(Field, val);
+            ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = TextValue, RowIndex = RowIndex });
+        }
+        StateHasChanged();
+    }
+
+    void ValueChanged(string val)
+    {
+        SearchText = val;
+
+        _localValidation = FieldValidator.Validate(Field, val);
+        ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = val, RowIndex = RowIndex });
+        StateHasChanged();
+    }
+}

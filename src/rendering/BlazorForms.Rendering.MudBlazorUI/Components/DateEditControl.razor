@@ -1,0 +1,103 @@
+﻿@using BlazorForms.Rendering.State
+@using MudBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+@using System.Globalization
+@using Microsoft.JSInterop
+
+@inject IClientDateService ClientDateService
+@inject IDynamicFieldValidator FieldValidator
+@inject IJSRuntime JS
+
+<MudDatePicker Editable=true Date=@_localDateValue Disabled=@Field.DisplayProperties.Disabled
+                DateFormat=@_dateFormat 
+               DateChanged=@ValueChanged Style="width: 100%;" Variant=FormOptions.Variant/>
+
+<ValidatorControl Validations="@AllValidations"/>
+
+@code {
+    [CascadingParameter]
+    public FormOptions FormOptions { get; set; }
+
+    [Parameter]
+    public int RowIndex { get; set; }
+
+    [Parameter]
+    public string Caption { get; set; }
+
+    [Parameter]
+    public FieldControlDetails Field { get; set; }
+
+    [Parameter]
+    public string Name { get; set; }
+
+    //[Parameter]
+    //public string ModelBinding { get; set; }
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    [Parameter]
+    public bool AllowInput { get; set; } = true;
+
+    [Parameter]
+    public DateTime? DateValue { get; set; }
+
+    [Parameter]
+    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    private DateTime? _localDateValue;
+    private string _dateFormat = CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern;
+    private DateMask _mask;
+    private IEnumerable<RuleExecutionResult> AllValidations { get { return FieldValidator.PrepareValidations(Validations, _localValidation); } }
+    private RuleExecutionResult _localValidation;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(Field.DisplayProperties.Format))
+        {
+            _dateFormat = Field.DisplayProperties.Format;
+        }
+        else if (!string.IsNullOrEmpty(FormOptions.DateFormat))
+        {
+            _dateFormat = FormOptions.DateFormat;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+
+    // if we receive UTC date we have to convert it to local datetime (in other case we can show date-1)
+    // when it is converted first time the date becomes local in control and in Model and we don't need to convert it here anymore
+    // however when Model is saved to database all dates must be converted to UTC - it is a responcibility of a data access developer
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (DateValue != null && DateValue.Value.Kind == DateTimeKind.Utc)
+            {
+                _localDateValue = await ClientDateService.GetLocalDateTime(DateValue);
+                StateHasChanged();
+            }
+            else
+            {
+                _localDateValue = DateValue;
+                StateHasChanged();
+            }
+        }
+    }
+
+    async Task ValueChanged(DateTime? val)
+    {
+        _localDateValue = val;
+        _localValidation = FieldValidator.Validate(Field, val);
+        await ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = val, RowIndex = RowIndex });
+    }
+
+    protected async Task Log(string text)
+    {
+        await JS.InvokeAsync<string>("console.log", text);
+    }
+}

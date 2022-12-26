@@ -23,19 +23,19 @@ namespace BlazorFormsDemoFlows
 
             f.Property(p => p.Project.Name).IsRequired();
 
-            f.Property(p => p.Project.StartDate);
+            f.Property(p => p.Project.StartDate).IsRequired();
 
             f.Property(p => p.Project.BaseCurrencySearch).EditWithOptions(e => e.CurrencyListRef, m => m.ShortName)
-                .Label("Base Currency").Control(typeof(Autocomplete)).Rule(typeof(CurrencyEntered));
+                .IsRequired().Label("Base Currency").Control(typeof(Autocomplete)).Rule(typeof(CurrencyEntered));
 
-            f.Property(p => p.Project.InitialSharePrice).Label("Initial Share Price").Control(typeof(MoneyEdit));
-            f.Property(p => p.Project.DefaultSharesPaymentProportionPercent).Label("Default Shares/Money Payment Proportion").Control(typeof(PercentEdit));
+            f.Property(p => p.Project.InitialSharePrice).IsRequired().Label("Initial Share Price").Control(typeof(MoneyEdit));
+            f.Property(p => p.Project.DefaultSharesPaymentProportionPercent).IsRequired().Label("Default Shares/Money Payment Proportion").Control(typeof(PercentEdit));
 
-            f.Property(p => p.Project.PaymentFrequencyCode).Dropdown(p => p.FrequencyRef, m => m.Code, m => m.Name);
+            f.Property(p => p.Project.PaymentFrequencyCode).IsRequired().Dropdown(p => p.FrequencyRef, m => m.Code, m => m.Name);
             f.Property(p => p.Project.PaymentFrequencyDay).Label("Day of Month").Control(typeof(TextEdit));
             f.Property(p => p.Project.PaymentNotification).Label("Notify on Payment Sent");
 
-            f.Property(p => p.Project.RoadmapAttached).Label("Roadmap Attached").Control(typeof(FileUpload));
+            f.Property(p => p.Project.RoadmapFile).Label("Roadmap Attached").Control(typeof(FileUpload));
 
             f.Repeater(t => t.Roles, e =>
             {
@@ -115,7 +115,8 @@ namespace BlazorFormsDemoFlows
         {
             Model.Project = new ArtelProjectDetails
             {
-                Name = "Project1",
+                //Name = "Project1",
+                StartDate= DateTime.Now.Date.ToUniversalTime(),
                 BaseCurrencySearch = "USD",
                 PaymentFrequencyDay = 1,
                 DefaultSharesPaymentProportionPercent = 50m,
@@ -140,6 +141,7 @@ namespace BlazorFormsDemoFlows
 
         private async Task SaveAsync()
         {
+            var isUtc = Model.Project.StartDate.Value.Kind == DateTimeKind.Utc;
             Model.Message = "Form submitted successfully.";
         }
     }

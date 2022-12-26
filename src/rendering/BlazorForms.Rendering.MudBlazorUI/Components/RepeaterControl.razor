@@ -1,0 +1,278 @@
+﻿@using BlazorForms.Rendering.State
+@using MudBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Platform
+@using BlazorForms.Shared
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.Rendering.Interfaces
+
+@inject IReflectionProvider _reflectionProvider
+@inject ISnackbar Snackbar
+@inject NavigationManager _NavigationManager
+
+<style>
+    .jsgrid-grid-header {
+        text-align: center;
+        border-collapse: collapse;
+        background: #ebebeb;
+    }
+
+    .repeater-table>:not(caption)>*>* {
+        padding: 0.01rem 0.1rem !important;
+        border-bottom-width: 0px !important;
+    }
+
+    .pz-add-button {
+        margin-left: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .pz-ref-button {
+        margin-left: 1rem;
+        margin-top: 0.5rem;
+        width: auto;
+    }
+
+    .comments-col {
+        width: inherit;
+    }
+
+    .custom-col {
+        width: 15%;        
+    }
+
+    .table{
+        width: 100%;
+    }
+</style>
+
+@if (Columns != null)
+{
+    <table mat-table class="table repeater-table">
+        @*Render header*@
+
+        @if (@Table.Binding.TableBinding == "$.Timesheet.Records")
+        {
+            <tr class="jsgrid-grid-header">
+                @foreach (var col in Columns)
+                {
+                    @if (col?.ControlType == "Repeater" || col?.DisplayProperties?.Visible == false)
+                    {
+                        continue;
+                    }
+
+                    @if (@col?.Binding.Binding == "$.Comments")
+                    {
+                        <th class="comments-col">@col?.DisplayProperties?.Caption</th>
+                    }
+                    else
+                    {
+                        <th class="custom-col">@col?.DisplayProperties?.Caption</th>
+                    }
+                }
+            </tr>
+        }
+        else
+        {
+            <tr class="jsgrid-grid-header">
+                @foreach (var col in Columns)
+                {
+                    @if (col?.ControlType == "Repeater" || col?.DisplayProperties?.Visible == false)
+                    {
+                        continue;
+                    }
+                    <th>@col?.DisplayProperties?.Caption</th>
+                }
+            </tr>
+        }
+
+        @*Render Body*@
+        @if (GetListData() != null)
+        {
+            @for (int i = 0; i < ListData.Count(); i++)
+            {
+                var row = i;
+                <tr class="jsgrid-row-item">
+
+                    @foreach (var col in Columns)
+                    {
+                        <td>
+                            <SimpleControl ModelChanged="@ModelChanged" ModelBinding="" Field="@GetField(row, col)" RowIndex="@row" />
+                        </td>
+                    }
+
+                    @if (RepeaterParameters?.IsFixedList == true)
+                    {
+                    }
+                    else
+                    {
+                        @if (RepeaterParameters?.IsLineEditing == true)
+                        {
+                            <td>
+                                <MudIconButton Icon="@Icons.Material.TwoTone.Create" OnClick="@(async (args) => await EditClick(args, @row))"></MudIconButton>
+                            </td>
+                        }
+
+                        <td>
+                            <MudIconButton Icon="@Icons.Material.TwoTone.DeleteForever" OnClick="@(async (args) => await DelClick(args, @row))"></MudIconButton>
+                        </td>
+                    }
+                </tr>
+            }
+        }
+    </table>
+
+    @if (RepeaterParameters?.IsFixedList == true)
+    {
+    }
+    else
+    {
+        <MudButton Variant="Variant.Filled" OnClick="@AddClick" Class="pz-add-button">Add</MudButton>
+    }    
+}
+
+@code {
+    [CascadingParameter]
+    public IFormViewModel ViewModel { get; set; }
+
+    [Parameter]
+    public FieldControlDetails Table { get; set; }
+    [Parameter]
+    public string Caption { get; set; }
+    [Parameter]
+    public IEnumerable<FieldControlDetails> Columns { get; set; }
+
+    [Parameter]
+    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    private RepeaterParameters RepeaterParameters { get; set; }
+
+    private bool _isModelChanged { get; set; }
+
+    private int _newRow { get; set; } = -1;
+
+    private int _rowIndex;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Table.Binding.Parameters == null)
+        {
+            RepeaterParameters = new RepeaterParameters();
+        }
+        else
+        { 
+            RepeaterParameters = Table.Binding.Parameters as BlazorForms.Flows.Definitions.RepeaterParameters;
+        }
+    }
+
+    private async Task ModelChanged(ValueChangedArgs args)
+    {
+        _isModelChanged = true;
+        ViewModel.ModelNaviSetValue(Table.Binding.TableBinding, args.RowIndex, args.Binding.Binding, args.NewValue);
+
+        try
+        {
+            var task = await ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, args.Binding, rowIndex: args.RowIndex);
+            ViewModel.CheckUniqueValidationRules(Table.Binding.TableBinding);
+            StateHasChanged();
+
+            await ModelValueChanged.InvokeAsync(new ValueChangedArgs { Operation = ModelChangedOperation.Refresh });
+        }
+        catch (Exception exc)
+        {
+            ViewModel.PopulateException(exc);
+            await ShowPopup();
+        }
+    }
+
+    private IEnumerable<object> ListData;
+
+    private IEnumerable<object> GetListData()
+    {
+        if (ViewModel.ModelUntyped == null)
+        {
+            return null;
+        }
+
+        ListData = ViewModel.FieldGetItemsValue(ViewModel.ModelUntyped, Table.Binding.TableBinding);
+        return ListData;
+    }
+
+    private FieldControlDetails GetField(int row, FieldControlDetails col)
+    {
+        var field = ViewModel.GetRowField(col, row);
+
+        if (RepeaterParameters.IsLineEditing)
+        {
+            field.DisplayProperties.Disabled = row == RepeaterParameters.CurrentRow ? false : true;
+        }
+        return field;
+    }
+
+    private async Task AddClick()
+    {
+        var itemType = ListData.GetType().GetGenericArguments()[0];
+        var newItem = Activator.CreateInstance(itemType);
+        var list = ListData as System.Collections.IList;
+        list.Add(newItem);
+        RepeaterParameters.CurrentRow = list.Count - 1;
+        _newRow = (int)RepeaterParameters.CurrentRow;
+
+        // register fields for new row
+        foreach (var col in Columns)
+        {
+            GetField(list.Count - 1, col);
+        }
+
+        // trigger rule after rendering (new fields should be created by GetField())
+        var task = await ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, Table.Binding, FormRuleTriggers.ItemAdded, list.Count - 1);
+        StateHasChanged();
+    }
+
+    private async Task DelClick(MouseEventArgs args, int rowIndex)
+    {
+        _rowIndex = rowIndex;
+        _isModelChanged = _newRow > -1 ? false : true;
+        _newRow = -1;
+
+        // trigger ItemDeleting rule
+        var task = await ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, Table.Binding, FormRuleTriggers.ItemDeleting, rowIndex);
+
+        var list = ListData as System.Collections.IList;
+        list.RemoveAt(_rowIndex);
+        RepeaterParameters.CurrentRow = null;
+
+        // refresh row fields
+        ViewModel.ClearRowFields();
+
+        for (int i = 0; i < list.Count; i++)
+        {
+            foreach (var col in Columns)
+            {
+                GetField(i, col);
+            }
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task EditClick(MouseEventArgs args, int rowIndex)
+    {
+        RepeaterParameters.CurrentRow = rowIndex;
+        var task = await ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, Table.Binding, FormRuleTriggers.ItemChanged, rowIndex);
+        StateHasChanged();
+    }
+
+    public async Task ShowPopup()
+    {
+        if (ViewModel.ExceptionType != null && ViewModel.ExceptionType != typeof(FlowStopException).Name)
+        {
+            Snackbar.Add("Operation failed. Please notify BlazorForms Support", Severity.Error);
+            await ViewModel.SaveException();
+        }
+    }
+}

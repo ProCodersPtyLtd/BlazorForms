@@ -1,0 +1,15 @@
+﻿@using MudBlazor
+@namespace BlazorForms.Rendering.MudBlazorUI.Components
+
+<MudText Typo="Typo.h6">@Caption</MudText>
+<MudSpacer />
+<MudTextField T="string" ValueChanged=@OnSearch Placeholder="Search" Adornment="Adornment.Start"
+                AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+
+@code {
+    [Parameter]
+    public string Caption { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnSearch { get; set; }
+}

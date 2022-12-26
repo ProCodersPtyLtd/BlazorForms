@@ -1,0 +1,98 @@
+﻿@using BlazorForms.Rendering.State
+@using BlazorForms.Shared.DataStructures;
+@using Microsoft.AspNetCore.Components.Forms;
+@using MudBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+@using System
+@using System.IO
+
+@inject IDynamicFieldValidator FieldValidator
+
+<MudStack Style="width: 100%">
+    <MudFileUpload T="IReadOnlyList<IBrowserFile>" OnFilesChanged="OnInputFileChanged" Hidden="false" Class="flex-1" InputClass="absolute mud-width-full mud-height-full overflow-hidden z-20" InputStyle="opacity:0"
+                   @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
+        <ButtonTemplate>
+            <MudPaper Height="100px" Outlined="true" Class="@DragClass">
+                <MudText Typo="Typo.h6">Drag and drop files here or click</MudText>
+                @foreach (var file in _fileNames)
+                {
+                    <MudChip Color="Color.Dark" Text="@file" />
+                }
+            </MudPaper>
+        </ButtonTemplate>
+    </MudFileUpload>
+   
+</MudStack>
+
+<ValidatorControl Validations="@AllValidations"></ValidatorControl>
+
+@code {
+    [Parameter]
+    public int RowIndex { get; set; }
+
+    [Parameter]
+    public FieldControlDetails Field { get; set; }
+
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    [Parameter]
+    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    private List<string> _fileNames = new List<string>();
+    private static string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full z-10";
+    private string DragClass = DefaultDragClass;
+
+    private string MyId
+    {
+        get
+        {
+            return $"{Field.Group}-{Field.Name}-{Field.Caption}-{RowIndex}";
+        }
+    }
+
+    private RuleExecutionResult _localValidation;
+    private IEnumerable<RuleExecutionResult> AllValidations {  get { return FieldValidator.PrepareValidations(Validations, _localValidation); } }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    private void SetDragClass()
+    {
+        DragClass = $"{DefaultDragClass} mud-border-primary";
+    }
+
+    private void ClearDragClass()
+    {
+        DragClass = DefaultDragClass;
+    }
+
+    private async Task OnInputFileChanged(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            var files = e.GetMultipleFiles();
+
+            foreach (var file in files)
+            {
+                _fileNames.Add(file.Name);
+
+                using (var stream = new MemoryStream())
+                {
+                    await file.OpenReadStream().CopyToAsync(stream);
+                    var fileDetails = new FileDetails { Name = file.Name, Content = stream.ToArray() };
+
+                    await ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = fileDetails, RowIndex = RowIndex });
+                }
+            }
+        }
+
+        catch (Exception exc)
+        {
+            _fileNames.Add($"Error:\r\n{exc.Message}\r\n{exc.StackTrace}");
+        }
+    }
+}

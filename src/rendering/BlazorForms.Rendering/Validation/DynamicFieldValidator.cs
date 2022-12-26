@@ -40,11 +40,18 @@ namespace BlazorForms.Rendering.Validation
                 {
                     case "TextEdit":
                     case "DropDown":
+                    case "Autocomplete":
                         failed = string.IsNullOrWhiteSpace(Convert.ToString(value));
                         break;
                     case "DateEdit":
                         failed = value == null;
                         break;
+                }
+
+                // ToDo: remove this hardcode during validation refactoring
+                if (field.ControlType == "DropDown" && value.ToString() == "0")
+                {
+                    failed = true;
                 }
 
                 if(failed)

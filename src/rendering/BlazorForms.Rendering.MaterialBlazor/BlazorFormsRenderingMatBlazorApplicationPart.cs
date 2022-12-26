@@ -21,13 +21,14 @@ namespace BlazorForms.Rendering
 
         public void Register(RegistrationContext context)
         {
+            context.ServiceCollection.AddScoped<IClientBrowserService, MaterialClientBrowserService>();
+            context.ServiceCollection.AddScoped<IClientDateService, ClientDateService>();
+
             // register assemblies
             var asms = AssemblyHelper.GetAssemblies("BlazorForms.Rendering.dll").Where(a => a.GetName().Name.StartsWith("BlazorForms.Rendering") && !a.GetName().Name.StartsWith("MatBlazor")); ;
             context.RegisteredAssemblies.AddRange(asms);
 
             // KnownTypes
-            context.ServiceCollection.AddScoped<IClientBrowserService, MaterialClientBrowserService>();
-            context.ServiceCollection.AddScoped<IClientDateService, ClientDateService>();
         }
     }
 }

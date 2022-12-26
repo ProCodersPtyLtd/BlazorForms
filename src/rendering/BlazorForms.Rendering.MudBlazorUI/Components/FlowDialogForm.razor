@@ -20,6 +20,8 @@
     }
 </style>
 
+<CascadingValue Value=FormOptions>
+
 @if (DialogViewModel.FormData != null && DialogViewModel.ItemId != null)
 {
     <div @onkeydown="@KeyPress">
@@ -27,38 +29,40 @@
         <TitleContent>@DialogViewModel.FormData.DisplayName</TitleContent>
         <DialogContent>
 
-            <MudTextField T="string" Label="Name"></MudTextField>
-
             <CascadingValue Value="@(DialogViewModel as IFormViewModel)">
                 <FormContent ModelValueChanged=@ModelActionChanged />
             </CascadingValue>
 
         </DialogContent>
         <DialogActions>
-            <div class="mat-layout-grid" style="display:flex">
-                <div class="mat-layout-grid-inner pz-dilaog-grid-align">
-                    <div class="mat-layout-grid-cell">
-                        <MudButton Variant="Variant.Filled" OnClick="@CancelClick" Disabled="@_formLocked">Cancel</MudButton>
-                    </div>
+            <div class="d-flex flex-row flex-grow-1 gap-2 justify-end pz-dialog-content">
+                <div class="d-inline-flex">
+                    <MudButton Variant="Variant.Filled" OnClick="@CancelClick" Disabled="@_formLocked">Cancel</MudButton>
+                </div>
 
-                    @if (ValidateButton)
-                    {
-                        <div class="mat-layout-grid-cell">
-                            <MudButton Variant="Variant.Filled" OnClick="@ValidateClick" Disabled="@_formLocked">Validate</MudButton>
-                        </div>
-                    }
-
-                    <div class="mat-layout-grid-cell">
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@SubmitClick" Disabled="@_formLocked">@DialogViewModel.SubmitActionName</MudButton>
+                @if (ValidateButton)
+                {
+                    <div class="d-inline-flex">
+                        <MudButton Variant="Variant.Filled" OnClick="@ValidateClick" Disabled="@_formLocked">Validate</MudButton>
                     </div>
+                }
+
+                <div class="d-inline-flex">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@SubmitClick" Disabled="@_formLocked">@DialogViewModel.SubmitActionName</MudButton>
                 </div>
             </div>
         </DialogActions>
     </MudDialog>
     </div>
 }
+</CascadingValue>
 
 @code {
+    [Parameter]
+    public EditFormOptions Options { get; set; } = new EditFormOptions();
+
+    protected FormOptions FormOptions { get { return Options; } }
+
     [CascadingParameter] 
     MudDialogInstance MudDialog { get; set; }
 
@@ -76,9 +80,6 @@
 
     [Parameter]
     public EventCallback<FormSubmittedArgs> FormSubmitted { get; set; }
-
-    [Parameter]
-    public object FormSubmittedObj { get; set; }
 
     [Parameter]
     public bool ValidateButton { get; set; }
@@ -150,14 +151,10 @@
                 await DialogViewModel.SubmitDialog();
             });
 
-            if (FormSubmittedObj != null)
-            {
-                var callback = (EventCallback<FormSubmittedArgs>)FormSubmittedObj;
-                await callback.InvokeAsync(new FormSubmittedArgs { Context = null });
-            }
-            else
+            if (!DialogViewModel.DialogIsOpen)
             {
                 await FormSubmitted.InvokeAsync(new FormSubmittedArgs { Context = null });
+                CloseDialog();
             }
         }
         catch (Exception exc)
@@ -168,7 +165,6 @@
         finally
         {
             _formLocked = false;
-            CloseDialog();
             StateHasChanged();
         }
     }

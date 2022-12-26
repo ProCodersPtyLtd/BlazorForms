@@ -37,69 +37,90 @@
 
 </style>
 
-<MudThemeProvider />
-<MudDialogProvider />
-<MudSnackbarProvider />
-
-<CascadingValue Value="@ViewModel">
-
-@if (loading)
+@if (!Options.MudBlazorProvidersDefined)
 {
-        <MudProgressLinear Indeterminate="@FormLocked" Color="Color.Primary" Style="min-width:50%;" />
+    <MudThemeProvider />
+    <MudDialogProvider />
+    <MudSnackbarProvider />
 }
-else if (ViewModel.ListData != null)
-{
-    <MudTable Items="@GetListData()">
+
+<CascadingValue Value=FormOptions>
+<CascadingValue Value=ViewModel>
+
+  
+    <MudTable T="string[]" Items=ItemsData Hover="true" Breakpoint="Breakpoint.Sm" Dense="true" @ref="TableRef"
+                ToolBarContent=ToolBar PagerContent=Pager ServerData=GetServerDataDelegate()
+                OnRowClick="@(async (args) => await @RowClickEvent(args))" Height=@GetHeight()
+                Virtualize=@(Options.DataOptimization == DataOptimization.Virtualization) 
+                FixedHeader=@(Options.DataOptimization == DataOptimization.Virtualization)>
+
         <HeaderContent>
-            @foreach (var c in ViewModel.VisibleColumns!)
+            @if (ViewModel.VisibleColumns != null)
             {
-                    var col = c;
-                    <MudTh>@col?.DisplayProperties?.Caption</MudTh>
-            }
-            
-            @if (ViewModel.ContextMenuActions != null)
-            {
-                    <MudTh>Actions</MudTh>
-            }
-
-        </HeaderContent>
-        <RowTemplate>
-            @if (ViewModel.ListData.Length > 0)
-            {
-                <MudTd hidden="hidden">@context[0]</MudTd>
-
-                @for (int i = 0; i < ViewModel.VisibleColumns.Count; i++)
+                @foreach (var c in ViewModel.VisibleColumns!)
                 {
-                        var ind = i;
-
-                        <MudTd style="white-space: pre;" @onclick="@(e => RowOnClick(context[0]))">@context[ind + 1]</MudTd>
+                        var col = c;
+                        <MudTh>
+                            @if (Options.ShowSorting)
+                            {
+                                <MudTableSortLabel SortLabel="@c.Name" T="string[]">@col?.DisplayProperties?.Caption</MudTableSortLabel>
+                            }
+                            else
+                            {
+                                @col?.DisplayProperties?.Caption
+                            }
+                        </MudTh>
                 }
-
-                @*Context Menu*@
-                @*@if (ViewModel.ContextMenuActions != null)
+            
+                @if (ViewModel.ContextMenuActions != null)
                 {
-                    <DynamicListFormRowContextMenu Pk="@context[0]"
-                                        Actions="@ViewModel.ContextMenuActions" OnContextMenuItemClick="@(async args => await ContextMenuItemClick(args.Pk, args.Action))" />
-                }*@
+                        <MudTh>Actions</MudTh>
+                }
             }
             else
             {
-                <MudTd colspan="@ViewModel?.Columns?.Count" Class="pz-no-records-text"><MudText Typo="Typo.body2">No Records</MudText></MudTd>
+                <MudTh></MudTh>
             }
-        </RowTemplate>
-        @*<FooterContent>
-            @if (ViewModel.ListData.Length == 0)
+
+        </HeaderContent>
+
+        <RowTemplate>
+            @if (ViewModel.VisibleColumns != null)
             {
-                <MudTFootRow>
-                    <MudTd colspan="@ViewModel?.Columns?.Count"><MudText Typo="Typo.body2">No Records</MudText></MudTd>
-                </MudTFootRow>
+                @if (ViewModel.ListData.Length > 0)
+                {
+                    <MudTd hidden="hidden">@context[0]</MudTd>
+
+                    @for (int i = 0; i < ViewModel.VisibleColumns.Count; i++)
+                    {
+                        var ind = i;
+                        <MudTd style="white-space: pre;">@context[ind + 1]</MudTd>
+                    }
+
+                    @*Context Menu*@
+                    @if (ViewModel.ContextMenuActions != null)
+                    {
+                        <MudTd style="white-space: pre;">
+                            <ListFormRowContextMenu Pk="@context[0]" OnContextMenuItemClick="@(async args => await ContextMenuItemClick(args.Pk, args.Action))" />
+                        </MudTd>
+                    }
+
+                }
+                else
+                {
+                    <MudTd colspan="@ViewModel?.Columns?.Count" Class="pz-no-records-text"><MudText Typo="Typo.body2">No Records</MudText></MudTd>
+                }
+
             }
-        </FooterContent>*@
-        <PagerContent>
-            <MudTablePager PageSizeOptions="@(new int[] { 10, 50, 100 })"></MudTablePager>
-        </PagerContent>
+            else
+            {
+                <MudTd></MudTd>
+            }
+            </RowTemplate>
+
     </MudTable>
-}
+    
+
     @*Ref Buttons*@
     @if (ViewModel.ReferenceButtonActions != null && ViewModel.ReferenceButtonActions.Count > 0)
     {
@@ -114,16 +135,19 @@ else if (ViewModel.ListData != null)
     }
 
 </CascadingValue>
+</CascadingValue>
 
 @code {
     [Parameter]
+    public ListFormOptions Options { get; set; } = new ListFormOptions();
+
+    protected FormOptions FormOptions { get { return Options; } }
+
+    [Parameter]
+    public EditFormOptions EditFormOptions { get; set; } = new EditFormOptions();
+
+    [Parameter]
     public string FlowType { get; set; }
-
-    [Parameter]
-    public bool AllowAnonymousAccess { get; set; }
-
-    [Parameter]
-    public bool AllowFlowStorage { get; set; }
 
     [Parameter]
     public string PK { get; set; }
@@ -134,38 +158,36 @@ else if (ViewModel.ListData != null)
     [Parameter]
     public FlowParamsGeneric FlowParams { get; set; }
 
-    [Parameter]
-    public bool ShowFilters { get; set; }
+    private IEnumerable<string[]> ItemsData { get; set; }
+    private RenderFragment ToolBar { get; set; }
+    private RenderFragment Pager { get; set; }
 
-    [Parameter]
-    public bool ShowSorting { get; set; }
-
-    [Parameter]
-    public bool SupressExceptions { get; set; }
-
+    private MudTable<string[]>? TableRef;
+    private string _searchString;
     private IEnumerable<FormDetails> _fields;
-
-    private bool loading = true;
     private bool FormLocked = false;
     string DialogPk = null;
-
-    //BaseMatIconButton MainMenuButton;
-    //BaseMatMenu MainMenu;
-
+ 
     protected override async Task OnParametersSetAsync()
     {
-        // We load form once, and every time when parameters changed
-        await Reload();
-        await base.OnParametersSetAsync();
-    }
+        // Clear Items
+        ItemsData = new List<string[]>();
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
+        // update custom rendering ToolBar, Pagination
+        RefreshCustomContent();
+
+        // We load form once, and every time when parameters changed
+        if (Options.UseReloadServerData())
         {
+            TableRef?.ReloadServerData();
+        }
+        else
+        {
+            await Reload();
+            ItemsData = GetListData();
         }
 
-        await base.OnAfterRenderAsync(firstRender);
+        StateHasChanged();
     }
 
     private async Task Reload()
@@ -174,10 +196,11 @@ else if (ViewModel.ListData != null)
         {
             var flowParams = FlowParams ?? new FlowParamsGeneric();
             flowParams.ItemId = ParentItemPk;
+            ViewModel.QueryOptions.AllowPagination = Options.DataOptimization == DataOptimization.ServerPagination;
+            ViewModel.QueryOptions.AllowSort = Options.ShowSorting;
 
             await ViewModel.LoadListForm(FlowType, PK, flowParams, true);
 
-            loading = false;
             StateHasChanged();
         }
         catch (Exception exc)
@@ -187,6 +210,87 @@ else if (ViewModel.ListData != null)
         }
     }
 
+    private async Task<TableData<string[]>> ServerReload(TableState state)
+    {
+        ViewModel.QueryOptions.SearchString = _searchString;
+        ViewModel.QueryOptions.PageIndex = state.Page;
+        ViewModel.QueryOptions.PageSize = state.PageSize;
+        ViewModel.QueryOptions.SortColumn = state.SortLabel;
+        ViewModel.QueryOptions.SortDirection = (BlazorForms.Shared.SortDirection)state.SortDirection;
+
+        await Reload();
+        var result = new TableData<string[]> { Items = GetListData(), TotalItems = ViewModel.QueryOptions.PageReturnTotalCount };
+        return result;
+    }
+
+    Func<TableState, Task<TableData<string[]>>> GetServerDataDelegate()
+    {
+        return Options.UseReloadServerData() ? new Func<TableState, Task<TableData<string[]>>>(ServerReload) : null;
+    }
+
+    //Action<IEnumerable<string[]>> GetItemsDelegate()
+    //{
+    //    return Options.ServerSideDataOptimization ? null : new Action<IEnumerable<string[]>>(GetListData);
+    //}
+
+    void RefreshCustomContent()
+    {
+        if (Options.ShowSearch)
+        {
+            ToolBar = (builder) =>
+            {
+                builder.OpenComponent(0, typeof(ToolBarFragment));
+                builder.AddAttribute(1, "Caption", Options.ToolBarCaption);
+                builder.AddAttribute(2, "OnSearch", new EventCallback<string>(this, OnSearch));
+                builder.CloseComponent();
+            };
+        }
+        else
+        {
+            ToolBar = null;
+        }
+
+        if (Options.DataOptimization == DataOptimization.ServerPagination) //Options.DataOptimization == DataOptimization.VirtualPagination || 
+        {
+            Pager = (builder) =>
+            {
+                builder.OpenComponent(0, typeof(MudTablePager));
+                builder.AddAttribute(0, "PageSizeOptions", Options.PageSizeOptions);
+                builder.CloseComponent();
+            };
+        }
+        else
+        {
+            Pager = null;
+        }
+
+        StateHasChanged();
+    }
+
+    private string GetHeight()
+    {
+        if (Options.DataOptimization == DataOptimization.Virtualization)
+        {
+            return "680px";
+        }
+        else
+        {
+            return "";
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {        
+    }
+
+    
     //private async Task MainMenuClick()
     //{
     //    try
@@ -224,13 +328,6 @@ else if (ViewModel.ListData != null)
             var flowAction = ViewModel.ReferenceButtonActionsDictionary[action];
             if (flowAction.Operation == FlowReferenceOperation.DialogForm)
             {
-                var options = new DialogOptions { CloseOnEscapeKey = true };
-                var dialogParameters = new DialogParameters();
-                dialogParameters["DialogViewModel"] = DialogVM;
-                dialogParameters["FormSubmitted"] = new EventCallback<FormSubmittedArgs>(this, DialogFormSubmitted);
-                dialogParameters["AllowAnonymousAccess"] = AllowAnonymousAccess;
-                dialogParameters["AllowFlowStorage"] = AllowFlowStorage;
-
                 var flowParams = FlowParams ?? new FlowParamsGeneric();
                 flowParams.ItemId = "";
                 flowParams.Operation = flowAction.Operation;
@@ -242,7 +339,7 @@ else if (ViewModel.ListData != null)
                     await DialogVM.LoadDialog(flowAction.FlowFullName, flowParams);
                 });
 
-                DialogService.Show<FlowDialogForm>(null, dialogParameters, options);
+                ShowDialog();
             }
             else if (flowAction.IsNavigation)
             {
@@ -266,9 +363,22 @@ else if (ViewModel.ListData != null)
         }
     }
 
+    private void ShowDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var dialogParameters = new DialogParameters();
+        dialogParameters["DialogViewModel"] = DialogVM;
+        dialogParameters["FormSubmitted"] = new EventCallback<FormSubmittedArgs>(this, DialogFormSubmitted);
+        dialogParameters["AllowAnonymousAccess"] = Options.AllowAnonymousAccess;
+        dialogParameters["AllowFlowStorage"] = Options.AllowFlowStorage;
+        dialogParameters["Options"] = EditFormOptions;
+        DialogService.Show<FlowDialogForm>(null, dialogParameters, options);
+    }
+
     private string[][] GetListData()
     {
-        return ViewModel.ListData.Length > 0 ? ViewModel.ListData : new string[1][] { Enumerable.Range(0, ViewModel.Columns.Count).Select(i => string.Empty).ToArray() };
+        //return ViewModel.ListData?.Length > 0 ? ViewModel.ListData : new string[1][] { Enumerable.Range(0, ViewModel.Columns.Count).Select(i => string.Empty).ToArray() };
+        return ViewModel.ListData;
     }
 
     private async Task ContextMenuItemClick(string pk, string action)
@@ -322,6 +432,8 @@ else if (ViewModel.ListData != null)
                         await DialogVM.LoadDialog(flowAction.FlowFullName, flowParams);
                     });
 
+                    ShowDialog();
+
                     var warnings = DialogVM.Validations.Where(v => v.ValidationResult == RuleValidationResult.Error).ToList();
 
                     if (warnings.Count > 0)
@@ -341,6 +453,11 @@ else if (ViewModel.ListData != null)
             ViewModel.PopulateException(exc);
             await ShowPopup();
         }
+    }
+
+    private async Task RowClickEvent(TableRowClickEventArgs<string[]> args)
+    {
+        await RowOnClick(args.Item[0]);
     }
 
     private async Task RowOnClick(string pk)
@@ -371,6 +488,8 @@ else if (ViewModel.ListData != null)
 
                             await DialogVM.LoadDialog(flowAction.FlowFullName, flowParams);
                         });
+
+                        ShowDialog();
                     }
 
                     StateHasChanged();
@@ -402,7 +521,7 @@ else if (ViewModel.ListData != null)
 
     public async Task ShowPopup()
     {
-        if (!SupressExceptions && ViewModel.ExceptionType != null && ViewModel.ExceptionType != typeof(FlowStopException).Name)
+        if (!Options.SupressExceptions && ViewModel.ExceptionType != null && ViewModel.ExceptionType != typeof(FlowStopException).Name)
         {
             Snackbar.Add($"Operation failed. {ViewModel.ExceptionMessage}", Severity.Error);
         }
@@ -446,5 +565,11 @@ else if (ViewModel.ListData != null)
     async Task ModelChanged(ValueChangedArgs args)
     {
         StateHasChanged();
+    }
+
+    private void OnSearch(string text)
+    {
+        _searchString = text;
+        TableRef.ReloadServerData();
     }
 }

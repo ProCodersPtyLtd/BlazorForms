@@ -1,0 +1,22 @@
+﻿@page "/flow-list-form"
+@using BlazorForms.Rendering.Interfaces
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.Rendering.State
+@using BlazorForms.Rendering.MudBlazorUI.Components
+@using MudBlazor
+
+@inject IDialogFormViewModel DialogVM
+
+<div class="d-flex flex-wrap mt-4">
+    <MudSwitch @bind-Checked="@Options.ShowSorting" Color="Color.Primary">Show Sorting</MudSwitch>
+</div>
+
+<FlowListForm FlowType="BlazorFormsDemoFlows.Flows.SampleListShortFlow" Options="Options" />
+
+@code {
+    private ListFormOptions Options = new ListFormOptions
+        {
+            Variant = Variant.Outlined,
+            MudBlazorProvidersDefined = true
+        };
+}

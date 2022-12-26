@@ -13,6 +13,7 @@ namespace BlazorForms.Shared.FastReflection
         object GetIdValue(object model, FieldBinding modelBinding);
         object GetRowValue(object model, FieldBinding binding, int rowIndex);
         IEnumerable<object> GetItems(object model, FieldBinding modelBinding);
+        IEnumerable<object> GetItems(object model, string itemsBinding);
         IEnumerable<object> GetTable(object model, FieldBinding modelBinding);
         void SetValue(object model, FieldBinding modelBinding, object val);
     }
@@ -36,6 +37,11 @@ namespace BlazorForms.Shared.FastReflection
             }
 
             return _jsonNavigator.GetItems(model, modelBinding.ItemsBinding);
+        }
+
+        public IEnumerable<object> GetItems(object model, string itemsBinding)
+        {
+            return _jsonNavigator.GetItems(model, itemsBinding);
         }
 
         public IEnumerable<object> GetTable(object model, FieldBinding modelBinding)
@@ -99,7 +105,12 @@ namespace BlazorForms.Shared.FastReflection
                 return;
             }
 
-            _jsonNavigator.SetValue(model, modelBinding.Binding, val);
+            if (!string.IsNullOrWhiteSpace(modelBinding.Binding))
+            {
+                _jsonNavigator.SetValue(model, modelBinding.Binding, val);
+            }
         }
+
+        
     }
 }

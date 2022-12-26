@@ -17,6 +17,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BlazorForms.Shared.FastReflection;
+using System.Security.Cryptography.X509Certificates;
+using System.Collections;
+using System.Net.WebSockets;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 
 namespace BlazorForms.Rendering
 {
@@ -390,10 +394,16 @@ namespace BlazorForms.Rendering
         //    var ruleRequest = GetRuleRequest(Context.ExecutionResult.FormId, null, null, 0, allFields, ps);
         //    return await _flowRunProvider.ExecuteFormLoadRules(ruleRequest, ModelUntyped);
         //}
-
+                
         public async Task<RuleEngineExecutionResult> TriggerRules(string formName, FieldBinding modelBinding, FormRuleTriggers? trigger = null, 
             int rowIndex = 0)
         {
+            // Clear validations for this binding
+            if (modelBinding != null)
+            {
+                Validations = Validations.Where(v => v.AffectedField == modelBinding?.ResolvedBinding).ToList();
+            }
+
             var allFields = GetAllFields();
             var field = allFields.FirstOrDefault(f => f.Binding.Key == modelBinding?.Key);
 
@@ -431,11 +441,28 @@ namespace BlazorForms.Rendering
                     }
                 }
 
-                Validations = ruleResult.Validations.AsEnumerable();
+                //Validations = ruleResult.Validations.AsEnumerable();
+                Validations = Validations.Union(ruleResult.Validations);
                 return ruleResult;
             }
 
             return null;
+        }
+
+        private IEnumerable<RuleExecutionResult> TriggerUniqueRules()
+        {
+            var result = new List<RuleExecutionResult>();
+
+            if (Repeaters.Any())
+            {
+                foreach (var r in Repeaters.Keys)
+                {
+                    var errors = CheckUniqueValidationRules(r);
+                    result.AddRange(errors);
+                }
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -444,12 +471,17 @@ namespace BlazorForms.Rendering
         /// <returns></returns>
         public IEnumerable<RuleExecutionResult> GetDynamicFieldValidations()
         {
+            // Clear all validations first
+            Validations = new List<RuleExecutionResult>();
+
             var allFields = GetAllFields().ToList();
 
             allFields = allFields.Where(x => !string.IsNullOrWhiteSpace(x.Binding.Binding) && x.Binding.IsResolved &&
                     x.Binding.BindingType != FieldBindingType.ActionButton).ToList();
 
             var result = new List<RuleExecutionResult>();
+            var uniqueValueValidations = TriggerUniqueRules();
+            result.AddRange(uniqueValueValidations);
 
             foreach (var x in allFields)
             {
@@ -497,37 +529,89 @@ namespace BlazorForms.Rendering
             return false;
         }
 
+        public List<RuleExecutionResult> CheckUniqueValidationRules(string tableBinding)
+        {
+            var errors = new List<RuleExecutionResult>();
+
+            if (!string.IsNullOrWhiteSpace(tableBinding))
+            {
+                // clean all validations fo this type
+                var message = "This field should be unique";
+                Validations = Validations.Where(v => v.ValidationMessage != message);
+                var columns = Repeaters[tableBinding];
+                var uniqueColumns = columns.Where(c => c.DisplayProperties.IsUnique);
+                var list = FieldGetItemsValue(ModelUntyped, tableBinding) as IEnumerable<object>;
+
+                foreach (var f in uniqueColumns)
+                {
+                    var values = list.Select(x => FieldGetValue(x, f.Binding)).ToList();
+
+                    for (int i = 0; i < values.Count(); i++)
+                    {
+                        if (values.Where(v => v?.ToString() == values[i]?.ToString()).Count() > 1)
+                        {
+                            //f.Binding.ResolveKey(new FieldBindingArgs { RowIndex = i });
+
+                            var validation = new RuleExecutionResult
+                            {
+                                AffectedField = f.Binding.GetResolvedKey(i),
+                                RuleCode = f.DisplayProperties.Caption,
+                                ValidationMessage = message,
+                                ValidationResult = RuleValidationResult.Error
+                            };
+
+                            errors.Add(validation);
+                        }
+                    }
+                }
+
+                if (errors.Any())
+                {
+                    Validations = Validations.Union(errors);
+                }
+            }
+
+            return errors;
+        }
+
+        // ToDo: try to move all calls from _modelNavi to _modelBindingNavigator
         // Model Navigation
+        [Obsolete]
         public object ModelNaviGetValueObject(string modelBinding)
         {
             _modelNavi.SetModel(ModelUntyped);
             return _modelNavi.GetValueObject(modelBinding);
         }
 
+        [Obsolete]
         public object ModelNaviGetValue(string tableBinding, int rowIndex, string modelBinding)
         {
             _modelNavi.SetModel(ModelUntyped);
             return _modelNavi.GetValue(tableBinding, rowIndex, modelBinding);
         }
 
+        [Obsolete]
         public string ModelNaviGetValue(string modelBinding)
         {
             _modelNavi.SetModel(ModelUntyped);
             return _modelNavi.GetValue(modelBinding);
         }
 
+        [Obsolete]
         public void ModelNaviSetValue(string modelBinding, object val)
         {
             _modelNavi.SetModel(ModelUntyped);
             _modelNavi.SetValue(modelBinding, val);
         }
 
+        [Obsolete]
         public void ModelNaviSetValue(string tableBinding, int rowIndex, string modelBinding, object val)
         {
             _modelNavi.SetModel(ModelUntyped);
             _modelNavi.SetValue(tableBinding, rowIndex, modelBinding, val);
         }
 
+        [Obsolete]
         public IEnumerable<object> ModelNaviGetItems(string itemsBinding)
         {
             _modelNavi.SetModel(ModelUntyped);
@@ -555,6 +639,11 @@ namespace BlazorForms.Rendering
             return _modelBindingNavigator.GetItems(model, binding);
         }
 
+        public IEnumerable<object> FieldGetItemsValue(object model, string modelBinding)
+        {
+            return _modelBindingNavigator.GetItems(model, modelBinding);
+        }
+
         public IEnumerable<object> FieldGetTableValue(object model, FieldBinding binding)
         {
             return _modelBindingNavigator.GetTable(model, binding);
@@ -569,5 +658,7 @@ namespace BlazorForms.Rendering
         {
             _modelBindingNavigator.SetValue(model, binding, value);
         }
+
+        
     }
 }

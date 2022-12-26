@@ -2,25 +2,24 @@
 @using BlazorForms.Rendering.Interfaces
 @using BlazorForms.Flows.Definitions
 @using BlazorForms.Rendering.State
+@using BlazorForms.Rendering.MudBlazorUI.Components
+@using MudBlazor
 
 @inject IDialogFormViewModel DialogVM
 
-<FlowListForm FlowType="BlazorFormsDemoFlows.Flows.SampleListShortFlow" ShowFilters="false" ShowSorting="true" />
+<div class="d-flex flex-wrap mt-4">
+    <MudSwitch @bind-Checked="@showPages" Color="Color.Primary">Show Pages</MudSwitch>
+    <MudSwitch @bind-Checked="@showSorting" Color="Color.Primary">Show Sorting</MudSwitch>
+    <MudSwitch @bind-Checked="@showFilters" Color="Color.Primary">Show Filters</MudSwitch>
+</div>
+
+<FlowListForm FlowType="BlazorFormsDemoFlows.Flows.SampleListShortFlow" ShowFilters=showFilters ShowSorting=showSorting ShowPagination=showPages
+    Variant="MudBlazor.Variant.Outlined" />
 
 @code {
-    private async Task OpenDialogClick()
-    {
-        await Task.Run(async () =>
-        {
-            await DialogVM.LoadDialog("BlazorForms.SampleSilentFlow2", 
-                new FlowParamsGeneric { ItemId = "0", Operation = BlazorForms.Shared.FlowReferenceOperation.New });
-        });
+    private bool showPages = false;
+    private bool showSorting = false;
+    private bool showFilters = false;
 
-        StateHasChanged();
-    }
-
-    private async Task FormSubmitted(FormSubmittedArgs args)
-    {
-        
-    }
+    
 }

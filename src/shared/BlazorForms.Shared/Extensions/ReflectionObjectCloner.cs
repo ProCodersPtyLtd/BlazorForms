@@ -5,6 +5,7 @@ using System.Text;
 
 namespace BlazorForms.Shared
 {
+    // ToDo: this class needs unit tests
     public static class ReflectionObjectCloner
     {
 
@@ -30,31 +31,32 @@ namespace BlazorForms.Shared
             where T : class
         {
             var target = New(source);
-            source.CopyTo(target);
+            source.ReflectionCopyTo(target);
             return (T)target;
         }
 
         public static object GetCopy(this object source)
         {
             var target = New(source);
-            source.CopyTo(target);
+            source.ReflectionCopyTo(target);
             return target;
         }
 
         public static object GetCopy(this object source, Guid id)
         {
             var target = New(source, id);
-            source.CopyTo(target);
+            source.ReflectionCopyTo(target);
             return target;
         }
 
-        public static void CopyTo(this object source, object target)
+        // ToDo: add FastReflectionCopyTo
+        public static void ReflectionCopyTo(this object source, object target)
         {
             var properties = source.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
 
             foreach (var property in properties)
             {
-                if (property.GetSetMethod() != null)
+                if (property.GetSetMethod() != null && target.GetType().GetProperty(property.Name) != null)
                 {
                     var value = property.GetValue(source);
                     property.SetValue(target, value);

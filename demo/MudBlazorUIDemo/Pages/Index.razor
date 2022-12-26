@@ -2,7 +2,43 @@
 
 @inject ISnackbar Snackbar
 
-<MudTable Items="@Elements.Take(4)" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+<style>
+    .pz-grid-align {
+        align-items: center;
+        width: auto;
+        grid-column-end: span 12;
+    }
+
+    .pz-clean-margin {
+        margin: 0px;
+    }
+
+    .pz-group-grid {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .pz-form-button {
+        width: 120px;
+    }
+</style>
+
+<div class="d-flex flex-wrap mt-4">
+
+    <MudSwitch T=bool Checked="@Options.ShowSearch" CheckedChanged="@((a) => { Options.ShowSearch = a; RefreshCustomContent(); })"
+               Color="Color.Primary">Show Search</MudSwitch>
+
+    <MudSwitch @bind-Checked="@Options.ShowSorting" Color="Color.Primary">Show Sorting</MudSwitch>
+</div>
+
+<MudTable Items="@Elements.Take(4)" Hover="true" ToolBarContent=ToolBar PagerContent=Pager Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
+    @*<ToolBarContent>
+        <MudText Typo="Typo.h6">Periodic Elements</MudText>
+        <MudSpacer />
+        <MudTextField T="string" ValueChanged=@OnSearch Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>*@
+    
     <HeaderContent>
         <MudTh>Nr</MudTh>
         <MudTh>Sign</MudTh>
@@ -22,9 +58,109 @@
 <MudSwitch @bind-Checked="_hidePosition">Hide <b>position</b> when Breakpoint=Xs</MudSwitch>
 <MudSwitch @bind-Checked="_loading">Show Loading</MudSwitch>
 
-<MudSnackbarProvider />
+<MudGrid Spacing="1" Justify="Justify.Center" class="pz-grid-align pz-group-grid">
+    <MudItem xs="7">
+    
+        <MudGrid Spacing="1" Justify="Justify.Center" class="pz-grid-align">
+            <MudItem xs="6">
+                <MudText Typo="Typo.subtitle2" class="pz-subtitle1">First Name *</MudText>
+            </MudItem>
+            <MudItem xs="6"> 
+                <MudTextField Text="Ivanov" T="string" Style="width: 100%;" Variant="Variant.Filled" />
+            </MudItem>
+
+            <MudItem xs="6">
+                <MudText Typo="Typo.subtitle2" class="pz-subtitle1">First Name *</MudText>
+            </MudItem>
+            <MudItem xs="6">
+                <MudTextField Text="Petrov" T="string" Style="width: 100%;" Variant="Variant.Filled" />
+            </MudItem>
+        </MudGrid>
+
+        <MudDivider DividerType="DividerType.FullWidth" Class="my-2" />
+
+        <div class="d-flex flex-row flex-grow-1 gap-2 justify-center pz-group-grid" Elevation="0">
+            <div class="d-inline-flex">
+                <MudButton Variant="Variant.Filled" DisableElevation="true" class="pz-form-button">Cancel</MudButton>
+            </div>
+            <div class="d-inline-flex ">
+                <MudButton Variant="Variant.Filled" DisableElevation="true" class="pz-form-button">Validate</MudButton>
+            </div>
+            <div class="d-inline-flex">
+                <MudButton Variant="Variant.Filled" DisableElevation="true" class="pz-form-button">Save</MudButton>
+            </div>
+        </div>
+
+    </MudItem>
+</MudGrid>
+
+
+@*<MudSnackbarProvider />*@
 
 @code {
+    ListFormOptions Options = new ListFormOptions {  };
+
+    RenderFragment ToolBar { get; set; }
+    RenderFragment Pager { get; set; }
+
+    private void OnSearch(string text)
+    {
+    }
+
+    void RefreshCustomContent()
+    {
+        if (Options.ShowSearch)
+        {
+            ToolBar = (builder) =>
+            {
+                builder.OpenComponent(0, typeof(ToolBar));
+                builder.AddAttribute(4, "OnSearch", new EventCallback<string>(this, OnSearch));
+                builder.CloseComponent();
+                //builder.OpenComponent(0, typeof(MudText));
+                //builder.AddAttribute(1, "Typo", Typo.h6);
+
+                //builder.AddAttribute(2, "ChildContent", (RenderFragment)((builder2) =>
+                //{
+                //    builder2.AddContent(3, "Periodic Elements");
+                //}));
+
+                ////builder.AddContent(2, "Periodic Elements");
+                //builder.CloseComponent();
+
+                //builder.OpenComponent(1, typeof(MudSpacer));
+                //builder.CloseComponent();
+
+                //builder.OpenComponent(2, typeof(MudTextField<string>));
+                //builder.AddAttribute(3, "Placeholder", "Search");
+                //builder.AddAttribute(4, "ValueChanged", new EventCallback<string>(this, OnSearch));
+                //builder.AddAttribute(5, "Adornment", Adornment.Start);
+                //builder.AddAttribute(6, "PlaceAdornmentIconholder", Icons.Material.Filled.Search);
+                //builder.AddAttribute(7, "IconSize", Size.Medium);
+                //builder.AddAttribute(8, "Class", "mt-0");
+                //builder.CloseComponent();
+            };
+        }
+        else
+        {
+            ToolBar = null;
+        }
+
+        
+
+        StateHasChanged();
+    }
+
+    
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+        }
+
+        
+    }
+
     private bool _hidePosition;
     private bool _loading;
     private IEnumerable<Element> Elements = new List<Element>();
@@ -40,16 +176,10 @@
         };
 
         Data = new string[][] { new string[] { "1", "2", "3" }, new string[] { "11", "12", "13" } };
+
+        
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopStart;
-            Snackbar.Add("The page is loaded", Severity.Success);
-        }
-    }
 
     public class Element
     {

@@ -1,0 +1,183 @@
+﻿@using BlazorForms.Rendering.State
+@using MudBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Platform
+@using BlazorForms.Shared
+
+@inject IUserViewDataResolver DataResolver
+
+<style>
+    .pz-table {
+        margin-top: 40px;
+    }
+
+    .pz-ref-button {
+        margin-left: 1rem;
+        margin-top: 0.5rem;
+        width: auto;
+    }
+
+    th.mud-table-cell {
+        background-color: lightgray !important;
+    }
+
+</style>
+
+@{
+    var currentRow = 0;
+}
+
+<MudTable T="string[]" Items=GetGridData() Hover="true" Breakpoint="Breakpoint.Sm" Dense="true" @ref="TableRef"
+          Height=@GetHeight() Virtualize=true FixedHeader=true>
+                
+    <HeaderContent>
+        @foreach (var col in Columns)
+        {
+            @if (col?.ControlType == "Table" || col?.DisplayProperties?.Visible == false)
+            {
+                continue;
+            }
+
+            <MudTh>@col?.DisplayProperties?.Caption</MudTh>
+        }
+    </HeaderContent>
+         
+    <RowTemplate>
+        @if (GridDataCache[0] != null)
+        {
+            @for (int i = 0; i < ColumnList().Count; i++)
+            {
+                var currentColumn = i+1;
+                var rowIndex = currentRow;
+                <MudTd @onclick="@(async (args) => await RowOnClick(rowIndex, context[0]))">@context[currentColumn]</MudTd>
+            }
+            currentRow++;
+        }
+        else
+        {
+            <MudTd colspan="@Columns?.Count()" Class="pz-no-records-text"><MudText Typo="Typo.body2">No Records</MudText></MudTd>
+        }
+    </RowTemplate>
+</MudTable>
+
+@*@if (@GetGridData().Length > 0)
+{
+    var currentRow = 0;
+
+    <MatTable Items="@GetGridData()" class="mat-elevation-z5" AllowSelection="true" >
+        <MatTableHeader>
+            @foreach (var col in Columns)
+            {
+                @if (col?.ControlType == "Table" || col?.DisplayProperties?.Visible == false)
+                {
+                    continue;
+                }
+
+                <th>@col?.DisplayProperties?.Caption</th>
+            }
+        </MatTableHeader>
+        <MatTableRow>
+            @if (1 == 1)
+            {
+                int currentColumn = 0;
+
+                @for (int i = 0; i < ColumnList().Count; i++)
+                {
+                    currentColumn++;
+                    var rowIndex = currentRow;
+                    <td @onclick="@(async (args) => await RowOnClick(rowIndex, context[0]))">@context[currentColumn]</td>
+                }
+                currentRow++;
+            }
+        </MatTableRow>
+    </MatTable>
+}*@
+<ValidatorControl Validations="@Validations"></ValidatorControl>
+
+@code {
+    [CascadingParameter]
+    public IFormViewModel ViewModel { get; set; }
+    [Parameter]
+    public FieldControlDetails Table { get; set; }
+    [Parameter]
+    public string Caption { get; set; }
+    [Parameter]
+    public IEnumerable<FieldControlDetails> Columns { get; set; }
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelChanged { get; set; }
+    [Parameter]
+    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    private MudTable<string[]>? TableRef;
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    private string GetHeight()
+    {
+        if (1 == 2)
+        {
+            return "360px";
+        }
+        else
+        {
+            return "200px";
+        }
+    }
+
+    private List<FieldControlDetails> ColumnList()
+    {
+        return Columns.ToList();
+    }
+
+    private void OnSelected(string pk)
+    {
+
+    }
+
+    private async Task RowOnClick(int index, string pk)
+    {
+        // ToDo: index coming here is not stable, current work around is to calculate Index based on cached data by pk
+        var rowIndex = 0;
+
+        for (int i = 0; i < GridDataCache.Length; i++)
+        {
+            if (GridDataCache[i][0] == pk)
+            {
+                break;
+            }
+
+            rowIndex++;
+        }
+
+        await ModelChanged.InvokeAsync(new ValueChangedArgs { Binding = Table.Binding, RowIndex = rowIndex, NewValue = pk});
+        StateHasChanged();
+    }
+
+    private string[][] GridDataCache;
+
+    private string[][] GetGridData()
+    {
+        if (ViewModel.ModelUntyped == null)
+        {
+            return null;
+        }
+
+        var gridModel = ViewModel.PathNavi.GetValue(ViewModel.ModelUntyped, Table.Binding.TableBinding);
+        var data = DataResolver.ResolveData(Table.Binding.TableBinding, Columns, ViewModel.ModelUntyped);
+        var jaggedData = ConvertHelper.ConvertToJaggedArray(data);
+
+        if (jaggedData.Length == 0)
+        {
+            GridDataCache = new string[1][];
+        }
+        else
+        {
+            GridDataCache = jaggedData;
+        }
+            
+        return GridDataCache;
+    }
+}

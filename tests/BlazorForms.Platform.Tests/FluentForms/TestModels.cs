@@ -100,6 +100,7 @@ namespace BlazorForms.Platform.Tests.FluentForms
         public String Suffix { get; set; }
         public String Title { get; set; }
         public Int32 AddrCount { get; set; }
+        public DateTime? DOB { get; set; }
     }
 
     public class TestProjectListModel : FlowModelBase

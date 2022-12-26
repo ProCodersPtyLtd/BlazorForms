@@ -1,0 +1,36 @@
+﻿@using BlazorForms.Rendering.State
+@using MudBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+
+<MudButton Variant="FormOptions.Variant" OnClick="@ButtonClick" Disabled="@Field.DisplayProperties.Disabled">@Field.DisplayProperties.Caption</MudButton>
+<ValidatorControl Validations="@Validations"></ValidatorControl>
+
+@code {
+    [CascadingParameter]
+    public FormOptions FormOptions { get; set; }
+
+    [Parameter]
+    public FieldControlDetails Field { get; set; }
+
+    [Parameter]
+    public string Caption { get; set; }
+
+    [Parameter]
+    public string Name { get; set; }
+
+    [Parameter]
+    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    private async Task ButtonClick()
+    {
+        await ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding });
+    }
+}

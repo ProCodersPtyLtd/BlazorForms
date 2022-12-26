@@ -45,10 +45,12 @@ namespace BlazorFormsDemoFlows.Flows
     {
         protected override void Define(FormEntityTypeBuilder<CustAddrCount> f)
         {
-            f.DisplayName = "Client Address Count";
+            f.DisplayName = "Client Address Count Form";
 
             f.Property(p => p.FirstName).IsRequired();
             f.Property(p => p.LastName).IsRequired();
+            f.Property(p => p.DOB).IsRequired();
+            f.Property(p => p.ModifiedDate).Format("dd/MM/yyyy");
             f.Property(p => p.AddrCount).Rule(typeof(SampleListEditRule11), FormRuleTriggers.Loaded);
 
             // Additional Buttons invisible in Dialog Mode
