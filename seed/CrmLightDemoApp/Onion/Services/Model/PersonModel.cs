@@ -7,6 +7,7 @@ namespace CrmLightDemoApp.Onion.Services.Model
 {
     public class PersonModel : Person, IFlowModel
     {
+        public virtual string? FullName { get; set; }
         public virtual List<PersonCompanyLinkDetails> CompanyLinks { get; set; }
 
         // IFlowModel

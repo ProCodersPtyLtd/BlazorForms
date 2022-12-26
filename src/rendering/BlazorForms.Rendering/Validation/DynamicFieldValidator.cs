@@ -48,6 +48,12 @@ namespace BlazorForms.Rendering.Validation
                         break;
                 }
 
+                // ToDo: remove this hardcode during validation refactoring
+                if (field.ControlType == "DropDown" && value.ToString() == "0")
+                {
+                    failed = true;
+                }
+
                 if(failed)
                 {
                     return new RuleExecutionResult
