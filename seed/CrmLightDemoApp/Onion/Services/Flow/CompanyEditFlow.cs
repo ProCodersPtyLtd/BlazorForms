@@ -31,10 +31,15 @@ namespace CrmLightDemoApp.Onion.Services.Flow
                    .Begin(LoadData)
                    .NextForm(typeof(FormCompanyView))
                 .EndIf()
-                .If(() => _flowContext.ExecutionResult.FormLastAction == ModelBinding.SubmitButtonBinding || !_flowContext.Params.ItemKeyAboveZero)
-                    .Next(LoadRelatedData)
-                    .NextForm(typeof(FormCompanyEdit))
-                    .Next(SaveData)
+                .If(() => _flowContext.ExecutionResult.FormLastAction == ModelBinding.DeleteButtonBinding)
+                    .NextForm(typeof(FormCompanyDelete))
+                    .Next(DeleteData)
+                .Else()
+                    .If(() => _flowContext.ExecutionResult.FormLastAction == ModelBinding.SubmitButtonBinding || !_flowContext.Params.ItemKeyAboveZero)
+                        .Next(LoadRelatedData)
+                        .NextForm(typeof(FormCompanyEdit))
+                        .Next(SaveData)
+                    .EndIf()
                 .EndIf()
                 .End();
         }
@@ -46,8 +51,20 @@ namespace CrmLightDemoApp.Onion.Services.Flow
                 var item = await _companyRepository.GetByIdAsync(_flowContext.Params.ItemKey);
                 // item and Model have different types - we use reflection to copy similar properties
                 item.ReflectionCopyTo(Model);
-                Model.PersonCompanyLinks = await _personCompanyRepository.GetByCompanyIdAsync(Model.Id);
+
+                Model.PersonCompanyLinks = (await _personCompanyRepository.GetByCompanyIdAsync(Model.Id))
+                    .Select(x =>
+                    {
+                        var item = new PersonCompanyLinkDetailsModel();
+                        x.ReflectionCopyTo(item);
+                        return item;
+                    }).ToList();
             }
+        }
+
+        public async Task DeleteData()
+        {
+            await _companyRepository.DeleteAsync(Model.Id);
         }
 
         public async Task LoadRelatedData()
@@ -55,16 +72,20 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             Model.AllLinkTypes = await _personCompanyLinkTypeRepository.GetAllAsync();
             Model.AllLinkTypes.Insert(0, new Domain.PersonCompanyLinkType { Id = 0, Name = "" });
 
-            Model.AllPersons = (await _personRepository.GetAllAsync())
+            var persons = (await _personRepository.GetAllAsync())
                 .Select(x => 
                 {
                     var item = new PersonModel(); 
                     x.ReflectionCopyTo(item);
                     item.FullName = $"{x.FirstName} {x.LastName}";
                     return item;
-                }).ToList();
+                }).OrderBy(x => x.FullName).ToList();
 
-            Model.AllPersons.Insert(0, new PersonModel { Id = 0, FullName = "" });
+            Model.AllPersons = persons;
+            //Model.PersonDictionary = persons.ToDictionary(x => x.FullName, x => x);
+
+            // ToDo: remove it after move to Autocomplete control
+            //Model.AllPersons.Insert(0, new PersonModel { Id = 0, FullName = "" });
         }
 
         public async Task SaveData()
@@ -88,6 +109,10 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 
             foreach (var item in Model.PersonCompanyLinks)
             {
+                // we use autocomplete control, so need to resolve id by name
+                //item.PersonId = Model.PersonDictionary[item.PersonFullName].Id;
+                item.PersonId = Model.AllPersons.First(p => p.FullName == item.PersonFullName).Id;
+
                 if (item.Id == 0)
                 {
                     item.CompanyId = Model.Id;
@@ -118,8 +143,23 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             });
 
             f.Button(ButtonActionTypes.Close, "Close");
+            f.Button(ButtonActionTypes.Delete, "Delete");
             f.Button(ButtonActionTypes.Submit, "Edit");
 
+        }
+    }
+
+    public class FormCompanyDelete : FormEditBase<CompanyModel>
+    {
+        protected override void Define(FormEntityTypeBuilder<CompanyModel> f)
+        {
+            f.DisplayName = "Are you sure you want to delete company?";
+            f.Property(p => p.Name).Label("Name").IsReadOnly();
+            f.Property(p => p.RegistrationNumber).Label("Reg. No.").IsReadOnly();
+            f.Property(p => p.EstablishedDate).Label("Established date").IsReadOnly();
+
+            f.Button(ButtonActionTypes.Close, "Close");
+            f.Button(ButtonActionTypes.Delete, "Delete");
         }
     }
 
@@ -127,6 +167,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
     {
         protected override void Define(FormEntityTypeBuilder<CompanyModel> f)
         {
+
             f.DisplayName = "Company Edit";
 
             f.Property(p => p.Name).Label("Name").IsRequired();
@@ -140,9 +181,13 @@ namespace CrmLightDemoApp.Onion.Services.Flow
                 
                 e.PropertyRoot(p => p.LinkTypeId).Dropdown(p => p.AllLinkTypes, m => m.Id, m => m.Name).IsRequired().Label("Type")
                     .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged);
-                
-                e.PropertyRoot(p => p.PersonId).Dropdown(p => p.AllPersons, m => m.Id, m => m.FullName).IsRequired().Label("Person")
+
+                e.PropertyRoot(p => p.PersonFullName).EditWithOptions(e => e.AllPersons, m => m.FullName).IsRequired().Label("Person")
                     .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged);
+                    //.Rule(typeof(FormCompanyEdit_CheckNameRule), FormRuleTriggers.Submit);
+
+                //e.PropertyRoot(p => p.PersonId).Dropdown(p => p.AllPersons, m => m.Id, m => m.FullName).IsRequired().Label("Person")
+                //    .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged);
             });
 
             f.Button(ButtonActionTypes.Cancel, "Cancel");
@@ -169,6 +214,22 @@ namespace CrmLightDemoApp.Onion.Services.Flow
         public override void Execute(CompanyModel model)
         {
             model.PersonCompanyLinks[RunParams.RowIndex].Changed = true;
+        }
+    }
+    public class FormCompanyEdit_CheckNameRule : FlowRuleBase<CompanyModel>
+    {
+        public override string RuleCode => "CMP-3";
+
+        public override void Execute(CompanyModel model)
+        {
+            var name = model.PersonCompanyLinks[RunParams.RowIndex].PersonFullName;
+
+            //if (!model.PersonDictionary.Keys.Contains(name))
+            if (!model.AllPersons.Any(p => p.FullName == name))
+            {
+                Result.ValidationResult = RuleValidationResult.Error;
+                Result.ValidationMessage = $"Name '{name}' not found";
+            }
         }
     }
 }

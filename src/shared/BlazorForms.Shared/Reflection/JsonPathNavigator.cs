@@ -25,6 +25,11 @@ namespace BlazorForms.Shared
 
         public object GetValue(object model, string modelBinding)
         {
+            if (modelBinding == "")
+            {
+                return model;
+            }
+
             object targetObject;
             string lastProperty;
             var property = GetLastPropertyIterateThroughPath(model, modelBinding, out targetObject, out lastProperty);

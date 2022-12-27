@@ -11,12 +11,18 @@ namespace BlazorForms.Flows.Definitions
 
     }
 
+    // ToDo: issue#16 remove Bag and Ext
     public interface IFlowModel : IModel
     {
         ExpandoObject Bag { get; }
 
         Dictionary<string, DynamicRecordset> Ext { get; }
+    }
 
-        //IFlowParams FlowParams { get; set; }
+    public interface IFlowModelExtended : IFlowModel
+    {
+        ExpandoObject? Bag { get; }
+
+        Dictionary<string, DynamicRecordset>? Ext { get; }
     }
 }

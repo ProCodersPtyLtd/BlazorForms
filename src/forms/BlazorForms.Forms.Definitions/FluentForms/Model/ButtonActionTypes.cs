@@ -19,7 +19,8 @@ namespace BlazorForms.Forms
         SubmitClose,
 
         // new SQLForms buttons
-        Add,
-        Delete
+        Add = 20,
+        Delete,
+        Edit,
     }
 }

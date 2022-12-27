@@ -432,6 +432,8 @@ namespace BlazorForms.Forms
                 ButtonActionTypes.Cancel => ModelBinding.CloseButtonBinding,
                 ButtonActionTypes.CloseFinish => ModelBinding.CloseFinishButtonBinding,
                 ButtonActionTypes.SubmitClose => ModelBinding.SubmitCloseButtonBinding,
+                ButtonActionTypes.Delete => ModelBinding.DeleteButtonBinding,
+                ButtonActionTypes.Edit => ModelBinding.EditButtonBinding,
                 ButtonActionTypes.Custom => ModelBinding.CustomButtonBinding,
                 _ => throw new Exception($"ActionType {actionType} binding is not found"),
             };
