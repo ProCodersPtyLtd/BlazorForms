@@ -45,7 +45,11 @@ namespace BlazorForms.Shared
         Ignore,
         Reject,
         CloseFinish,
-        SubmitClose
+        SubmitClose,
+
+        Add = 20,
+        Delete,
+        Edit,
     }
 
 }

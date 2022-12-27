@@ -35,5 +35,20 @@ namespace BlazorForms.Forms
 
             return this;
         }
+
+        public virtual FieldBuilder<TProperty, TEntity> EditWithOptions<TKey, TKey2>(Expression<Func<TMainEntity, IEnumerable<TKey>>> items,
+            Expression<Func<TKey, TKey2>> name)
+        {
+            _field.BindingControlType = typeof(ListBindingControlType).Name;
+            _field.BindingType = FieldBindingType.TableColumn;
+            _field.ControlType = typeof(Autocomplete);
+            //_field.ViewModeControlType = typeof(DefaultDropdownReadonlyControl);
+
+            _field.SelectEntityType = typeof(TKey);
+            _field.SelectItemsProperty = items.Body.ToString().ReplaceLambdaVar();
+            _field.SelectNameProperty = name.Body.ToString().ReplaceLambdaVar();
+
+            return this;
+        }
     }
 }

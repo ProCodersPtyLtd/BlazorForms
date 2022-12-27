@@ -52,6 +52,9 @@ namespace BlazorForms.Flows.Definitions
                 ActionType.Cancel => ModelBinding.CloseButtonBinding,
                 ActionType.CloseFinish => ModelBinding.CloseFinishButtonBinding,
                 ActionType.SubmitClose => ModelBinding.SubmitCloseButtonBinding,
+                ActionType.Delete => ModelBinding.DeleteButtonBinding,
+                ActionType.Edit => ModelBinding.EditButtonBinding,
+                ActionType.Custom => ModelBinding.CustomButtonBinding,
                 _ => throw new Exception("ActionType binding is not found"),
             };
         }

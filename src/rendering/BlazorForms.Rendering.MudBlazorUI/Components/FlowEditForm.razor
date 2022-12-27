@@ -169,9 +169,14 @@ else
 
     private Color GetActionColor(FieldControlDetails action)
     {
-        if (action.Binding.Binding == ModelBinding.SubmitButtonBinding)
-        {
-            return Color.Primary;
+        switch (action.Binding.Binding)
+        { 
+            case ModelBinding.SubmitButtonBinding:
+                return Color.Primary;
+            case ModelBinding.DeleteButtonBinding:
+                return Color.Secondary;
+            case ModelBinding.CustomButtonBinding:
+                return Color.Secondary;
         }
 
         return Color.Default;
@@ -186,7 +191,7 @@ else
     {
         if (firstRender)
         {
-            
+
         }
 
         await base.OnAfterRenderAsync(firstRender);
@@ -215,6 +220,53 @@ else
         {
             _vm.PopulateException(exc);
             await ShowPopup();
+        }
+    }
+
+    private async Task ProcessContinueFlow(string binding)
+    {
+        _formLocked = true;
+        StateHasChanged();
+        var loadForm = true;
+        var refresh = false;
+
+        try
+        {
+            // no validations, just submit form as is
+            await Task.Run(async () =>
+            {
+                await _vm.SubmitForm(binding);
+            });
+
+            var context = _vm.Context;
+
+            // if next task is form again
+            if (loadForm && context.ExecutionResult.IsFormTask)
+            {
+                await _vm.ReloadFormData();
+            }
+            else if (refresh)
+            {
+                _navigationManager.NavigateTo(_navigationManager.Uri, true);
+            }
+            else if (!string.IsNullOrEmpty(NavigationSuccess))
+            {
+                _navigationManager.NavigateTo(NavigationSuccess);
+            }
+            else
+            {
+                await FormSubmitted.InvokeAsync(new FormSubmittedArgs { Context = new BlazorForms.Flows.FlowContext(_vm.Context, _vm.ModelUntyped) });
+            }
+        }
+        catch (Exception exc)
+        {
+            _vm.PopulateException(exc);
+            await ShowPopup();
+        }
+        finally
+        {
+            _formLocked = false;
+            StateHasChanged();
         }
     }
 
@@ -412,6 +464,11 @@ else
             //await _vm.ActionButtonClick(binding);
             switch (binding)
             {
+                case ModelBinding.DeleteButtonBinding:
+                case ModelBinding.EditButtonBinding:
+                    await ProcessContinueFlow(binding);
+                    break;
+
                 case ModelBinding.CloseButtonBinding:
                     CancelClick();
                     break;

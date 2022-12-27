@@ -81,7 +81,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 
             f.Property(p => p.FirstName).Label("First name").IsRequired();
             f.Property(p => p.LastName).Label("Last name").IsRequired();
-            f.Property(p => p.BirthDate).Label("Date of birth").IsRequired();
+            f.Property(p => p.BirthDate).Label("Date of birth");
             f.Property(p => p.Phone);
             f.Property(p => p.Email);
 

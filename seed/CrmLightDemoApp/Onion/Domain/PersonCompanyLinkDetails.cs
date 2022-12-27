@@ -2,7 +2,6 @@
 {
     public class PersonCompanyLinkDetails : PersonCompanyLink
     {
-        public virtual bool Changed { get; set; }
         public virtual string? PersonFullName { get; set; }
         public virtual string? PersonFirstName { get; set; }
         public virtual string? PersonLastName { get; set; }

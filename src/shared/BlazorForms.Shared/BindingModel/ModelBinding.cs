@@ -15,6 +15,7 @@ namespace BlazorForms.Shared
         public const string CloseFinishButtonBinding = "$.ActionButtons.CloseFinish";
         public const string CustomButtonBinding = "$.ActionButtons.Custom";
         public const string EditButtonBinding = "$.ActionButtons.Edit";
+        public const string DeleteButtonBinding = "$.ActionButtons.Delete";
 
         public const string ListFormContextMenuBinding = "$.Menu";
         public const string FlowReferenceButtonsBinding = "$.RefButtons";
