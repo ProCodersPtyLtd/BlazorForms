@@ -311,6 +311,11 @@ else
             await Task.Run(async () =>
             {
                 await _vm.SubmitForm(ModelBinding.SubmitButtonBinding);
+
+                if (!string.IsNullOrEmpty(_vm.ExceptionMessage))
+                {
+                    await ShowPopup();
+                }
             });
 
             var context = _vm.Context;
@@ -419,6 +424,9 @@ else
 
     protected void CancelClick()
     {
+        // allow to leave the form
+        _vm.SetInputChanged(false);
+
         if (!string.IsNullOrEmpty(NavigationCancel))
         {
             _navigationManager.NavigateTo(NavigationCancel);
@@ -508,21 +516,31 @@ else
             {
                 case ModelBinding.DeleteButtonBinding:
                 case ModelBinding.EditButtonBinding:
-                    await ProcessContinueFlow(binding);
+                    if (await CheckConfirmation(ConfirmType.Continue))
+                    {
+                        await ProcessContinueFlow(binding);
+                    }
                     break;
 
                 case ModelBinding.CloseButtonBinding:
-                    // Check Confirmation
-                    var allowCancel = await CheckConfirmation(ConfirmType.ChangesWillBeLost);
-
-                    if (allowCancel)
+                    if (await CheckConfirmation(ConfirmType.ChangesWillBeLost))
                     {
                         CancelClick();
                     }
                     break;
 
                 case ModelBinding.CloseFinishButtonBinding:
-                    await CancelFinishClick(binding);
+                    if (await CheckConfirmation(ConfirmType.ChangesWillBeLost))
+                    {
+                        await CancelFinishClick(binding);
+                    }
+                    break;
+
+                case ModelBinding.RejectButtonBinding:
+                    if (await CheckConfirmation(ConfirmType.ChangesWillBeLost))
+                    {
+                        await ProcessReject(binding, caption);
+                    }
                     break;
 
                 case ModelBinding.ValidateButtonBinding:
@@ -541,9 +559,6 @@ else
                     await ProcessSave(binding);
                     break;
 
-                case ModelBinding.RejectButtonBinding:
-                    await ProcessReject(binding, caption);
-                    break;
             }
         }
         catch (Exception exc)

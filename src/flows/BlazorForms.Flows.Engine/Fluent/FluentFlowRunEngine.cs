@@ -192,6 +192,7 @@ namespace BlazorForms.Flows
                     context.ExecutionResult.ResultState = TaskExecutionResultStateEnum.Fail;
                     context.ExecutionResult.ExceptionMessage = exc.Message;
                     context.ExecutionResult.ExceptionStackTrace = exc.StackTrace;
+                    context.ExecutionResult.ExceptionType = exc.GetType().FullName;
                     context.ExecutionResult.ExecutionException = exc;
                 }
             }

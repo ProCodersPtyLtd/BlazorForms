@@ -49,7 +49,7 @@ namespace CrmLightDemoApp.Onion.Infrastructure
 
         public async Task<List<T>> GetListByIdsAsync(IEnumerable<int> ids)
         {
-            return _localCache.Where(x => !x.Deleted && ids.Contains(x.Id)).Select(x => x.GetCopy()).ToList();
+            return _localCache.Where(x => ids.Contains(x.Id)).Select(x => x.GetCopy()).ToList();
         }
     }
 }

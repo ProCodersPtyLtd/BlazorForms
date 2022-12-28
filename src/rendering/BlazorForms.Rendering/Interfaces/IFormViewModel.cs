@@ -60,7 +60,7 @@ namespace BlazorForms.Rendering.Interfaces
         List<FormConfirmationData> GetAvailableConfirmations(ConfirmType confirmType, string? binding = null);
 
         // track user input changes
-        void SetInputChanged();
+        void SetInputChanged(bool changed = true);
         void IgnoreInputChanged();
         void RestoreInputChanged();
 

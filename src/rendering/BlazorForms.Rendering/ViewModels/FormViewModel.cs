@@ -257,7 +257,7 @@ namespace BlazorForms.Rendering
 
         protected void ClearData()
         {
-            _changed = false;
+            SetInputChanged(false);
             ActionFields = new FieldControlDetails[0];
             _modelNavi.SetModel(ModelUntyped);
             _rowFields = new Dictionary<string, FieldControlDetails>();
@@ -363,6 +363,7 @@ namespace BlazorForms.Rendering
         public async Task SaveForm(string actionBinding = null, string operationName = null)
         {
             await _flowRunProvider.SaveForm(Context.RefId, ModelUntyped, actionBinding, operationName);
+            SetInputChanged(false);
         }
 
         public async Task SubmitForm(string binding = null, string operationName = null)
@@ -378,6 +379,7 @@ namespace BlazorForms.Rendering
                 ctx = await _flowRunProvider.SubmitClientKeptContextFlowForm(Context.GetClientContext(), ModelUntyped, Params as FlowParamsGeneric, binding);
             }
 
+            SetInputChanged(false);
             Context = ctx.GetClientContext();
             ModelUntyped = ctx.Model;
 
@@ -664,27 +666,37 @@ namespace BlazorForms.Rendering
 
         public List<FormConfirmationData> GetAvailableConfirmations(ConfirmType confirmType, string? binding = null)
         {
+            var result =new List<FormConfirmationData>();
+
             var list = GetAllFields().Where(f => f.DisplayProperties?.Confirmations != null)
                 .SelectMany(f => f.DisplayProperties.Confirmations).Select(c => new FormConfirmationData(c));
 
-            if (binding == null && _changed)
+            if (binding == null)
             {
-                var formConfirmations = list.Where(c => c.Type == ConfirmType.ChangesWillBeLost);
-                return formConfirmations.ToList();
+                // Form Confirmations
+                if (_changed && confirmType == ConfirmType.ChangesWillBeLost)
+                {
+                    result.AddRange(list.Where(c => c.Type == ConfirmType.ChangesWillBeLost));
+                }
+                
+                result.AddRange(list.Where(c => c.Type == confirmType && c.Type != ConfirmType.ChangesWillBeLost));
             }
 
-            return new List<FormConfirmationData>();
+            return result;
         }
 
         protected bool _changed;
         protected bool _ignoreChanged;
 
-        public void SetInputChanged()
+        public void SetInputChanged(bool changed = true)
         {
-            if (!_ignoreChanged)
+            if (!_ignoreChanged && changed)
             {
                 _changed = true;
+                return;
             }
+
+            _changed = changed;
         }
 
         public void IgnoreInputChanged()

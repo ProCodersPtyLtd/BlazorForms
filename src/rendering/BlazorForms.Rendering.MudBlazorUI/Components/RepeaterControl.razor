@@ -10,6 +10,7 @@
 @inject IReflectionProvider _reflectionProvider
 @inject ISnackbar Snackbar
 @inject NavigationManager _NavigationManager
+@inject IDialogService DialogService
 
 <style>
     .jsgrid-grid-header {
@@ -238,8 +239,41 @@
         StateHasChanged();
     }
 
+    private async Task<bool> CheckConfirmation(ConfirmType confirmType)
+    {
+        var list = ViewModel.GetAvailableConfirmations(confirmType);
+
+        if (list.Any())
+        {
+            var details = list.First();
+            var options = new DialogOptions { CloseOnEscapeKey = true };
+
+            var parameters = new DialogParameters 
+            { 
+                ["Message"] = details.Message,
+                ["CancelName"] = details.CancelName,
+                ["OkName"] = details.OkName,
+            };
+
+            var dialog = await DialogService.ShowAsync<FormConfirmationDialog>(null, parameters, options);
+            var result = await dialog.Result;
+
+            if (result.Cancelled)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private async Task DelClick(MouseEventArgs args, int rowIndex)
     {
+        if (!await CheckConfirmation(ConfirmType.DeleteItem))
+        {
+            return;    
+        }
+
         ViewModel.SetInputChanged();
 
         _rowIndex = rowIndex;

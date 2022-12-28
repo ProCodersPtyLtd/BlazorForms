@@ -1,4 +1,5 @@
 ﻿using BlazorForms.Forms;
+using BlazorForms.Forms.Definitions.FluentForms.Model;
 using BlazorForms.Shared;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace BlazorForms.Forms
         public FieldBuilder FieldBuilder { get { return _fieldBuilder; } }
         public IEnumerable<DataField> Fields {  get { return _fields.Values; } }
         public List<DialogButtonDetails> DialogButtons { get; private set; }  = new List<DialogButtonDetails>();
-
+        
         public string DisplayName 
         { 
             get 
@@ -53,6 +54,12 @@ namespace BlazorForms.Forms
         {
             ItemsPath = items.ToString().ReplaceLambdaVar();
             _repeaterField = repeaterField;
+        }
+
+        public virtual FormRepeaterTypeBuilder<TMainEntity, TEntity> Confirm(ConfirmType type, string message, ConfirmButtons buttons)
+        {
+            _repeaterField.Confirmations.Add(new ConfirmationDetails { Type = type, Message = message, Buttons = buttons });
+            return this;
         }
 
         public virtual RepeaterFieldBuilder<TMainEntity, TProperty, TEntity> PropertyRoot<TProperty>([NotNullAttribute] Expression<Func<TEntity, TProperty>> propertyExpression)

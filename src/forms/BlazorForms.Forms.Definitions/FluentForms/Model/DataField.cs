@@ -1,4 +1,5 @@
-﻿using BlazorForms.Shared;
+﻿using BlazorForms.Forms.Definitions.FluentForms.Model;
+using BlazorForms.Shared;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -18,6 +19,7 @@ namespace BlazorForms.Forms
         public int Order { get; set; }
         public bool Button { get; set; }
         public string Group { get; set; }
+        public List<ConfirmationDetails> Confirmations { get; private set; } = new List<ConfirmationDetails>();
 
         // Select
         public Type SelectEntityType { get; set; }

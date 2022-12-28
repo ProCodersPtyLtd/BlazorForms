@@ -204,12 +204,13 @@ namespace BlazorForms.Forms
             ////FillRules(formControl, form);
             //AddControl(formControl);
 
+
             // Add field one by one
             foreach (var field in fields)
             {
                 // Set FastReflection delegates
                 UpdateFastReflectionDelegates(field.Binding, form.GetDetailsType());
-
+            
                 var newControl = new FieldControlDetails
                 {
                     Name = field.Name,
@@ -246,7 +247,13 @@ namespace BlazorForms.Forms
                     FilterRefField = field.FilterRefField,
                     Format= field.Format,
                     IsUnique = field.Unique,
-                    Confirmations = new List<FormConfirmationDetails>(),
+
+                    Confirmations = field.Confirmations.Select(c => 
+                    {
+                        var confirmation = new FormConfirmationDetails();
+                        c.ReflectionCopyTo(confirmation);
+                        return confirmation;
+                    }).ToList(),
 
                     // new binding concept
                     Binding = field.Binding,
@@ -274,17 +281,14 @@ namespace BlazorForms.Forms
             }
 
             // Form Confirmations
-            var confirmations = form.GetConfirmations();
             var formField = details.Fields.First(f => f.Binding.BindingType == FieldBindingType.Form);
 
-            foreach (var c in confirmations)
+            formField.DisplayProperties.Confirmations = form.GetConfirmations().Select(c =>
             {
                 var confirmation = new FormConfirmationDetails();
                 c.ReflectionCopyTo(confirmation);
-                formField.DisplayProperties.Confirmations.Add(confirmation);
-            }
-
-
+                return confirmation;
+            }).ToList();
 
             // Buttons
             var buttons = form.GetButtons();

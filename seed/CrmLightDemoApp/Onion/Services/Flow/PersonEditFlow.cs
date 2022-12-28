@@ -2,6 +2,7 @@
 using BlazorForms.Forms;
 using BlazorForms.Shared;
 using CrmLightDemoApp.Onion.Domain.Repositories;
+using CrmLightDemoApp.Onion.Infrastructure;
 using CrmLightDemoApp.Onion.Services.Model;
 
 namespace CrmLightDemoApp.Onion.Services.Flow
@@ -24,9 +25,13 @@ namespace CrmLightDemoApp.Onion.Services.Flow
                    .Begin(LoadData)
                    .NextForm(typeof(FormPersonView))
                 .EndIf()
-                .If(() => _flowContext.ExecutionResult.FormLastAction == ModelBinding.SubmitButtonBinding || !_flowContext.Params.ItemKeyAboveZero)
-                    .NextForm(typeof(FormPersonEdit))
-                    .Next(SaveData)
+                .If(() => _flowContext.ExecutionResult.FormLastAction == ModelBinding.DeleteButtonBinding)
+                    .Next(DeleteData)
+                .Else()
+                    .If(() => _flowContext.ExecutionResult.FormLastAction == ModelBinding.SubmitButtonBinding || !_flowContext.Params.ItemKeyAboveZero)
+                        .NextForm(typeof(FormPersonEdit))
+                        .Next(SaveData)
+                    .EndIf()
                 .EndIf()
                 .End();
         }
@@ -40,6 +45,11 @@ namespace CrmLightDemoApp.Onion.Services.Flow
                 item.ReflectionCopyTo(Model);
                 Model.CompanyLinks = await _personCompanyRepository.GetByPersonIdAsync(Model.Id);
             }
+        }
+
+        public async Task DeleteData()
+        {
+            await _personRepository.SoftDeleteAsync(Model.Id);
         }
 
         public async Task SaveData()
@@ -68,6 +78,10 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             f.Property(p => p.Email).IsReadOnly();
 
             f.Button(ButtonActionTypes.Close, "Close");
+
+            f.Button(ButtonActionTypes.Delete, "Delete")
+                .Confirm(ConfirmType.Continue, "Delete this Person?", ConfirmButtons.YesNo);
+
             f.Button(ButtonActionTypes.Submit, "Edit");
 
         }
@@ -78,6 +92,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
         protected override void Define(FormEntityTypeBuilder<PersonModel> f)
         {
             f.DisplayName = "Person Edit";
+            f.Confirm(ConfirmType.ChangesWillBeLost, "If you leave before saving, your changes will be lost.", ConfirmButtons.OkCancel);
 
             f.Property(p => p.FirstName).Label("First name").IsRequired();
             f.Property(p => p.LastName).Label("Last name").IsRequired();
