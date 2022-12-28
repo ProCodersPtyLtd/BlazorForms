@@ -7,10 +7,10 @@
 @inject IDynamicFieldValidator FieldValidator
 
         <MudAutocomplete T="string" Value="@SearchText" SearchFunc="@GetOptions" Disabled="@Field.DisplayProperties.Disabled"
-                     OnInternalInputChanged=@TextChanged ValueChanged=@ValueChanged
-                     ResetValueOnEmptyText="true" CoerceText="false" CoerceValue="false"
+                 TextChanged=@TextChanged ValueChanged=@ValueChanged OnBlur=@OnBlur
+                 ResetValueOnEmptyText="true" Immediate="true" CoerceText="false" CoerceValue="true"
                  AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"
-                     Style="width: 100%;" Variant="FormOptions.Variant" />
+                 Style="width: 100%;" Variant="FormOptions.Variant" @ref=@ControlRef />
 
         <ValidatorControl Validations="@AllValidations"></ValidatorControl>
 
@@ -48,9 +48,11 @@
     public bool Password { get; set; }
 
     //public MatList ListRef;
+    private MudAutocomplete<string>? ControlRef;
 
     private bool IsOpened;
     private string SearchText;
+    private IEnumerable<string> _options;
 
     private string MyId
     {
@@ -62,10 +64,7 @@
 
     private async Task<IEnumerable<string>> GetOptions(string pattern)
     {
-        var options = ViewModel.FieldGetItemsValue(ViewModel.ModelUntyped, ItemsBinding)
-            .Select(item => ViewModel.PathNavi.GetValue(item, NameBinding) as string)
-            .Where(item => item?.Contains(pattern ?? "", StringComparison.OrdinalIgnoreCase) == true);
-
+        var options = _options.Where(item => item?.Contains(pattern ?? "", StringComparison.OrdinalIgnoreCase) == true);
         return options;
     }
 
@@ -74,7 +73,13 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        SearchText = TextValue;   
+        SearchText = TextValue;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _options = ViewModel.FieldGetItemsValue(ViewModel.ModelUntyped, ItemsBinding)
+            .Select(item => ViewModel.PathNavi.GetValue(item, NameBinding) as string);
     }
 
     void OpenPopup()
@@ -89,23 +94,17 @@
         StateHasChanged();
     }
 
-    void TextChanged(ChangeEventArgs ev)
+    void TextChanged(string val)
     {
-        //If text changed - clear binding value, as we choose it from dropdown list
-        //Only update searching list
+        SearchText = val;
+        //ControlRef.Label = val;
 
-        var val = (string)ev.Value;
-        if (TextValue == val)
+        if (val != null)
         {
-            return;
+            _localValidation = Validate(val);
+            ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = SearchText, RowIndex = RowIndex });
         }
 
-        TextValue = val;
-        if (TextValue == "")
-        {
-            _localValidation = FieldValidator.Validate(Field, val);
-            ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = TextValue, RowIndex = RowIndex });
-        }
         StateHasChanged();
     }
 
@@ -113,8 +112,41 @@
     {
         SearchText = val;
 
-        _localValidation = FieldValidator.Validate(Field, val);
+        //_localValidation = FieldValidator.Validate(Field, val);
+        _localValidation = Validate(val);
         ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = val, RowIndex = RowIndex });
         StateHasChanged();
+    }
+
+    void OnBlur(FocusEventArgs args)
+    {
+        if (SearchText != null && !_options.Any(item => item == SearchText))
+        {
+            _localValidation = new RuleExecutionResult
+                {
+                    AffectedField = Field.Binding.Key,
+                    RuleCode = Field.DisplayProperties.Caption,
+                    ValidationMessage = "This is an incorrect value",
+                    ValidationResult = RuleValidationResult.Error
+                };
+
+            StateHasChanged();
+        }
+    }
+
+    RuleExecutionResult Validate(string val)
+    {
+        if (!_options.Any(item => item?.Contains(val ?? "", StringComparison.OrdinalIgnoreCase) == true))
+        {
+            return new RuleExecutionResult
+                {
+                    AffectedField = Field.Binding.Key,
+                    RuleCode = Field.DisplayProperties.Caption,
+                    ValidationMessage = "This is an incorrect value",
+                    ValidationResult = RuleValidationResult.Error
+                };
+        }
+
+        return FieldValidator.Validate(Field, val);
     }
 }

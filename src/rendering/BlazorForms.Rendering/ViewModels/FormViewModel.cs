@@ -489,11 +489,12 @@ namespace BlazorForms.Rendering
 
             foreach (var x in allFields)
             {
-                var r = _dynamicFieldValidator.Validate(x, PathNavi.GetValue(ModelUntyped, x.Binding.Key));
+                //var r = _dynamicFieldValidator.Validate(x, PathNavi.GetValue(ModelUntyped, x.Binding.Key));
+                var r = _dynamicFieldValidator.Validate(x, PathNavi.GetValue(ModelUntyped, x.Binding.Key), ModelUntyped);
 
                 if (r != null)
                 {
-                    result.Add(r);
+                    result.AddRange(r);
                 }
             }
 

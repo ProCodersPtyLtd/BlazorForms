@@ -71,6 +71,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
         protected override void Define(FormEntityTypeBuilder<PersonCompanyLinkTypeListModel> f)
         {
             f.DisplayName = "Person Company Link Type";
+            f.Confirm(ConfirmType.ChangesWillBeLost, "If you leave before saving, your changes will be lost.", ConfirmButtons.OkCancel);
 
             f.Repeater(p => p.Data, e =>
             {

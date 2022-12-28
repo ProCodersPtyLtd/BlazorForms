@@ -50,5 +50,21 @@ namespace BlazorForms.Forms
 
             return this;
         }
+
+        public virtual FieldBuilder<TProperty, TEntity> DropdownSearch<TKey, TKey2, TKey3>(Expression<Func<TMainEntity, IEnumerable<TKey>>> items,
+            Expression<Func<TKey, TKey2>> code, Expression<Func<TKey, TKey3>> name)
+        {
+            _field.BindingControlType = typeof(ListBindingControlType).Name;
+            _field.BindingType = FieldBindingType.TableColumn;
+            _field.ControlType = typeof(DropDownSearch);
+            _field.ViewModeControlType = typeof(DefaultDropdownReadonlyControl);
+
+            _field.SelectEntityType = typeof(TKey);
+            _field.SelectItemsProperty = items.Body.ToString().ReplaceLambdaVar();
+            _field.SelectIdProperty = code.Body.ToString().ReplaceLambdaVar();
+            _field.SelectNameProperty = name.Body.ToString().ReplaceLambdaVar();
+
+            return this;
+        }
     }
 }

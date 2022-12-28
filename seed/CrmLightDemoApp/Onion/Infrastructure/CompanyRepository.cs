@@ -5,7 +5,7 @@ using CrmLightDemoApp.Onion.Domain.Repositories;
 
 namespace CrmLightDemoApp.Onion.Infrastructure
 {
-    public class CompanyRepository : Repository<Company>, ICompanyRepository
+    public class CompanyRepository : LocalCacheRepository<Company>, ICompanyRepository
     {
         public CompanyRepository()
         {

@@ -7,7 +7,7 @@ namespace CrmLightDemoApp.Onion.Infrastructure
 {
     // this is repository emulator that stores all data in memory
     // it stores and retrieves object copies, like a real database
-    public class Repository<T> : IRepository<T>
+    public class LocalCacheRepository<T> : IRepository<T>
         where T : class, IEntity
     {
         protected int _id = 0;
