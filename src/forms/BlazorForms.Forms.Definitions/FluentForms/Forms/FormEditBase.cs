@@ -1,4 +1,5 @@
-﻿using BlazorForms.Shared;
+﻿using BlazorForms.Forms.Definitions.FluentForms.Model;
+using BlazorForms.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,6 +58,12 @@ namespace BlazorForms.Forms
         public IEnumerable<DialogButtonDetails> GetButtons()
         {
             var result = _builder.ActionButtons; 
+            return result;
+        }
+
+        public IEnumerable<ConfirmationDetails> GetConfirmations()
+        {
+            var result = _builder.Confirmations;
             return result;
         }
 

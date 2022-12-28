@@ -12,6 +12,7 @@
 @inject NavigationManager _navigationManager
 @inject ISnackbar Snackbar
 @inject IJSRuntime JS
+@inject IDialogService DialogService
 
 @if (!Options.MudBlazorProvidersDefined)
 {
@@ -166,6 +167,7 @@ else
     private bool _dialogIsOpen = false;
     private string _matDialogTitle = string.Empty;
     private string _buttonBinding = string.Empty;
+    private IDisposable? _navigationRegistration;
 
     private Color GetActionColor(FieldControlDetails action)
     {
@@ -191,11 +193,23 @@ else
     {
         if (firstRender)
         {
-
+            _navigationRegistration = _navigationManager.RegisterLocationChangingHandler(OnLocationChanging);
         }
 
         await base.OnAfterRenderAsync(firstRender);
     }
+
+    private async ValueTask OnLocationChanging(Microsoft.AspNetCore.Components.Routing.LocationChangingContext context)
+    {
+        var allowNavigation = await CheckConfirmation(ConfirmType.ChangesWillBeLost);
+
+        if (!allowNavigation)
+        {
+            context.PreventNavigation();
+        }
+    }
+
+    public void Dispose() => _navigationRegistration?.Dispose();
 
     protected override async Task OnParametersSetAsync()
     {
@@ -297,6 +311,11 @@ else
             await Task.Run(async () =>
             {
                 await _vm.SubmitForm(ModelBinding.SubmitButtonBinding);
+
+                if (!string.IsNullOrEmpty(_vm.ExceptionMessage))
+                {
+                    await ShowPopup();
+                }
             });
 
             var context = _vm.Context;
@@ -405,6 +424,9 @@ else
 
     protected void CancelClick()
     {
+        // allow to leave the form
+        _vm.SetInputChanged(false);
+
         if (!string.IsNullOrEmpty(NavigationCancel))
         {
             _navigationManager.NavigateTo(NavigationCancel);
@@ -455,6 +477,34 @@ else
         }
     }
 
+    private async Task<bool> CheckConfirmation(ConfirmType confirmType)
+    {
+        var list = _vm.GetAvailableConfirmations(confirmType);
+
+        if (list.Any())
+        {
+            var details = list.First();
+            var options = new DialogOptions { CloseOnEscapeKey = true };
+
+            var parameters = new DialogParameters 
+            { 
+                ["Message"] = details.Message,
+                ["CancelName"] = details.CancelName,
+                ["OkName"] = details.OkName,
+            };
+
+            var dialog = await DialogService.ShowAsync<FormConfirmationDialog>(null, parameters, options);
+            var result = await dialog.Result;
+
+            if (result.Cancelled)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     protected async Task ActionButtonClick(string binding, string caption)
     {
         _formLocked = true;
@@ -466,15 +516,31 @@ else
             {
                 case ModelBinding.DeleteButtonBinding:
                 case ModelBinding.EditButtonBinding:
-                    await ProcessContinueFlow(binding);
+                    if (await CheckConfirmation(ConfirmType.Continue))
+                    {
+                        await ProcessContinueFlow(binding);
+                    }
                     break;
 
                 case ModelBinding.CloseButtonBinding:
-                    CancelClick();
+                    if (await CheckConfirmation(ConfirmType.ChangesWillBeLost))
+                    {
+                        CancelClick();
+                    }
                     break;
 
                 case ModelBinding.CloseFinishButtonBinding:
-                    await CancelFinishClick(binding);
+                    if (await CheckConfirmation(ConfirmType.ChangesWillBeLost))
+                    {
+                        await CancelFinishClick(binding);
+                    }
+                    break;
+
+                case ModelBinding.RejectButtonBinding:
+                    if (await CheckConfirmation(ConfirmType.ChangesWillBeLost))
+                    {
+                        await ProcessReject(binding, caption);
+                    }
                     break;
 
                 case ModelBinding.ValidateButtonBinding:
@@ -493,9 +559,6 @@ else
                     await ProcessSave(binding);
                     break;
 
-                case ModelBinding.RejectButtonBinding:
-                    await ProcessReject(binding, caption);
-                    break;
             }
         }
         catch (Exception exc)

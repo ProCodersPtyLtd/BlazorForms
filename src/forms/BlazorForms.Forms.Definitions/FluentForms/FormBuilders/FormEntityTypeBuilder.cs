@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using BlazorForms.Forms.Definitions.FluentForms.Validation;
 using BlazorForms.Forms.Definitions.FluentForms.FormBuilders;
+using BlazorForms.Forms.Definitions.FluentForms.Model;
 
 namespace BlazorForms.Forms
 {
@@ -14,6 +15,7 @@ namespace BlazorForms.Forms
         protected FieldBuilder _fieldBuilder;
         public FieldBuilder FieldBuilder { get { return _fieldBuilder; } }
         public List<DialogButtonDetails> ActionButtons { get; private set; }  = new List<DialogButtonDetails>();
+        public List<ConfirmationDetails> Confirmations { get; private set; }  = new List<ConfirmationDetails>();
         public List<FormRepeaterTypeBuilder> RepeaterBuilders { get; private set; }  = new List<FormRepeaterTypeBuilder>();
     }
 
@@ -30,6 +32,12 @@ namespace BlazorForms.Forms
         public virtual FormEntityTypeBuilder<TEntity> Group(string group)
         {
             _currentGroup = group;
+            return this;
+        }
+
+        public virtual FormEntityTypeBuilder<TEntity> Confirm(ConfirmType type, string message, ConfirmButtons buttons)
+        {
+            Confirmations.Add(new ConfirmationDetails { Type = type, Message = message, Buttons = buttons });
             return this;
         }
 

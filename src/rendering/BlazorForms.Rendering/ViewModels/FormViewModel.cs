@@ -21,6 +21,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Collections;
 using System.Net.WebSockets;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
+using BlazorForms.Rendering.Model;
 
 namespace BlazorForms.Rendering
 {
@@ -256,6 +257,7 @@ namespace BlazorForms.Rendering
 
         protected void ClearData()
         {
+            SetInputChanged(false);
             ActionFields = new FieldControlDetails[0];
             _modelNavi.SetModel(ModelUntyped);
             _rowFields = new Dictionary<string, FieldControlDetails>();
@@ -361,6 +363,7 @@ namespace BlazorForms.Rendering
         public async Task SaveForm(string actionBinding = null, string operationName = null)
         {
             await _flowRunProvider.SaveForm(Context.RefId, ModelUntyped, actionBinding, operationName);
+            SetInputChanged(false);
         }
 
         public async Task SubmitForm(string binding = null, string operationName = null)
@@ -376,6 +379,7 @@ namespace BlazorForms.Rendering
                 ctx = await _flowRunProvider.SubmitClientKeptContextFlowForm(Context.GetClientContext(), ModelUntyped, Params as FlowParamsGeneric, binding);
             }
 
+            SetInputChanged(false);
             Context = ctx.GetClientContext();
             ModelUntyped = ctx.Model;
 
@@ -654,11 +658,55 @@ namespace BlazorForms.Rendering
             return _modelBindingNavigator.GetRowValue(model, binding, rowIndex);
         }
 
+
         public void FieldSetValue(object model, FieldBinding binding, object value)
         {
             _modelBindingNavigator.SetValue(model, binding, value);
         }
 
-        
+        public List<FormConfirmationData> GetAvailableConfirmations(ConfirmType confirmType, string? binding = null)
+        {
+            var result =new List<FormConfirmationData>();
+
+            var list = GetAllFields().Where(f => f.DisplayProperties?.Confirmations != null)
+                .SelectMany(f => f.DisplayProperties.Confirmations).Select(c => new FormConfirmationData(c));
+
+            if (binding == null)
+            {
+                // Form Confirmations
+                if (_changed && confirmType == ConfirmType.ChangesWillBeLost)
+                {
+                    result.AddRange(list.Where(c => c.Type == ConfirmType.ChangesWillBeLost));
+                }
+                
+                result.AddRange(list.Where(c => c.Type == confirmType && c.Type != ConfirmType.ChangesWillBeLost));
+            }
+
+            return result;
+        }
+
+        protected bool _changed;
+        protected bool _ignoreChanged;
+
+        public void SetInputChanged(bool changed = true)
+        {
+            if (!_ignoreChanged && changed)
+            {
+                _changed = true;
+                return;
+            }
+
+            _changed = changed;
+        }
+
+        public void IgnoreInputChanged()
+        {
+            _ignoreChanged = true;
+        }
+
+        public void RestoreInputChanged()
+        {
+            _ignoreChanged = false;
+        }
     }
 }

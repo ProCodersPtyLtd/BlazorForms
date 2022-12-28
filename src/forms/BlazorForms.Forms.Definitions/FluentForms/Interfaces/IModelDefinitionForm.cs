@@ -1,4 +1,5 @@
-﻿using BlazorForms.Shared;
+﻿using BlazorForms.Forms.Definitions.FluentForms.Model;
+using BlazorForms.Shared;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -12,6 +13,7 @@ namespace BlazorForms.Forms
         Type GetDetailsType();
         IEnumerable<DataField> GetDetailsFields();
         IEnumerable<DialogButtonDetails> GetButtons();
+        IEnumerable<ConfirmationDetails> GetConfirmations();
         IEnumerable<IBindingFlowReference> GetButtonNavigations();
         IEnumerable<ActionRouteLink> GetContextLinks();
 

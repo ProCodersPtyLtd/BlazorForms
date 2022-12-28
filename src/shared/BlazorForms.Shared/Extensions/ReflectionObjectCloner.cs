@@ -56,10 +56,15 @@ namespace BlazorForms.Shared
 
             foreach (var property in properties)
             {
-                if (property.GetSetMethod() != null && target.GetType().GetProperty(property.Name) != null)
+                if (property.GetSetMethod() != null)
                 {
-                    var value = property.GetValue(source);
-                    property.SetValue(target, value);
+                    var targetProperty = target.GetType().GetProperty(property.Name);
+
+                    if (targetProperty != null)
+                    {
+                        var value = property.GetValue(source);
+                        targetProperty.SetValue(target, value);
+                    }
                 }
             }
         }

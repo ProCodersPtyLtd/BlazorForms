@@ -4,16 +4,25 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+
+	  <AssemblyVersion>0.6.0</AssemblyVersion>
+	  <PackageVersion>0.6.0</PackageVersion>
+	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
+	  <Copyright>Pro Coders PTY LTD</Copyright>
+	  <Description>Blazor Forms Crm Light Demo Application</Description>
+	  <Company>Pro Coders PTY LTD</Company>
+	  <PackageTags>crm;light;blazor;flow;dynamic;form;forms;rule;framework</PackageTags>
+	  <Authors>Pro Coders PTY LTD</Authors>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BlazorForms" Version="0.6.0" />
-    <PackageReference Include="BlazorForms.Rendering.MudBlazorUI" Version="0.6.0" />
+    <!--<PackageReference Include="BlazorForms" Version="0.6.0" />
+    <PackageReference Include="BlazorForms.Rendering.MudBlazorUI" Version="0.6.0" />-->
   </ItemGroup>
 
   <ItemGroup>
-    <!--<ProjectReference Include="..\..\src\platform\BlazorForms.Platform\BlazorForms.Platform.csproj" />
-    <ProjectReference Include="..\..\src\rendering\BlazorForms.Rendering.MudBlazorUI\BlazorForms.Rendering.MudBlazorUI.csproj" />-->
+    <ProjectReference Include="..\..\src\platform\BlazorForms.Platform\BlazorForms.Platform.csproj" />
+    <ProjectReference Include="..\..\src\rendering\BlazorForms.Rendering.MudBlazorUI\BlazorForms.Rendering.MudBlazorUI.csproj" />
   </ItemGroup>
 
 </Project>

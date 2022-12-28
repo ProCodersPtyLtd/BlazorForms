@@ -32,7 +32,6 @@ namespace CrmLightDemoApp.Onion.Services.Flow
                    .NextForm(typeof(FormCompanyView))
                 .EndIf()
                 .If(() => _flowContext.ExecutionResult.FormLastAction == ModelBinding.DeleteButtonBinding)
-                    .NextForm(typeof(FormCompanyDelete))
                     .Next(DeleteData)
                 .Else()
                     .If(() => _flowContext.ExecutionResult.FormLastAction == ModelBinding.SubmitButtonBinding || !_flowContext.Params.ItemKeyAboveZero)
@@ -64,7 +63,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 
         public async Task DeleteData()
         {
-            await _companyRepository.DeleteAsync(Model.Id);
+            await _companyRepository.SoftDeleteAsync(Model.Id);
         }
 
         public async Task LoadRelatedData()
@@ -131,6 +130,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
         protected override void Define(FormEntityTypeBuilder<CompanyModel> f)
         {
             f.DisplayName = "Company View";
+
             f.Property(p => p.Name).Label("Name").IsReadOnly();
             f.Property(p => p.RegistrationNumber).Label("Reg. No.").IsReadOnly();
             f.Property(p => p.EstablishedDate).Label("Established date").IsReadOnly();
@@ -143,23 +143,12 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             });
 
             f.Button(ButtonActionTypes.Close, "Close");
-            f.Button(ButtonActionTypes.Delete, "Delete");
+
+            f.Button(ButtonActionTypes.Delete, "Delete")
+                .Confirm(ConfirmType.Continue, "Delete this Company?", ConfirmButtons.YesNo);
+
             f.Button(ButtonActionTypes.Submit, "Edit");
 
-        }
-    }
-
-    public class FormCompanyDelete : FormEditBase<CompanyModel>
-    {
-        protected override void Define(FormEntityTypeBuilder<CompanyModel> f)
-        {
-            f.DisplayName = "Are you sure you want to delete company?";
-            f.Property(p => p.Name).Label("Name").IsReadOnly();
-            f.Property(p => p.RegistrationNumber).Label("Reg. No.").IsReadOnly();
-            f.Property(p => p.EstablishedDate).Label("Established date").IsReadOnly();
-
-            f.Button(ButtonActionTypes.Close, "Close");
-            f.Button(ButtonActionTypes.Delete, "Delete");
         }
     }
 
@@ -169,6 +158,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
         {
 
             f.DisplayName = "Company Edit";
+            f.Confirm(ConfirmType.ChangesWillBeLost, "If you leave before saving, your changes will be lost.", ConfirmButtons.OkCancel);
 
             f.Property(p => p.Name).Label("Name").IsRequired();
             f.Property(p => p.RegistrationNumber).Label("Reg. No.").IsRequired();
@@ -183,16 +173,17 @@ namespace CrmLightDemoApp.Onion.Services.Flow
                     .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged);
 
                 e.PropertyRoot(p => p.PersonFullName).EditWithOptions(e => e.AllPersons, m => m.FullName).IsRequired().Label("Person")
-                    .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged);
-                    //.Rule(typeof(FormCompanyEdit_CheckNameRule), FormRuleTriggers.Submit);
+                    .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged)
+                    .Rule(typeof(FormCompanyEdit_CheckNameRule), FormRuleTriggers.Submit);
 
                 //e.PropertyRoot(p => p.PersonId).Dropdown(p => p.AllPersons, m => m.Id, m => m.FullName).IsRequired().Label("Person")
                 //    .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged);
-            });
+            }).Confirm(ConfirmType.DeleteItem, "Delete this association?", ConfirmButtons.YesNo);
 
             f.Button(ButtonActionTypes.Cancel, "Cancel");
             f.Button(ButtonActionTypes.Submit, "Save");
 
+            //f.Rule(typeof(FormCompanyEdit_CheckNameRule), FormRuleTriggers.Submit);
         }
     }
 

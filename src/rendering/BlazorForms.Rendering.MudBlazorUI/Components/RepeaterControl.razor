@@ -10,6 +10,7 @@
 @inject IReflectionProvider _reflectionProvider
 @inject ISnackbar Snackbar
 @inject NavigationManager _NavigationManager
+@inject IDialogService DialogService
 
 <style>
     .jsgrid-grid-header {
@@ -171,6 +172,8 @@
 
     private async Task ModelChanged(ValueChangedArgs args)
     {
+        ViewModel.SetInputChanged();
+
         _isModelChanged = true;
         ViewModel.ModelNaviSetValue(Table.Binding.TableBinding, args.RowIndex, args.Binding.Binding, args.NewValue);
 
@@ -215,6 +218,8 @@
 
     private async Task AddClick()
     {
+        ViewModel.SetInputChanged();
+
         var itemType = ListData.GetType().GetGenericArguments()[0];
         var newItem = Activator.CreateInstance(itemType);
         var list = ListData as System.Collections.IList;
@@ -230,11 +235,47 @@
 
         // trigger rule after rendering (new fields should be created by GetField())
         var task = await ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, Table.Binding, FormRuleTriggers.ItemAdded, list.Count - 1);
+
         StateHasChanged();
+    }
+
+    private async Task<bool> CheckConfirmation(ConfirmType confirmType)
+    {
+        var list = ViewModel.GetAvailableConfirmations(confirmType);
+
+        if (list.Any())
+        {
+            var details = list.First();
+            var options = new DialogOptions { CloseOnEscapeKey = true };
+
+            var parameters = new DialogParameters 
+            { 
+                ["Message"] = details.Message,
+                ["CancelName"] = details.CancelName,
+                ["OkName"] = details.OkName,
+            };
+
+            var dialog = await DialogService.ShowAsync<FormConfirmationDialog>(null, parameters, options);
+            var result = await dialog.Result;
+
+            if (result.Cancelled)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private async Task DelClick(MouseEventArgs args, int rowIndex)
     {
+        if (!await CheckConfirmation(ConfirmType.DeleteItem))
+        {
+            return;    
+        }
+
+        ViewModel.SetInputChanged();
+
         _rowIndex = rowIndex;
         _isModelChanged = _newRow > -1 ? false : true;
         _newRow = -1;

@@ -1,0 +1,69 @@
+﻿@using BlazorForms.Platform.Definitions.Shared
+@using BlazorForms.Rendering.State
+@using MudBlazor
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.Shared
+
+@inject IDynamicFieldValidator FieldValidator
+@inject ISnackbar Snackbar
+@inject NavigationManager _navigationManager
+
+<style>
+    .pz-dilaog-grid-align {
+        display: flex;
+    }
+
+    .pz-dialog-content {
+        padding: 0 40px;
+    }
+</style>
+
+<MudDialog  DefaultFocus="DefaultFocus.LastChild">
+    <TitleContent>
+        <MudText Typo="Typo.h6">@Message</MudText>
+    </TitleContent>
+    <DialogContent>
+    </DialogContent>
+    <DialogActions>
+        <div class="d-flex flex-row flex-grow-1 gap-2 justify-end pz-dialog-content">
+            <div class="d-inline-flex">
+                <MudButton Variant="Variant.Filled" OnClick="@CancelClick" >@CancelName</MudButton>
+            </div>
+
+            <div class="d-inline-flex">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@SubmitClick">@OkName</MudButton>
+            </div>
+        </div>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Parameter]
+    public string Message { get; set; } 
+
+    [CascadingParameter] 
+    MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public string CancelName { get; set; }
+
+    [Parameter]
+    public string OkName { get; set; }
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+    }
+
+    private async Task CancelClick()
+    {
+        MudDialog.Cancel();
+    }
+
+    private async Task SubmitClick()
+    {
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+}

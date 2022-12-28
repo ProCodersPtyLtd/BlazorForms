@@ -1,4 +1,5 @@
-﻿using BlazorForms.Shared;
+﻿using BlazorForms.Forms.Definitions.FluentForms.Model;
+using BlazorForms.Shared;
 using BlazorForms.Shared.Extensions;
 using System;
 using System.Collections.Generic;
@@ -26,5 +27,6 @@ namespace BlazorForms.Forms
 
         // ToDo: can it be readonly copy of the field binding?
         public FieldBinding Binding { get; set; }
+        public List<FormConfirmationDetails> Confirmations { get; set; }
     }
 }

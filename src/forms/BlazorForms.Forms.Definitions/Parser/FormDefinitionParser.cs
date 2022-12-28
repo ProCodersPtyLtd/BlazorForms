@@ -1,3 +1,4 @@
+using BlazorForms.Forms.Definitions.FluentForms.Model;
 using BlazorForms.Shared;
 using BlazorForms.Shared.FastReflection;
 using Microsoft.Extensions.DependencyInjection;
@@ -168,6 +169,7 @@ namespace BlazorForms.Forms
                 DisplayName = form.DisplayName, 
                 ChildProcessTypeFullName = form.ChildProcess?.FullName,
                 Fields = new List<FieldControlDetails>(),
+                //DisplayProperties = new FormDisplayDetails { Confirmations = new List<FormConfirmationDetails>() },
             };
 
             if (form.Access != null)
@@ -202,12 +204,13 @@ namespace BlazorForms.Forms
             ////FillRules(formControl, form);
             //AddControl(formControl);
 
+
             // Add field one by one
             foreach (var field in fields)
             {
                 // Set FastReflection delegates
                 UpdateFastReflectionDelegates(field.Binding, form.GetDetailsType());
-
+            
                 var newControl = new FieldControlDetails
                 {
                     Name = field.Name,
@@ -245,6 +248,13 @@ namespace BlazorForms.Forms
                     Format= field.Format,
                     IsUnique = field.Unique,
 
+                    Confirmations = field.Confirmations.Select(c => 
+                    {
+                        var confirmation = new FormConfirmationDetails();
+                        c.ReflectionCopyTo(confirmation);
+                        return confirmation;
+                    }).ToList(),
+
                     // new binding concept
                     Binding = field.Binding,
 
@@ -269,6 +279,16 @@ namespace BlazorForms.Forms
 
                 AddControl(newControl);
             }
+
+            // Form Confirmations
+            var formField = details.Fields.First(f => f.Binding.BindingType == FieldBindingType.Form);
+
+            formField.DisplayProperties.Confirmations = form.GetConfirmations().Select(c =>
+            {
+                var confirmation = new FormConfirmationDetails();
+                c.ReflectionCopyTo(confirmation);
+                return confirmation;
+            }).ToList();
 
             // Buttons
             var buttons = form.GetButtons();
