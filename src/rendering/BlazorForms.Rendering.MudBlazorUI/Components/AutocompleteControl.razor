@@ -12,7 +12,7 @@
                  AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"
                  Style="width: 100%;" Variant="FormOptions.Variant" @ref=@ControlRef />
 
-        <ValidatorControl Validations="@AllValidations"></ValidatorControl>
+        <ValidatorControl Validations="@AllValidations.Take(1)"></ValidatorControl>
 
 @code {
     [CascadingParameter]
@@ -50,7 +50,6 @@
     //public MatList ListRef;
     private MudAutocomplete<string>? ControlRef;
 
-    private bool IsOpened;
     private string SearchText;
     private IEnumerable<string> _options;
 
@@ -82,18 +81,6 @@
             .Select(item => ViewModel.PathNavi.GetValue(item, NameBinding) as string);
     }
 
-    void OpenPopup()
-    {
-        IsOpened = true;
-        StateHasChanged();
-    }
-
-    void ClosePopup()
-    {
-        IsOpened = false;
-        StateHasChanged();
-    }
-
     void TextChanged(string val)
     {
         SearchText = val;
@@ -101,8 +88,9 @@
 
         if (val != null)
         {
-            _localValidation = Validate(val);
+            //_localValidation = Validate(val);
             ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = SearchText, RowIndex = RowIndex });
+            ViewModel.RefreshValidations(Field);
         }
 
         StateHasChanged();
@@ -112,41 +100,41 @@
     {
         SearchText = val;
 
-        //_localValidation = FieldValidator.Validate(Field, val);
-        _localValidation = Validate(val);
+        //_localValidation = Validate(val);
         ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = val, RowIndex = RowIndex });
+        ViewModel.RefreshValidations(Field);
         StateHasChanged();
     }
 
     void OnBlur(FocusEventArgs args)
     {
-        if (SearchText != null && !_options.Any(item => item == SearchText))
-        {
-            _localValidation = new RuleExecutionResult
-                {
-                    AffectedField = Field.Binding.Key,
-                    RuleCode = Field.DisplayProperties.Caption,
-                    ValidationMessage = "This is an incorrect value",
-                    ValidationResult = RuleValidationResult.Error
-                };
+        //if (SearchText != null && !_options.Any(item => item == SearchText))
+        //{
+        //    _localValidation = new RuleExecutionResult
+        //        {
+        //            AffectedField = Field.Binding.Key,
+        //            RuleCode = Field.DisplayProperties.Caption,
+        //            ValidationMessage = "This is an incorrect value",
+        //            ValidationResult = RuleValidationResult.Error
+        //        };
 
-            StateHasChanged();
-        }
+        //    StateHasChanged();
+        //}
     }
 
-    RuleExecutionResult Validate(string val)
-    {
-        if (!_options.Any(item => item?.Contains(val ?? "", StringComparison.OrdinalIgnoreCase) == true))
-        {
-            return new RuleExecutionResult
-                {
-                    AffectedField = Field.Binding.Key,
-                    RuleCode = Field.DisplayProperties.Caption,
-                    ValidationMessage = "This is an incorrect value",
-                    ValidationResult = RuleValidationResult.Error
-                };
-        }
+    //RuleExecutionResult Validate(string val)
+    //{
+    //    if (!_options.Any(item => item?.Contains(val ?? "", StringComparison.OrdinalIgnoreCase) == true))
+    //    {
+    //        return new RuleExecutionResult
+    //            {
+    //                AffectedField = Field.Binding.Key,
+    //                RuleCode = Field.DisplayProperties.Caption,
+    //                ValidationMessage = "This is an incorrect value",
+    //                ValidationResult = RuleValidationResult.Error
+    //            };
+    //    }
 
-        return FieldValidator.Validate(Field, val);
-    }
+    //    return FieldValidator.Validate(Field, val, ViewModel.ModelUntyped).FirstOrDefault();
+    //}
 }

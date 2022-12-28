@@ -405,7 +405,7 @@ namespace BlazorForms.Rendering
             // Clear validations for this binding
             if (modelBinding != null)
             {
-                Validations = Validations.Where(v => v.AffectedField == modelBinding?.ResolvedBinding).ToList();
+                Validations = Validations.Where(v => v.AffectedField != modelBinding?.ResolvedBinding).ToList();
             }
 
             var allFields = GetAllFields();
@@ -708,6 +708,18 @@ namespace BlazorForms.Rendering
         public void RestoreInputChanged()
         {
             _ignoreChanged = false;
+        }
+
+        public void RefreshValidations(FieldControlDetails field)
+        {
+            Validations = Validations.Where(v => v.AffectedField != field.Binding.ResolvedBinding).ToList();
+
+            var r = _dynamicFieldValidator.Validate(field, PathNavi.GetValue(ModelUntyped, field.Binding.Key), ModelUntyped);
+
+            if (r != null)
+            {
+                Validations = Validations.Union(r);
+            }
         }
     }
 }

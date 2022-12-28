@@ -67,7 +67,7 @@ namespace BlazorForms.Rendering.Validation
 
         private RuleExecutionResult ValidateItemExists(FieldControlDetails field, object value, object model)
         {
-            if (field?.ControlType == "Autocomplete" && field.DisplayProperties.Visible)
+            if (field?.ControlType == "Autocomplete" && field.DisplayProperties.Visible && value != null)
             {
                 var options = _jsonPathNavigator.GetItems(model, field.Binding.ItemsBinding);
 
