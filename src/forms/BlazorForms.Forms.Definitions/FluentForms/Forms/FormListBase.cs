@@ -1,4 +1,5 @@
-﻿using BlazorForms.Shared;
+﻿using BlazorForms.Forms.Definitions.FluentForms.Model;
+using BlazorForms.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -92,5 +93,9 @@ namespace BlazorForms.Forms
             return "";
         }
 
+        public IEnumerable<ConfirmationDetails> GetConfirmations()
+        {
+            return new List<ConfirmationDetails>();
+        }
     }
 }

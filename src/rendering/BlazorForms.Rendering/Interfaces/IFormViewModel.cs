@@ -10,6 +10,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BlazorForms.Rendering.Model;
 
 namespace BlazorForms.Rendering.Interfaces
 {
@@ -56,6 +57,12 @@ namespace BlazorForms.Rendering.Interfaces
         Task RejectForm(string binding = null, string operationName = null);
         Task LoadFlowDefaultForm(string refId);
         Task ApplyFormData(FormDetails form, IFlowModel model);
+        List<FormConfirmationData> GetAvailableConfirmations(ConfirmType confirmType, string? binding = null);
+
+        // track user input changes
+        void SetInputChanged();
+        void IgnoreInputChanged();
+        void RestoreInputChanged();
 
         // useful api
         List<SelectableListItem> GetSelectableListData(FieldControlDetails field);

@@ -1,3 +1,4 @@
+using BlazorForms.Forms.Definitions.FluentForms.Model;
 using BlazorForms.Shared;
 using BlazorForms.Shared.FastReflection;
 using Microsoft.Extensions.DependencyInjection;
@@ -168,6 +169,7 @@ namespace BlazorForms.Forms
                 DisplayName = form.DisplayName, 
                 ChildProcessTypeFullName = form.ChildProcess?.FullName,
                 Fields = new List<FieldControlDetails>(),
+                //DisplayProperties = new FormDisplayDetails { Confirmations = new List<FormConfirmationDetails>() },
             };
 
             if (form.Access != null)
@@ -244,6 +246,7 @@ namespace BlazorForms.Forms
                     FilterRefField = field.FilterRefField,
                     Format= field.Format,
                     IsUnique = field.Unique,
+                    Confirmations = new List<FormConfirmationDetails>(),
 
                     // new binding concept
                     Binding = field.Binding,
@@ -269,6 +272,19 @@ namespace BlazorForms.Forms
 
                 AddControl(newControl);
             }
+
+            // Form Confirmations
+            var confirmations = form.GetConfirmations();
+            var formField = details.Fields.First(f => f.Binding.BindingType == FieldBindingType.Form);
+
+            foreach (var c in confirmations)
+            {
+                var confirmation = new FormConfirmationDetails();
+                c.ReflectionCopyTo(confirmation);
+                formField.DisplayProperties.Confirmations.Add(confirmation);
+            }
+
+
 
             // Buttons
             var buttons = form.GetButtons();

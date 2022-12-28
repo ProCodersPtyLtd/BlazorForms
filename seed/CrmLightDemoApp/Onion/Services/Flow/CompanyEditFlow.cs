@@ -131,6 +131,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
         protected override void Define(FormEntityTypeBuilder<CompanyModel> f)
         {
             f.DisplayName = "Company View";
+
             f.Property(p => p.Name).Label("Name").IsReadOnly();
             f.Property(p => p.RegistrationNumber).Label("Reg. No.").IsReadOnly();
             f.Property(p => p.EstablishedDate).Label("Established date").IsReadOnly();
@@ -144,6 +145,8 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 
             f.Button(ButtonActionTypes.Close, "Close");
             f.Button(ButtonActionTypes.Delete, "Delete");
+            //      .Confirm(ConfirmType.Continue, "Delete this Company?", "ConfirmButtons.YesNo");
+
             f.Button(ButtonActionTypes.Submit, "Edit");
 
         }
@@ -169,6 +172,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
         {
 
             f.DisplayName = "Company Edit";
+            f.Confirm(ConfirmType.ChangesWillBeLost, "If you leave before saving, your changes will be lost.", ConfirmButtons.OkCancel);
 
             f.Property(p => p.Name).Label("Name").IsRequired();
             f.Property(p => p.RegistrationNumber).Label("Reg. No.").IsRequired();
@@ -184,7 +188,8 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 
                 e.PropertyRoot(p => p.PersonFullName).EditWithOptions(e => e.AllPersons, m => m.FullName).IsRequired().Label("Person")
                     .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged);
-                    //.Rule(typeof(FormCompanyEdit_CheckNameRule), FormRuleTriggers.Submit);
+                //.Confrim(ConfirmType.DeleteItem, "Delete this association?", "ConfirmButtons.YesNo");
+                //.Rule(typeof(FormCompanyEdit_CheckNameRule), FormRuleTriggers.Submit);
 
                 //e.PropertyRoot(p => p.PersonId).Dropdown(p => p.AllPersons, m => m.Id, m => m.FullName).IsRequired().Label("Person")
                 //    .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged);

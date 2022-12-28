@@ -175,10 +175,12 @@
             return;
         }        
 
-        if (args.Binding.BindingType != BlazorForms.Shared.FieldBindingType.ActionButton)
+        if (args.Binding.BindingType != BlazorForms.Shared.FieldBindingType.ActionButton
+            && args.Binding.BindingType != BlazorForms.Shared.FieldBindingType.Table)
         {
             //ViewModel.ModelNaviSetValue(args.Binding.ResolvedBinding, args.NewValue);
             ViewModel.FieldSetValue(ViewModel.ModelUntyped, args.Binding, args.NewValue);
+            ViewModel.SetInputChanged();
         }
         try
         {

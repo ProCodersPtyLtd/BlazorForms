@@ -18,6 +18,9 @@
 
 @code {
     [CascadingParameter]
+    public IFormViewModel ViewModel { get; set; }
+
+    [CascadingParameter]
     public FormOptions FormOptions { get; set; }
 
     [Parameter]
@@ -76,15 +79,24 @@
     {
         if (firstRender)
         {
-            if (DateValue != null && DateValue.Value.Kind == DateTimeKind.Utc)
+            ViewModel.IgnoreInputChanged();
+
+            try
             {
-                _localDateValue = await ClientDateService.GetLocalDateTime(DateValue);
-                StateHasChanged();
+                if (DateValue != null && DateValue.Value.Kind == DateTimeKind.Utc)
+                {
+                    _localDateValue = await ClientDateService.GetLocalDateTime(DateValue);
+                    StateHasChanged();
+                }
+                else
+                {
+                    _localDateValue = DateValue;
+                    StateHasChanged();
+                }
             }
-            else
+            finally
             {
-                _localDateValue = DateValue;
-                StateHasChanged();
+                ViewModel.RestoreInputChanged();
             }
         }
     }

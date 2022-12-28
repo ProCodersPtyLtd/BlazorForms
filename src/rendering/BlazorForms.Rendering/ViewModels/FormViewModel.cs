@@ -21,6 +21,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Collections;
 using System.Net.WebSockets;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
+using BlazorForms.Rendering.Model;
 
 namespace BlazorForms.Rendering
 {
@@ -256,6 +257,7 @@ namespace BlazorForms.Rendering
 
         protected void ClearData()
         {
+            _changed = false;
             ActionFields = new FieldControlDetails[0];
             _modelNavi.SetModel(ModelUntyped);
             _rowFields = new Dictionary<string, FieldControlDetails>();
@@ -654,11 +656,45 @@ namespace BlazorForms.Rendering
             return _modelBindingNavigator.GetRowValue(model, binding, rowIndex);
         }
 
+
         public void FieldSetValue(object model, FieldBinding binding, object value)
         {
             _modelBindingNavigator.SetValue(model, binding, value);
         }
 
-        
+        public List<FormConfirmationData> GetAvailableConfirmations(ConfirmType confirmType, string? binding = null)
+        {
+            var list = GetAllFields().Where(f => f.DisplayProperties?.Confirmations != null)
+                .SelectMany(f => f.DisplayProperties.Confirmations).Select(c => new FormConfirmationData(c));
+
+            if (binding == null && _changed)
+            {
+                var formConfirmations = list.Where(c => c.Type == ConfirmType.ChangesWillBeLost);
+                return formConfirmations.ToList();
+            }
+
+            return new List<FormConfirmationData>();
+        }
+
+        protected bool _changed;
+        protected bool _ignoreChanged;
+
+        public void SetInputChanged()
+        {
+            if (!_ignoreChanged)
+            {
+                _changed = true;
+            }
+        }
+
+        public void IgnoreInputChanged()
+        {
+            _ignoreChanged = true;
+        }
+
+        public void RestoreInputChanged()
+        {
+            _ignoreChanged = false;
+        }
     }
 }

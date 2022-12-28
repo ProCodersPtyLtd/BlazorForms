@@ -12,6 +12,7 @@
 @inject NavigationManager _navigationManager
 @inject ISnackbar Snackbar
 @inject IJSRuntime JS
+@inject IDialogService DialogService
 
 @if (!Options.MudBlazorProvidersDefined)
 {
@@ -166,6 +167,7 @@ else
     private bool _dialogIsOpen = false;
     private string _matDialogTitle = string.Empty;
     private string _buttonBinding = string.Empty;
+    private IDisposable? _navigationRegistration;
 
     private Color GetActionColor(FieldControlDetails action)
     {
@@ -191,11 +193,23 @@ else
     {
         if (firstRender)
         {
-
+            _navigationRegistration = _navigationManager.RegisterLocationChangingHandler(OnLocationChanging);
         }
 
         await base.OnAfterRenderAsync(firstRender);
     }
+
+    private async ValueTask OnLocationChanging(Microsoft.AspNetCore.Components.Routing.LocationChangingContext context)
+    {
+        var allowNavigation = await CheckConfirmation(ConfirmType.ChangesWillBeLost);
+
+        if (!allowNavigation)
+        {
+            context.PreventNavigation();
+        }
+    }
+
+    public void Dispose() => _navigationRegistration?.Dispose();
 
     protected override async Task OnParametersSetAsync()
     {
@@ -455,6 +469,34 @@ else
         }
     }
 
+    private async Task<bool> CheckConfirmation(ConfirmType confirmType)
+    {
+        var list = _vm.GetAvailableConfirmations(confirmType);
+
+        if (list.Any())
+        {
+            var details = list.First();
+            var options = new DialogOptions { CloseOnEscapeKey = true };
+
+            var parameters = new DialogParameters 
+            { 
+                ["Message"] = details.Message,
+                ["CancelName"] = details.CancelName,
+                ["OkName"] = details.OkName,
+            };
+
+            var dialog = await DialogService.ShowAsync<FormConfirmationDialog>(null, parameters, options);
+            var result = await dialog.Result;
+
+            if (result.Cancelled)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     protected async Task ActionButtonClick(string binding, string caption)
     {
         _formLocked = true;
@@ -470,7 +512,13 @@ else
                     break;
 
                 case ModelBinding.CloseButtonBinding:
-                    CancelClick();
+                    // Check Confirmation
+                    var allowCancel = await CheckConfirmation(ConfirmType.ChangesWillBeLost);
+
+                    if (allowCancel)
+                    {
+                        CancelClick();
+                    }
                     break;
 
                 case ModelBinding.CloseFinishButtonBinding:
