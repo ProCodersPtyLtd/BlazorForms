@@ -101,38 +101,7 @@
 
     void TextChanged(string text)
     {
-        //if (val != null)
-        //{
-        //    if (!_optionsDictionary.Values.Any(item => item.Item2 == val))
-        //    {
-        //        _localValidation = new RuleExecutionResult
-        //            {
-        //                AffectedField = Field.Binding.Key,
-        //                RuleCode = Field.DisplayProperties.Caption,
-        //                ValidationMessage = "This is an incorrect value",
-        //                ValidationResult = RuleValidationResult.Error
-        //            };
-
-        //        SelectedValue = null;
-        //    }
-
-        //    //_localValidation = Validate(val);
-        //    //ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = SelectedValue?.Item1, RowIndex = RowIndex });
-        //}
-        //else
-        //{
-        //    SelectedValue = null;
-        //}
-
-        //SelectedValue = val;
-        ////ControlRef.Label = val;
-
-        //if (val != null)
-        //{
-        //    _localValidation = Validate(val);
-        //    ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = SelectedValue, RowIndex = RowIndex });
-        //}
-
+        // Text is changed, if value is not an exact option - we set value to -1 (IncorrectTextCode) and provoke incorrect value validation
         var selectedValue = _optionsDictionary.Values.FirstOrDefault(item => item.Item2 == text);
 
         if (!string.IsNullOrWhiteSpace(text))
