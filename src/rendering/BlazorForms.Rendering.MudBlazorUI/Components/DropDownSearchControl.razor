@@ -1,0 +1,133 @@
+﻿@using BlazorForms.Rendering.State
+@using BlazorForms.Shared
+@using MudBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+
+@inject IDynamicFieldValidator FieldValidator
+
+<MudAutocomplete T="Tuple<string, string>" Value="@SelectedValue" SearchFunc="@GetOptions" Disabled="@Field.DisplayProperties.Disabled"
+                 TextChanged=@TextChanged ValueChanged=@ValueChanged 
+                 ResetValueOnEmptyText="true" Immediate="true" CoerceText="false" CoerceValue="true"
+                 AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"
+                 Style="width: 100%;" Variant="FormOptions.Variant" @ref=@ControlRef ToStringFunc="@(e=> e?.Item2)" />
+
+<ValidatorControl Validations="@GetValidations().Take(1)"></ValidatorControl>
+
+@code {
+    [CascadingParameter]
+    public FormOptions FormOptions { get; set; }
+
+    [CascadingParameter]
+    public IFormViewModel ViewModel { get; set; }
+
+    [Parameter]
+    public int RowIndex { get; set; }
+
+    [Parameter]
+    public FieldControlDetails Field { get; set; }
+    [Parameter]
+    public string Caption { get; set; }
+    [Parameter]
+    public string Name { get; set; }
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    [Parameter]
+    // this is a target object Id
+    public string FieldValue { get; set; }
+
+    [Parameter]
+    public string ItemsBinding { get; set; }
+    [Parameter]
+    public string NameBinding { get; set; }
+    [Parameter]
+    public string ModelBinding { get; set; }
+    [Parameter]
+    public string IdBinding { get; set; }
+
+    [Parameter]
+    public bool Password { get; set; }
+
+    //public MatList ListRef;
+    private MudAutocomplete<Tuple<string, string>>? ControlRef;
+
+    private Tuple<string, string> SelectedValue;
+    private string _selectedId;
+    //private IEnumerable<object> _options;
+    private IDictionary<string, Tuple<string, string>> _optionsDictionary;
+
+    private string MyId
+    {
+        get
+        {
+            return $"{Field.Group}-{Field.Name}-{Field.Caption}-{RowIndex}";
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _selectedId = FieldValue;
+        SelectedValue = _optionsDictionary.ContainsKey(_selectedId) ? _optionsDictionary[_selectedId] : null;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var items = ViewModel.FieldGetItemsValue(ViewModel.ModelUntyped, ItemsBinding);
+
+        _optionsDictionary = items.ToDictionary(
+                i => ViewModel.FieldGetIdValue(i, Field.Binding).AsString(),
+                i => new Tuple<string, string>(
+                    ViewModel.FieldGetIdValue(i, Field.Binding).AsString(), 
+                    ViewModel.FieldGetNameValue(i, Field.Binding).AsString()));
+    }
+
+    private IEnumerable<RuleExecutionResult> GetValidations()
+    {
+        return ViewModel.GetValidations(Field);
+    }
+
+    private async Task<IEnumerable<Tuple<string, string>>> GetOptions(string pattern)
+    {
+        var options = _optionsDictionary.Values.Where(item => item?.Item2?.Contains(pattern ?? "", StringComparison.OrdinalIgnoreCase) == true);
+        return options;
+    }
+
+    private string GetStringValue(Tuple<string, string> value)
+    {
+        return value?.Item2;
+    }
+
+    void TextChanged(string text)
+    {
+        // Text is changed, if value is not an exact option - we set value to -1 (IncorrectTextCode) and provoke incorrect value validation
+        var selectedValue = _optionsDictionary.Values.FirstOrDefault(item => item.Item2 == text);
+
+        if (!string.IsNullOrWhiteSpace(text))
+        {
+            if (selectedValue == null)
+            {
+                _selectedId = DynamicFieldValidator.IncorrectTextCode;
+                ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = _selectedId, RowIndex = RowIndex });
+                ViewModel.RefreshValidations(Field);
+                return;
+            }
+        
+            ValueChanged(selectedValue);
+        }
+
+    }
+
+    void ValueChanged(Tuple<string, string> val)
+    {
+        if (SelectedValue != val)
+        {
+            SelectedValue = val;
+            _selectedId = val?.Item1;
+
+            ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = _selectedId, RowIndex = RowIndex });
+            ViewModel.RefreshValidations(Field);
+        }
+    }
+}

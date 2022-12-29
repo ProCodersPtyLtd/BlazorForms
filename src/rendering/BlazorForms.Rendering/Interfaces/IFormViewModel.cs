@@ -58,6 +58,8 @@ namespace BlazorForms.Rendering.Interfaces
         Task LoadFlowDefaultForm(string refId);
         Task ApplyFormData(FormDetails form, IFlowModel model);
         List<FormConfirmationData> GetAvailableConfirmations(ConfirmType confirmType, string? binding = null);
+        void RefreshValidations(FieldControlDetails field);
+        IEnumerable<RuleExecutionResult> GetValidations(FieldControlDetails field);
 
         // track user input changes
         void SetInputChanged(bool changed = true);

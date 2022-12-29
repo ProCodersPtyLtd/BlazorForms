@@ -23,6 +23,40 @@
     }
 </style>
 
+
+
+@*<MudForm @ref="form">
+    <MudAutocomplete T=@object Label="Periodic Table Element" Value="@SelectedValue" ValueChanged=@ValueChanged @ref=@ControlRef Immediate="true"
+                     AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary" Required=true
+                     ResetValueOnEmptyText="true" CoerceText="false" CoerceValue="true" Validation="@(new Func<string, IEnumerable<string>>(Validate))"
+                     SearchFunc="@Search" ToStringFunc="@(e=> GetStringValue(e))" />
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto mt-3 mb-3"
+           OnClick="@(()=>form.Validate())">Submit</MudButton>
+</MudForm>*@
+
+<MudForm @ref="form">
+    <MudAutocomplete T="object" Label="US States" Value="@SelectedValue" ValueChanged=@ValueChanged @ref=@ControlRef 
+                     SearchFunc="@Search" Immediate="true" CoerceValue="true" ResetValueOnEmptyText="true"
+             CloseIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Tertiary"
+                     Validation="@(new Func<string, IEnumerable<string>>(Validate))" ToStringFunc="@(e=> GetStringValue(e))" />
+
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto mt-3 mb-3" 
+             OnClick="@(()=>form.Validate())">Validate</MudButton>
+                    @if (form.IsTouched && form.IsValid)
+                    {
+                        <MudText Color="Color.Success">Success</MudText>
+                    }
+                    else
+                    {
+                        <MudText>IsTouched: @form.IsTouched, IsValid: @form.IsValid</MudText>
+                    }
+        </MudForm>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto mt-3 mb-3"
+           OnClick="@(()=>ControlRef.Clear())">Clear</MudButton>
+
+
 <div class="d-flex flex-wrap mt-4">
 
     <MudSwitch T=bool Checked="@Options.ShowSearch" CheckedChanged="@((a) => { Options.ShowSearch = a; RefreshCustomContent(); })"
@@ -98,6 +132,78 @@
 @*<MudSnackbarProvider />*@
 
 @code {
+    
+
+    public class Xxx
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    private EditContext editContext2;
+    private MudForm form;
+    private MudAutocomplete<object>? ControlRef;
+
+    object SelectedValue; 
+
+    List<Xxx> DataList = (new Xxx[] { new Xxx { Id = 1, Name = "Lala" }, new Xxx { Id = 2, Name = "Ishak" } }).ToList();
+
+    protected override void OnInitialized()
+    {
+    } 
+
+    private IEnumerable<string> Validate(string value)
+    {
+        if (!DataList.Any(x => x.Name == value))
+        {
+            yield return "This is an incorrect value";
+        }
+    }
+
+    void ValueChanged(object obj)
+    {
+        //SelectedValue = (obj as Xxx)?.Id;
+        SelectedValue = obj;
+    }
+
+    void TextChanged(string text)
+    {
+        form.Validate();
+        ControlRef.Validate();
+    }
+
+    void OnBlur(FocusEventArgs args)
+    {
+        //if (!DataList.Any(x => x.Name == (SelectedValue as Xxx)?.Name))
+        //{
+        //    ControlRef.Clear();
+        //    //SelectedValue = new Xxx { Name = "not found" };
+        //    //StateHasChanged();
+        //    //SelectedValue = null;
+        //    //StateHasChanged();
+        //}
+    }
+
+    private string GetStringValue(object obj)
+    {
+        return (obj as Xxx)?.Name;
+    }
+
+    private async Task<IEnumerable<object>> Search(string value)
+    {
+        if (value == null)
+        {
+            return DataList;
+        }
+
+        return DataList.Where(x => x.Name.Contains(value)); ;
+    }
+
+    Type GetType()
+    {
+        return typeof(Xxx);
+    }
+
     ListFormOptions Options = new ListFormOptions {  };
 
     RenderFragment ToolBar { get; set; }

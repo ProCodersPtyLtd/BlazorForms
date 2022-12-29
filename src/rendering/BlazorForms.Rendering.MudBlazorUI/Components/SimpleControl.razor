@@ -53,7 +53,7 @@
     {
     <AutocompleteControl @key="@(Field.Name+Field.Binding.Binding)" RowIndex="@RowIndex" Name="@(Field.Name)" Field="@Field" TextValue="@GetFieldValue().AsString()" Caption="@Field.DisplayProperties.Caption"
                          ItemsBinding="@Field.Binding.ItemsBinding" NameBinding="@Field.Binding.NameBinding"
-                         ModelValueChanged="@ModelChanged" Validations="@GetValidations(Field.Binding.ResolvedBinding)" />
+                         ModelValueChanged="@ModelChanged" />
     }
     else if (Field.ControlType == "MoneyEdit")
     {
@@ -71,6 +71,12 @@
                      IdBinding="@Field.Binding.IdBinding" NameBinding="@Field.Binding.NameBinding" ModelBinding="@Field.Binding.Binding"
                      ModelValueChanged="@ModelChanged" Validations="@GetValidations(Field.Binding.ResolvedBinding)" />
     }
+else if (Field.ControlType == "DropDownSearch")
+{
+    <DropDownSearchControl @key="@(Field.Name+Field.Binding.Binding)" RowIndex="@RowIndex" Name="@(Field.Name)" Field="@Field" FieldValue="@GetFieldValue().AsString()" Caption="@Field.DisplayProperties.Caption" ItemsBinding="@Field.Binding.ItemsBinding"
+                 IdBinding="@Field.Binding.IdBinding" NameBinding="@Field.Binding.NameBinding" ModelBinding="@Field.Binding.Binding"
+                 ModelValueChanged="@ModelChanged" />
+}
     else if (Field.ControlType == "DatePicker")
     {
     <DateEditControl AllowInput="false" @key="@(Field.Name+Field.Binding.Binding)" RowIndex="@RowIndex" Name="@(Field.Name)" Field="@Field" DateValue="@GetFieldValue().AsDate()" Caption="@Field.DisplayProperties.Caption"

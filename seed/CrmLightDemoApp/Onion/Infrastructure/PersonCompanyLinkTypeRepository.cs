@@ -5,7 +5,7 @@ using CrmLightDemoApp.Onion.Domain.Repositories;
 
 namespace CrmLightDemoApp.Onion.Infrastructure
 {
-    public class PersonCompanyLinkTypeRepository : Repository<PersonCompanyLinkType>, IPersonCompanyLinkTypeRepository
+    public class PersonCompanyLinkTypeRepository : LocalCacheRepository<PersonCompanyLinkType>, IPersonCompanyLinkTypeRepository
     {
         public PersonCompanyLinkTypeRepository() 
         {

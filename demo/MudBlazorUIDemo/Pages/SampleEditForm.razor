@@ -1,0 +1,16 @@
+﻿@page "/sample-flow-edit-form"
+
+@using BlazorForms.Rendering.MudBlazorUI.Components
+
+
+<FlowEditForm FlowName="@typeof(MudBlazorUIDemo.Flows.SampleEditFlow).FullName" Pk="0" AllowAnonymousAccess="true"
+              AllowFlowStorage="false" NavigationSuccess="/" Options="EditOptions" />
+
+@code {
+    private EditFormOptions EditOptions = new EditFormOptions
+        {
+            Variant = Variant.Filled,
+            MudBlazorProvidersDefined = true,
+            DateFormat = "dd/MM/yyyy",
+        };
+}

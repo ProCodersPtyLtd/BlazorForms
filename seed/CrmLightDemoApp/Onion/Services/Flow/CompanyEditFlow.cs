@@ -110,7 +110,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             {
                 // we use autocomplete control, so need to resolve id by name
                 //item.PersonId = Model.PersonDictionary[item.PersonFullName].Id;
-                item.PersonId = Model.AllPersons.First(p => p.FullName == item.PersonFullName).Id;
+                //item.PersonId = Model.AllPersons.First(p => p.FullName == item.PersonFullName).Id;
 
                 if (item.Id == 0)
                 {
@@ -172,9 +172,12 @@ namespace CrmLightDemoApp.Onion.Services.Flow
                 e.PropertyRoot(p => p.LinkTypeId).Dropdown(p => p.AllLinkTypes, m => m.Id, m => m.Name).IsRequired().Label("Type")
                     .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged);
 
-                e.PropertyRoot(p => p.PersonFullName).EditWithOptions(e => e.AllPersons, m => m.FullName).IsRequired().Label("Person")
-                    .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged)
-                    .Rule(typeof(FormCompanyEdit_CheckNameRule), FormRuleTriggers.Submit);
+                e.PropertyRoot(p => p.PersonId).DropdownSearch(e => e.AllPersons, m => m.Id, m => m.FullName).IsRequired().Label("Person")
+                    .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged);
+
+                //e.PropertyRoot(p => p.PersonFullName).EditWithOptions(e => e.AllPersons, m => m.FullName).IsRequired().Label("Person")
+                //    .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged);
+                //.Rule(typeof(FormCompanyEdit_CheckNameRule), FormRuleTriggers.Submit);
 
                 //e.PropertyRoot(p => p.PersonId).Dropdown(p => p.AllPersons, m => m.Id, m => m.FullName).IsRequired().Label("Person")
                 //    .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged);
@@ -182,8 +185,6 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 
             f.Button(ButtonActionTypes.Cancel, "Cancel");
             f.Button(ButtonActionTypes.Submit, "Save");
-
-            //f.Rule(typeof(FormCompanyEdit_CheckNameRule), FormRuleTriggers.Submit);
         }
     }
 
