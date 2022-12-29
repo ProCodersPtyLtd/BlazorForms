@@ -16,6 +16,8 @@ namespace BlazorForms.Rendering.Validation
     }
     public class DynamicFieldValidator : IDynamicFieldValidator
     {
+        public const string IncorrectTextCode = "-1";
+
         private readonly IJsonPathNavigator _jsonPathNavigator;
 
         public DynamicFieldValidator(IJsonPathNavigator jsonPathNavigator)
@@ -67,7 +69,7 @@ namespace BlazorForms.Rendering.Validation
 
         private RuleExecutionResult ValidateItemExists(FieldControlDetails field, object value, object model)
         {
-            if (field?.ControlType == "Autocomplete" && field.DisplayProperties.Visible && value != null)
+            if ((field?.ControlType == "Autocomplete") && field.DisplayProperties.Visible && value != null)
             {
                 var options = _jsonPathNavigator.GetItems(model, field.Binding.ItemsBinding);
 
@@ -82,7 +84,20 @@ namespace BlazorForms.Rendering.Validation
                     };
                 }
             }
-                
+            else if ((field?.ControlType == "DropDownSearch") && field.DisplayProperties.Visible && value != null)
+            {
+                if (value.ToString() == IncorrectTextCode)
+                {
+                    return new RuleExecutionResult
+                    {
+                        AffectedField = field.Binding.Key,
+                        RuleCode = field.DisplayProperties.Caption,
+                        ValidationMessage = "This is an incorrect value",
+                        ValidationResult = RuleValidationResult.Error
+                    };
+                }
+            }
+
             return null;
         }
 

@@ -8,12 +8,12 @@
 @inject IDynamicFieldValidator FieldValidator
 
 <MudAutocomplete T="Tuple<string, string>" Value="@SelectedValue" SearchFunc="@GetOptions" Disabled="@Field.DisplayProperties.Disabled"
-                 TextChanged=@TextChanged ValueChanged=@ValueChanged OnBlur=@OnBlur
+                 TextChanged=@TextChanged ValueChanged=@ValueChanged 
                  ResetValueOnEmptyText="true" Immediate="true" CoerceText="false" CoerceValue="true"
                  AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"
-                 Style="width: 100%;" Variant="FormOptions.Variant" @ref=@ControlRef ToStringFunc="@(e=> e==null ? null : e.Item2)" />
+                 Style="width: 100%;" Variant="FormOptions.Variant" @ref=@ControlRef ToStringFunc="@(e=> e?.Item2)" />
 
-<ValidatorControl Validations="@AllValidations"></ValidatorControl>
+<ValidatorControl Validations="@GetValidations().Take(1)"></ValidatorControl>
 
 @code {
     [CascadingParameter]
@@ -48,9 +48,6 @@
     public string IdBinding { get; set; }
 
     [Parameter]
-    public IEnumerable<RuleExecutionResult> Validations { get; set; }
-
-    [Parameter]
     public bool Password { get; set; }
 
     //public MatList ListRef;
@@ -60,9 +57,6 @@
     private string _selectedId;
     //private IEnumerable<object> _options;
     private IDictionary<string, Tuple<string, string>> _optionsDictionary;
-
-    private RuleExecutionResult _localValidation;
-    private IEnumerable<RuleExecutionResult> AllValidations { get { return FieldValidator.PrepareValidations(Validations, _localValidation); } }
 
     private string MyId
     {
@@ -87,9 +81,11 @@
                 i => new Tuple<string, string>(
                     ViewModel.FieldGetIdValue(i, Field.Binding).AsString(), 
                     ViewModel.FieldGetNameValue(i, Field.Binding).AsString()));
+    }
 
-        //_options = ViewModel.FieldGetItemsValue(ViewModel.ModelUntyped, ItemsBinding);
-        //.Select(item => ViewModel.PathNavi.GetValue(item, NameBinding) as string);
+    private IEnumerable<RuleExecutionResult> GetValidations()
+    {
+        return ViewModel.GetValidations(Field);
     }
 
     private async Task<IEnumerable<Tuple<string, string>>> GetOptions(string pattern)
@@ -98,37 +94,35 @@
         return options;
     }
 
-    private string GetStringValue(object value)
+    private string GetStringValue(Tuple<string, string> value)
     {
-        //var text = ViewModel.PathNavi.GetValue(obj, NameBinding) as string;
-        var obj = value as Tuple<string, string>;
-        return obj.Item2;
+        return value?.Item2;
     }
 
-    void TextChanged(string val)
+    void TextChanged(string text)
     {
-        if (val != null)
-        {
-            if (!_optionsDictionary.Values.Any(item => item.Item2 == val))
-            {
-                _localValidation = new RuleExecutionResult
-                    {
-                        AffectedField = Field.Binding.Key,
-                        RuleCode = Field.DisplayProperties.Caption,
-                        ValidationMessage = "This is an incorrect value",
-                        ValidationResult = RuleValidationResult.Error
-                    };
+        //if (val != null)
+        //{
+        //    if (!_optionsDictionary.Values.Any(item => item.Item2 == val))
+        //    {
+        //        _localValidation = new RuleExecutionResult
+        //            {
+        //                AffectedField = Field.Binding.Key,
+        //                RuleCode = Field.DisplayProperties.Caption,
+        //                ValidationMessage = "This is an incorrect value",
+        //                ValidationResult = RuleValidationResult.Error
+        //            };
 
-                SelectedValue = null;
-            }
+        //        SelectedValue = null;
+        //    }
 
-            //_localValidation = Validate(val);
-            //ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = SelectedValue?.Item1, RowIndex = RowIndex });
-        }
-        else
-        {
-            SelectedValue = null;
-        }
+        //    //_localValidation = Validate(val);
+        //    //ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = SelectedValue?.Item1, RowIndex = RowIndex });
+        //}
+        //else
+        //{
+        //    SelectedValue = null;
+        //}
 
         //SelectedValue = val;
         ////ControlRef.Label = val;
@@ -139,49 +133,32 @@
         //    ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = SelectedValue, RowIndex = RowIndex });
         //}
 
-        StateHasChanged();
+        var selectedValue = _optionsDictionary.Values.FirstOrDefault(item => item.Item2 == text);
+
+        if (!string.IsNullOrWhiteSpace(text))
+        {
+            if (selectedValue == null)
+            {
+                _selectedId = DynamicFieldValidator.IncorrectTextCode;
+                ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = _selectedId, RowIndex = RowIndex });
+                ViewModel.RefreshValidations(Field);
+                return;
+            }
+        
+            ValueChanged(selectedValue);
+        }
+
     }
 
     void ValueChanged(Tuple<string, string> val)
     {
-        SelectedValue = val;
-        _selectedId = val?.Item1;
-
-        //_localValidation = FieldValidator.Validate(Field, val);
-        _localValidation = Validate(val?.Item2);
-        ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = _selectedId, RowIndex = RowIndex });
-        StateHasChanged();
-    }
-
-    void OnBlur(FocusEventArgs args)
-    {
-        if (SelectedValue != null && !_optionsDictionary.Values.Any(item => item.Item2 == SelectedValue.Item2))
+        if (SelectedValue != val)
         {
-            _localValidation = new RuleExecutionResult
-                {
-                    AffectedField = Field.Binding.Key,
-                    RuleCode = Field.DisplayProperties.Caption,
-                    ValidationMessage = "This is an incorrect value",
-                    ValidationResult = RuleValidationResult.Error
-                };
+            SelectedValue = val;
+            _selectedId = val?.Item1;
 
-            StateHasChanged();
+            ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = _selectedId, RowIndex = RowIndex });
+            ViewModel.RefreshValidations(Field);
         }
-    }
-
-    RuleExecutionResult Validate(string val)
-    {
-        if (val != null && !_optionsDictionary.Values.Any(item => item?.Item2?.Contains(val ?? "", StringComparison.OrdinalIgnoreCase) == true))
-        {
-            return new RuleExecutionResult
-                {
-                    AffectedField = Field.Binding.Key,
-                    RuleCode = Field.DisplayProperties.Caption,
-                    ValidationMessage = "This is an incorrect value",
-                    ValidationResult = RuleValidationResult.Error
-                };
-        }
-
-        return FieldValidator.Validate(Field, val);
     }
 }
