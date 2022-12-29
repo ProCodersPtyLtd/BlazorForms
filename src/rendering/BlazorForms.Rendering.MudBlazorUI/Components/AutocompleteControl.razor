@@ -12,7 +12,7 @@
                  AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"
                  Style="width: 100%;" Variant="FormOptions.Variant" @ref=@ControlRef />
 
-        <ValidatorControl Validations="@AllValidations.Take(1)"></ValidatorControl>
+<ValidatorControl Validations="@GetValidations().Take(1)"></ValidatorControl>
 
 @code {
     [CascadingParameter]
@@ -41,8 +41,8 @@
     [Parameter]
     public string NameBinding { get; set; }
 
-    [Parameter]
-    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+    //[Parameter]
+    //public IEnumerable<RuleExecutionResult> Validations { get; set; }
 
     [Parameter]
     public bool Password { get; set; }
@@ -67,8 +67,8 @@
         return options;
     }
 
-    private RuleExecutionResult _localValidation;
-    private IEnumerable<RuleExecutionResult> AllValidations { get { return FieldValidator.PrepareValidations(Validations, _localValidation); } }
+    //private RuleExecutionResult _localValidation;
+    //private IEnumerable<RuleExecutionResult> AllValidations { get { return FieldValidator.PrepareValidations(Validations, _localValidation); } }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -81,29 +81,33 @@
             .Select(item => ViewModel.PathNavi.GetValue(item, NameBinding) as string);
     }
 
+    private IEnumerable<RuleExecutionResult> GetValidations()
+    {
+        return ViewModel.GetValidations(Field);
+    }
+
     void TextChanged(string val)
     {
-        SearchText = val;
         //ControlRef.Label = val;
 
         if (val != null)
         {
-            //_localValidation = Validate(val);
-            ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = SearchText, RowIndex = RowIndex });
-            ViewModel.RefreshValidations(Field);
+            ValueChanged(val);
         }
 
-        StateHasChanged();
     }
 
     void ValueChanged(string val)
     {
-        SearchText = val;
+        //SearchText = val;
 
         //_localValidation = Validate(val);
-        ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = val, RowIndex = RowIndex });
-        ViewModel.RefreshValidations(Field);
-        StateHasChanged();
+        if (SearchText != val)
+        {
+            ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = val, RowIndex = RowIndex });
+            ViewModel.RefreshValidations(Field);
+            //StateHasChanged();
+        }
     }
 
     void OnBlur(FocusEventArgs args)

@@ -99,11 +99,11 @@ namespace BlazorForms.Shared.FastReflection
 
         public void SetValue(object model, FieldBinding modelBinding, object val)
         {
-            if (modelBinding.FastReflectionSetter != null)
-            {
-                modelBinding.FastReflectionSetter(model, val);
-                return;
-            }
+            //if (modelBinding.FastReflectionSetter != null)
+            //{
+            //    modelBinding.FastReflectionSetter(model, val);
+            //    return;
+            //}
 
             if (!string.IsNullOrWhiteSpace(modelBinding.Binding))
             {
