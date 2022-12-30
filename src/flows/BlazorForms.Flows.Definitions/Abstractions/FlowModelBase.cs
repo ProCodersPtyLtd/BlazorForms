@@ -6,7 +6,7 @@ using System.Text;
 
 namespace BlazorForms.Flows.Definitions
 {
-    public class FlowModelBase : IFlowModel
+    public class FlowModelBase : IFlowModelExtended
     {
         public virtual ExpandoObject Bag { get; set; } = new ExpandoObject();
 

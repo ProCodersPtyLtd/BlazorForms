@@ -11,6 +11,6 @@ namespace BlazorForms.Flows
     {
         public string TaskName { get; set; }
         public IFlowContext Context { get; set; }
-        public IFlowModel Model { get; set; }
+        public IFlowModelExtended Model { get; set; }
     }
 }

@@ -37,6 +37,14 @@ namespace BlazorForms.FlowRules
             Result = new RuleExecutionResult();
         }
 
+        public async Task TriggerAsync(string selector, FormRuleTriggers triggerType = FormRuleTriggers.Changed)
+        {
+        }
+
+        public void Trigger(string selector, FormRuleTriggers triggerType = FormRuleTriggers.Changed)
+        {
+        }
+
         public static string SingleField<TKey>(Expression<Func<M, TKey>> selector)
         {
             var selectorString = selector.Body.ToString();

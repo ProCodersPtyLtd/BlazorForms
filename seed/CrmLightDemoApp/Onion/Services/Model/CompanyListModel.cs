@@ -3,7 +3,7 @@ using CrmLightDemoApp.Onion.Domain;
 
 namespace CrmLightDemoApp.Onion.Services.Model
 {
-    public class CompanyListModel : FlowModelBase
+    public class CompanyListModel : IFlowModel
     {
         public virtual List<CompanyModel>? Data { get; set; }
     }
