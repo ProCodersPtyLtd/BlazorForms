@@ -51,5 +51,15 @@ namespace CrmLightDemoApp.Onion.Infrastructure
         {
             return _localCache.Where(x => ids.Contains(x.Id)).Select(x => x.GetCopy()).ToList();
         }
+
+        public IQueryable<T> GetAllQuery()
+        {
+            return _localCache.AsQueryable();
+        }
+
+        public async Task<List<T>> RunQueryAsync(IQueryable<T> query)
+        {
+            return query.ToList();
+        }
     }
 }

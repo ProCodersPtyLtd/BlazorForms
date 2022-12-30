@@ -75,6 +75,8 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 
             f.Repeater(p => p.Data, e =>
             {
+                e.DisplayName = "";
+
                 e.Property(p => p.Id).IsReadOnly().Label("Id")
                     .Rule(typeof(PersonCompanyLinkType_ItemDeletingRule), FormRuleTriggers.ItemDeleting);
 
