@@ -15,6 +15,9 @@ namespace CrmLightDemoApp
         public static ListFormOptions ListFormOptions = new ListFormOptions
         {
             MudBlazorProvidersDefined = true,
+            ShowSearch = true,
+            ShowSorting = true,
+            UseToolBarCaption = true,
             Variant = Variant.Filled,
             DateFormat = "dd/MM/yyyy",
         };

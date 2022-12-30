@@ -19,7 +19,22 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 
         public override async Task<PersonListModel> LoadDataAsync(QueryOptions queryOptions)
         {
-            var list = await _personRepository.GetAllAsync();
+            var q = _personRepository.GetAllQuery();
+
+            if (!string.IsNullOrWhiteSpace(queryOptions.SearchString))
+            {
+                q = q.Where(x => x.FirstName.Contains(queryOptions.SearchString, StringComparison.OrdinalIgnoreCase)
+                        || x.LastName.Contains(queryOptions.SearchString, StringComparison.OrdinalIgnoreCase)
+                        || (x.Phone != null && x.Phone.Contains(queryOptions.SearchString, StringComparison.OrdinalIgnoreCase))
+                        || (x.Email != null && x.Email.Contains(queryOptions.SearchString, StringComparison.OrdinalIgnoreCase)) );
+            }
+
+            if (queryOptions.AllowSort && !string.IsNullOrWhiteSpace(queryOptions.SortColumn) && queryOptions.SortDirection != SortDirection.None)
+            {
+                q = q.QueryOrderByDirection(queryOptions.SortDirection, queryOptions.SortColumn);
+            }
+
+            var list = await _personRepository.RunQueryAsync(q);
             var result = new PersonListModel { Data = list };
             return result;
         }

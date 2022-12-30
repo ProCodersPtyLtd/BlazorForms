@@ -4,6 +4,8 @@
         where T : class
     {
         Task<List<T>> GetAllAsync();
+        IQueryable<T> GetAllQuery();
+        Task<List<T>> RunQueryAsync(IQueryable<T> query);
         Task<T> GetByIdAsync(int id);
         Task<int> CreateAsync(T data);
         Task UpdateAsync(T data);

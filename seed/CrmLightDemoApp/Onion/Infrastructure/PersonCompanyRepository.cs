@@ -21,6 +21,12 @@ namespace CrmLightDemoApp.Onion.Infrastructure
             // pre fill some data
             _localCache.Add(new PersonCompanyLink { Id = 1, PersonId = 1, CompanyId = 2, LinkTypeId = 1 });
             _localCache.Add(new PersonCompanyLink { Id = 2, PersonId = 3, CompanyId = 2, LinkTypeId = 4 });
+            _localCache.Add(new PersonCompanyLink { Id = 3, PersonId = 5, CompanyId = 3, LinkTypeId = 1 });
+            _localCache.Add(new PersonCompanyLink { Id = 4, PersonId = 13, CompanyId = 3, LinkTypeId = 2 });
+            _localCache.Add(new PersonCompanyLink { Id = 5, PersonId = 6, CompanyId = 4, LinkTypeId = 1 });
+            _localCache.Add(new PersonCompanyLink { Id = 6, PersonId = 7, CompanyId = 4, LinkTypeId = 4 });
+            _localCache.Add(new PersonCompanyLink { Id = 7, PersonId = 9, CompanyId = 5, LinkTypeId = 3 });
+            _localCache.Add(new PersonCompanyLink { Id = 8, PersonId = 10, CompanyId = 1, LinkTypeId = 1 });
             _id = 10;
         }
 

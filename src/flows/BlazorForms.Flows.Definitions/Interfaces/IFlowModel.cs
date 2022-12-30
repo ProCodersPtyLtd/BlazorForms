@@ -6,23 +6,14 @@ using System.Text;
 
 namespace BlazorForms.Flows.Definitions
 {
-    public interface IModel
+    public interface IFlowModel 
     {
-
-    }
-
-    // ToDo: issue#16 remove Bag and Ext
-    public interface IFlowModel : IModel
-    {
-        ExpandoObject Bag { get; }
-
-        Dictionary<string, DynamicRecordset> Ext { get; }
     }
 
     public interface IFlowModelExtended : IFlowModel
     {
-        ExpandoObject? Bag { get; }
+        ExpandoObject Bag { get; }
 
-        Dictionary<string, DynamicRecordset>? Ext { get; }
+        Dictionary<string, DynamicRecordset> Ext { get; }
     }
 }

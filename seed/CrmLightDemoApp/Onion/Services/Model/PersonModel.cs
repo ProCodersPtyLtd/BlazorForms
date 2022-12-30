@@ -9,10 +9,5 @@ namespace CrmLightDemoApp.Onion.Services.Model
     {
         public virtual string? FullName { get; set; }
         public virtual List<PersonCompanyLinkDetails> CompanyLinks { get; set; }
-
-        // IFlowModel
-        public virtual ExpandoObject Bag { get; set; } = new ExpandoObject();
-
-        public virtual Dictionary<string, DynamicRecordset> Ext { get; set; } = new Dictionary<string, DynamicRecordset>();
     }
 }

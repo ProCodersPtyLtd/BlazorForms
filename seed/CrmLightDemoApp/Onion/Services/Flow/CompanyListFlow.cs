@@ -5,6 +5,8 @@ using BlazorForms.Shared;
 using BlazorForms.Shared.Extensions;
 using CrmLightDemoApp.Onion.Domain.Repositories;
 using CrmLightDemoApp.Onion.Services.Model;
+using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CrmLightDemoApp.Onion.Services.Flow
 {
@@ -19,7 +21,20 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 
         public override async Task<CompanyListModel> LoadDataAsync(QueryOptions queryOptions)
         {
-            var list = (await _companyRepository.GetAllAsync()).Select(x =>
+            var q = _companyRepository.GetAllQuery();
+
+            if (!string.IsNullOrWhiteSpace(queryOptions.SearchString))
+            {
+                q = q.Where(x => x.Name.Contains(queryOptions.SearchString, StringComparison.OrdinalIgnoreCase) 
+                        || (x.RegistrationNumber != null && x.RegistrationNumber.Contains(queryOptions.SearchString, StringComparison.OrdinalIgnoreCase)) );
+            }
+
+            if (queryOptions.AllowSort && !string.IsNullOrWhiteSpace(queryOptions.SortColumn) && queryOptions.SortDirection != SortDirection.None)
+            {
+                q = q.QueryOrderByDirection(queryOptions.SortDirection, queryOptions.SortColumn);
+            }
+                
+            var list = (await _companyRepository.RunQueryAsync(q)).Select(x =>
             {
                 var item = new CompanyModel();
                 x.ReflectionCopyTo(item);

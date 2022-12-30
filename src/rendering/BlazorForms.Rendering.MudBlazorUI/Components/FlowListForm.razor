@@ -47,6 +47,12 @@
 <CascadingValue Value=FormOptions>
 <CascadingValue Value=ViewModel>
 
+    @if (!Options.UseToolBarCaption && !string.IsNullOrEmpty(ViewModel?.FormData?.DisplayName))
+    {
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+            <MudText Typo="Typo.h6">@ViewModel.FormData.DisplayName</MudText>
+        </div>
+    }
   
     <MudTable T="string[]" Items=ItemsData Hover="true" Breakpoint="Breakpoint.Sm" Dense="true" @ref="TableRef"
                 ToolBarContent=ToolBar PagerContent=Pager ServerData=GetServerDataDelegate()
@@ -240,7 +246,12 @@
             ToolBar = (builder) =>
             {
                 builder.OpenComponent(0, typeof(ToolBarFragment));
-                builder.AddAttribute(1, "Caption", Options.ToolBarCaption);
+
+                if (Options.UseToolBarCaption && !string.IsNullOrEmpty(ViewModel?.FormData?.DisplayName))
+                {
+                    builder.AddAttribute(1, "Caption", ViewModel.FormData.DisplayName);
+                }
+
                 builder.AddAttribute(2, "OnSearch", new EventCallback<string>(this, OnSearch));
                 builder.CloseComponent();
             };

@@ -11,7 +11,7 @@ namespace BlazorForms.Rendering.MudBlazorUI.Components
         public DataOptimization DataOptimization { get; set; }
         //public bool Virtualize { get; set; }
         public bool ShowSearch { get; set; }
-        public string? ToolBarCaption { get; set; }
+        public bool UseToolBarCaption { get; set; }
         //public bool ShowFilters { get; set; }
         public bool ShowSorting { get; set; }
         //public bool ShowPagination { get; set; }
