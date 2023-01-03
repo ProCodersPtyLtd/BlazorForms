@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BlazorForms.Flows.Engine.StateFlow
+namespace BlazorForms.Flows.Definitions
 {
     public interface IStateFlowRunEngine : IFlowRunEngine
     {

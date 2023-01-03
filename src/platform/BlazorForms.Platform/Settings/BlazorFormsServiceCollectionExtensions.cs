@@ -23,6 +23,7 @@ using System.Net.Http;
 using System.Reflection;
 using BlazorForms.Shared.FastReflection;
 using BlazorForms.Platform.Definitions.Shared;
+using BlazorForms.Rendering.ViewModels;
 
 namespace BlazorForms
 {
@@ -93,15 +94,8 @@ namespace BlazorForms
                 .AddScoped<HttpClient>()
                 .AddScoped<IDynamicFieldValidator, DynamicFieldValidator>()
 
-                //.AddMatToaster(config =>
-                //{
-                //    config.Position = MatToastPosition.TopFullWidth;
-                //    config.PreventDuplicates = true;
-                //    config.NewestOnTop = false;
-                //    config.ShowCloseButton = true;
-                //    config.MaximumOpacity = 95;
-                //    config.VisibleStateDuration = 10000;
-                //})
+                // trying new approach where each page has it's own ViewModel instance
+                .AddTransient<IFlowBoardViewModel, FlowBoardViewModel>()
             ;
             return serviceCollection;
         }

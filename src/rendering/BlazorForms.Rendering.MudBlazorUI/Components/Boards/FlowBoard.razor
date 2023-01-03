@@ -1,0 +1,92 @@
+﻿@using BlazorForms.Rendering.Model
+@using MudBlazor.Utilities
+@using BlazorForms.Flows.Definitions
+
+@typeparam TFlow where TFlow : IStateFlow
+
+@inject IFlowBoardViewModel _vm
+
+<div class="d-flex flex-column mud-width-full mud-height-full">
+
+	<MudDropContainer T="BoardCard" Items="@_vm.Cards" @ref="_container" ItemsSelector="@((item,dropzone) => item.Selector == dropzone)"
+					  ItemDropped="(a) => ItemUpdated(a)" CanDrop=@CanDrop Class="d-flex flex-wrap flex-grow-1">
+		
+		<ChildContent>
+			@foreach (var column in _vm.Columns)
+			{
+				<MudPaper Class="ma-4 flex-grow-1">
+					<MudList Clickable="true" Class="d-flex flex-column mud-height-full">
+						<MudListSubheader>@column.Name</MudListSubheader>
+						<MudDropZone T="BoardCard" Identifier="@column.Name" Class="flex-grow-1" AllowReorder="true" />
+					</MudList>
+				</MudPaper>
+			}
+		</ChildContent>
+
+		<ItemRenderer>
+			<MudListItem OnClick=@(() => Click())>
+				<MudCard >
+					<MudCardHeader>
+						<CardHeaderContent>
+							<MudText Typo="Typo.subtitle1">@($"{context.Title}")</MudText>
+						</CardHeaderContent>
+						<CardHeaderActions>
+								<MudIconButton Size="Size.Small" Icon="@Icons.Material.TwoTone.MoreHoriz" Color="Color.Default" />
+						</CardHeaderActions>
+					</MudCardHeader>
+					<MudCardContent>
+						<MudText>This day everything happend.</MudText>
+						<MudText Typo="Typo.body2">The quick, brown fox <br/> jumps over a lazy dog.</MudText>
+					</MudCardContent>
+					@*<MudCardActions>
+						<MudButton Variant="Variant.Text" Color="Color.Primary">Read More</MudButton>
+					</MudCardActions>*@
+				</MudCard>
+			</MudListItem>
+		</ItemRenderer>
+	</MudDropContainer>
+</div>
+
+	@code {
+	[Parameter]
+	public List<BoardCard> Items { get; set; }
+
+	private MudDropContainer<BoardCard>? _container;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await _vm.LoadAsync(typeof(TFlow));
+	}
+
+	protected override async Task OnParametersSetAsync()
+	{
+		await _vm.RefreshCardsAsync(Items);
+	}
+
+	private void Click()
+	{
+	}
+
+	private bool CanDrop(BoardCard dropItem, string dropzone)
+	{
+		//if (dropItem.Name == $"Item {dropzone}")
+		//{
+		//	return false;
+		//}
+
+		return true;
+	}
+
+	private void ItemUpdated(MudItemDropInfo<BoardCard> dropItem)
+	{
+		dropItem.Item.Selector = dropItem.DropzoneIdentifier;
+
+		//var indexOffset = dropItem.DropzoneIdentifier switch
+		//{
+		//	"2" => _serverData.Count(x => x.Selector == "1"),
+		//	_ => 0,
+		//};
+
+		//_serverData.UpdateOrder(dropItem, item => item.Order, indexOffset);
+	}
+}

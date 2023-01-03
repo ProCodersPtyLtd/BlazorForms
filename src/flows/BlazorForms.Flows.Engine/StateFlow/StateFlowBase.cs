@@ -8,17 +8,6 @@ using System.Threading.Tasks;
 
 namespace BlazorForms.Flows
 {
-    public interface IStateFlow : IFlow
-    {
-        List<StateDef> States { get; }
-        List<TransitionDef> Transitions { get; }
-        void Define();
-        void Parse();
-        void SetFlowContext(IFlowContext context);
-        string AssignedUser { get; set; }
-        string AssignedRole { get; set; }
-    }
-
     public abstract class StateFlowBase : IStateFlow
     {
         public virtual string AssignedUser
@@ -157,29 +146,7 @@ namespace BlazorForms.Flows
     }
 
     // aux types
-    public class StateDef
-    {
-        public string State { get; set; }
-        public bool IsEnd { get; internal set; }
-    }
+    
 
-    public class TransitionDef
-    {
-        public string FromState { get; set; }
-        public string ToState { get; set; }
-        public TransitionTrigger Trigger { get; set; }
-        public Func<TransitionTrigger> TriggerFunction { get; set; }
-        public Action OnChanging { get; set; }
-
-        public TransitionTrigger GetTrigger()
-        {
-            return Trigger ?? TriggerFunction();
-        }
-
-        public bool IsButtonTrigger()
-        {
-            var trigger = GetTrigger();
-            return trigger is ButtonTransitionTrigger;
-        }
-    }
+    
 }
