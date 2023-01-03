@@ -14,7 +14,7 @@
     public string Pk { get; set; }
 
     [Parameter]
-    public EventCallback<DynamicListFormRowContextMenuItemClickArgs> OnContextMenuItemClick { get; set; }
+    public EventCallback<ContextMenuItemClickArgs> OnContextMenuItemClick { get; set; }
 
     private RadzenButton _contextButton;
     private BaseMatMenu _contextMenu;
@@ -28,7 +28,7 @@
     {
         // TODO YB What should be here?
         OnContextMenuItemClick
-            .InvokeAsync(new DynamicListFormRowContextMenuItemClickArgs{Pk = args.Text, Action = args.Value.ToString() ?? string.Empty})
+            .InvokeAsync(new ContextMenuItemClickArgs{Pk = args.Text, Action = args.Value.ToString() ?? string.Empty})
             .Wait();
     }
 }

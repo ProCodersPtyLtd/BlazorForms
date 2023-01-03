@@ -2,297 +2,151 @@
 
 @inject ISnackbar Snackbar
 
-<style>
-    .pz-grid-align {
-        align-items: center;
-        width: auto;
-        grid-column-end: span 12;
-    }
+@using MudBlazor.Utilities
 
-    .pz-clean-margin {
-        margin: 0px;
-    }
+<div class="d-flex flex-column mud-width-full mud-height-full">
+	<MudToolBar Class="gap-4">
+		<MudButton OnClick="LoadServerData" Variant="Variant.Filled" Color="Color.Default">Load Data</MudButton>
+		<MudButton OnClick="SaveData" Variant="Variant.Filled" Color="Color.Primary">Save Data</MudButton>
+		<MudSpacer />
+		<MudButton OnClick="Reset" Variant="Variant.Text" Color="Color.Error">Reset Example</MudButton>
+	</MudToolBar>
 
-    .pz-group-grid {
-        margin-top: 1rem;
-        margin-bottom: 1rem;
-    }
+	<MudDropContainer T="DropItem" Items="@_dropzoneItems" @ref="_container" ItemsSelector="@((item,dropzone) => item.Selector == dropzone)"
+					  ItemDropped="(a) => ItemUpdated(a)" CanDrop=@CanDrop Class="d-flex flex-wrap flex-grow-1">
+		
+		<ChildContent>
+			@for (int i = 1; i < 5; i++)
+			{
+				var dropzone = i.ToString();
+				<MudPaper Class="ma-4 flex-grow-1">
+					<MudList Clickable="true" Class="d-flex flex-column mud-height-full">
+						<MudListSubheader>Drop Zone @dropzone</MudListSubheader>
+						<MudDropZone T="DropItem" Identifier="@dropzone" Class="flex-grow-1" AllowReorder="true" />
+					</MudList>
+				</MudPaper>
+			}
+		</ChildContent>
 
-    .pz-form-button {
-        width: 120px;
-    }
-</style>
-
-
-
-@*<MudForm @ref="form">
-    <MudAutocomplete T=@object Label="Periodic Table Element" Value="@SelectedValue" ValueChanged=@ValueChanged @ref=@ControlRef Immediate="true"
-                     AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary" Required=true
-                     ResetValueOnEmptyText="true" CoerceText="false" CoerceValue="true" Validation="@(new Func<string, IEnumerable<string>>(Validate))"
-                     SearchFunc="@Search" ToStringFunc="@(e=> GetStringValue(e))" />
-
-<MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto mt-3 mb-3"
-           OnClick="@(()=>form.Validate())">Submit</MudButton>
-</MudForm>*@
-
-<MudForm @ref="form">
-    <MudAutocomplete T="object" Label="US States" Value="@SelectedValue" ValueChanged=@ValueChanged @ref=@ControlRef 
-                     SearchFunc="@Search" Immediate="true" CoerceValue="true" ResetValueOnEmptyText="true"
-             CloseIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Tertiary"
-                     Validation="@(new Func<string, IEnumerable<string>>(Validate))" ToStringFunc="@(e=> GetStringValue(e))" />
-
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto mt-3 mb-3" 
-             OnClick="@(()=>form.Validate())">Validate</MudButton>
-                    @if (form.IsTouched && form.IsValid)
-                    {
-                        <MudText Color="Color.Success">Success</MudText>
-                    }
-                    else
-                    {
-                        <MudText>IsTouched: @form.IsTouched, IsValid: @form.IsValid</MudText>
-                    }
-        </MudForm>
-
-<MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto mt-3 mb-3"
-           OnClick="@(()=>ControlRef.Clear())">Clear</MudButton>
-
-
-<div class="d-flex flex-wrap mt-4">
-
-    <MudSwitch T=bool Checked="@Options.ShowSearch" CheckedChanged="@((a) => { Options.ShowSearch = a; RefreshCustomContent(); })"
-               Color="Color.Primary">Show Search</MudSwitch>
-
-    <MudSwitch @bind-Checked="@Options.ShowSorting" Color="Color.Primary">Show Sorting</MudSwitch>
+		<ItemRenderer>
+			<MudListItem OnClick=@(() => Click())>
+				<MudCard >
+					<MudCardHeader>
+						<CardHeaderContent>
+							<MudText Typo="Typo.subtitle1">@($"{context.Name}")</MudText>
+						</CardHeaderContent>
+						<CardHeaderActions>
+								<MudIconButton Size="Size.Small" Icon="@Icons.Material.TwoTone.MoreHoriz" Color="Color.Default" />
+						</CardHeaderActions>
+					</MudCardHeader>
+					<MudCardContent>
+						<MudText>This day everything happend.</MudText>
+						<MudText Typo="Typo.body2">The quick, brown fox <br/> jumps over a lazy dog.</MudText>
+					</MudCardContent>
+					@*<MudCardActions>
+						<MudButton Variant="Variant.Text" Color="Color.Primary">Read More</MudButton>
+					</MudCardActions>*@
+				</MudCard>
+			</MudListItem>
+		</ItemRenderer>
+	</MudDropContainer>
 </div>
 
-<MudTable Items="@Elements.Take(4)" Hover="true" ToolBarContent=ToolBar PagerContent=Pager Breakpoint="Breakpoint.Sm" Loading="@_loading" LoadingProgressColor="Color.Info">
-    @*<ToolBarContent>
-        <MudText Typo="Typo.h6">Periodic Elements</MudText>
-        <MudSpacer />
-        <MudTextField T="string" ValueChanged=@OnSearch Placeholder="Search" Adornment="Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
-    </ToolBarContent>*@
-    
-    <HeaderContent>
-        <MudTh>Nr</MudTh>
-        <MudTh>Sign</MudTh>
-        <MudTh>Name</MudTh>
-        <MudTh>Position</MudTh>
-        <MudTh>Molar mass</MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="Nr">@context.Number</MudTd>
-        <MudTd DataLabel="Sign">@context.Sign</MudTd>
-        <MudTd DataLabel="Name">@context.Name</MudTd>
-        <MudTd DataLabel="Position" HideSmall="_hidePosition">@context.Position</MudTd>
-        <MudTd DataLabel="Molar mass">@context.Molar</MudTd>
-    </RowTemplate>
-</MudTable>
+	@code {
+	private MudDropContainer<DropItem>? _container;
 
-<MudSwitch @bind-Checked="_hidePosition">Hide <b>position</b> when Breakpoint=Xs</MudSwitch>
-<MudSwitch @bind-Checked="_loading">Show Loading</MudSwitch>
+	private void Click()
+	{
 
-<MudGrid Spacing="1" Justify="Justify.Center" class="pz-grid-align pz-group-grid">
-    <MudItem xs="7">
-    
-        <MudGrid Spacing="1" Justify="Justify.Center" class="pz-grid-align">
-            <MudItem xs="6">
-                <MudText Typo="Typo.subtitle2" class="pz-subtitle1">First Name *</MudText>
-            </MudItem>
-            <MudItem xs="6"> 
-                <MudTextField Text="Ivanov" T="string" Style="width: 100%;" Variant="Variant.Filled" />
-            </MudItem>
+	}
 
-            <MudItem xs="6">
-                <MudText Typo="Typo.subtitle2" class="pz-subtitle1">First Name *</MudText>
-            </MudItem>
-            <MudItem xs="6">
-                <MudTextField Text="Petrov" T="string" Style="width: 100%;" Variant="Variant.Filled" />
-            </MudItem>
-        </MudGrid>
+	private bool CanDrop(DropItem dropItem, string dropzone)
+	{
+		if (dropItem.Name == $"Item {dropzone}")
+		{
+			return false;
+		}
 
-        <MudDivider DividerType="DividerType.FullWidth" Class="my-2" />
+		return true;
+	}
 
-        <div class="d-flex flex-row flex-grow-1 gap-2 justify-center pz-group-grid" Elevation="0">
-            <div class="d-inline-flex">
-                <MudButton Variant="Variant.Filled" DisableElevation="true" class="pz-form-button">Cancel</MudButton>
-            </div>
-            <div class="d-inline-flex ">
-                <MudButton Variant="Variant.Filled" DisableElevation="true" class="pz-form-button">Validate</MudButton>
-            </div>
-            <div class="d-inline-flex">
-                <MudButton Variant="Variant.Filled" DisableElevation="true" class="pz-form-button">Save</MudButton>
-            </div>
-        </div>
-
-    </MudItem>
-</MudGrid>
-
-
-@*<MudSnackbarProvider />*@
-
-@code {
-    
-
-    public class Xxx
+    private void ItemUpdated(MudItemDropInfo<DropItem> dropItem)
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
-    }
+        dropItem.Item.Selector = dropItem.DropzoneIdentifier;
 
-    private EditContext editContext2;
-    private MudForm form;
-    private MudAutocomplete<object>? ControlRef;
+		var indexOffset = dropItem.DropzoneIdentifier switch
+		{
+			"2" => _serverData.Count(x => x.Selector == "1"),
+			_ => 0,
+		};
 
-    object SelectedValue; 
+		_serverData.UpdateOrder(dropItem, item => item.Order, indexOffset);
+	}
 
-    List<Xxx> DataList = (new Xxx[] { new Xxx { Id = 1, Name = "Lala" }, new Xxx { Id = 2, Name = "Ishak" } }).ToList();
+	private List<DropItem> _dropzoneItems = new();
 
-    protected override void OnInitialized()
-    {
-    } 
+	private List<DropItem> _serverData = new()
+		{
+			new DropItem() { Order = 0, Name = "Item 1", Selector = "1" },
+			new DropItem() { Order = 1, Name = "Item 2", Selector = "1" },
+			new DropItem() { Order = 2, Name = "Item 3", Selector = "1" },
+			new DropItem() { Order = 3, Name = "Item 4", Selector = "1" },
+			new DropItem() { Order = 4, Name = "Item 5", Selector = "1" },
+			new DropItem() { Order = 5, Name = "Item 6", Selector = "1" },
+			new DropItem() { Order = 6, Name = "Item 7", Selector = "2" },
+			new DropItem() { Order = 7, Name = "Item 8", Selector = "2" },
+			new DropItem() { Order = 8, Name = "Item 9", Selector = "2" },
+			new DropItem() { Order = 9, Name = "Item 10", Selector = "2" },
+		};
 
-    private IEnumerable<string> Validate(string value)
-    {
-        if (!DataList.Any(x => x.Name == value))
-        {
-            yield return "This is an incorrect value";
-        }
-    }
+	private void RefreshContainer()
+	{
+		//update the binding to the container
+		StateHasChanged();
 
-    void ValueChanged(object obj)
-    {
-        //SelectedValue = (obj as Xxx)?.Id;
-        SelectedValue = obj;
-    }
+		//the container refreshes the internal state
+		_container.Refresh();
+	}
 
-    void TextChanged(string text)
-    {
-        form.Validate();
-        ControlRef.Validate();
-    }
+	private void LoadServerData()
+	{
+		List<DropItem> newdata = new List<DropItem>();
 
-    void OnBlur(FocusEventArgs args)
-    {
-        //if (!DataList.Any(x => x.Name == (SelectedValue as Xxx)?.Name))
-        //{
-        //    ControlRef.Clear();
-        //    //SelectedValue = new Xxx { Name = "not found" };
-        //    //StateHasChanged();
-        //    //SelectedValue = null;
-        //    //StateHasChanged();
-        //}
-    }
+		foreach (var item in _serverData.OrderBy(x => x.Order))
+		{
+			newdata.Add(item);
+		}
 
-    private string GetStringValue(object obj)
-    {
-        return (obj as Xxx)?.Name;
-    }
+		_dropzoneItems = newdata;
+		RefreshContainer();
+	}
 
-    private async Task<IEnumerable<object>> Search(string value)
-    {
-        if (value == null)
-        {
-            return DataList;
-        }
+	private void SaveData() => _serverData = _dropzoneItems;
 
-        return DataList.Where(x => x.Name.Contains(value)); ;
-    }
+	private void Reset()
+	{
+		_dropzoneItems = new();
+		_serverData = new()
+			{
+				new DropItem() { Order = 0, Name = "Item 1", Selector = "1" },
+				new DropItem() { Order = 1, Name = "Item 2", Selector = "1" },
+				new DropItem() { Order = 2, Name = "Item 3", Selector = "1" },
+				new DropItem() { Order = 3, Name = "Item 4", Selector = "1" },
+				new DropItem() { Order = 4, Name = "Item 5", Selector = "1" },
+				new DropItem() { Order = 5, Name = "Item 6", Selector = "1" },
+				new DropItem() { Order = 6, Name = "Item 7", Selector = "2" },
+				new DropItem() { Order = 7, Name = "Item 8", Selector = "2" },
+				new DropItem() { Order = 8, Name = "Item 9", Selector = "2" },
+				new DropItem() { Order = 9, Name = "Item 10", Selector = "2" },
+			};
 
-    Type GetType()
-    {
-        return typeof(Xxx);
-    }
+		RefreshContainer();
+	}
 
-    ListFormOptions Options = new ListFormOptions {  };
-
-    RenderFragment ToolBar { get; set; }
-    RenderFragment Pager { get; set; }
-
-    private void OnSearch(string text)
-    {
-    }
-
-    void RefreshCustomContent()
-    {
-        if (Options.ShowSearch)
-        {
-            ToolBar = (builder) =>
-            {
-                builder.OpenComponent(0, typeof(ToolBar));
-                builder.AddAttribute(4, "OnSearch", new EventCallback<string>(this, OnSearch));
-                builder.CloseComponent();
-                //builder.OpenComponent(0, typeof(MudText));
-                //builder.AddAttribute(1, "Typo", Typo.h6);
-
-                //builder.AddAttribute(2, "ChildContent", (RenderFragment)((builder2) =>
-                //{
-                //    builder2.AddContent(3, "Periodic Elements");
-                //}));
-
-                ////builder.AddContent(2, "Periodic Elements");
-                //builder.CloseComponent();
-
-                //builder.OpenComponent(1, typeof(MudSpacer));
-                //builder.CloseComponent();
-
-                //builder.OpenComponent(2, typeof(MudTextField<string>));
-                //builder.AddAttribute(3, "Placeholder", "Search");
-                //builder.AddAttribute(4, "ValueChanged", new EventCallback<string>(this, OnSearch));
-                //builder.AddAttribute(5, "Adornment", Adornment.Start);
-                //builder.AddAttribute(6, "PlaceAdornmentIconholder", Icons.Material.Filled.Search);
-                //builder.AddAttribute(7, "IconSize", Size.Medium);
-                //builder.AddAttribute(8, "Class", "mt-0");
-                //builder.CloseComponent();
-            };
-        }
-        else
-        {
-            ToolBar = null;
-        }
-
-        
-
-        StateHasChanged();
-    }
-
-    
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-        }
-
-        
-    }
-
-    private bool _hidePosition;
-    private bool _loading;
-    private IEnumerable<Element> Elements = new List<Element>();
-    private string[][] Data;
-    private int ColumnCount = 3;
-
-    protected override async Task OnInitializedAsync()
-    {
-        Elements = new Element[]
-        {
-            new Element { Number = 1, Sign = "H", Name = "Hydrogen", Position = 0, Molar = 1.00794 },
-            new Element { Number = 2, Sign = "He", Name = "Helium", Position = 17, Molar = 4.002602 },
-        };
-
-        Data = new string[][] { new string[] { "1", "2", "3" }, new string[] { "11", "12", "13" } };
-
-        
-    }
-
-
-    public class Element
-    {
-        public int Number { get; set; }
-        public string Sign { get; set; }
-        public string Name { get; set; }
-        public int Position { get; set; }
-        public double Molar { get; set; }
-    }
+	public class DropItem
+	{
+		public string Name { get; init; }
+		public string Selector { get; set; }
+		public int Order { get; set; }
+	}
 }

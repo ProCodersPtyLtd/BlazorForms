@@ -52,14 +52,14 @@ namespace CrmLightDemoApp.Onion.Infrastructure
             return _localCache.Where(x => ids.Contains(x.Id)).Select(x => x.GetCopy()).ToList();
         }
 
-        public IQueryable<T> GetAllQuery()
+        public ContextQuery<T> GetContextQuery()
         {
-            return _localCache.AsQueryable();
+            return new ContextQuery<T>(null, _localCache.Where(x => !x.Deleted).AsQueryable());
         }
 
-        public async Task<List<T>> RunQueryAsync(IQueryable<T> query)
+        public async Task<List<T>> RunContextQueryAsync(ContextQuery<T> ctx)
         {
-            return query.ToList();
+            return ctx.Query.ToList();
         }
     }
 }
