@@ -72,7 +72,31 @@ namespace BlazorForms.Flows.Engine.StateFlow
             throw new NotImplementedException();
         }
 
-        public async Task<IFlowContext> ExecuteFlow(FlowRunParameters runParameters)
+        public async Task<IFlowContext> CreateFlowContext(Type flowType, string currentTask = null, FlowParamsGeneric flowParams = null)
+        {
+			var flowParameters = TypeHelper.GetConstructorParameters(_serviceProvider, flowType);
+			var flow = Activator.CreateInstance(flowType, flowParameters) as IStateFlow;
+
+			if (flow == null)
+			{
+				throw new FlowCreateException($"Flow {flowType} does not support IStateFlow interface");
+			}
+
+            flow.Parse();
+			var context = await _storage.CreateProcessExecutionContext(flow, flowParams, true);
+			context.ExecutionResult = new TaskExecutionResult();
+
+            if (currentTask != null)
+            {
+                context.CurrentTask = currentTask;
+                context.CurrentTaskLine = flow.States.FindIndex(x => x.State == currentTask);
+			}
+
+			return context;
+		}
+
+
+		public async Task<IFlowContext> ExecuteFlow(FlowRunParameters runParameters)
         {
             var flowType = runParameters.FlowType;
             var refId = runParameters.RefId;

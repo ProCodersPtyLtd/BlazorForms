@@ -1,0 +1,26 @@
+﻿@page "/flow-board"
+@using BlazorForms.Rendering.Interfaces
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.Rendering.State
+@using BlazorForms.Rendering.Model
+@using BlazorForms.Rendering.MudBlazorUI.Components
+@using MudBlazor
+
+<FlowBoard TFlow=MudBlazorUIDemo.Flows.SampleStateFlow Items=@_items />
+
+@code {
+    List<BoardCard> _items = (new BoardCard[]
+    {
+        new BoardCard { Selector = "Leads", Title = "IBM", Order = 0 },
+        new BoardCard { Selector = "Leads", Title = "Telstra", Order = 1 },
+        new BoardCard { Selector = "Leads", Title = "Bounty", Order = 2 },
+        new BoardCard { Selector = "Contacted", Title = "Hyundai", Order = 0 },
+    })
+    .ToList();
+
+    private ListFormOptions Options = new ListFormOptions
+        {
+            Variant = Variant.Outlined,
+            MudBlazorProvidersDefined = true
+        };
+}

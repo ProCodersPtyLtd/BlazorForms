@@ -31,7 +31,7 @@ namespace BlazorForms.Flows
         }
         private static void RegisterState(IStateFlow flow, state state)
         {
-            flow.States.Add(new StateDef { State = state.Value });
+            flow.States.Add(new StateDef { State = state.Value, Caption = state.Caption });
         }
 
         private static void RegisterTransition(IStateFlow flow, Func<TransitionTrigger> triggerFunction, state state, Action onTransitionEvent)

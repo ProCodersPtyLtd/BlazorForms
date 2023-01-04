@@ -14,5 +14,9 @@ namespace BlazorForms.Rendering.Interfaces
 
 		Task LoadAsync(Type flowType);
 		Task RefreshCardsAsync(List<BoardCard> cards);
+		bool IsTransitionPossible(BoardCard card, string column);
+		Task PerformTransition(BoardCard card, string newState);
+
+
 	}
 }

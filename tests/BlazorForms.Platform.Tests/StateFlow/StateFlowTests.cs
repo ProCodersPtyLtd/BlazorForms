@@ -25,6 +25,9 @@ namespace BlazorForms.Platform.Tests.StateFlow
             Assert.Equal("NA", flow.NA.Value);
             Assert.Equal("Open", flow.Open.Value);
             Assert.Equal("StatusClosed", flow.StatusClosed.Value);
+
+            Assert.Equal("ReviewedWithLabel", flow.ReviewedWithLabel.Value);
+            Assert.Equal("Reviewed With Label", flow.ReviewedWithLabel.Caption);
         }
 
         [Fact]
@@ -71,6 +74,7 @@ namespace BlazorForms.Platform.Tests.StateFlow
         public state Unassigned;
         public state Assigned;
         public state Reviewed;
+        public state ReviewedWithLabel = new state("Reviewed With Label");
 
         public status NA;
         public status Open;

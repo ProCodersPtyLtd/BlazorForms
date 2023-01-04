@@ -66,12 +66,19 @@ namespace BlazorForms.Flows
 
             foreach (var field in objectFields)
             {
-                if (field.GetValue(this) == null)
+                var fieldValue = field.GetValue(this);
+
+				if (fieldValue == null)
                 {
                     // initialize flow object fields values by field names
-                    var obj = Activator.CreateInstance(field.FieldType, field.Name) as StateFlowObject;
+                    var obj = Activator.CreateInstance(field.FieldType, field.Name, field.Name) as StateFlowObject;
                     field.SetValue(this, obj);
                 }
+                else if ((fieldValue as StateFlowObject).Value == null)
+                {
+					var obj = Activator.CreateInstance(field.FieldType, field.Name, (fieldValue as StateFlowObject).Caption) as StateFlowObject;
+					field.SetValue(this, obj);
+				}
             }
         }
 

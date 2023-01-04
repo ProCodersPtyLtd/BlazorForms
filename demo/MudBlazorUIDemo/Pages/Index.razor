@@ -3,6 +3,7 @@
 @inject ISnackbar Snackbar
 
 @using MudBlazor.Utilities
+@using System.Collections.ObjectModel
 
 <div class="d-flex flex-column mud-width-full mud-height-full">
 	<MudToolBar Class="gap-4">
@@ -55,9 +56,22 @@
 	@code {
 	private MudDropContainer<DropItem>? _container;
 
+	private ObservableCollection<DropItem> _dropzoneItems = new();
+
 	private void Click()
 	{
 
+	}
+
+	protected override void OnInitialized()
+	{
+		_dropzoneItems.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(
+		delegate (object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+		{
+			if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Move)
+			{
+			}
+		});
 	}
 
 	private bool CanDrop(DropItem dropItem, string dropzone)
@@ -70,9 +84,9 @@
 		return true;
 	}
 
-    private void ItemUpdated(MudItemDropInfo<DropItem> dropItem)
-    {
-        dropItem.Item.Selector = dropItem.DropzoneIdentifier;
+	private void ItemUpdated(MudItemDropInfo<DropItem> dropItem)
+	{
+		dropItem.Item.Selector = dropItem.DropzoneIdentifier;
 
 		var indexOffset = dropItem.DropzoneIdentifier switch
 		{
@@ -83,7 +97,6 @@
 		_serverData.UpdateOrder(dropItem, item => item.Order, indexOffset);
 	}
 
-	private List<DropItem> _dropzoneItems = new();
 
 	private List<DropItem> _serverData = new()
 		{
@@ -112,20 +125,23 @@
 	{
 		List<DropItem> newdata = new List<DropItem>();
 
+		_dropzoneItems.Clear();
+
 		foreach (var item in _serverData.OrderBy(x => x.Order))
 		{
 			newdata.Add(item);
+			_dropzoneItems.Add(item);
 		}
 
-		_dropzoneItems = newdata;
+		//_dropzoneItems. =  newdata;
 		RefreshContainer();
 	}
 
-	private void SaveData() => _serverData = _dropzoneItems;
+	private void SaveData() { }// => _serverData = _dropzoneItems;
 
 	private void Reset()
 	{
-		_dropzoneItems = new();
+		//_dropzoneItems = new();
 		_serverData = new()
 			{
 				new DropItem() { Order = 0, Name = "Item 1", Selector = "1" },

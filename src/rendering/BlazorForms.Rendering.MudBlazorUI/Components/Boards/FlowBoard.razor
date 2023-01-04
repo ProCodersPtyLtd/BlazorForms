@@ -2,14 +2,16 @@
 @using MudBlazor.Utilities
 @using BlazorForms.Flows.Definitions
 
+@namespace BlazorForms.Rendering.MudBlazorUI.Components
+
 @typeparam TFlow where TFlow : IStateFlow
 
 @inject IFlowBoardViewModel _vm
 
 <div class="d-flex flex-column mud-width-full mud-height-full">
 
-	<MudDropContainer T="BoardCard" Items="@_vm.Cards" @ref="_container" ItemsSelector="@((item,dropzone) => item.Selector == dropzone)"
-					  ItemDropped="(a) => ItemUpdated(a)" CanDrop=@CanDrop Class="d-flex flex-wrap flex-grow-1">
+	<MudDropContainer T="BoardCard" Items=@_vm.Cards @ref="_container" ItemsSelector="@((item,dropzone) => item.Selector == dropzone)"
+					  ItemDropped="async (a) => await ItemUpdated(a)" CanDrop=@CanDrop Class="d-flex flex-wrap flex-grow-1">
 		
 		<ChildContent>
 			@foreach (var column in _vm.Columns)
@@ -17,7 +19,7 @@
 				<MudPaper Class="ma-4 flex-grow-1">
 					<MudList Clickable="true" Class="d-flex flex-column mud-height-full">
 						<MudListSubheader>@column.Name</MudListSubheader>
-						<MudDropZone T="BoardCard" Identifier="@column.Name" Class="flex-grow-1" AllowReorder="true" />
+						<MudDropZone T="BoardCard" Identifier="@column.Id" Class="flex-grow-1" AllowReorder="true" />
 					</MudList>
 				</MudPaper>
 			}
@@ -61,6 +63,7 @@
 	protected override async Task OnParametersSetAsync()
 	{
 		await _vm.RefreshCardsAsync(Items);
+		StateHasChanged();
 	}
 
 	private void Click()
@@ -74,12 +77,24 @@
 		//	return false;
 		//}
 
-		return true;
+		return _vm.IsTransitionPossible(dropItem, dropzone);
 	}
 
-	private void ItemUpdated(MudItemDropInfo<BoardCard> dropItem)
+	private async Task ItemUpdated(MudItemDropInfo<BoardCard> dropItem)
 	{
-		dropItem.Item.Selector = dropItem.DropzoneIdentifier;
+		if (dropItem.Item.Selector != dropItem.DropzoneIdentifier)
+		{
+			await _vm.PerformTransition(dropItem.Item, dropItem.DropzoneIdentifier);
+			//dropItem.Item.Selector = dropItem.DropzoneIdentifier;
+		}
+
+		if (dropItem.IndexInZone != dropItem.Item.Order)
+		{
+			_vm.Cards.UpdateOrder(dropItem, item => item.Order);
+			//_vm.SaveCardsOrder();
+		}
+
+		StateHasChanged();
 
 		//var indexOffset = dropItem.DropzoneIdentifier switch
 		//{
