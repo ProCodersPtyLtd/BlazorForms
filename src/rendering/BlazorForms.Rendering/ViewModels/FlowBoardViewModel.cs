@@ -19,9 +19,9 @@ namespace BlazorForms.Rendering.ViewModels
 		private StateFlowTaskDetails _flowDetails;
 
 
-        public List<BoardColumn> Columns {get;set;}
+        public List<FlowBoardColumn> Columns {get;set;}
 
-		public List<BoardCard> Cards { get; set; }
+		public List<FlowBoardCard> Cards { get; set; }
 		public bool IsStorageEnabled { get; set; } = false;
 
 		public FlowBoardViewModel(IStateFlowRunEngine flowRunEngine)
@@ -42,43 +42,48 @@ namespace BlazorForms.Rendering.ViewModels
 			};
 
 			_flowDetails = await _flowRunEngine.GetStateDetails(ps);
-			Columns = _flowDetails.States.Select(s => new BoardColumn { Id = s.State, Name = s.Caption }).ToList();
+			Columns = _flowDetails.States.Select(s => new FlowBoardColumn { Id = s.State, Name = s.Caption }).ToList();
 		}
 
-		public async Task RefreshCardsAsync(List<BoardCard> cards)
+		public async Task RefreshCardsAsync(List<FlowBoardCard> cards)
 		{
-			Cards = new List<BoardCard>();
+			Cards = new List<FlowBoardCard>();
 			cards.ForEach(async c => Cards.Add(await GetLoadedCard(c)));
 
 			//Cards = cards.Select(c => GetLoadedCard(c)).OrderBy(c => c.Order).ToList();
 		}
 
-		private async Task<BoardCard> GetLoadedCard(BoardCard c)
+		private async Task<FlowBoardCard> GetLoadedCard(FlowBoardCard c)
 		{
 			var r = c.ReflectionGetCopy();
-			r.Context = await _flowRunEngine.CreateFlowContext(_currentFlowType, r.Selector);
+			r.Context = await _flowRunEngine.CreateFlowContext(_currentFlowType, r.State);
 
 			if (r.Title?.Length > 20)
 			{
 				r.Title = $"{r.Title.Substring(0, 20)}...";
 			}
 
+			if (r.Details?.Length > 32)
+			{
+				r.Details = $"{r.Details.Substring(0, 32)}...";
+			}
+
 			return r;
 		}
 
-		public bool IsTransitionPossible(BoardCard card, string column)
+		public bool IsTransitionPossible(FlowBoardCard card, string column)
 		{
-			if (card.Selector == column)
+			if (card.State == column)
 			{
 				return true;
 			}
 
-			var transitions = _flowDetails.Transitions.Where(x => x.FromState == card.Selector && x.IsUserActionTrigger());
+			var transitions = _flowDetails.Transitions.Where(x => x.FromState == card.State && x.IsUserActionTrigger());
 			var result = transitions.Any(x => x.ToState == column);
             return result;
 		}
 
-		public async Task PerformTransition(BoardCard card, string action)
+		public async Task PerformTransition(FlowBoardCard card, string action)
 		{
 			if (IsStorageEnabled)
 			{
@@ -87,8 +92,33 @@ namespace BlazorForms.Rendering.ViewModels
 			else
 			{
 				card.Context = await _flowRunEngine.ContinueFlowNoStorage(card.Context, action);
-				card.Selector = card.Context.CurrentTask;
+				card.State = card.Context.CurrentTask;
 			}
+
+			// ToDo: we need to save the changed card
+		}
+
+		public async Task ReorderCards(FlowBoardCard card, int newOrder)
+		{
+			int num2 = 0;
+			foreach (var item2 in Cards.OrderBy(x => x.Order))
+			{
+				if (item2.Equals(card))
+				{
+					card.Order = newOrder;
+					continue;
+				}
+
+				if (num2 == newOrder)
+				{
+					num2++;
+				}
+
+				item2.Order = num2;
+				num2++;
+			}
+
+			// ToDo: we need to save the changed cards
 		}
 	}
 }

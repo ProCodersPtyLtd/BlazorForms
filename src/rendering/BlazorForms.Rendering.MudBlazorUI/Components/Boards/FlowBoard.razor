@@ -8,18 +8,28 @@
 
 @inject IFlowBoardViewModel _vm
 
+<style>
+	.pz-fixed-column {
+		max-width: 14em;
+	}
+
+	.mud-card-header {
+		padding: 7px !important;
+	}
+</style>
+
 <div class="d-flex flex-column mud-width-full mud-height-full">
 
-	<MudDropContainer T="BoardCard" Items=@_vm.Cards @ref="_container" ItemsSelector="@((item,dropzone) => item.Selector == dropzone)"
+	<MudDropContainer T="FlowBoardCard" Items=@_vm.Cards @ref="_container" ItemsSelector="@((item,dropzone) => item.State == dropzone)"
 					  ItemDropped="async (a) => await ItemUpdated(a)" CanDrop=@CanDrop Class="d-flex flex-wrap flex-grow-1">
 		
 		<ChildContent>
 			@foreach (var column in _vm.Columns)
 			{
-				<MudPaper Class="ma-4 flex-grow-1">
+				<MudPaper Class="ma-4 flex-grow-1 pz-fixed-column">
 					<MudList Clickable="true" Class="d-flex flex-column mud-height-full">
 						<MudListSubheader>@column.Name</MudListSubheader>
-						<MudDropZone T="BoardCard" Identifier="@column.Id" Class="flex-grow-1" AllowReorder="true" />
+						<MudDropZone T="FlowBoardCard" Identifier="@column.Id" Class="flex-grow-1" AllowReorder="true" />
 					</MudList>
 				</MudPaper>
 			}
@@ -29,16 +39,20 @@
 			<MudListItem OnClick=@(() => Click())>
 				<MudCard >
 					<MudCardHeader>
+						<CardHeaderAvatar>
+							<MudAvatar Color="Color.Primary" Size="Size.Small">@context.Title.Substring(0,1)</MudAvatar>
+						</CardHeaderAvatar>
 						<CardHeaderContent>
 							<MudText Typo="Typo.subtitle1">@($"{context.Title}")</MudText>
 						</CardHeaderContent>
 						<CardHeaderActions>
-								<MudIconButton Size="Size.Small" Icon="@Icons.Material.TwoTone.MoreHoriz" Color="Color.Default" />
+                                <MudIconButton Size="Size.Small" Icon="@Icons.Material.TwoTone.MoreHoriz" Color="Color.Default" />
 						</CardHeaderActions>
 					</MudCardHeader>
 					<MudCardContent>
-						<MudText>This day everything happend.</MudText>
-						<MudText Typo="Typo.body2">The quick, brown fox <br/> jumps over a lazy dog.</MudText>
+							<MudText Typo="Typo.body2">@context.Details</MudText>
+						@*<MudText>This day everything happend.</MudText>
+						<MudText Typo="Typo.body2">The quick, brown fox <br/> jumps over a lazy dog.</MudText>*@
 					</MudCardContent>
 					@*<MudCardActions>
 						<MudButton Variant="Variant.Text" Color="Color.Primary">Read More</MudButton>
@@ -51,9 +65,9 @@
 
 	@code {
 	[Parameter]
-	public List<BoardCard> Items { get; set; }
+	public List<FlowBoardCard> Items { get; set; }
 
-	private MudDropContainer<BoardCard>? _container;
+	private MudDropContainer<FlowBoardCard>? _container;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -70,7 +84,7 @@
 	{
 	}
 
-	private bool CanDrop(BoardCard dropItem, string dropzone)
+	private bool CanDrop(FlowBoardCard dropItem, string dropzone)
 	{
 		//if (dropItem.Name == $"Item {dropzone}")
 		//{
@@ -80,25 +94,32 @@
 		return _vm.IsTransitionPossible(dropItem, dropzone);
 	}
 
-	private async Task ItemUpdated(MudItemDropInfo<BoardCard> dropItem)
+	private async Task ItemUpdated(MudItemDropInfo<FlowBoardCard> dropItem)
 	{
-		if (dropItem.Item.Selector != dropItem.DropzoneIdentifier)
+		// Example how to ignore/cancel transition
+		if (dropItem.Item.Title == "IBM" && dropItem.Item.State != dropItem.DropzoneIdentifier)
 		{
+			_container.Refresh();
+			return;
+		}
+
+		if (dropItem.Item.State != dropItem.DropzoneIdentifier)
+		{
+			//dropItem.Item.State = dropItem.DropzoneIdentifier;
 			await _vm.PerformTransition(dropItem.Item, dropItem.DropzoneIdentifier);
-			//dropItem.Item.Selector = dropItem.DropzoneIdentifier;
 		}
 
 		if (dropItem.IndexInZone != dropItem.Item.Order)
 		{
-			_vm.Cards.UpdateOrder(dropItem, item => item.Order);
-			//_vm.SaveCardsOrder();
+			//_vm.Cards.UpdateOrder(dropItem, item => item.Order);
+			await _vm.ReorderCards(dropItem.Item, dropItem.IndexInZone);
 		}
 
 		StateHasChanged();
 
 		//var indexOffset = dropItem.DropzoneIdentifier switch
 		//{
-		//	"2" => _serverData.Count(x => x.Selector == "1"),
+		//	"2" => _serverData.Count(x => x.State == "1"),
 		//	_ => 0,
 		//};
 

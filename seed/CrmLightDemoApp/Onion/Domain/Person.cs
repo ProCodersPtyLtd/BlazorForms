@@ -11,5 +11,7 @@
         public virtual DateTime? LastUpdatedOn { get; set; }
         public virtual bool Deleted { get; set; }
 
-    }
+        // FK
+		public List<PersonCompanyLink> RefPersonCompanyLink { get; } = new();
+	}
 }

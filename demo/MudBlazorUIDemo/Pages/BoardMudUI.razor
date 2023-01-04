@@ -9,12 +9,13 @@
 <FlowBoard TFlow=MudBlazorUIDemo.Flows.SampleStateFlow Items=@_items />
 
 @code {
-    List<BoardCard> _items = (new BoardCard[]
+    List<FlowBoardCard> _items = (new FlowBoardCard[]
     {
-        new BoardCard { Selector = "Leads", Title = "IBM", Order = 0 },
-        new BoardCard { Selector = "Leads", Title = "Telstra", Order = 1 },
-        new BoardCard { Selector = "Leads", Title = "Bounty", Order = 2 },
-        new BoardCard { Selector = "Contacted", Title = "Hyundai", Order = 0 },
+        new FlowBoardCard { State = "Leads", Title = "IBM", Details = "Severe problems with obvious code quality", Order = 0 },
+        new FlowBoardCard { State = "Leads", Title = "Telstra", Details = "Too ineffective IT department, unsecured and overprised services", Order = 1 },
+        new FlowBoardCard { State = "Leads", Title = "Bounty", Order = 2 },
+        new FlowBoardCard { State = "Contacted", Title = "Hyundai", Order = 0 },
+        new FlowBoardCard { State = "Won", Title = "Igloo Limited", Order = 0 },
     })
     .ToList();
 
