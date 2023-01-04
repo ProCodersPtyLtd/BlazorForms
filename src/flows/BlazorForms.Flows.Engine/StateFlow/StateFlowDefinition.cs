@@ -19,11 +19,28 @@ namespace BlazorForms.Flows
 
         public static F Transition<F>(this F flow, TransitionTrigger trigger, state state, Action onTransitionEvent = null) where F : class, IStateFlow 
         { 
+            if (trigger.Text == null)
+            {
+                trigger.Text = state.Value;
+			}
+
             RegisterTransition(flow, trigger, state, onTransitionEvent); 
             return flow; 
         }
 
-        public static F End<F>(this F flow) where F : class, IStateFlow { RegisterFinish(flow); return flow; }
+		public static F Transition<F>(this F flow, UserActionTransitionTrigger trigger, state state, Action onTransitionEvent = null) where F : class, IStateFlow
+		{
+			if (trigger.Text == null)
+			{
+				trigger.Text = state.Caption;
+				trigger.CommandText = state.Value;
+			}
+
+			RegisterTransition(flow, trigger, state, onTransitionEvent);
+			return flow;
+		}
+
+		public static F End<F>(this F flow) where F : class, IStateFlow { RegisterFinish(flow); return flow; }
 
         private static void RegisterFinish(IStateFlow flow)
         {

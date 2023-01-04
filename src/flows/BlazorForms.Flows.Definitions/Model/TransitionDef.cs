@@ -24,5 +24,11 @@ namespace BlazorForms.Flows.Definitions
 			var trigger = GetTrigger();
 			return trigger is ButtonTransitionTrigger;
 		}
+
+		public bool IsUserActionTrigger()
+		{
+			var trigger = GetTrigger();
+			return trigger is UserActionTransitionTrigger;
+		}
 	}
 }

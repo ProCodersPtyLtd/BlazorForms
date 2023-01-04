@@ -73,7 +73,7 @@ namespace BlazorForms.Rendering.ViewModels
 				return true;
 			}
 
-			var transitions = _flowDetails.Transitions.Where(x => x.FromState == card.Selector && x.IsButtonTrigger());
+			var transitions = _flowDetails.Transitions.Where(x => x.FromState == card.Selector && x.IsUserActionTrigger());
 			var result = transitions.Any(x => x.ToState == column);
             return result;
 		}
