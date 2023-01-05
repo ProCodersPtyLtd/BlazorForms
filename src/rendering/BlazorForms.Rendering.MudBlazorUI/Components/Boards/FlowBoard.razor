@@ -5,7 +5,8 @@
 
 @namespace BlazorForms.Rendering.MudBlazorUI.Components
 
-@typeparam TFlow where TFlow : IStateFlow
+@typeparam TFlow where TFlow : class, IStateFlow
+@typeparam TItem where TItem : class, IFlowBoardCard
 
 @inject IFlowBoardViewModel _vm
 @inject BoardDialogViewModel DialogVM
@@ -63,7 +64,10 @@
 
 	@code {
 	[Parameter]
-	public List<IFlowBoardCard> Items { get; set; }
+	public List<TItem> Items { get; set; }
+
+	[Parameter]
+	public EventCallback<List<BoardCardChangedArgs<TItem>>> ItemsChanged { get; set; }
 
 	private MudDropContainer<CardInfo<IFlowBoardCard>>? _container;
 
@@ -74,7 +78,7 @@
 
 	protected override async Task OnParametersSetAsync()
 	{
-		await _vm.RefreshCardsAsync(Items);
+		await _vm.RefreshCardsAsync(Items.Cast<IFlowBoardCard>().ToList());
 		StateHasChanged();
 	}
 
@@ -89,7 +93,7 @@
 			var options = new DialogOptions { CloseOnEscapeKey = true };
 			var dialogParameters = new DialogParameters();
 			dialogParameters["DialogViewModel"] = DialogVM;
-			dialogParameters["FormSubmitted"] = new EventCallback<FormSubmittedArgs>(this, DialogFormSubmitted);
+			dialogParameters["FormSubmitted"] = new EventCallback<BoardDialogSubmittedArgs>(this, DialogFormSubmitted);
 			dialogParameters["AllowAnonymousAccess"] = true;
 			dialogParameters["AllowFlowStorage"] = false;
 			dialogParameters["Options"] = new EditFormOptions { MudBlazorProvidersDefined = true };
@@ -97,13 +101,13 @@
 		}
 	}
 
-	private async Task DialogFormSubmitted(FormSubmittedArgs args)
+	private async Task DialogFormSubmitted(BoardDialogSubmittedArgs args)
 	{
-		//var flowParams = FlowParams ?? new FlowParamsGeneric();
-		//flowParams.ItemId = ParentItemPk;
+		await ItemsChanged.InvokeAsync((new BoardCardChangedArgs<TItem>[] 
+			{ 
+				new BoardCardChangedArgs<TItem>(args.Card as TItem, ItemChangedType.Changed) 
+			}).ToList());
 
-		//await ViewModel.LoadListForm(FlowType, PK, flowParams);
-		//DialogPk = null;
 		StateHasChanged();
 	}
 

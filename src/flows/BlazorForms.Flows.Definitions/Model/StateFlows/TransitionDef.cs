@@ -8,11 +8,13 @@ namespace BlazorForms.Flows.Definitions
 {
 	public class TransitionDef
 	{
+		public string FormType { get; set; }
 		public string FromState { get; set; }
 		public string ToState { get; set; }
 		public TransitionTrigger Trigger { get; set; }
 		public Func<TransitionTrigger> TriggerFunction { get; set; }
 		public Action OnChanging { get; set; }
+		public Func<Task> OnChangingAsync { get; set; }
 
 		public TransitionTrigger GetTrigger()
 		{

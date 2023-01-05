@@ -47,6 +47,36 @@ namespace BlazorForms.Rendering.Model
 		}
 	}
 
+	public enum ItemChangedType
+	{
+		Order,
+		Status,
+		Changed,
+		Added,
+		Deleted,
+	}
+
+	//public class ItemsChangedArgs<T>
+	//{ }
+
+	public class BoardDialogSubmittedArgs
+	{
+		public IFlowBoardCard? Card { get; set; }
+	}
+
+    public class BoardCardChangedArgs<T>
+		where T: class, IFlowBoardCard
+	{
+		public T Item { get; private set; }
+		public ItemChangedType Type { get; private set; }
+
+		public BoardCardChangedArgs(T item, ItemChangedType type)
+		{
+			Item = item;
+			Type = type;
+		}	
+	}
+
 	public class FlowBoardColumn
     {
 		public string Id { get; set; }

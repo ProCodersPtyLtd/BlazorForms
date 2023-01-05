@@ -7,10 +7,10 @@
 @using MudBlazor
 @using MudBlazorUIDemo.Flows;
 
-<FlowBoard TFlow=MudBlazorUIDemo.Flows.SampleStateFlow Items=@_items />
+<FlowBoard TFlow=MudBlazorUIDemo.Flows.SampleStateFlow TItem=SampleStateModel Items=@_items ItemsChanged=@ItemsChanged />
 
 @code {
-    List<IFlowBoardCard> _items = (new IFlowBoardCard[]
+    List<SampleStateModel> _items = (new SampleStateModel[]
     {
         new SampleStateModel { State = "Leads", Title = "IBM", Description = "Severe problems with obvious code quality", Order = 0 },
         new SampleStateModel { State = "Leads", Title = "Telstra", Description = "Too ineffective IT department, unsecured and overprised services", Order = 1 },
@@ -20,9 +20,14 @@
     })
     .ToList();
 
+    private async Task ItemsChanged(List<BoardCardChangedArgs<SampleStateModel>> list)
+    {
+        
+    }
+
     private ListFormOptions Options = new ListFormOptions
-        {
-            Variant = Variant.Outlined,
-            MudBlazorProvidersDefined = true
-        };
+    {
+        Variant = Variant.Outlined,
+        MudBlazorProvidersDefined = true
+    };
 }

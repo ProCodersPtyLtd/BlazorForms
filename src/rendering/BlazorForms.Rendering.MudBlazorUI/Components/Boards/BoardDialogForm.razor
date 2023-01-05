@@ -2,6 +2,7 @@
 @using BlazorForms.Rendering.State
 @using MudBlazor
 @using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Model
 @using BlazorForms.Rendering.Validation
 @using BlazorForms.Flows.Definitions
 @using BlazorForms.Shared
@@ -73,7 +74,7 @@
     public EventCallback<ValueChangedArgs> ModelActionChanged { get; set; }
 
     [Parameter]
-    public EventCallback<FormSubmittedArgs> FormSubmitted { get; set; }
+    public EventCallback<BoardDialogSubmittedArgs> FormSubmitted { get; set; }
 
     [Parameter]
     public bool ValidateButton { get; set; }
@@ -149,7 +150,7 @@
 
             if(submitted)
             {
-                await FormSubmitted.InvokeAsync(new FormSubmittedArgs { Context = null });
+                await FormSubmitted.InvokeAsync(new BoardDialogSubmittedArgs { Card = DialogViewModel.ModelUntyped as IFlowBoardCard });
                 CloseDialog(true);
             }
         }

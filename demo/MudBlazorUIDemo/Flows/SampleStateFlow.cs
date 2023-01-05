@@ -19,10 +19,12 @@ namespace MudBlazorUIDemo.Flows
 		public override void Define()
 		{
 			this
-				.EditForm<FormCardEdit>()
+				.Begin(OnStartAsync)
+				.SetEditForm<FormCardEdit>()
 				.State(Leads)
 					.Transition(new UserActionTransitionTrigger(), Contacted, OnAssigning)
 				.State(Contacted)
+					.Begin(OnStartContactedAsync)
 					.Transition(new UserActionTransitionTrigger(), Leads)
 					.Transition(new UserActionTransitionTrigger(), MeetingScheduled)
 				.State(MeetingScheduled)
@@ -30,7 +32,8 @@ namespace MudBlazorUIDemo.Flows
 					.Transition(new UserActionTransitionTrigger(), ProposalDelivered)
 				.State(ProposalDelivered)
 					.Transition(new UserActionTransitionTrigger(), MeetingScheduled)
-					.Transition(new UserActionTransitionTrigger(), Won)
+					.Transition(new UserActionTransitionTrigger(), Won, OnCloseAsync)
+					//.TransitionForm<FormCardCommit>(new UserActionTransitionTrigger(), Won, OnCloseAsync)
 				.State(Won)
 					.Transition(new UserActionTransitionTrigger(), Leads)
 					.Transition(new UserActionTransitionTrigger(), Contacted)
@@ -39,8 +42,21 @@ namespace MudBlazorUIDemo.Flows
 					.End();
 		}
 
+		private async Task OnStartAsync()
+		{
+			Model.CloseMessage = "Congrats with another win! Click [Ok] to close the card.";
+		}
+
+		private async Task OnStartContactedAsync()
+		{
+		}
+
 		private void OnAssigning()
 		{
+		}
+
+		private async Task OnCloseAsync()
+		{ 
 		}
 	}
 
@@ -56,11 +72,24 @@ namespace MudBlazorUIDemo.Flows
 		}
 	}
 
+	public class FormCardCommit : FormEditBase<SampleStateModel>
+	{
+		protected override void Define(FormEntityTypeBuilder<SampleStateModel> f)
+		{
+			f.Property(p => p.CloseMessage).Control(ControlType.Paragraph);
+
+			f.Button(ButtonActionTypes.Cancel, "Cancel");
+			f.Button(ButtonActionTypes.Submit, "Ok");
+		}
+	}
+
 	public class SampleStateModel : IFlowBoardCard
 	{
 		public string State { get; set; }
 		public string Title { get; set; }
 		public string Description { get; set; }
 		public int Order { get; set; }
+
+		public string CloseMessage { get; set; }
 	}
 }

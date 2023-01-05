@@ -58,18 +58,20 @@ namespace BlazorForms.Rendering.ViewModels
 			//var r = new CardInfo<IFlowBoardCard>(c.ReflectionGetCopy()); 
 			var r = new CardInfo<IFlowBoardCard>(c); 
 			r.Context = await _flowRunEngine.CreateFlowContext(_currentFlowType, c, r.Item.State);
+			// start initial flow
+			await PerformTransition(r, null);
 
-			//if (r.Item.Title?.Length > 20)
-			//{
-			//	r.Item.Title = $"{r.Item.Title.Substring(0, 20)}...";
-			//}
+            //if (r.Item.Title?.Length > 20)
+            //{
+            //	r.Item.Title = $"{r.Item.Title.Substring(0, 20)}...";
+            //}
 
-			//if (r.Item.Description?.Length > 32)
-			//{
-			//	r.Item.Description = $"{r.Item.Description.Substring(0, 32)}...";
-			//}
+            //if (r.Item.Description?.Length > 32)
+            //{
+            //	r.Item.Description = $"{r.Item.Description.Substring(0, 32)}...";
+            //}
 
-			return r;
+            return r;
 		}
 
 		public bool IsTransitionPossible(CardInfo<IFlowBoardCard> card, string column)

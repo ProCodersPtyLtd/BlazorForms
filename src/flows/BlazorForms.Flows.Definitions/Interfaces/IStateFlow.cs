@@ -8,6 +8,7 @@ namespace BlazorForms.Flows.Definitions
 {
 	public interface IStateFlow : IFlow
 	{
+		Func<Task> OnBeginAsync { get; internal set; }
 		List<StateDef> States { get; }
 		List<TransitionDef> Transitions { get; }
 		List<FormDef> Forms { get; }

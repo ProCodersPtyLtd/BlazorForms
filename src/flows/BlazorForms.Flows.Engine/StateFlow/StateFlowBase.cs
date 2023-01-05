@@ -46,6 +46,7 @@ namespace BlazorForms.Flows
             }
         }
 
+        public Func<Task> OnBeginAsync { get; set; }
         public List<StateDef> States { get; protected set; } = new();
         public List<TransitionDef> Transitions { get; protected set; } = new();
         public List<FormDef> Forms { get; protected set; } = new();

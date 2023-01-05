@@ -168,6 +168,15 @@ namespace BlazorForms.Flows.Engine.StateFlow
 
                 try
                 {
+                    // Execute flow begin
+                    if (context.CurrentTaskLine == 0)
+                    {
+                        if (flow.OnBeginAsync != null)
+                        {
+                            await flow.OnBeginAsync.Invoke();
+                        }
+                    }
+
                     while (proceed)
                     {
                         proceed = false;
@@ -199,11 +208,23 @@ namespace BlazorForms.Flows.Engine.StateFlow
                             if (trigger.Proceed)
                             {
                                 transition.OnChanging?.Invoke();
+
+                                if (transition.OnChangingAsync != null)
+                                {
+                                    await transition.OnChangingAsync.Invoke();
+                                }
+
                                 i = flow.States.IndexOf(flow.States.First(s => s.State == transition.ToState));
                                 proceed = true;
                                 context.ExecutionResult.ResultState = TaskExecutionResultStateEnum.Success;
                                 context.ExecutionResult.FlowState = TaskExecutionFlowStateEnum.Continue;
                                 context.ExecutionResult.ChangedDate = DateTime.Now;
+
+                                // execude begin
+                                if (flow.States[i].OnBeginAsync != null)
+                                {
+                                    await flow.States[i].OnBeginAsync.Invoke();
+                                }
 
                                 // clean last action to prevent unexpected following propagation
                                 context.ExecutionResult.FormLastAction = null;
