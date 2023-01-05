@@ -159,7 +159,7 @@ namespace BlazorForms.Platform.Tests.FluentForms
 
             var menu = form.Fields.Single(f => f.Binding.BindingType == FieldBindingType.TableColumnContextMenu);
             Assert.Equal(4, menu.Binding.ContextMenuActions.Count);
-            Assert.Equal("Details", menu.Binding.ContextMenuActions[0].Name);
+            Assert.Equal("Description", menu.Binding.ContextMenuActions[0].Name);
             Assert.Equal("CustomerView/{0}", menu.Binding.ContextMenuActions[0].NavigationFormat);
         }
 
@@ -317,7 +317,7 @@ namespace BlazorForms.Platform.Tests.FluentForms
                 e.Property(p => p.EmailAddress);
                 e.Property(p => p.CompanyName);
 
-                e.ContextButton("Details", "CustomerView/{0}")
+                e.ContextButton("Description", "CustomerView/{0}")
                     .ContextButton("Edit", "CustomerEdit/{0}")
                     .ContextButton("Addresses", "CustAddrList/{0}")
                     .ContextButton("Delete", "CustomerDelete/{0}");

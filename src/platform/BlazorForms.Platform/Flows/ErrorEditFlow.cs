@@ -17,7 +17,7 @@ using BlazorForms.Platform.Definitions.Model;
 namespace BlazorForms.Platform
 {
     [Flow(nameof(ErrorEditFlow))]
-    [Form("Error Details")]
+    [Form("Error Description")]
     public class ErrorEditFlow : FluentFlowBase<ErrorModel>
     {
         private readonly ILogger _logger;
@@ -45,7 +45,7 @@ namespace BlazorForms.Platform
         }
     }
 
-    [Form("Error Details")]
+    [Form("Error Description")]
     public class ErrorEditFlowForm : FlowTaskDefinitionBase<ErrorModel>
     {
         [FormComponent(typeof(DateEdit))]

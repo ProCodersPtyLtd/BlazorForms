@@ -59,7 +59,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
                 e.Property(p => p.RegistrationNumber).Label("Reg. No.");
                 e.Property(p => p.EstablishedDate).Label("Established date").Format("dd/MM/yyyy");
 
-                e.ContextButton("Details", "company-edit/{0}");
+                e.ContextButton("Description", "company-edit/{0}");
                 e.NavigationButton("Add", "company-edit/0");
             });
         }

@@ -8,7 +8,19 @@ using System.Threading.Tasks;
 
 namespace BlazorForms.Rendering.Model
 {
-    public class FlowBoardColumn
+    public interface IFlowBoardCard
+    {
+		public string State { get; set; }
+		public string Title { get; set; }
+		public string Description { get; set; }
+		public int Order { get; set; }
+	}
+
+    public record FlowBoardCardInfo<T>(T Item, IFlowContext Context, string RefId)
+        where T : class, IFlowBoardCard
+	{ }
+
+	public class FlowBoardColumn
     {
 		public string Id { get; set; }
 		public string Name { get; set; }
@@ -23,13 +35,13 @@ namespace BlazorForms.Rendering.Model
 
         public string State { get; set; }  
         public string Title { get; set; }       
-        public string Details { get; set; }       
+        public string Description { get; set; }       
         public int Order { get; set; }       
 	}
 
-	public class FlowBoardCard<T> : FlowBoardCard
-		where T: class
-    {
-        public T Model { get { return ModelUntyped as T; } set { ModelUntyped = value; } }
-    }
+	//public class FlowBoardCard<T> : FlowBoardCard
+	//	where T: class
+ //   {
+ //       public T Model { get { return ModelUntyped as T; } set { ModelUntyped = value; } }
+ //   }
 }

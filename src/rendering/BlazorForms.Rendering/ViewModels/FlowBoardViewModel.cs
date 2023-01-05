@@ -63,9 +63,9 @@ namespace BlazorForms.Rendering.ViewModels
 				r.Title = $"{r.Title.Substring(0, 20)}...";
 			}
 
-			if (r.Details?.Length > 32)
+			if (r.Description?.Length > 32)
 			{
-				r.Details = $"{r.Details.Substring(0, 32)}...";
+				r.Description = $"{r.Description.Substring(0, 32)}...";
 			}
 
 			return r;
