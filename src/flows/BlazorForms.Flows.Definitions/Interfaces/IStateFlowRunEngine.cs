@@ -11,6 +11,6 @@ namespace BlazorForms.Flows.Definitions
     {
         Task<StateFlowTaskDetails> GetStateDetails(FlowRunParameters runParameters);
         Task<IFlowContext> ContinueFlow(string refId, IFlowModel model, string operationName = null, FlowParamsGeneric flowParams = null);
-        Task<IFlowContext> CreateFlowContext(Type flowType, string currentTask = null, FlowParamsGeneric flowParams = null);
+        Task<IFlowContext> CreateFlowContext(Type flowType, IFlowModel model = null, string currentTask = null, FlowParamsGeneric flowParams = null);
     }
 }

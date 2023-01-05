@@ -72,7 +72,8 @@ namespace BlazorForms.Flows.Engine.StateFlow
             throw new NotImplementedException();
         }
 
-        public async Task<IFlowContext> CreateFlowContext(Type flowType, string currentTask = null, FlowParamsGeneric flowParams = null)
+        public async Task<IFlowContext> CreateFlowContext(Type flowType, IFlowModel model = null, string currentTask = null, 
+            FlowParamsGeneric flowParams = null)
         {
 			var flowParameters = TypeHelper.GetConstructorParameters(_serviceProvider, flowType);
 			var flow = Activator.CreateInstance(flowType, flowParameters) as IStateFlow;
@@ -85,8 +86,10 @@ namespace BlazorForms.Flows.Engine.StateFlow
             flow.Parse();
 			var context = await _storage.CreateProcessExecutionContext(flow, flowParams, true);
 			context.ExecutionResult = new TaskExecutionResult();
+			context.Model= model;
 
-            if (currentTask != null)
+
+			if (currentTask != null)
             {
                 context.CurrentTask = currentTask;
                 context.CurrentTaskLine = flow.States.FindIndex(x => x.State == currentTask);
@@ -292,6 +295,7 @@ namespace BlazorForms.Flows.Engine.StateFlow
             flow.Parse();
             result.States = flow.States;
             result.Transitions = flow.Transitions;
+            result.Forms = flow.Forms;
             result.CurrentState = context?.GetState();
             result.CurrentStateTransitions = flow.Transitions.Where(t => t.FromState == result.CurrentState).ToList();
 

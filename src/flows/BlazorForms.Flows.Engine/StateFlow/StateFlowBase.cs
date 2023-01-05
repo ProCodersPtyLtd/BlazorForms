@@ -46,8 +46,9 @@ namespace BlazorForms.Flows
             }
         }
 
-        public List<StateDef> States { get; protected set; } = new List<StateDef>();
-        public List<TransitionDef> Transitions { get; protected set; } = new List<TransitionDef>();
+        public List<StateDef> States { get; protected set; } = new();
+        public List<TransitionDef> Transitions { get; protected set; } = new();
+        public List<FormDef> Forms { get; protected set; } = new();
         public IFlowContext Context { get; set; }
         public virtual FlowParamsGeneric Params { get; set; }
 

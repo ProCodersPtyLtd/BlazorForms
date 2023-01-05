@@ -91,6 +91,7 @@ namespace BlazorForms
                 .AddScoped(typeof(IFormViewModel<>), typeof(FormViewModel<>))
                 .AddScoped<IListFormViewModel, ListFormViewModel>()
                 .AddScoped<IDialogFormViewModel, DialogFormViewModel>()
+                .AddScoped<BoardDialogViewModel, BoardDialogViewModel>()
                 .AddScoped<HttpClient>()
                 .AddScoped<IDynamicFieldValidator, DynamicFieldValidator>()
 

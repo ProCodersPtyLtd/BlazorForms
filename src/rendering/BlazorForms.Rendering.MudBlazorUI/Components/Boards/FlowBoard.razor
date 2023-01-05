@@ -1,4 +1,5 @@
 ﻿@using BlazorForms.Rendering.Model
+@using BlazorForms.Rendering.State;
 @using MudBlazor.Utilities
 @using BlazorForms.Flows.Definitions
 
@@ -7,6 +8,8 @@
 @typeparam TFlow where TFlow : IStateFlow
 
 @inject IFlowBoardViewModel _vm
+@inject BoardDialogViewModel DialogVM
+@inject IDialogService DialogService
 
 <style>
 	.pz-fixed-column {
@@ -20,7 +23,7 @@
 
 <div class="d-flex flex-column mud-width-full mud-height-full">
 
-	<MudDropContainer T="FlowBoardCard" Items=@_vm.Cards @ref="_container" ItemsSelector="@((item,dropzone) => item.State == dropzone)"
+	<MudDropContainer T="CardInfo<IFlowBoardCard>" Items=@_vm.Cards @ref="_container" ItemsSelector="@((item,dropzone) => item.Item.State == dropzone)"
 					  ItemDropped="async (a) => await ItemUpdated(a)" CanDrop=@CanDrop Class="d-flex flex-wrap flex-grow-1">
 		
 		<ChildContent>
@@ -29,18 +32,18 @@
 				<MudPaper Class="ma-4 flex-grow-1 pz-fixed-column">
 					<MudList Clickable="true" Class="d-flex flex-column mud-height-full">
 						<MudListSubheader>@column.Name</MudListSubheader>
-						<MudDropZone T="FlowBoardCard" Identifier="@column.Id" Class="flex-grow-1" AllowReorder="true" />
+						<MudDropZone T="CardInfo<IFlowBoardCard>" Identifier="@column.Id" Class="flex-grow-1" AllowReorder="true" />
 					</MudList>
 				</MudPaper>
 			}
 		</ChildContent>
 
 		<ItemRenderer>
-			<MudListItem OnClick=@(() => Click())>
+			<MudListItem OnClick=@(async () => await Click(context))>
 				<MudCard >
 					<MudCardHeader>
 						<CardHeaderAvatar>
-							<MudAvatar Color="Color.Primary" Size="Size.Small">@context.Title.Substring(0,1)</MudAvatar>
+							<MudAvatar Color="Color.Primary" Size="Size.Small">@context.TitleInitials</MudAvatar>
 						</CardHeaderAvatar>
 						<CardHeaderContent>
 							<MudText Typo="Typo.subtitle1">@($"{context.Title}")</MudText>
@@ -51,12 +54,7 @@
 					</MudCardHeader>
 					<MudCardContent>
 							<MudText Typo="Typo.body2">@context.Description</MudText>
-						@*<MudText>This day everything happend.</MudText>
-						<MudText Typo="Typo.body2">The quick, brown fox <br/> jumps over a lazy dog.</MudText>*@
 					</MudCardContent>
-					@*<MudCardActions>
-						<MudButton Variant="Variant.Text" Color="Color.Primary">Read More</MudButton>
-					</MudCardActions>*@
 				</MudCard>
 			</MudListItem>
 		</ItemRenderer>
@@ -65,9 +63,9 @@
 
 	@code {
 	[Parameter]
-	public List<FlowBoardCard> Items { get; set; }
+	public List<IFlowBoardCard> Items { get; set; }
 
-	private MudDropContainer<FlowBoardCard>? _container;
+	private MudDropContainer<CardInfo<IFlowBoardCard>>? _container;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -80,11 +78,41 @@
 		StateHasChanged();
 	}
 
-	private void Click()
+	private async Task ShowDialog(CardInfo<IFlowBoardCard> card)
 	{
+		var formType = _vm.GetStateForm(card.Item.State);
+
+		if (formType != null)
+		{
+			await DialogVM.LoadDialog(formType, card);
+
+			var options = new DialogOptions { CloseOnEscapeKey = true };
+			var dialogParameters = new DialogParameters();
+			dialogParameters["DialogViewModel"] = DialogVM;
+			dialogParameters["FormSubmitted"] = new EventCallback<FormSubmittedArgs>(this, DialogFormSubmitted);
+			dialogParameters["AllowAnonymousAccess"] = true;
+			dialogParameters["AllowFlowStorage"] = false;
+			dialogParameters["Options"] = new EditFormOptions { MudBlazorProvidersDefined = true };
+			DialogService.Show<BoardDialogForm>(null, dialogParameters, options);
+		}
 	}
 
-	private bool CanDrop(FlowBoardCard dropItem, string dropzone)
+	private async Task DialogFormSubmitted(FormSubmittedArgs args)
+	{
+		//var flowParams = FlowParams ?? new FlowParamsGeneric();
+		//flowParams.ItemId = ParentItemPk;
+
+		//await ViewModel.LoadListForm(FlowType, PK, flowParams);
+		//DialogPk = null;
+		StateHasChanged();
+	}
+
+	private async Task Click(CardInfo<IFlowBoardCard> card)
+	{
+		await ShowDialog(card);
+	}
+
+	private bool CanDrop(CardInfo<IFlowBoardCard> dropItem, string dropzone)
 	{
 		//if (dropItem.Name == $"Item {dropzone}")
 		//{
@@ -94,22 +122,22 @@
 		return _vm.IsTransitionPossible(dropItem, dropzone);
 	}
 
-	private async Task ItemUpdated(MudItemDropInfo<FlowBoardCard> dropItem)
+	private async Task ItemUpdated(MudItemDropInfo<CardInfo<IFlowBoardCard>> dropItem)
 	{
 		// Example how to ignore/cancel transition
-		if (dropItem.Item.Title == "IBM" && dropItem.Item.State != dropItem.DropzoneIdentifier)
+		if (dropItem.Item.Item.Title == "IBM" && dropItem.Item.Item.State != dropItem.DropzoneIdentifier)
 		{
 			_container.Refresh();
 			return;
 		}
 
-		if (dropItem.Item.State != dropItem.DropzoneIdentifier)
+		if (dropItem.Item.Item.State != dropItem.DropzoneIdentifier)
 		{
 			//dropItem.Item.State = dropItem.DropzoneIdentifier;
 			await _vm.PerformTransition(dropItem.Item, dropItem.DropzoneIdentifier);
 		}
 
-		if (dropItem.IndexInZone != dropItem.Item.Order)
+		if (dropItem.IndexInZone != dropItem.Item.Item.Order)
 		{
 			//_vm.Cards.UpdateOrder(dropItem, item => item.Order);
 			await _vm.ReorderCards(dropItem.Item, dropItem.IndexInZone);

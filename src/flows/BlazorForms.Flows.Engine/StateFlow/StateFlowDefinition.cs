@@ -10,8 +10,25 @@ namespace BlazorForms.Flows
     public static class StateFlowDefinition
     {
         public static F State<F>(this F flow, state State) where F : class, IStateFlow { RegisterState(flow, State); return flow; }
-        
-        public static F Transition<F>(this F flow, Func<TransitionTrigger> triggerFunction, state state, Action onTransitionEvent = null) where F : class, IStateFlow 
+
+		public static F EditForm<F, TForm>(this F flow) 
+            where F : class, IStateFlow 
+            where TForm : class
+		{
+            RegisterForm(flow, typeof(TForm));
+			return flow; 
+        }
+
+		public static StateFlowBase EditForm<TForm>(this StateFlowBase flow)
+			where TForm : class
+		{
+			RegisterForm(flow, typeof(TForm));
+			return flow;
+		}
+
+
+		public static F Transition<F>(this F flow, Func<TransitionTrigger> triggerFunction, state state, Action onTransitionEvent = null) 
+            where F : class, IStateFlow 
         { 
             RegisterTransition(flow, triggerFunction, state, onTransitionEvent); 
             return flow; 
@@ -60,5 +77,10 @@ namespace BlazorForms.Flows
         {
             flow.Transitions.Add(new TransitionDef { FromState = flow.States.Last().State, ToState = state.Value, Trigger = trigger, OnChanging = onTransitionEvent });
         }
-    }
+
+		private static void RegisterForm(IStateFlow flow, Type form, string state = null)
+		{
+			flow.Forms.Add(new FormDef { FormType = form.FullName, State = state });
+		}
+	}
 }

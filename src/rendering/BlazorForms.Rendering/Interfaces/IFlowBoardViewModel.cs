@@ -10,13 +10,14 @@ namespace BlazorForms.Rendering.Interfaces
 	public interface IFlowBoardViewModel
 	{
 		List<FlowBoardColumn> Columns { get; }
-		List<FlowBoardCard> Cards { get; }
+		List<CardInfo<IFlowBoardCard>> Cards { get; }
 
 		Task LoadAsync(Type flowType);
-		Task RefreshCardsAsync(List<FlowBoardCard> cards);
-		bool IsTransitionPossible(FlowBoardCard card, string column);
-		Task PerformTransition(FlowBoardCard card, string newState);
-		Task ReorderCards(FlowBoardCard card, int newOrder);
+		Task RefreshCardsAsync(List<IFlowBoardCard> cards);
+		bool IsTransitionPossible(CardInfo<IFlowBoardCard> card, string column);
+		Task PerformTransition(CardInfo<IFlowBoardCard> card, string newState);
+		Task ReorderCards(CardInfo<IFlowBoardCard> card, int newOrder);
 
+		string? GetStateForm(string state);
 	}
 }

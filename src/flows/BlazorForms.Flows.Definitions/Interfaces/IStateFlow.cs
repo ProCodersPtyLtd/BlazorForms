@@ -10,6 +10,7 @@ namespace BlazorForms.Flows.Definitions
 	{
 		List<StateDef> States { get; }
 		List<TransitionDef> Transitions { get; }
+		List<FormDef> Forms { get; }
 		void Define();
 		void Parse();
 		void SetFlowContext(IFlowContext context);
