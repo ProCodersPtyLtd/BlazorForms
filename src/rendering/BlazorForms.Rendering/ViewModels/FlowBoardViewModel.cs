@@ -59,7 +59,7 @@ namespace BlazorForms.Rendering.ViewModels
 			var r = new CardInfo<IFlowBoardCard>(c); 
 			r.Context = await _flowRunEngine.CreateFlowContext(_currentFlowType, c, r.Item.State);
 			// start initial flow
-			await PerformTransition(r, null);
+			await PerformTransition(r, null, null);
 
             //if (r.Item.Title?.Length > 20)
             //{
@@ -86,13 +86,25 @@ namespace BlazorForms.Rendering.ViewModels
             return result;
 		}
 
-		public async Task PerformTransition(CardInfo<IFlowBoardCard> card, string action)
+		public async Task PerformTransition(CardInfo<IFlowBoardCard> card, string action, 
+			Func<string, CardInfo<IFlowBoardCard>, Task<bool>> dialogCallback)
 		{
-			if (IsStorageEnabled)
+			var confirmed = true;
+			
+			var transition = _flowDetails.Transitions.FirstOrDefault(
+				x => x.FromState == card.Item.State && x.ToState == action && x.IsUserActionTrigger());
+
+			if (transition != null && transition.FormType != null)
 			{
-				await _flowRunEngine.ContinueFlow(card.RefId, action);
+				confirmed = await dialogCallback(transition.FormType, card);
 			}
-			else
+			//if (IsStorageEnabled)
+			//{
+			//	await _flowRunEngine.ContinueFlow(card.RefId, action);
+			//}
+			//else
+
+			if (confirmed) 
 			{
 				card.Context = await _flowRunEngine.ContinueFlowNoStorage(card.Context, action);
 				card.Item.State = card.Context.CurrentTask;
@@ -101,10 +113,11 @@ namespace BlazorForms.Rendering.ViewModels
 			// ToDo: we need to save the changed card
 		}
 
-		public async Task ReorderCards(CardInfo<IFlowBoardCard> card, int newOrder)
+		public async Task ReorderCards(string state, CardInfo<IFlowBoardCard> card, int newOrder)
 		{
 			int num2 = 0;
-			foreach (var item2 in Cards.OrderBy(x => x.Item.Order))
+
+			foreach (var item2 in Cards.Where(x => x.Item.State == state).OrderBy(x => x.Item.Order))
 			{
 				if (item2.Equals(card))
 				{

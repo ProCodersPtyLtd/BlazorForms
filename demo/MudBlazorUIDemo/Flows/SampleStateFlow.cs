@@ -24,16 +24,16 @@ namespace MudBlazorUIDemo.Flows
 				.State(Leads)
 					.Transition(new UserActionTransitionTrigger(), Contacted, OnAssigning)
 				.State(Contacted)
-					.Begin(OnStartContactedAsync)
 					.Transition(new UserActionTransitionTrigger(), Leads)
 					.Transition(new UserActionTransitionTrigger(), MeetingScheduled)
 				.State(MeetingScheduled)
 					.Transition(new UserActionTransitionTrigger(), Contacted)
 					.Transition(new UserActionTransitionTrigger(), ProposalDelivered)
 				.State(ProposalDelivered)
+					.Begin(OnProposalDeliveredAsync)
 					.Transition(new UserActionTransitionTrigger(), MeetingScheduled)
-					.Transition(new UserActionTransitionTrigger(), Won, OnCloseAsync)
-					//.TransitionForm<FormCardCommit>(new UserActionTransitionTrigger(), Won, OnCloseAsync)
+					//.Transition(new UserActionTransitionTrigger(), Won, OnCloseAsync)
+					.TransitionForm<FormCardCommit>(new UserActionTransitionTrigger(), Won, OnCloseAsync)
 				.State(Won)
 					.Transition(new UserActionTransitionTrigger(), Leads)
 					.Transition(new UserActionTransitionTrigger(), Contacted)
@@ -44,11 +44,11 @@ namespace MudBlazorUIDemo.Flows
 
 		private async Task OnStartAsync()
 		{
-			Model.CloseMessage = "Congrats with another win! Click [Ok] to close the card.";
 		}
 
-		private async Task OnStartContactedAsync()
+		private async Task OnProposalDeliveredAsync()
 		{
+			Model.CloseMessage = "Congrats with another win! Click [Ok] to close the card.";
 		}
 
 		private void OnAssigning()
@@ -76,7 +76,9 @@ namespace MudBlazorUIDemo.Flows
 	{
 		protected override void Define(FormEntityTypeBuilder<SampleStateModel> f)
 		{
-			f.Property(p => p.CloseMessage).Control(ControlType.Paragraph);
+			f.DisplayName = "Congrats with another win! Click [Ok] to close the card.";
+			f.Property(p => p.Title).IsReadOnly().Label("Card");
+			//f.Property(p => p.CloseMessage).Control(ControlType.Subtitle);
 
 			f.Button(ButtonActionTypes.Cancel, "Cancel");
 			f.Button(ButtonActionTypes.Submit, "Ok");

@@ -36,7 +36,13 @@ namespace BlazorForms.Flows
 			Func<Task> onTransitionEvent)
 			where TForm : class
 		{
-			RegisterTransitionForm(flow, typeof(TForm), trigger, state, onTransitionEvent);
+            if (trigger.Text == null)
+            {
+                trigger.Text = state.Caption;
+                trigger.CommandText = state.Value;
+            }
+
+            RegisterTransitionForm(flow, typeof(TForm), trigger, state, onTransitionEvent);
 			return flow;
 		}
 

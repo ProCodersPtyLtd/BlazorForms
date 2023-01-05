@@ -177,7 +177,13 @@ namespace BlazorForms.Flows.Engine.StateFlow
                         }
                     }
 
-                    while (proceed)
+					// Execute current state begin
+					if (flow.States[i].OnBeginAsync != null)
+					{
+						await flow.States[i].OnBeginAsync.Invoke();
+					}
+
+					while (proceed)
                     {
                         proceed = false;
                         _currentIteration++;

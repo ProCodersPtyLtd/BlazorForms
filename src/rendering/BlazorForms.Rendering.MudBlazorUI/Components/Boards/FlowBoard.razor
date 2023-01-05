@@ -131,6 +131,7 @@
 		// Example how to ignore/cancel transition
 		if (dropItem.Item.Item.Title == "IBM" && dropItem.Item.Item.State != dropItem.DropzoneIdentifier)
 		{
+			// _container.Refresh() breaks orders in the drop zones
 			_container.Refresh();
 			return;
 		}
@@ -138,13 +139,13 @@
 		if (dropItem.Item.Item.State != dropItem.DropzoneIdentifier)
 		{
 			//dropItem.Item.State = dropItem.DropzoneIdentifier;
-			await _vm.PerformTransition(dropItem.Item, dropItem.DropzoneIdentifier);
+			await _vm.PerformTransition(dropItem.Item, dropItem.DropzoneIdentifier, ShowConfirmDialog);
 		}
 
 		if (dropItem.IndexInZone != dropItem.Item.Item.Order)
 		{
 			//_vm.Cards.UpdateOrder(dropItem, item => item.Order);
-			await _vm.ReorderCards(dropItem.Item, dropItem.IndexInZone);
+			await _vm.ReorderCards(dropItem.DropzoneIdentifier, dropItem.Item, dropItem.IndexInZone);
 		}
 
 		StateHasChanged();
@@ -156,5 +157,23 @@
 		//};
 
 		//_serverData.UpdateOrder(dropItem, item => item.Order, indexOffset);
+	}
+
+	private async Task<bool> ShowConfirmDialog(string formType, CardInfo<IFlowBoardCard> card)
+	{
+		await DialogVM.LoadDialog(formType, card);
+
+		var options = new DialogOptions { CloseOnEscapeKey = true };
+		var dialogParameters = new DialogParameters();
+		dialogParameters["DialogViewModel"] = DialogVM;
+		//dialogParameters["FormSubmitted"] = new EventCallback<BoardDialogSubmittedArgs>(this, DialogFormSubmitted);
+		dialogParameters["AllowAnonymousAccess"] = true;
+		dialogParameters["AllowFlowStorage"] = false;
+		dialogParameters["Options"] = new EditFormOptions { MudBlazorProvidersDefined = true };
+
+		var dialog = await DialogService.ShowAsync<BoardDialogForm>(null, dialogParameters, options);
+		var result = await dialog.Result;
+
+		return !result.Cancelled;
 	}
 }
