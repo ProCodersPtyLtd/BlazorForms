@@ -29,6 +29,34 @@ namespace BlazorForms.Rendering.ViewModels
 			_flowRunEngine = flowRunEngine;
 		}
 
+		public List<FlowBoardContextMenuAction> GetContextMenuActions(CardInfo<IFlowBoardCard> card)
+		{
+			var result = new List<FlowBoardContextMenuAction>();
+			var all = _flowDetails.Transitions;
+			var states = _flowDetails.States;
+			var enabled = _flowDetails.Transitions.Where(x => x.FromState == card.Item.State && x.IsUserActionTrigger());
+
+			foreach (var st in states)
+			{
+				var a = new FlowBoardContextMenuAction
+				{
+					State = st.State,
+					Name = st.Caption,
+					Disabled = !_flowDetails.Transitions.Any(x => x.FromState == card.Item.State && x.ToState == st.State && x.IsUserActionTrigger()),
+					
+					FormType = _flowDetails.Transitions.FirstOrDefault(x => x.FromState == card.Item.State && x.ToState == st.State 
+						&& x.IsUserActionTrigger())?.FormType,
+				};
+
+				result.Add(a);
+			}
+
+			var edit = new FlowBoardContextMenuAction { Name = "Edit", FormType = "-", State = FlowBoardContextMenuAction.EDIT_ACTION };
+			result.Add(edit);
+
+			return result;
+		}
+
 		public async Task LoadAsync(Type flowType)
 		{
 			_currentFlowType = flowType;

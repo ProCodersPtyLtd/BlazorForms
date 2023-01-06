@@ -50,7 +50,28 @@
 							<MudText Typo="Typo.subtitle1">@($"{context.Title}")</MudText>
 						</CardHeaderContent>
 						<CardHeaderActions>
-                                <MudIconButton Size="Size.Small" Icon="@Icons.Material.TwoTone.MoreHoriz" Color="Color.Default" />
+
+                                @*<MudIconButton Size="Size.Small" Icon="@Icons.Material.TwoTone.MoreHoriz" Color="Color.Default" />*@
+								<MudMenu Dense="true">
+									<ActivatorContent>
+										<MudIconButton Icon="@Icons.Material.TwoTone.MoreHoriz" Size="Size.Small" 
+											OnClick="@(async() => await @ContextMenuClick())" />
+									</ActivatorContent>
+									<ChildContent>
+										@foreach (var action in _vm.GetContextMenuActions(context))
+										{
+											@if (action.State == FlowBoardContextMenuAction.EDIT_ACTION)
+											{
+												<MudDivider />
+											}
+
+											<MudMenuItem OnClick="@(async () => await OnMenuItemClick(context, action))"
+													Icon=@GetIcon(action)
+													 Disabled=@action.Disabled>@action.Name</MudMenuItem>
+										}
+									</ChildContent>
+								</MudMenu>
+
 						</CardHeaderActions>
 					</MudCardHeader>
 					<MudCardContent>
@@ -62,7 +83,7 @@
 	</MudDropContainer>
 </div>
 
-	@code {
+@code {
 	[Parameter]
 	public List<TItem> Items { get; set; }
 
@@ -80,6 +101,31 @@
 	{
 		await _vm.RefreshCardsAsync(Items.Cast<IFlowBoardCard>().ToList());
 		StateHasChanged();
+	}
+
+	private async Task ContextMenuClick(){}
+
+	private async Task OnMenuItemClick(CardInfo<IFlowBoardCard> card, FlowBoardContextMenuAction action)
+	{
+		if (action.State == FlowBoardContextMenuAction.EDIT_ACTION)
+		{
+			await ShowDialog(card);
+			return;
+		}
+	}
+
+	private string GetIcon(FlowBoardContextMenuAction action)
+	{
+		if (action.State == FlowBoardContextMenuAction.EDIT_ACTION)
+		{
+			return Icons.Material.Filled.Preview;
+		}
+		else if (action.FormType != null)
+		{
+			return Icons.Material.Filled.Wysiwyg;
+		}
+
+		return null;
 	}
 
 	private async Task ShowDialog(CardInfo<IFlowBoardCard> card)

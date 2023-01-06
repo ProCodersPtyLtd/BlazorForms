@@ -82,19 +82,30 @@ namespace BlazorForms.Rendering.Model
 		public string Id { get; set; }
 		public string Name { get; set; }
 	}
-    
-    public class FlowBoardCard : IFlowBoardCard
-	{
-        public IFlowContext Context { get; set; }       
-        public string RefId { get; set; }       
-        //public state State { get; set; }  
-        public object ModelUntyped { get; set; }  
 
-        public string State { get; set; }  
-        public string Title { get; set; }       
-        public string Description { get; set; }       
-        public int Order { get; set; }       
+	public class FlowBoardContextMenuAction
+	{
+		public const string EDIT_ACTION = "$.Edit";
+
+		public string? Name { get; set; }
+		public string? State { get; set; }
+		public string? FormType { get; set; }
+		public bool Disabled { get; set; }
 	}
+
+
+	//public class FlowBoardCard : IFlowBoardCard
+	//{
+ //       public IFlowContext Context { get; set; }       
+ //       public string RefId { get; set; }       
+ //       //public state State { get; set; }  
+ //       public object ModelUntyped { get; set; }  
+
+ //       public string State { get; set; }  
+ //       public string Title { get; set; }       
+ //       public string Description { get; set; }       
+ //       public int Order { get; set; }       
+	//}
 
 	//public class FlowBoardCard<T> : FlowBoardCard
 	//	where T: class

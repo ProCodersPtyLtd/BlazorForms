@@ -19,5 +19,6 @@ namespace BlazorForms.Rendering.Interfaces
 		Task ReorderCards(string state, CardInfo<IFlowBoardCard> card, int newOrder);
 
 		string? GetStateForm(string state);
+		List<FlowBoardContextMenuAction> GetContextMenuActions(CardInfo<IFlowBoardCard> card);
 	}
 }
