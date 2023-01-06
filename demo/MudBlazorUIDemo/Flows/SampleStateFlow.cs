@@ -76,7 +76,7 @@ namespace MudBlazorUIDemo.Flows
 	{
 		protected override void Define(FormEntityTypeBuilder<SampleStateModel> f)
 		{
-			f.DisplayName = "Congrats with another win! Click [Ok] to close the card.";
+			f.DisplayName = "Congrats with another win! Click [OK] to close the card.";
 			f.Property(p => p.Title).IsReadOnly().Label("Card");
 			//f.Property(p => p.CloseMessage).Control(ControlType.Subtitle);
 

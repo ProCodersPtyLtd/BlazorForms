@@ -112,6 +112,9 @@
 			await ShowDialog(card);
 			return;
 		}
+
+		await _vm.PerformTransition(card, action.State, ShowConfirmDialog);
+		_container.Refresh();
 	}
 
 	private string GetIcon(FlowBoardContextMenuAction action)
@@ -175,12 +178,12 @@
 	private async Task ItemUpdated(MudItemDropInfo<CardInfo<IFlowBoardCard>> dropItem)
 	{
 		// Example how to ignore/cancel transition
-		if (dropItem.Item.Item.Title == "IBM" && dropItem.Item.Item.State != dropItem.DropzoneIdentifier)
-		{
-			// _container.Refresh() breaks orders in the drop zones
-			_container.Refresh();
-			return;
-		}
+		//if (dropItem.Item.Item.Title == "IBM" && dropItem.Item.Item.State != dropItem.DropzoneIdentifier)
+		//{
+		//	// _container.Refresh() breaks orders in the drop zones
+		//	_container.Refresh();
+		//	return;
+		//}
 
 		if (dropItem.Item.Item.State != dropItem.DropzoneIdentifier)
 		{
