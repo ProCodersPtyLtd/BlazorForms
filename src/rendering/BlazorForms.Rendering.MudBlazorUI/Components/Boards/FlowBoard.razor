@@ -159,16 +159,53 @@
 			await ShowDialog(card);
 			return;
 		}
+		else if (action.State == FlowBoardContextMenuAction.DELETE_ACTION)
+		{
+			var delete = await CheckDeleteConfirmation(card);
+
+			await ItemsChanged.InvokeAsync((new BoardCardChangedArgs<TItem>[]
+			{
+				new BoardCardChangedArgs<TItem>(card.Item as TItem, ItemChangedType.Deleted)
+			}).ToList());
+
+			return;
+		}
 
 		await _vm.PerformTransition(card, action.State, ShowConfirmDialog);
 		_container.Refresh();
 	}
+
+	private async Task<bool> CheckDeleteConfirmation(CardInfo<IFlowBoardCard> card)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        var parameters = new DialogParameters 
+        { 
+			["Message"] = $"Are you sure you want to delete card '{card.Item.Title}' ?",
+            ["CancelName"] = "No",
+            ["OkName"] = "Yes",
+        };
+
+        var dialog = await DialogService.ShowAsync<FormConfirmationDialog>(null, parameters, options);
+        var result = await dialog.Result;
+
+        if (result.Cancelled)
+        {
+            return false;
+        }
+
+        return true;
+    }
 
 	private string GetIcon(FlowBoardContextMenuAction action)
 	{
 		if (action.State == FlowBoardContextMenuAction.EDIT_ACTION)
 		{
 			return Icons.Material.Filled.Preview;
+		}
+		else if (action.State == FlowBoardContextMenuAction.DELETE_ACTION)
+		{
+			return Icons.Material.Filled.DeleteForever;
 		}
 		else if (action.FormType != null)
 		{

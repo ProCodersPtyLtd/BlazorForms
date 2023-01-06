@@ -87,6 +87,7 @@ namespace BlazorForms.Rendering.Model
 	public class FlowBoardContextMenuAction
 	{
 		public const string EDIT_ACTION = "$.Edit";
+		public const string DELETE_ACTION = "$.Delete";
 
 		public string? Name { get; set; }
 		public string? State { get; set; }

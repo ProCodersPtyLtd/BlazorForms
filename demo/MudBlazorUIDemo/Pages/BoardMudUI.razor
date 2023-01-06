@@ -23,13 +23,19 @@
 
     private async Task ItemsChanged(List<BoardCardChangedArgs<SampleStateModel>> list)
     {
-        foreach (var a in list)
-        {
-            if (a.Type == ItemChangedType.Added)
-            {
-                _items.Add(a.Item);
-            }
-        }
+        var deleted = list.Where(x => x.Type == ItemChangedType.Deleted).ToList();
+        deleted.ForEach(a => _items.Remove(a.Item));
+
+        var added = list.Where(x => x.Type == ItemChangedType.Added).ToList();
+        added.ForEach(a => _items.Add(a.Item));
+
+        //foreach (var a in list)
+        //{
+        //    if (a.Type == ItemChangedType.Added)
+        //    {
+        //        _items.Add(a.Item);
+        //    }
+        //}
 
         StateHasChanged();
     }

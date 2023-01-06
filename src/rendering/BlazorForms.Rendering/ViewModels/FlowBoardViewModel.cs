@@ -54,6 +54,9 @@ namespace BlazorForms.Rendering.ViewModels
 			var edit = new FlowBoardContextMenuAction { Name = "Edit", FormType = "-", State = FlowBoardContextMenuAction.EDIT_ACTION };
 			result.Add(edit);
 
+			var delete = new FlowBoardContextMenuAction { Name = "Delete", FormType = "-", State = FlowBoardContextMenuAction.DELETE_ACTION };
+			result.Add(delete);
+
 			return result;
 		}
 
