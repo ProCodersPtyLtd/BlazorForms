@@ -61,6 +61,7 @@ namespace BlazorForms.Rendering.Model
 
 	public class BoardDialogSubmittedArgs
 	{
+		public ItemChangedType Type { get; set; }
 		public IFlowBoardCard? Card { get; set; }
 	}
 

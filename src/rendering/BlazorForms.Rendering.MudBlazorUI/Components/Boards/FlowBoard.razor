@@ -6,7 +6,7 @@
 @namespace BlazorForms.Rendering.MudBlazorUI.Components
 
 @typeparam TFlow where TFlow : class, IStateFlow
-@typeparam TItem where TItem : class, IFlowBoardCard
+@typeparam TItem where TItem : class, IFlowBoardCard, new()
 
 @inject IFlowBoardViewModel _vm
 @inject BoardDialogViewModel DialogVM
@@ -14,13 +14,36 @@
 
 <style>
 	.pz-fixed-column {
-		max-width: 14em;
+		max-width: 16em;
 	}
 
 	.mud-card-header {
 		padding: 7px !important;
 	}
+
+	.pz-dilaog-grid-align {
+        display: flex;
+    }
+
+    .pz-dialog-content {
+        padding: 0 40px;
+    }
 </style>
+
+<div class="d-flex flex-row flex-grow-1 gap-2 pz-dialog-content">
+	<div class="py-8">
+		<MudButton  Color="@Color.Primary" OnClick="@(async () => await NewButtonClick())"
+                   Variant="Variant.Filled" DisableElevation="true">@NewActionName</MudButton>
+	</div>
+
+    <div class="flex-grow-1 py-8">
+		<MudText Align="Align.Center" Typo="Typo.h6">@Caption</MudText>
+	</div>
+
+	<div class="py-8" style="width: 164px">
+
+	</div>
+</div>
 
 <div class="d-flex flex-column mud-width-full mud-height-full">
 
@@ -90,6 +113,12 @@
 	[Parameter]
 	public EventCallback<List<BoardCardChangedArgs<TItem>>> ItemsChanged { get; set; }
 
+	[Parameter]
+	public string Caption { get; set; } = "Board";
+
+	[Parameter]
+	public string NewActionName { get; set; } = "New Card";
+
 	private MudDropContainer<CardInfo<IFlowBoardCard>>? _container;
 
 	protected override async Task OnInitializedAsync()
@@ -101,7 +130,15 @@
 	protected override async Task OnParametersSetAsync()
 	{
 		await _vm.RefreshCardsAsync(Items.Cast<IFlowBoardCard>().ToList());
-		StateHasChanged();
+		_container?.Refresh();
+		//StateHasChanged();
+	}
+
+	private async Task NewButtonClick()
+	{
+		var card = new TItem() { State = _vm.Columns[0].Id };
+		var r = new CardInfo<IFlowBoardCard>(card);
+		await ShowDialog(r, true);
 	}
 
 	private async Task OnCardItemsChanged(List<BoardCardChangedArgs<IFlowBoardCard>> changes)
@@ -141,8 +178,11 @@
 		return null;
 	}
 
-	private async Task ShowDialog(CardInfo<IFlowBoardCard> card)
+	private bool _isNew;
+
+	private async Task ShowDialog(CardInfo<IFlowBoardCard> card, bool isNew = false)
 	{
+		_isNew = isNew;
 		var formType = _vm.GetStateForm(card.Item.State);
 
 		if (formType != null)
@@ -152,6 +192,7 @@
 			var options = new DialogOptions { CloseOnEscapeKey = true };
 			var dialogParameters = new DialogParameters();
 			dialogParameters["DialogViewModel"] = DialogVM;
+			dialogParameters["IsNew"] = isNew;
 			dialogParameters["FormSubmitted"] = new EventCallback<BoardDialogSubmittedArgs>(this, DialogFormSubmitted);
 			dialogParameters["AllowAnonymousAccess"] = true;
 			dialogParameters["AllowFlowStorage"] = false;
@@ -162,10 +203,17 @@
 
 	private async Task DialogFormSubmitted(BoardDialogSubmittedArgs args)
 	{
+
 		await ItemsChanged.InvokeAsync((new BoardCardChangedArgs<TItem>[] 
 			{ 
-				new BoardCardChangedArgs<TItem>(args.Card as TItem, ItemChangedType.Changed) 
+				new BoardCardChangedArgs<TItem>(args.Card as TItem, _isNew ? ItemChangedType.Added : ItemChangedType.Changed)
 			}).ToList());
+
+		//if (_isNew)
+		//{
+		//	Items.Add(args.Card as TItem);
+		//	_container.Refresh();
+		//}
 
 		StateHasChanged();
 	}

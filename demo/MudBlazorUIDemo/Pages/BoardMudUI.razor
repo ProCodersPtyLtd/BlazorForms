@@ -23,7 +23,15 @@
 
     private async Task ItemsChanged(List<BoardCardChangedArgs<SampleStateModel>> list)
     {
-        
+        foreach (var a in list)
+        {
+            if (a.Type == ItemChangedType.Added)
+            {
+                _items.Add(a.Item);
+            }
+        }
+
+        StateHasChanged();
     }
 
     private ListFormOptions Options = new ListFormOptions
