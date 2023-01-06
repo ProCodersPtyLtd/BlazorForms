@@ -94,6 +94,7 @@
 
 	protected override async Task OnInitializedAsync()
 	{
+		_vm.SetItemsChangedCallback(OnCardItemsChanged);
 		await _vm.LoadAsync(typeof(TFlow));
 	}
 
@@ -103,7 +104,16 @@
 		StateHasChanged();
 	}
 
-	private async Task ContextMenuClick(){}
+	private async Task OnCardItemsChanged(List<BoardCardChangedArgs<IFlowBoardCard>> changes)
+	{
+		var itemsArgs = changes.Select(x => new BoardCardChangedArgs<TItem>(x.Item as TItem, x.Type)).ToList();
+		await ItemsChanged.InvokeAsync(itemsArgs);
+		StateHasChanged();
+	}
+
+	private async Task ContextMenuClick()
+	{		
+	}
 
 	private async Task OnMenuItemClick(CardInfo<IFlowBoardCard> card, FlowBoardContextMenuAction action)
 	{

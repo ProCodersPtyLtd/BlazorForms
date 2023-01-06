@@ -12,6 +12,7 @@ namespace BlazorForms.Rendering.Interfaces
 		List<FlowBoardColumn> Columns { get; }
 		List<CardInfo<IFlowBoardCard>> Cards { get; }
 
+		void SetItemsChangedCallback(Func<List<BoardCardChangedArgs<IFlowBoardCard>>, Task> callback);
 		Task LoadAsync(Type flowType);
 		Task RefreshCardsAsync(List<IFlowBoardCard> cards);
 		bool IsTransitionPossible(CardInfo<IFlowBoardCard> card, string column);

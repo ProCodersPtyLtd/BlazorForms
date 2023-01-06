@@ -17,9 +17,9 @@ namespace BlazorForms.Rendering.ViewModels
 		private readonly IStateFlowRunEngine _flowRunEngine;
 		private Type _currentFlowType;
 		private StateFlowTaskDetails _flowDetails;
+		private Func<List<BoardCardChangedArgs<IFlowBoardCard>>, Task> _onChanged;
 
-
-        public List<FlowBoardColumn> Columns {get;set;}
+		public List<FlowBoardColumn> Columns {get;set;}
 
 		public List<CardInfo<IFlowBoardCard>> Cards { get; set; }
 		public bool IsStorageEnabled { get; set; } = false;
@@ -77,27 +77,15 @@ namespace BlazorForms.Rendering.ViewModels
 		{
 			Cards = new List<CardInfo<IFlowBoardCard>>();
 			cards.ForEach(async c => Cards.Add(await GetLoadedCard(c)));
-
-			//Cards = cards.Select(c => GetLoadedCard(c)).OrderBy(c => c.Order).ToList();
 		}
 
 		private async Task<CardInfo<IFlowBoardCard>> GetLoadedCard(IFlowBoardCard c)
 		{
-			//var r = new CardInfo<IFlowBoardCard>(c.ReflectionGetCopy()); 
 			var r = new CardInfo<IFlowBoardCard>(c); 
 			r.Context = await _flowRunEngine.CreateFlowContext(_currentFlowType, c, r.Item.State);
+
 			// start initial flow
 			await PerformTransition(r, null, null);
-
-            //if (r.Item.Title?.Length > 20)
-            //{
-            //	r.Item.Title = $"{r.Item.Title.Substring(0, 20)}...";
-            //}
-
-            //if (r.Item.Description?.Length > 32)
-            //{
-            //	r.Item.Description = $"{r.Item.Description.Substring(0, 32)}...";
-            //}
 
             return r;
 		}
@@ -135,10 +123,38 @@ namespace BlazorForms.Rendering.ViewModels
 			if (confirmed) 
 			{
 				card.Context = await _flowRunEngine.ContinueFlowNoStorage(card.Context, action);
-				card.Item.State = card.Context.CurrentTask;
+
+				var changed = card.Item.State != card.Context.CurrentTask;
+
+				if (changed)
+				{
+					card.Item.State = card.Context.CurrentTask;
+					AddItemChange(card.Item, ItemChangedType.State);
+				}
 			}
 
 			// ToDo: we need to save the changed card
+			await NotifyItemsChanged();
+		}
+
+		private List<BoardCardChangedArgs<IFlowBoardCard>> _changes = new();
+
+		private void AddItemChange(IFlowBoardCard card, ItemChangedType change)
+		{
+			_changes.Add(new BoardCardChangedArgs<IFlowBoardCard>(card, change));
+		}
+
+		private async Task NotifyItemsChanged()
+		{
+			// we should clear _changes before trigger event, because during triggering more NotifyItemsChanged can happen 
+			var changedItems = _changes.ToList();
+			_changes.Clear();
+
+			if (changedItems.Any() && _onChanged != null)
+			{
+				await _onChanged(changedItems);
+			}
+
 		}
 
 		public async Task ReorderCards(string state, CardInfo<IFlowBoardCard> card, int newOrder)
@@ -150,6 +166,7 @@ namespace BlazorForms.Rendering.ViewModels
 				if (item2.Equals(card))
 				{
 					card.Item.Order = newOrder;
+					AddItemChange(card.Item, ItemChangedType.Order);
 					continue;
 				}
 
@@ -158,17 +175,30 @@ namespace BlazorForms.Rendering.ViewModels
 					num2++;
 				}
 
-				item2.Item.Order = num2;
+				var changed = item2.Item.Order != num2;
+
+				if (changed)
+				{
+					item2.Item.Order = num2;
+					AddItemChange(item2.Item, ItemChangedType.Order);
+				}
+
 				num2++;
 			}
 
 			// ToDo: we need to save the changed cards
+			await NotifyItemsChanged();
 		}
 
 		public string? GetStateForm(string state)
 		{
 			var result = (_flowDetails.Forms.FirstOrDefault(x => x.State == state) ?? _flowDetails.Forms.FirstOrDefault(x => x.State == null))?.FormType;
 			return result;
+		}
+
+		public void SetItemsChangedCallback(Func<List<BoardCardChangedArgs<IFlowBoardCard>>, Task> callback)
+		{
+			_onChanged = callback;
 		}
 	}
 }

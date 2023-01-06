@@ -50,7 +50,7 @@ namespace BlazorForms.Rendering.Model
 	public enum ItemChangedType
 	{
 		Order,
-		Status,
+		State,
 		Changed,
 		Added,
 		Deleted,
