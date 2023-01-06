@@ -21,7 +21,7 @@
     public string Pk { get; set; }
 
     [Parameter]
-    public EventCallback<DynamicListFormRowContextMenuItemClickArgs> OnContextMenuItemClick { get; set; }
+    public EventCallback<ContextMenuItemClickArgs> OnContextMenuItemClick { get; set; }
 
     private MudMenu _contextMenu;
     private string selectedIcon = Icons.Material.TwoTone.MoreHoriz;
@@ -39,7 +39,7 @@
 
     private async Task OnMenuItemClick(string pk, string action)
     {
-        var arg = new DynamicListFormRowContextMenuItemClickArgs 
+        var arg = new ContextMenuItemClickArgs 
         { 
             Pk = pk,
             Action = action 

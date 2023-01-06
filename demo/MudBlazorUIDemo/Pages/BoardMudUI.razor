@@ -1,0 +1,48 @@
+﻿@page "/flow-board"
+@using BlazorForms.Rendering.Interfaces
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.Rendering.State
+@using BlazorForms.Rendering.Model
+@using BlazorForms.Rendering.MudBlazorUI.Components
+@using MudBlazor
+@using MudBlazorUIDemo.Flows;
+
+<FlowBoard TFlow=MudBlazorUIDemo.Flows.SampleStateFlow TItem=SampleStateModel Items=@_items ItemsChanged=@ItemsChanged />
+
+@code {
+    List<SampleStateModel> _items = (new SampleStateModel[]
+    {
+        new SampleStateModel { State = "Leads", Title = "IBM", Description = "Severe problems with obvious code quality", Order = 0 },
+        new SampleStateModel { State = "Leads", Title = "Telstra", Description = "Too ineffective IT department, unsecured and overprised services", Order = 1 },
+        new SampleStateModel { State = "MeetingScheduled", Title = "Bounty", Order = 0 },
+        new SampleStateModel { State = "Contacted", Title = "Hyundai", Order = 0 },
+        new SampleStateModel { State = "ProposalDelivered", Title = "Meukov", Order = 0 },
+        new SampleStateModel { State = "Won", Title = "Igloo Limited", Order = 0 },
+    })
+    .ToList();
+
+    private async Task ItemsChanged(List<BoardCardChangedArgs<SampleStateModel>> list)
+    {
+        var deleted = list.Where(x => x.Type == ItemChangedType.Deleted).ToList();
+        deleted.ForEach(a => _items.Remove(a.Item));
+
+        var added = list.Where(x => x.Type == ItemChangedType.Added).ToList();
+        added.ForEach(a => _items.Add(a.Item));
+
+        //foreach (var a in list)
+        //{
+        //    if (a.Type == ItemChangedType.Added)
+        //    {
+        //        _items.Add(a.Item);
+        //    }
+        //}
+
+        StateHasChanged();
+    }
+
+    private ListFormOptions Options = new ListFormOptions
+    {
+        Variant = Variant.Outlined,
+        MudBlazorProvidersDefined = true
+    };
+}

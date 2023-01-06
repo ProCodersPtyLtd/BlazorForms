@@ -5,11 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BlazorForms.Flows.Engine.StateFlow
+namespace BlazorForms.Flows.Definitions
 {
     public interface IStateFlowRunEngine : IFlowRunEngine
     {
         Task<StateFlowTaskDetails> GetStateDetails(FlowRunParameters runParameters);
         Task<IFlowContext> ContinueFlow(string refId, IFlowModel model, string operationName = null, FlowParamsGeneric flowParams = null);
+        Task<IFlowContext> CreateFlowContext(Type flowType, IFlowModel model = null, string currentTask = null, FlowParamsGeneric flowParams = null);
     }
 }

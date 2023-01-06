@@ -12,7 +12,7 @@
         @foreach (var action in Actions)
         {
             <MatList>
-                <MatListItem OnClick="@(() => OnContextMenuItemClick.InvokeAsync(new DynamicListFormRowContextMenuItemClickArgs { Pk = Pk, Action = action}))">@action</MatListItem>
+                <MatListItem OnClick="@(() => OnContextMenuItemClick.InvokeAsync(new ContextMenuItemClickArgs { Pk = Pk, Action = action}))">@action</MatListItem>
             </MatList>
         }
     </MatMenu>
@@ -29,7 +29,7 @@
     public string Pk { get; set; }
 
     [Parameter]
-    public EventCallback<DynamicListFormRowContextMenuItemClickArgs> OnContextMenuItemClick { get; set; }
+    public EventCallback<ContextMenuItemClickArgs> OnContextMenuItemClick { get; set; }
 
     private BaseMatIconButton _contextButton;
     private BaseMatMenu _contextMenu;

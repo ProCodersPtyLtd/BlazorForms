@@ -74,7 +74,7 @@ namespace BlazorForms.Platform.Crm.Business.Artel
 
 
         public object Menu => TableColumnContextMenu(t => t.Members
-            , new BindingFlowNavigationReference("Details", $"start-flow-form-generic/{typeof(ArtelMemberEditFlow).FullName}/{{0}}", FlowReferenceOperation.View)
+            , new BindingFlowNavigationReference("Description", $"start-flow-form-generic/{typeof(ArtelMemberEditFlow).FullName}/{{0}}", FlowReferenceOperation.View)
             , new BindingFlowReference("Reset Password", typeof(ArtelMemberEditFlow))
             , new BindingFlowReference("Resend Invitation", typeof(ArtelMemberEditFlow))
             , new BindingFlowReference("Delete", typeof(ArtelProjectSettingsFlow), ArtelProjectSettingsFlow.Delete)

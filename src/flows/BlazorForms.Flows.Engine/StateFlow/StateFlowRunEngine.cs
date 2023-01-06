@@ -72,7 +72,34 @@ namespace BlazorForms.Flows.Engine.StateFlow
             throw new NotImplementedException();
         }
 
-        public async Task<IFlowContext> ExecuteFlow(FlowRunParameters runParameters)
+        public async Task<IFlowContext> CreateFlowContext(Type flowType, IFlowModel model = null, string currentTask = null, 
+            FlowParamsGeneric flowParams = null)
+        {
+			var flowParameters = TypeHelper.GetConstructorParameters(_serviceProvider, flowType);
+			var flow = Activator.CreateInstance(flowType, flowParameters) as IStateFlow;
+
+			if (flow == null)
+			{
+				throw new FlowCreateException($"Flow {flowType} does not support IStateFlow interface");
+			}
+
+            flow.Parse();
+			var context = await _storage.CreateProcessExecutionContext(flow, flowParams, true);
+			context.ExecutionResult = new TaskExecutionResult();
+			context.Model= model;
+
+
+			if (currentTask != null)
+            {
+                context.CurrentTask = currentTask;
+                context.CurrentTaskLine = flow.States.FindIndex(x => x.State == currentTask);
+			}
+
+			return context;
+		}
+
+
+		public async Task<IFlowContext> ExecuteFlow(FlowRunParameters runParameters)
         {
             var flowType = runParameters.FlowType;
             var refId = runParameters.RefId;
@@ -141,7 +168,22 @@ namespace BlazorForms.Flows.Engine.StateFlow
 
                 try
                 {
-                    while (proceed)
+                    // Execute flow begin
+                    if (context.CurrentTaskLine == 0)
+                    {
+                        if (flow.OnBeginAsync != null)
+                        {
+                            await flow.OnBeginAsync.Invoke();
+                        }
+                    }
+
+					// Execute current state begin
+					if (flow.States[i].OnBeginAsync != null)
+					{
+						await flow.States[i].OnBeginAsync.Invoke();
+					}
+
+					while (proceed)
                     {
                         proceed = false;
                         _currentIteration++;
@@ -172,11 +214,23 @@ namespace BlazorForms.Flows.Engine.StateFlow
                             if (trigger.Proceed)
                             {
                                 transition.OnChanging?.Invoke();
+
+                                if (transition.OnChangingAsync != null)
+                                {
+                                    await transition.OnChangingAsync.Invoke();
+                                }
+
                                 i = flow.States.IndexOf(flow.States.First(s => s.State == transition.ToState));
                                 proceed = true;
                                 context.ExecutionResult.ResultState = TaskExecutionResultStateEnum.Success;
                                 context.ExecutionResult.FlowState = TaskExecutionFlowStateEnum.Continue;
                                 context.ExecutionResult.ChangedDate = DateTime.Now;
+
+                                // execude begin
+                                if (flow.States[i].OnBeginAsync != null)
+                                {
+                                    await flow.States[i].OnBeginAsync.Invoke();
+                                }
 
                                 // clean last action to prevent unexpected following propagation
                                 context.ExecutionResult.FormLastAction = null;
@@ -268,6 +322,7 @@ namespace BlazorForms.Flows.Engine.StateFlow
             flow.Parse();
             result.States = flow.States;
             result.Transitions = flow.Transitions;
+            result.Forms = flow.Forms;
             result.CurrentState = context?.GetState();
             result.CurrentStateTransitions = flow.Transitions.Where(t => t.FromState == result.CurrentState).ToList();
 

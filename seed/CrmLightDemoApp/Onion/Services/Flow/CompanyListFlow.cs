@@ -21,20 +21,20 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 
         public override async Task<CompanyListModel> LoadDataAsync(QueryOptions queryOptions)
         {
-            var q = _companyRepository.GetAllQuery();
+            using var ctx = _companyRepository.GetContextQuery();
 
             if (!string.IsNullOrWhiteSpace(queryOptions.SearchString))
             {
-                q = q.Where(x => x.Name.Contains(queryOptions.SearchString, StringComparison.OrdinalIgnoreCase) 
+                ctx.Query = ctx.Query.Where(x => x.Name.Contains(queryOptions.SearchString, StringComparison.OrdinalIgnoreCase) 
                         || (x.RegistrationNumber != null && x.RegistrationNumber.Contains(queryOptions.SearchString, StringComparison.OrdinalIgnoreCase)) );
             }
 
             if (queryOptions.AllowSort && !string.IsNullOrWhiteSpace(queryOptions.SortColumn) && queryOptions.SortDirection != SortDirection.None)
             {
-                q = q.QueryOrderByDirection(queryOptions.SortDirection, queryOptions.SortColumn);
+                ctx.Query = ctx.Query.QueryOrderByDirection(queryOptions.SortDirection, queryOptions.SortColumn);
             }
                 
-            var list = (await _companyRepository.RunQueryAsync(q)).Select(x =>
+            var list = (await _companyRepository.RunContextQueryAsync(ctx)).Select(x =>
             {
                 var item = new CompanyModel();
                 x.ReflectionCopyTo(item);
@@ -59,7 +59,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
                 e.Property(p => p.RegistrationNumber).Label("Reg. No.");
                 e.Property(p => p.EstablishedDate).Label("Established date").Format("dd/MM/yyyy");
 
-                e.ContextButton("Details", "company-edit/{0}");
+                e.ContextButton("Description", "company-edit/{0}");
                 e.NavigationButton("Add", "company-edit/0");
             });
         }

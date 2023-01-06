@@ -8,6 +8,8 @@
         public virtual string? TaxNumber { get; set; }
         public virtual DateTime? EstablishedDate { get; set; }
         public virtual bool Deleted { get; set; }
-        //public virtual List<Person>? PersonLink { get; set; }
-    }
+
+		// FK
+		public List<PersonCompanyLink> RefPersonCompanyLink { get; } = new();
+	}
 }

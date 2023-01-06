@@ -290,40 +290,40 @@ namespace BlazorFormsStateFlowDemoApp.BusinessObjects
 
         private void OnAssigning()
         {
-            Status = Open;
+            State = Open;
             Model.AssignedUser = Model.TriggerSelectedValue;
         }
         private void OnReturnAssigning()
         {
-            Status = Open;
+            State = Open;
             Model.AssignedUser = Model.TriggerSelectedValue;
         }
 
         private void OnAssignClosing()
         {
-            Status = StatusClosed;
+            State = StatusClosed;
             Model.Resolution = Model.TriggerSelectedValue;
         }
 
         private void OnClosing()
         {
-            Status = StatusClosed;
+            State = StatusClosed;
             Model.Resolution = Model.TriggerSelectedValue;
         }
 
         private void OnReviewing()
         {
-            Status = Open;
+            State = Open;
         }
 
         private void OnReopening()
         {
-            Status = Open;
+            State = Open;
         }
 
         private void OnAlarming()
         {
-            Status = Stale;
+            State = Stale;
         }
     }
 }

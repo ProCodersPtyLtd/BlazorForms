@@ -19,11 +19,11 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 
         public override async Task<PersonListModel> LoadDataAsync(QueryOptions queryOptions)
         {
-            var q = _personRepository.GetAllQuery();
+            using var ctx = _personRepository.GetContextQuery();
 
             if (!string.IsNullOrWhiteSpace(queryOptions.SearchString))
             {
-                q = q.Where(x => x.FirstName.Contains(queryOptions.SearchString, StringComparison.OrdinalIgnoreCase)
+                ctx.Query = ctx.Query.Where(x => x.FirstName.Contains(queryOptions.SearchString, StringComparison.OrdinalIgnoreCase)
                         || x.LastName.Contains(queryOptions.SearchString, StringComparison.OrdinalIgnoreCase)
                         || (x.Phone != null && x.Phone.Contains(queryOptions.SearchString, StringComparison.OrdinalIgnoreCase))
                         || (x.Email != null && x.Email.Contains(queryOptions.SearchString, StringComparison.OrdinalIgnoreCase)) );
@@ -31,10 +31,10 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 
             if (queryOptions.AllowSort && !string.IsNullOrWhiteSpace(queryOptions.SortColumn) && queryOptions.SortDirection != SortDirection.None)
             {
-                q = q.QueryOrderByDirection(queryOptions.SortDirection, queryOptions.SortColumn);
+                ctx.Query = ctx.Query.QueryOrderByDirection(queryOptions.SortDirection, queryOptions.SortColumn);
             }
 
-            var list = await _personRepository.RunQueryAsync(q);
+            var list = await _personRepository.RunContextQueryAsync(ctx);
             var result = new PersonListModel { Data = list };
             return result;
         }
@@ -55,7 +55,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
                 e.Property(p => p.Phone);
                 e.Property(p => p.Email);
 
-                e.ContextButton("Details", "person-edit/{0}");
+                e.ContextButton("Description", "person-edit/{0}");
                 //e.ContextButton("Edit", typeof(PersonEditFlow), FlowReferenceOperation.Edit);
                 //e.ContextButton("Delete", "person-delete/{0}");
 

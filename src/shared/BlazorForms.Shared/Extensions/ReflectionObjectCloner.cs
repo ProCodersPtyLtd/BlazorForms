@@ -26,6 +26,11 @@ namespace BlazorForms.Shared
             var target = Activator.CreateInstance(type, id);
             return target;
         }
+        public static T ReflectionGetCopy<T>(this T source)
+			where T : class
+		{
+            return GetCopy(source);
+        }
 
         public static T GetCopy<T>(this T source)
             where T : class

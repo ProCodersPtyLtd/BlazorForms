@@ -8,17 +8,6 @@ using System.Threading.Tasks;
 
 namespace BlazorForms.Flows
 {
-    public interface IStateFlow : IFlow
-    {
-        List<StateDef> States { get; }
-        List<TransitionDef> Transitions { get; }
-        void Define();
-        void Parse();
-        void SetFlowContext(IFlowContext context);
-        string AssignedUser { get; set; }
-        string AssignedRole { get; set; }
-    }
-
     public abstract class StateFlowBase : IStateFlow
     {
         public virtual string AssignedUser
@@ -57,8 +46,10 @@ namespace BlazorForms.Flows
             }
         }
 
-        public List<StateDef> States { get; protected set; } = new List<StateDef>();
-        public List<TransitionDef> Transitions { get; protected set; } = new List<TransitionDef>();
+        public Func<Task> OnBeginAsync { get; set; }
+        public List<StateDef> States { get; protected set; } = new();
+        public List<TransitionDef> Transitions { get; protected set; } = new();
+        public List<FormDef> Forms { get; protected set; } = new();
         public IFlowContext Context { get; set; }
         public virtual FlowParamsGeneric Params { get; set; }
 
@@ -77,12 +68,19 @@ namespace BlazorForms.Flows
 
             foreach (var field in objectFields)
             {
-                if (field.GetValue(this) == null)
+                var fieldValue = field.GetValue(this);
+
+				if (fieldValue == null)
                 {
                     // initialize flow object fields values by field names
-                    var obj = Activator.CreateInstance(field.FieldType, field.Name) as StateFlowObject;
+                    var obj = Activator.CreateInstance(field.FieldType, field.Name, field.Name) as StateFlowObject;
                     field.SetValue(this, obj);
                 }
+                else if ((fieldValue as StateFlowObject).Value == null)
+                {
+					var obj = Activator.CreateInstance(field.FieldType, field.Name, (fieldValue as StateFlowObject).Caption) as StateFlowObject;
+					field.SetValue(this, obj);
+				}
             }
         }
 
@@ -157,29 +155,7 @@ namespace BlazorForms.Flows
     }
 
     // aux types
-    public class StateDef
-    {
-        public string State { get; set; }
-        public bool IsEnd { get; internal set; }
-    }
+    
 
-    public class TransitionDef
-    {
-        public string FromState { get; set; }
-        public string ToState { get; set; }
-        public TransitionTrigger Trigger { get; set; }
-        public Func<TransitionTrigger> TriggerFunction { get; set; }
-        public Action OnChanging { get; set; }
-
-        public TransitionTrigger GetTrigger()
-        {
-            return Trigger ?? TriggerFunction();
-        }
-
-        public bool IsButtonTrigger()
-        {
-            var trigger = GetTrigger();
-            return trigger is ButtonTransitionTrigger;
-        }
-    }
+    
 }
