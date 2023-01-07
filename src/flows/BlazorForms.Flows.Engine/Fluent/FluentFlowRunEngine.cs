@@ -335,7 +335,7 @@ namespace BlazorForms.Flows
 
         public List<Type> GetAllFlowTypes()
         {
-            var result = _parser.GetTypesInheritedFrom(typeof(IFluentFlow)).Where(t => !t.IsAbstract).ToList();
+            var result = _parser.GetTypesInheritedFrom(typeof(IFluentFlow)).Where(t => !t.IsAbstract && !t.ContainsGenericParameters).ToList();
             return result;
         }
 

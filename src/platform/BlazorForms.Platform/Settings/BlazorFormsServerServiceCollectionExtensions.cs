@@ -21,6 +21,32 @@ namespace BlazorForms
 {
     public static class BlazorFormsServerServiceCollectionExtensions
     {
+        public static IServiceCollection AddGenericType([NotNullAttribute] this IServiceCollection serviceCollection, Type type)
+        {
+            var types = new List<Type>();
+            types.Add(type);
+            KnownTypesBinder.InitializeConfiguration(types.Distinct());
+            return serviceCollection;
+        }
+
+        public static IServiceCollection AddGenericTypes([NotNullAttribute] this IServiceCollection serviceCollection, 
+            IEnumerable<Type> generics, IEnumerable<Type> arguments)
+        {
+            var types = new List<Type>();
+
+            foreach (var g in generics)
+            {
+                foreach (var a in arguments)
+                {
+                    var type = g.MakeGenericType(a);
+                    types.Add(type);
+                }
+            }
+
+            KnownTypesBinder.InitializeConfiguration(types.Distinct());
+            return serviceCollection;
+        }
+
         public static IServiceCollection AddBlazorFormsServerModelAssemblyTypes([NotNullAttribute] this IServiceCollection serviceCollection, Type anyAssemblyType)
         {
             var assembly = anyAssemblyType.GetTypeInfo().Assembly;

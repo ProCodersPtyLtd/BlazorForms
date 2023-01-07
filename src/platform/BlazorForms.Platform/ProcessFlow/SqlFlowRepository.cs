@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using BlazorForms.Shared;
 
 namespace BlazorForms.Platform
 {

@@ -86,6 +86,7 @@ namespace BlazorForms.Rendering.Model
 
 	public class FlowBoardContextMenuAction
 	{
+		public const string DIVIDER_ACTION = "$.Divider";
 		public const string EDIT_ACTION = "$.Edit";
 		public const string DELETE_ACTION = "$.Delete";
 

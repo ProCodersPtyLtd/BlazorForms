@@ -61,6 +61,7 @@ namespace BlazorForms.Tests.Framework.Core
 
             _serviceCollection.AddAuthorizationCore();
             _serviceCollection.AddSingleton(typeof(IAutoMapperConfiguration), typeof(AutoMapperConfiguration));
+            _serviceCollection.AddSingleton(typeof(IKnownTypesBinder), typeof(KnownTypesBinder));
 
             //_serviceCollection.AddSingleton<AuthenticationStateProvider, TestIdentityAuthenticationStateProvider<IdentityUser>>();
             _serviceCollection.AddScoped<NavigationManager, MockNavigationManager>();

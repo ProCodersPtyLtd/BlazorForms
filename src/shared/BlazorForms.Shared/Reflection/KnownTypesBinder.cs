@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace BlazorForms.Platform
+namespace BlazorForms.Shared
 {
     public class KnownTypesBinder : IKnownTypesBinder
     {
@@ -75,6 +75,8 @@ namespace BlazorForms.Platform
                     _knownTypes = list.Distinct().ToList();
                 }
             }
+
+            //var x = _knownTypes.Where(t => t.Name.Contains("StaticTypeEditFlow"));
         }
 
         public Type BindToType(string assemblyName, string typeName)

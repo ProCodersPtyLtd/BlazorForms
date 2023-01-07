@@ -10,8 +10,6 @@ namespace BlazorForms.Flows
 {
     public class UserActionTransitionTrigger : TransitionTrigger
     {
-		public string CommandText { get; internal set; }
-
 		public UserActionTransitionTrigger()
         { }
 

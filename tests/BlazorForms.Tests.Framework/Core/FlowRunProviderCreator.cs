@@ -69,6 +69,7 @@ namespace BlazorForms.Tests.Framework.Core
             serviceCollection.AddSingleton(typeof(IAutoMapperConfiguration), typeof(AutoMapperConfiguration));
             serviceCollection.AddSingleton<ITenantedScope, MockTenantedScope>();
             serviceCollection.AddSingleton<IFastReflectionProvider, FastReflectionProvider>();
+            serviceCollection.AddSingleton<IKnownTypesBinder, KnownTypesBinder>();
 
             //serviceCollection.AddSingleton<AuthenticationStateProvider, TestIdentityAuthenticationStateProvider<IdentityUser>>();
             serviceCollection.AddScoped<NavigationManager, MockNavigationManager>();
@@ -157,7 +158,7 @@ namespace BlazorForms.Tests.Framework.Core
             var serviceProvider = serviceCollection.BuildServiceProvider();
             _serviceProvider = serviceProvider;
 
-            IFlowParser parser = new FlowParser(this);
+            IFlowParser parser = new FlowParser(this, serviceProvider.GetRequiredService<IKnownTypesBinder>());
             _flowParser = parser;
             var formParser = new FormDefinitionParser(serviceProvider);
             var ruleParser = new RuleDefinitionParser(serviceProvider);

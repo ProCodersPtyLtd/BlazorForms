@@ -26,7 +26,7 @@ namespace BlazorForms.Platform.Tests.Rules
             var gen = new ProxyGenerator();
             var pa = new RuleDefinitionParser(_serviceProvider);
             var pr = new ModelProxyFactoryProvider(_proxyScopeConfiguration, gen);
-            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>());
+            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>(), _serviceProvider.GetRequiredService<IKnownTypesBinder>());
             var model = new Model2 { Client = new ClientModel { BirthDate = DateTime.Now, ResidentialAddress = new AddressModel { PostCode = "2227", Country = "AU" } } };
             var q1Data = new ExpandoObject();
             q1Data.SetValue("Text", "some text");
@@ -44,7 +44,7 @@ namespace BlazorForms.Platform.Tests.Rules
             var gen = new ProxyGenerator();
             var pa = new RuleDefinitionParser(_serviceProvider);
             var pr = new ModelProxyFactoryProvider(_proxyScopeConfiguration, gen);
-            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>());
+            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>(), _serviceProvider.GetRequiredService<IKnownTypesBinder>());
             var model = new Model2 { Client = new ClientModel { BirthDate = DateTime.Now, ResidentialAddress = new AddressModel { PostCode = "2227", Country = "AU" } } };
             var q1Data = new ExpandoObject();
             q1Data.SetValue("Text", "");

@@ -25,19 +25,23 @@ namespace BlazorForms.FlowRules
         private readonly IRuleDefinitionParser _parser;
         private readonly IAssemblyRegistrator _assemblyRegistrator;
         private readonly IProxymaProvider _proxyProvider;
-        private ILogStreamer _logStreamer;
+        private readonly ILogStreamer _logStreamer;
+        private readonly IKnownTypesBinder _binder;
 
         public InterceptorBasedRuleEngine(IRuleDefinitionParser parser, IAssemblyRegistrator assemblyRegistrator, IProxymaProvider proxyProvider,
-            IJsonPathNavigator navigator, ILogStreamer logStreamer)
+            IJsonPathNavigator navigator, ILogStreamer logStreamer, IKnownTypesBinder binder)
         {
             _logStreamer = logStreamer;
             _parser = parser;
             _assemblyRegistrator = assemblyRegistrator;
             _proxyProvider = proxyProvider;
             _navigator = navigator;
+            _binder = binder;
             _asms = _assemblyRegistrator.GetConsideredAssemblies().Distinct();
+
             _allTypes = _asms
                             .SelectMany(a => a.GetTypes())
+                            .Union(_binder.KnownTypes)
                             .GroupBy(t => t.FullName)
                             .ToDictionary(t => t.First().FullName, t => t.First());
 

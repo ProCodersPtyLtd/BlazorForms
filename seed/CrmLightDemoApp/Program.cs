@@ -3,6 +3,7 @@ using BlazorForms.Flows.Definitions;
 using BlazorForms.Platform;
 using BlazorForms.Platform.Stubs;
 using CrmLightDemoApp.Onion;
+using CrmLightDemoApp.Onion.Domain;
 using CrmLightDemoApp.Onion.Services.Flow;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -38,6 +39,22 @@ builder.Services.AddMudServices(config =>
 builder.Services.AddServerSideBlazorForms();
 builder.Services.AddBlazorFormsMudBlazorUI();
 builder.Services.AddBlazorFormsServerModelAssemblyTypes(typeof(PersonEditFlow));
+
+// generics
+//builder.Services.AddGenericType(typeof(StaticTypeEditFlow<LeadSourceType>));
+//builder.Services.AddGenericType(typeof(FormStaticTypeEdit<LeadSourceType>));
+//builder.Services.AddGenericType(typeof(FormStaticTypeSaved<LeadSourceType>));
+//builder.Services.AddGenericType(typeof(FormStaticType_ItemChangedRule<LeadSourceType>));
+//builder.Services.AddGenericType(typeof(FormStaticType_ItemDeletingRule<LeadSourceType>));
+builder.Services.AddGenericTypes(
+    new Type[] 
+    { 
+        typeof(StaticTypeEditFlow<>), 
+        typeof(FormStaticTypeEdit<>), 
+        typeof(FormStaticTypeSaved<>) ,
+        typeof(FormStaticType_ItemChangedRule<>), 
+        typeof(FormStaticType_ItemDeletingRule<>), 
+    }, new Type[] { typeof(LeadSourceType) });
 
 var app = builder.Build();
 

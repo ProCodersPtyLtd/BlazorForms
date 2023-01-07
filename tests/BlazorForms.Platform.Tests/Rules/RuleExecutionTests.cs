@@ -41,7 +41,7 @@ namespace BlazorForms.Platform.Tests.Rules
             var gen = new ProxyGenerator();
             var pa = new RuleDefinitionParser(_serviceProvider);
             var pr = new ModelProxyFactoryProvider(_proxyScopeConfiguration, gen);
-            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>());
+            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>(), _serviceProvider.GetRequiredService<IKnownTypesBinder>());
             var model = new Model2 { Client = new ClientModel { BirthDate = DateTime.Now ,ResidentialAddress = new AddressModel { PostCode = "2227", Country = "AU" } } };
             var parameters = new RuleExecutionParameters { Model = model, TriggeredRuleCode = "sample1", ProcessTaskTypeFullName = "BlazorForms.Platform.Tests.Rules.ProcessTask2" };
             var execResult = await engine.Execute(parameters);
@@ -68,7 +68,7 @@ namespace BlazorForms.Platform.Tests.Rules
             var gen = new ProxyGenerator();
             var pa = new RuleDefinitionParser(_serviceProvider);
             var pr = new ModelProxyFactoryProvider(_proxyScopeConfiguration, gen);
-            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>());
+            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>(), _serviceProvider.GetRequiredService<IKnownTypesBinder>());
             var model = new Model2 { Client = new ClientModel { BirthDate = DateTime.Now, ClientId = 14, FirstName = "lala" } };
             var parameters = new RuleExecutionParameters { Model = model, TriggeredRuleCode = "sampleAsync1", ProcessTaskTypeFullName = "BlazorForms.Platform.Tests.Rules.ProcessTask2" };
             var execResult = await engine.Execute(parameters);
@@ -83,7 +83,7 @@ namespace BlazorForms.Platform.Tests.Rules
             var gen = new ProxyGenerator();
             var pa = new RuleDefinitionParser(_serviceProvider);
             var pr = new ModelProxyFactoryProvider(_proxyScopeConfiguration, gen);
-            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>());
+            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>(), _serviceProvider.GetRequiredService<IKnownTypesBinder>());
             var model = new CascadingMoneyModel { Data = new CascadingMoney { Price = new Money() } };
             model.Data.Price.Amount = 100m;
             model.Data.Price.Currency = "ETH";

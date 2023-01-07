@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using BlazorForms.Platform.Shared.Interfaces;
 using BlazorForms.Proxyma;
+using BlazorForms.Shared;
 
 namespace BlazorForms.Platform.Integration.Tests.TestApi
 {

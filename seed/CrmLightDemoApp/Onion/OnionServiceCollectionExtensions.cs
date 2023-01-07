@@ -3,6 +3,8 @@ using BlazorForms.Platform;
 using System.Diagnostics.CodeAnalysis;
 using CrmLightDemoApp.Onion.Infrastructure;
 using CrmLightDemoApp.Onion.Domain.Repositories;
+using CrmLightDemoApp.Onion.Domain;
+using CrmLightDemoApp.Onion.Services.Flow;
 
 namespace CrmLightDemoApp.Onion
 {
@@ -15,6 +17,10 @@ namespace CrmLightDemoApp.Onion
                 .AddSingleton<ICompanyRepository, CompanyRepository>()
                 .AddSingleton<IPersonCompanyRepository, PersonCompanyRepository>()
                 .AddSingleton<IPersonCompanyLinkTypeRepository, PersonCompanyLinkTypeRepository>()
+                .AddSingleton<IRepository<PersonCompanyLinkType>, PersonCompanyLinkTypeRepository>()
+                .AddSingleton<IRepository<LeadSourceType>, LeadSourceTypeRepository>()
+
+                //.AddSingleton<StaticTypeEditFlow<LeadSourceType>, StaticTypeEditFlow<LeadSourceType>>()
                 ;
             return serviceCollection;
         }

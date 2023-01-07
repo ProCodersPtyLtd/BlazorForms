@@ -10,8 +10,15 @@ namespace BlazorForms.Flows
 {
     public class TransitionTrigger
     {
-        public string Text { get; set; }
+        public string Text { get; internal set; }
+        public string CommandText { get; internal set; }
         public bool Proceed { get; set; }
+
+        public TransitionTrigger()
+        { }
+
+        //public TransitionTrigger(state state)
+        //{ }
 
         public virtual void CheckTrigger(IFlowContext context)
         {

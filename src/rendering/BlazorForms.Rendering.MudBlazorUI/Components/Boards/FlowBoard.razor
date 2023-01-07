@@ -83,14 +83,16 @@
 									<ChildContent>
 										@foreach (var action in _vm.GetContextMenuActions(context))
 										{
-											@if (action.State == FlowBoardContextMenuAction.EDIT_ACTION)
+											@if (action.State == FlowBoardContextMenuAction.DIVIDER_ACTION)
 											{
 												<MudDivider />
 											}
-
-											<MudMenuItem OnClick="@(async () => await OnMenuItemClick(context, action))"
+											else
+											{
+												<MudMenuItem OnClick="@(async () => await OnMenuItemClick(context, action))"
 													Icon=@GetIcon(action)
 													 Disabled=@action.Disabled>@action.Name</MudMenuItem>
+											}
 										}
 									</ChildContent>
 								</MudMenu>
@@ -201,7 +203,7 @@
 	{
 		if (action.State == FlowBoardContextMenuAction.EDIT_ACTION)
 		{
-			return Icons.Material.Filled.Preview;
+			return Icons.Material.Filled.EditNote;
 		}
 		else if (action.State == FlowBoardContextMenuAction.DELETE_ACTION)
 		{

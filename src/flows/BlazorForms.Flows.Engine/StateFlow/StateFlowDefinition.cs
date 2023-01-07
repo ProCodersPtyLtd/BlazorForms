@@ -46,7 +46,18 @@ namespace BlazorForms.Flows
 			return flow;
 		}
 
-		public static F Transition<F>(this F flow, Func<TransitionTrigger> triggerFunction, state state, Action onTransitionEvent = null) 
+        public static StateFlowBase Transition<TTrig>(this StateFlowBase flow, state state, Func<Task> onTransitionEvent = null)
+            where TTrig : TransitionTrigger
+        {
+			var trigger = Activator.CreateInstance<TTrig>();
+            trigger.Text = state.Caption;
+            trigger.CommandText = state.Value;
+
+            RegisterTransition(flow, trigger, state, onTransitionEvent);
+            return flow;
+        }
+
+        public static F Transition<F>(this F flow, Func<TransitionTrigger> triggerFunction, state state, Action onTransitionEvent = null) 
             where F : class, IStateFlow 
         { 
             RegisterTransition(flow, triggerFunction, state, onTransitionEvent); 

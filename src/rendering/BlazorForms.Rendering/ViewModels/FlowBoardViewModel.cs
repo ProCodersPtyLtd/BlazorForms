@@ -51,6 +51,9 @@ namespace BlazorForms.Rendering.ViewModels
 				result.Add(a);
 			}
 
+			var divider = new FlowBoardContextMenuAction { State = FlowBoardContextMenuAction.DIVIDER_ACTION };
+			result.Add(divider);
+
 			var edit = new FlowBoardContextMenuAction { Name = "Edit", FormType = "-", State = FlowBoardContextMenuAction.EDIT_ACTION };
 			result.Add(edit);
 
