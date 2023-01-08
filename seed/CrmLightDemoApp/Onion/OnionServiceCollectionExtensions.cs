@@ -19,6 +19,7 @@ namespace CrmLightDemoApp.Onion
                 .AddSingleton<IPersonCompanyLinkTypeRepository, PersonCompanyLinkTypeRepository>()
                 .AddSingleton<IRepository<PersonCompanyLinkType>, PersonCompanyLinkTypeRepository>()
                 .AddSingleton<IRepository<LeadSourceType>, LeadSourceTypeRepository>()
+                .AddSingleton<IBoardCardRepository, BoardCardRepository>()
 
                 //.AddSingleton<StaticTypeEditFlow<LeadSourceType>, StaticTypeEditFlow<LeadSourceType>>()
                 ;

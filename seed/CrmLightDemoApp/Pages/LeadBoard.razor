@@ -1,0 +1,53 @@
+﻿@page "/lead-board"
+@using BlazorForms.Rendering.Interfaces
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.Rendering.State
+@using BlazorForms.Rendering.Model
+@using BlazorForms.Rendering.MudBlazorUI.Components
+@using BlazorForms.Shared;
+@using CrmLightDemoApp.Onion.Domain.Repositories;
+@using CrmLightDemoApp.Onion.Services.Flow
+@using CrmLightDemoApp.Onion.Services.Model;
+@using MudBlazor
+
+@inject IBoardCardRepository _repo
+
+<FlowBoard TFlow=BoardStateFlow TItem=BoardCardModel Caption="Lead Board" Items=@_items ItemsChanged=@ItemsChanged />
+
+@code {
+    private List<BoardCardModel> _items = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _items = await GetItems();
+    }
+
+    private async Task<List<BoardCardModel>> GetItems()
+    {
+        var items = (await _repo.GetAllAsync()).Select(x =>
+        {
+            var item = new BoardCardModel();
+            x.ReflectionCopyTo(item);
+            return item;
+        }).ToList();
+
+        return items;
+    }
+
+    private async Task ItemsChanged(List<BoardCardChangedArgs<BoardCardModel>> list)
+    {
+        var deleted = list.Where(x => x.Type == ItemChangedType.Deleted).ToList();
+        //deleted.ForEach(a => _items.Remove(a.Item));
+
+        var added = list.Where(x => x.Type == ItemChangedType.Added).ToList();
+        //added.ForEach(a => _items.Add(a.Item));
+
+        StateHasChanged();
+    }
+
+    private ListFormOptions Options = new ListFormOptions
+    {
+        Variant = Variant.Outlined,
+        MudBlazorProvidersDefined = true
+    };
+}

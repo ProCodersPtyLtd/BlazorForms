@@ -2,14 +2,15 @@
 using BlazorForms.Flows.Definitions;
 using BlazorForms.Forms;
 using BlazorForms.Rendering.Model;
+using CrmLightDemoApp.Onion.Services.Model;
 using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
-namespace MudBlazorUIDemo.Flows
+namespace CrmLightDemoApp.Onion.Services.Flow
 {
-	public class SampleStateFlow : StateFlowBase<SampleStateModel>
+	public class BoardStateFlow : StateFlowBase<BoardCardModel>
 	{
 		// Board Columns
-		public state Leads;
+		public state Lead;
 		public state Contacted;
 		public state MeetingScheduled = new state("Meeting Scheduled");
 		public state ProposalDelivered = new state("Proposal Delivered");
@@ -20,13 +21,13 @@ namespace MudBlazorUIDemo.Flows
 		{
 			this
 				.Begin(OnStartAsync)
-				.SetEditForm<FormCardEdit>()
-				.State(Leads)
-					// generic parameter example
+				.SetEditForm<FormLeadCardEdit>()
+				.State(Lead)
+					// generic trigger generic parameter example
 					.Transition<UserActionTransitionTrigger>(Contacted, OnContactedAsync)
 				.State(Contacted)
-                    .Transition<UserActionTransitionTrigger>(Leads)
-					// supplying object example
+                    .Transition<UserActionTransitionTrigger>(Lead)
+					// supplying trigger object example
 					.Transition(new UserActionTransitionTrigger(), MeetingScheduled)
 				.State(MeetingScheduled)
                     .Transition<UserActionTransitionTrigger>(Contacted)
@@ -36,7 +37,7 @@ namespace MudBlazorUIDemo.Flows
                     .Transition<UserActionTransitionTrigger>(MeetingScheduled)
 					.TransitionForm<FormCardCommit>(new UserActionTransitionTrigger(), Won, OnCloseAsync)
 				.State(Won)
-                    .Transition<UserActionTransitionTrigger>(Leads)
+                    .Transition<UserActionTransitionTrigger>(Lead)
                     .Transition<UserActionTransitionTrigger>(Contacted)
                     .Transition<UserActionTransitionTrigger>(MeetingScheduled)
                     .Transition<UserActionTransitionTrigger>(ProposalDelivered)
@@ -49,7 +50,6 @@ namespace MudBlazorUIDemo.Flows
 
 		private async Task OnProposalDeliveredAsync()
 		{
-			Model.CloseMessage = "Congrats with another win! Click [Ok] to close the card.";
 		}
 
 		private async Task OnContactedAsync()
@@ -61,39 +61,30 @@ namespace MudBlazorUIDemo.Flows
 		}
 	}
 
-	public class FormCardEdit : FormEditBase<SampleStateModel>
+	public class FormLeadCardEdit : FormEditBase<BoardCardModel>
 	{
-		protected override void Define(FormEntityTypeBuilder<SampleStateModel> f)
+		protected override void Define(FormEntityTypeBuilder<BoardCardModel> f)
 		{
 			f.Property(p => p.State).IsReadOnly();
 			f.Property(p => p.Title).IsRequired();
 			f.Property(p => p.Description).IsRequired();
+			f.Property(p => p.SalesPersonId).DropdownSearch(p => p.AllPersons, m => m.Id, m => m.FullName).IsRequired();
+			f.Property(p => p.LeadSourceTypeId).Dropdown(p => p.AllLeadSources, m => m.Id, m => m.Name);
 
 			f.Button(ButtonActionTypes.Cancel, "Cancel");
 			f.Button(ButtonActionTypes.Submit, "Save");
 		}
 	}
 
-	public class FormCardCommit : FormEditBase<SampleStateModel>
+	public class FormCardCommit : FormEditBase<BoardCardModel>
 	{
-		protected override void Define(FormEntityTypeBuilder<SampleStateModel> f)
+		protected override void Define(FormEntityTypeBuilder<BoardCardModel> f)
 		{
-			f.DisplayName = "Congrats with another win! Click [OK] to close the card.";
+			f.DisplayName = "Congrats with another win! Click OK to close the card.";
 			f.Property(p => p.Title).IsReadOnly().Label("Card");
-			//f.Property(p => p.CloseMessage).Control(ControlType.Subtitle);
 
 			f.Button(ButtonActionTypes.Cancel, "Cancel");
 			f.Button(ButtonActionTypes.Submit, "Ok");
 		}
-	}
-
-	public class SampleStateModel : IFlowBoardCard
-	{
-		public string State { get; set; }
-		public string Title { get; set; }
-		public string Description { get; set; }
-		public int Order { get; set; }
-
-		public string CloseMessage { get; set; }
 	}
 }
