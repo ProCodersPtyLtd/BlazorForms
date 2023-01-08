@@ -153,6 +153,10 @@
 	{
 		// ToDo: we need to reorder cards in column here
 		//await _vm.ReorderCards(args.Card.State, args.Card, 0);
+		if (_isNew)
+		{
+			args.Card.Order = Items.Where(x => x.State == args.Card.State).Max(x => x.Order) + 1;
+		}
 
 		await ItemsChanged.InvokeAsync((new BoardCardChangedArgs<TItem>[]
 			{
