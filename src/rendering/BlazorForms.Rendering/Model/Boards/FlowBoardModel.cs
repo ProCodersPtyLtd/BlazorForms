@@ -51,8 +51,9 @@ namespace BlazorForms.Rendering.Model
 	{
 		Order,
 		State,
-		Changed,
+		Creating,
 		Added,
+		Changed,
 		Deleted,
 	}
 

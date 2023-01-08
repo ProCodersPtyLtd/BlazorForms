@@ -5,12 +5,13 @@
 @using BlazorForms.Rendering.Model
 @using BlazorForms.Rendering.MudBlazorUI.Components
 @using BlazorForms.Shared;
-@using CrmLightDemoApp.Onion.Domain.Repositories;
+@using CrmLightDemoApp.Onion.Domain
+@using CrmLightDemoApp.Onion.Services.Abstractions;
 @using CrmLightDemoApp.Onion.Services.Flow
 @using CrmLightDemoApp.Onion.Services.Model;
 @using MudBlazor
 
-@inject IBoardCardRepository _repo
+@inject IBoardService _boardService
 
 <FlowBoard TFlow=BoardStateFlow TItem=BoardCardModel Caption="Lead Board" Items=@_items ItemsChanged=@ItemsChanged />
 
@@ -19,29 +20,32 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        _items = await GetItems();
+        await LoadItems();
     }
 
-    private async Task<List<BoardCardModel>> GetItems()
+    private async Task LoadItems()
     {
-        var items = (await _repo.GetAllAsync()).Select(x =>
-        {
-            var item = new BoardCardModel();
-            x.ReflectionCopyTo(item);
-            return item;
-        }).ToList();
-
-        return items;
+        _items = await _boardService.GetBoardCardsAsync();
     }
 
     private async Task ItemsChanged(List<BoardCardChangedArgs<BoardCardModel>> list)
     {
+        var creating = list.Where(x => x.Type == ItemChangedType.Creating).ToList();
+        creating.ForEach(async a => await _boardService.CreatingBoardCardAsync(a.Item));
+
         var deleted = list.Where(x => x.Type == ItemChangedType.Deleted).ToList();
-        //deleted.ForEach(a => _items.Remove(a.Item));
+        deleted.ForEach(async a => await _boardService.DeleteBoardCardAsync(a.Item));
 
         var added = list.Where(x => x.Type == ItemChangedType.Added).ToList();
-        //added.ForEach(a => _items.Add(a.Item));
+        added.ForEach(async a => await _boardService.CreateBoardCardAsync(a.Item));
 
+        var changed = list.Where(x => x.Type == ItemChangedType.Changed 
+            || x.Type == ItemChangedType.State
+            || x.Type == ItemChangedType.Order).ToList();
+
+        changed.ForEach(async a => await _boardService.UpdateBoardCardAsync(a.Item));
+
+        await LoadItems();
         StateHasChanged();
     }
 

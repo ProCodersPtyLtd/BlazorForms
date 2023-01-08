@@ -67,9 +67,9 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 		{
 			f.Property(p => p.State).IsReadOnly();
 			f.Property(p => p.Title).IsRequired();
-			f.Property(p => p.Description).IsRequired();
-			f.Property(p => p.SalesPersonId).DropdownSearch(p => p.AllPersons, m => m.Id, m => m.FullName).IsRequired();
-			f.Property(p => p.LeadSourceTypeId).Dropdown(p => p.AllLeadSources, m => m.Id, m => m.Name);
+			f.Property(p => p.Description);
+			f.Property(p => p.SalesPersonId).DropdownSearch(p => p.AllPersons, m => m.Id, m => m.FullName).Label("Sales person").IsRequired();
+			f.Property(p => p.LeadSourceTypeId).Dropdown(p => p.AllLeadSources, m => m.Id, m => m.Name).Label("Lead source");
 
 			f.Button(ButtonActionTypes.Cancel, "Cancel");
 			f.Button(ButtonActionTypes.Submit, "Save");

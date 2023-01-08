@@ -5,6 +5,8 @@ using CrmLightDemoApp.Onion.Infrastructure;
 using CrmLightDemoApp.Onion.Domain.Repositories;
 using CrmLightDemoApp.Onion.Domain;
 using CrmLightDemoApp.Onion.Services.Flow;
+using CrmLightDemoApp.Onion.Services.Abstractions;
+using CrmLightDemoApp.Onion.Services;
 
 namespace CrmLightDemoApp.Onion
 {
@@ -20,6 +22,7 @@ namespace CrmLightDemoApp.Onion
                 .AddSingleton<IRepository<PersonCompanyLinkType>, PersonCompanyLinkTypeRepository>()
                 .AddSingleton<IRepository<LeadSourceType>, LeadSourceTypeRepository>()
                 .AddSingleton<IBoardCardRepository, BoardCardRepository>()
+                .AddSingleton<IBoardService, BoardService>()
 
                 //.AddSingleton<StaticTypeEditFlow<LeadSourceType>, StaticTypeEditFlow<LeadSourceType>>()
                 ;

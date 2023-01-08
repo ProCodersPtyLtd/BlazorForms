@@ -140,7 +140,26 @@
 	{
 		var card = new TItem() { State = _vm.Columns[0].Id };
 		var r = new CardInfo<IFlowBoardCard>(card);
+
+		await ItemsChanged.InvokeAsync((new BoardCardChangedArgs<TItem>[]
+		{
+			new BoardCardChangedArgs<TItem>(card as TItem, ItemChangedType.Creating)
+		}).ToList());
+
 		await ShowDialog(r, true);
+	}
+
+	private async Task DialogFormSubmitted(BoardDialogSubmittedArgs args)
+	{
+		// ToDo: we need to reorder cards in column here
+		//await _vm.ReorderCards(args.Card.State, args.Card, 0);
+
+		await ItemsChanged.InvokeAsync((new BoardCardChangedArgs<TItem>[]
+			{
+				new BoardCardChangedArgs<TItem>(args.Card as TItem, _isNew ? ItemChangedType.Added : ItemChangedType.Changed)
+			}).ToList());
+
+		StateHasChanged();
 	}
 
 	private async Task OnCardItemsChanged(List<BoardCardChangedArgs<IFlowBoardCard>> changes)
@@ -238,23 +257,6 @@
 			dialogParameters["Options"] = new EditFormOptions { MudBlazorProvidersDefined = true };
 			DialogService.Show<BoardDialogForm>(null, dialogParameters, options);
 		}
-	}
-
-	private async Task DialogFormSubmitted(BoardDialogSubmittedArgs args)
-	{
-
-		await ItemsChanged.InvokeAsync((new BoardCardChangedArgs<TItem>[] 
-			{ 
-				new BoardCardChangedArgs<TItem>(args.Card as TItem, _isNew ? ItemChangedType.Added : ItemChangedType.Changed)
-			}).ToList());
-
-		//if (_isNew)
-		//{
-		//	Items.Add(args.Card as TItem);
-		//	_container.Refresh();
-		//}
-
-		StateHasChanged();
 	}
 
 	private async Task Click(CardInfo<IFlowBoardCard> card)
