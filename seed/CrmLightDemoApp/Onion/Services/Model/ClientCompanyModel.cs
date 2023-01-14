@@ -11,10 +11,10 @@ namespace CrmLightDemoApp.Onion.Services.Model
         //public Person Manager { get; set; }
         //public Person AlternativeManager { get; set; }
 
-        public string? ManagerFullName { get; set; }
-        public string? AlternativeManagerFullName { get; set; }
+        public virtual string? ManagerFullName { get; set; }
+        public virtual string? AlternativeManagerFullName { get; set; }
 
-        public List<PersonModel> AllPersons { get; set; } = new();
-        public List<Company> AllCompanies { get; set; } = new();
+        public virtual List<PersonModel> AllPersons { get; set; } = new();
+        public virtual List<Company> AllCompanies { get; set; } = new();
     }
 }

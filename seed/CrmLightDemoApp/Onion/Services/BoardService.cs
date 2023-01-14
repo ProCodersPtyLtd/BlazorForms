@@ -108,5 +108,10 @@ namespace CrmLightDemoApp.Onion.Services
 		{
 			await _clientCompanyRepository.UpdateAsync(clientCompany);
 		}
-	}
+
+        public async Task<ClientCompany> FindClientCompanyAsync(int companyId)
+        {
+            return await _clientCompanyRepository.FindByCompanyIdAsync(companyId);
+        }
+    }
 }

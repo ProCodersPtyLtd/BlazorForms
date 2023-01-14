@@ -2,8 +2,7 @@
 {
     public interface IClientCompanyRepository : IRepository<ClientCompany>
     {
-        Task<ClientCompany> GetByCompanyIdAsync(int companyId);
-        //Task<List<ClientCompanyDetails>> GetAllDetailsAsync(int companyId);
+        Task<ClientCompany> FindByCompanyIdAsync(int companyId);
         ContextQuery<ClientCompanyDetails> GetAllDetailsContextQuery();
         Task<List<ClientCompanyDetails>> RunAllDetailsContextQueryAsync(ContextQuery<ClientCompanyDetails> ctx);
     }

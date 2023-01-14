@@ -87,6 +87,13 @@
         // save Client Company
         item.ClientCompany.Id = item.ClientCompanyId ?? 0;
         item.ClientCompany.CompanyId = item.RelatedCompanyId.Value;
+        var existing = await _boardService.FindClientCompanyAsync(item.ClientCompany.CompanyId);
+
+        if (existing != null)
+        {
+            // use existing ClientCompany, don't create duplicate
+            item.ClientCompany.Id = existing.Id;
+        }
 
         if (item.ClientCompany.Id > 0)
         {

@@ -12,6 +12,7 @@ namespace CrmLightDemoApp.Onion.Services.Abstractions
         Task UpdateBoardCardAsync(LeadBoardCardModel card);
 
         Task<int> CreateCompanyAsync(Company company);
+        Task<ClientCompany> FindClientCompanyAsync(int companyId);
         Task<int> CreateClientCompanyAsync(ClientCompany clientCompany);
         Task UpdateClientCompanyAsync(ClientCompany clientCompany);
 

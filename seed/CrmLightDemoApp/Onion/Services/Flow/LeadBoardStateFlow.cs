@@ -23,10 +23,6 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 		public state ProposalDelivered = new state("Proposal Delivered");
 		public state Won;
 
-		//public status Open;
-		//public status Overdue;
-		//public status Danger;
-
         public LeadBoardStateFlow(ICompanyRepository companyRepository, IClientCompanyRepository clientCompanyRepository)
         {
 			_companyRepository = companyRepository;
@@ -164,7 +160,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 
         public override async Task Execute(LeadBoardCardModel model)
         {
-			var cc = await _clientCompanyRepository.GetByCompanyIdAsync(model.RelatedCompanyId ?? 0);
+			var cc = await _clientCompanyRepository.FindByCompanyIdAsync(model.RelatedCompanyId ?? 0);
 
 			if (cc != null)
 			{

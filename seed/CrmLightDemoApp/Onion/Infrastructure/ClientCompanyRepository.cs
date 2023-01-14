@@ -89,7 +89,7 @@ namespace CrmLightDemoApp.Onion.Infrastructure
         //    return result;
         //}
 
-        public async Task<ClientCompany> GetByCompanyIdAsync(int companyId)
+        public async Task<ClientCompany> FindByCompanyIdAsync(int companyId)
         {
             var result = _localCache.FirstOrDefault(x => x.CompanyId == companyId && !x.Deleted);
             return result;

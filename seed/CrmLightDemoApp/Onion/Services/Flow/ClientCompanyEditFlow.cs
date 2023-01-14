@@ -25,8 +25,8 @@ namespace CrmLightDemoApp.Onion.Services.Flow
         public override void Define()
         {
             this
+                .Begin(LoadData)
                 .If(() => _flowContext.Params.ItemKeyAboveZero)
-                   .Begin(LoadData)
                    .NextForm(typeof(FormClientCompanyView))
                 .EndIf()
                 .If(() => _flowContext.ExecutionResult.FormLastAction == ModelBinding.DeleteButtonBinding)
@@ -42,9 +42,12 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 
         public async Task LoadData()
         {
-            var item = await _clientCompanyRepository.GetByIdAsync(_flowContext.Params.ItemKey);
-            // item and Model have different types - we use reflection to copy similar properties
-            item.ReflectionCopyTo(Model);
+            if (_flowContext.Params.ItemKeyAboveZero)
+            {
+                var item = await _clientCompanyRepository.GetByIdAsync(_flowContext.Params.ItemKey);
+                // item and Model have different types - we use reflection to copy similar properties
+                item.ReflectionCopyTo(Model);
+            }
 
             var persons = (await _personRepository.GetAllAsync())
                 .Select(x =>
@@ -106,7 +109,9 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             f.DisplayName = "Client Company Edit";
             f.Confirm(ConfirmType.ChangesWillBeLost, "If you leave before saving, your changes will be lost.", ConfirmButtons.OkCancel);
 
-            f.Property(p => p.CompanyId).DropdownSearch(p => p.AllCompanies, m => m.Id, m => m.Name).Label("Company").IsRequired();
+            f.Property(p => p.CompanyId).DropdownSearch(p => p.AllCompanies, m => m.Id, m => m.Name).Label("Company").IsRequired()
+                .Rule(typeof(FormClientCompanyEdit_CompanyDupsRule));
+
             f.Property(p => p.ClientManagerId).DropdownSearch(p => p.AllPersons, m => m.Id, m => m.FullName).Label("Manager");
             f.Property(p => p.AlternativeClientManagerId).DropdownSearch(p => p.AllPersons, m => m.Id, m => m.FullName).Label("Alternative manager");
             f.Property(p => p.StartContractDate).Label("Contract date").Format("dd/MM/yyyy");
@@ -116,46 +121,29 @@ namespace CrmLightDemoApp.Onion.Services.Flow
         }
     }
 
-    //public class FormCompanyEdit_ItemDeletingRule : FlowRuleBase<CompanyModel>
-    //{
-    //    public override string RuleCode => "CMP-1";
+    public class FormClientCompanyEdit_CompanyDupsRule : FlowRuleAsyncBase<ClientCompanyModel>
+    {
+        private readonly IClientCompanyRepository _clientCompanyRepository;
+        public override string RuleCode => "CCE-1";
 
-    //    public override void Execute(CompanyModel model)
-    //    {
-    //        // preserve all deleted items
-    //        model.PersonCompanyLinksDeleted.Add(model.PersonCompanyLinks[RunParams.RowIndex]);
-    //    }
-    //}
+        public FormClientCompanyEdit_CompanyDupsRule(IClientCompanyRepository clientCompanyRepository)
+        {
+            _clientCompanyRepository = clientCompanyRepository;
+        }
 
-    //public class FormCompanyEdit_ItemChangedRule : FlowRuleBase<CompanyModel>
-    //{
-    //    public override string RuleCode => "CMP-2";
+        public override async Task Execute(ClientCompanyModel model)
+        {
+            if (model.CompanyId > 0)
+            {
+                var existing = await _clientCompanyRepository.FindByCompanyIdAsync(model.CompanyId);
 
-    //    public override void Execute(CompanyModel model)
-    //    {
-    //        model.PersonCompanyLinks[RunParams.RowIndex].Changed = true;
-
-    //        // Example: How to trigger cascading rule in FastRuleEngine
-    //        Trigger(RowField(m => m.PersonCompanyLinks, m => m.Changed, RunParams.RowIndex));
-
-    //        // Incorrect example: Don't use SingleField for collections
-    //        Trigger(SingleField(m => m.PersonCompanyLinks[RunParams.RowIndex].Changed));
-    //    }
-    //}
-    //public class FormCompanyEdit_CheckNameRule : FlowRuleBase<CompanyModel>
-    //{
-    //    public override string RuleCode => "CMP-3";
-
-    //    public override void Execute(CompanyModel model)
-    //    {
-    //        var name = model.PersonCompanyLinks[RunParams.RowIndex].PersonFullName;
-
-    //        //if (!model.PersonDictionary.Keys.Contains(name))
-    //        if (!model.AllPersons.Any(p => p.FullName == name))
-    //        {
-    //            Result.ValidationResult = RuleValidationResult.Error;
-    //            Result.ValidationMessage = $"Name '{name}' not found";
-    //        }
-    //    }
-    //}
+                if (existing != null && existing.Id != model.Id)
+                {
+                    Result.ValidationResult = RuleValidationResult.Error;
+                    var name = model.AllCompanies.First(x => x.Id == model.CompanyId).Name;
+                    Result.ValidationMessage = $"Client for Company '{name}' already exists";
+                }
+            }
+        }
+    }
 }

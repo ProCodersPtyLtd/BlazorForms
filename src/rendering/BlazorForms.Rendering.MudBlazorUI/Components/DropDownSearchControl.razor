@@ -126,8 +126,8 @@
             SelectedValue = val;
             _selectedId = val?.Item1;
 
-            ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = _selectedId, RowIndex = RowIndex });
             ViewModel.RefreshValidations(Field);
+            ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = _selectedId, RowIndex = RowIndex });
         }
     }
 }
