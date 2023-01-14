@@ -22,5 +22,7 @@
 
         public virtual string? FollowUpDetails { get; set; }
         public virtual DateTime? FollowUpDate { get; set; }
+
+        public virtual int? ClientCompanyId { get; set; }
     }
 }

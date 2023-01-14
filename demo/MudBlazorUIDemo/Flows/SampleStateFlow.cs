@@ -19,7 +19,7 @@ namespace MudBlazorUIDemo.Flows
 		public override void Define()
 		{
 			this
-				.Begin(OnStartAsync)
+				//.BeginState(OnStartAsync)
 				.SetEditForm<FormCardEdit>()
 				.State(Leads)
 					// generic parameter example
@@ -32,7 +32,7 @@ namespace MudBlazorUIDemo.Flows
                     .Transition<UserActionTransitionTrigger>(Contacted)
                     .Transition<UserActionTransitionTrigger>(ProposalDelivered)
 				.State(ProposalDelivered)
-					.Begin(OnProposalDeliveredAsync)
+					//.BeginState(OnProposalDeliveredAsync)
                     .Transition<UserActionTransitionTrigger>(MeetingScheduled)
 					.TransitionForm<FormCardCommit>(new UserActionTransitionTrigger(), Won, OnCloseAsync)
 				.State(Won)

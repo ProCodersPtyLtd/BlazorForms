@@ -21,5 +21,13 @@ namespace CrmLightDemoApp
             Variant = Variant.Filled,
             DateFormat = "dd/MM/yyyy",
         };
+
+        public static BoardFormOptions BoardFormOptions = new BoardFormOptions
+		{
+            MudBlazorProvidersDefined = true,
+            Variant = Variant.Filled,
+            DateFormat = "dd/MM/yyyy",
+        };
+
     }
 }

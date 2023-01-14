@@ -52,7 +52,7 @@ using BlazorForms.Platform.Shared.Attributes;");
             sb.AppendLine("        public override void Define()");
             sb.AppendLine("        {");
             sb.AppendLine("            this");
-            sb.AppendLine("                .Begin()");
+            sb.AppendLine("                .BeginState()");
             sb.AppendLine("                .Next(LoadData)");
             sb.AppendLine($"                .NextForm(typeof({formName}))");
             sb.AppendLine("                .Next(SaveAsync)");

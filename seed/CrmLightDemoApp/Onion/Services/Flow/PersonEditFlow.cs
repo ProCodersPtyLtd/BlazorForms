@@ -49,7 +49,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 
         public async Task DeleteData()
         {
-            await _personRepository.SoftDeleteAsync(Model.Id);
+            await _personRepository.SoftDeleteAsync(Model);
         }
 
         public async Task SaveData()
@@ -80,7 +80,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             f.Button(ButtonActionTypes.Close, "Close");
 
             f.Button(ButtonActionTypes.Delete, "Delete")
-                .Confirm(ConfirmType.Continue, "Delete this Person?", ConfirmButtons.YesNo);
+                .Confirm(ConfirmType.Delete, "Delete this Person?", ConfirmButtons.YesNo);
 
             f.Button(ButtonActionTypes.Submit, "Edit");
 

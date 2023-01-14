@@ -515,11 +515,14 @@ else
             switch (binding)
             {
                 case ModelBinding.DeleteButtonBinding:
-                case ModelBinding.EditButtonBinding:
-                    if (await CheckConfirmation(ConfirmType.Continue))
+                    if (await CheckConfirmation(ConfirmType.Delete))
                     {
                         await ProcessContinueFlow(binding);
                     }
+                    break;
+
+                case ModelBinding.EditButtonBinding:
+                    await ProcessContinueFlow(binding);
                     break;
 
                 case ModelBinding.CloseButtonBinding:

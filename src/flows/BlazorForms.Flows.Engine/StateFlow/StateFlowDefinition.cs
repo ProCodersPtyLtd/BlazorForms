@@ -11,19 +11,13 @@ namespace BlazorForms.Flows
     {
         public static F State<F>(this F flow, state State) where F : class, IStateFlow { RegisterState(flow, State); return flow; }
 
-		public static StateFlowBase Begin(this StateFlowBase flow, Func<Task> onBeginEvent)
+		// ToDo: not sure we need such events
+		[Obsolete]
+		public static StateFlowBase BeginState(this StateFlowBase flow, Func<Task> onBeginEvent)
 		{
 			RegisterBegin(flow, onBeginEvent);
 			return flow;
 		}
-
-		//public static F EditForm<F, TForm>(this F flow) 
-		//          where F : class, IStateFlow 
-		//          where TForm : class
-		//{
-		//          RegisterForm(flow, typeof(TForm));
-		//	return flow; 
-		//      }
 
 		public static StateFlowBase SetEditForm<TForm>(this StateFlowBase flow)
 			where TForm : class

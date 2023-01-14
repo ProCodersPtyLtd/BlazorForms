@@ -1,8 +1,10 @@
 ﻿using BlazorForms.Shared;
 using CrmLightDemoApp.Onion.Domain;
 using CrmLightDemoApp.Onion.Domain.Repositories;
+using CrmLightDemoApp.Onion.Infrastructure;
 using CrmLightDemoApp.Onion.Services.Abstractions;
 using CrmLightDemoApp.Onion.Services.Model;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace CrmLightDemoApp.Onion.Services
 {
@@ -10,16 +12,21 @@ namespace CrmLightDemoApp.Onion.Services
     {
         private readonly IBoardCardRepository _repo;
         private readonly IPersonRepository _personRepository;
+        private readonly ICompanyRepository _companyRepository;
+        private readonly IClientCompanyRepository _clientCompanyRepository;
         private readonly IRepository<LeadSourceType> _leadSourceTypeRepository;
 
-        public BoardService(IBoardCardRepository repo, IPersonRepository personRepository, IRepository<LeadSourceType> leadSourceTypeRepository) 
+        public BoardService(IBoardCardRepository repo, IPersonRepository personRepository, IClientCompanyRepository clientCompanyRepository,
+			ICompanyRepository companyRepository, IRepository<LeadSourceType> leadSourceTypeRepository) 
         { 
             _repo = repo;
             _personRepository = personRepository;
+            _clientCompanyRepository = clientCompanyRepository;
+			_companyRepository = companyRepository;
             _leadSourceTypeRepository = leadSourceTypeRepository;
         }
 
-        public async Task<int> CreateBoardCardAsync(BoardCardModel card)
+        public async Task<int> CreateBoardCardAsync(LeadBoardCardModel card)
         {
             var item = new BoardCard();
             card.ReflectionCopyTo(item);
@@ -27,21 +34,27 @@ namespace CrmLightDemoApp.Onion.Services
             return card.Id;
         }
 
-		public async Task CreatingBoardCardAsync(BoardCardModel card)
+		public async Task CreatingBoardCardAsync(LeadBoardCardModel card)
 		{
             card.AllPersons = await GetAllPersons();
+            card.AllCompanies = await GetAllCompanies();
             card.AllLeadSources = await GetAllLeadTypes();
 		}
 
-		public async Task DeleteBoardCardAsync(BoardCardModel card)
+		public async Task DeleteBoardCardAsync(LeadBoardCardModel card)
         {
-            await _repo.SoftDeleteAsync(card.Id);
+            await _repo.SoftDeleteAsync(card);
         }
 
         private async Task<List<LeadSourceType>> GetAllLeadTypes()
         {
             return await _leadSourceTypeRepository.GetAllAsync();
 		}
+
+        private async Task<List<Company>> GetAllCompanies()
+        {
+            return await _companyRepository.GetAllAsync();
+        }
 
         private async Task<List<PersonModel>> GetAllPersons()
         {
@@ -55,28 +68,45 @@ namespace CrmLightDemoApp.Onion.Services
 				}).OrderBy(x => x.FullName).ToList();
 		}
 
-		public async Task<List<BoardCardModel>> GetBoardCardsAsync()
+		public async Task<List<LeadBoardCardModel>> GetBoardCardsAsync()
         {
             var persons = await GetAllPersons();
+            var companies = await GetAllCompanies();
 			var leadTypes = await GetAllLeadTypes();
 
 			var items = (await _repo.GetAllAsync()).Select(x =>
             {
-                var item = new BoardCardModel();
+                var item = new LeadBoardCardModel();
                 x.ReflectionCopyTo(item);
                 item.AllPersons = persons;
+                item.AllCompanies = companies;
                 item.AllLeadSources = leadTypes;
                 return item;
-            }).ToList();
+            }).OrderBy(x => x.Order).ToList();
 
             return items;
         }
 
-        public async Task UpdateBoardCardAsync(BoardCardModel card)
+        public async Task UpdateBoardCardAsync(LeadBoardCardModel card)
         {
             var item = new BoardCard();
             card.ReflectionCopyTo(item);
             await _repo.UpdateAsync(item);
         }
-    }
+
+		public async Task<int> CreateCompanyAsync(Company company)
+		{
+			return await _companyRepository.CreateAsync(company);
+		}
+
+		public async Task<int> CreateClientCompanyAsync(ClientCompany clientCompany)
+		{
+			return await _clientCompanyRepository.CreateAsync(clientCompany);
+		}
+
+		public async Task UpdateClientCompanyAsync(ClientCompany clientCompany)
+		{
+			await _clientCompanyRepository.UpdateAsync(clientCompany);
+		}
+	}
 }

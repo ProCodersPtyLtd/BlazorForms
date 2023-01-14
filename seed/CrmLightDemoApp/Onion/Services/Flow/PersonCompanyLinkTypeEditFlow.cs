@@ -48,7 +48,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             {
                 if (item.Id != 0)
                 {
-                    await _repository.SoftDeleteAsync(item.Id);
+                    await _repository.SoftDeleteAsync(item);
                 }
             }
 

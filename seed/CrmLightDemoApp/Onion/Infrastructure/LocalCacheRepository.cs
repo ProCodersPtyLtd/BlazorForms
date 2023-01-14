@@ -2,6 +2,7 @@
 using BlazorForms.Shared;
 using CrmLightDemoApp.Onion.Domain;
 using CrmLightDemoApp.Onion.Domain.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace CrmLightDemoApp.Onion.Infrastructure
 {
@@ -42,9 +43,9 @@ namespace CrmLightDemoApp.Onion.Infrastructure
             _localCache.Add(data.GetCopy());
         }
 
-        public async Task SoftDeleteAsync(int id)
+        public async Task SoftDeleteAsync(T data)
         {
-            _localCache.Single(x => x.Id == id).Deleted = true;
+            _localCache.Single(x => x.Id == data.Id).Deleted = true;
         }
 
         public async Task<List<T>> GetListByIdsAsync(IEnumerable<int> ids)
@@ -55,6 +56,11 @@ namespace CrmLightDemoApp.Onion.Infrastructure
         public ContextQuery<T> GetContextQuery()
         {
             return new ContextQuery<T>(null, _localCache.Where(x => !x.Deleted).AsQueryable());
+        }
+
+        public ContextQuery<T> GetContextQuery(DbContext context)
+        {
+            return GetContextQuery();
         }
 
         public async Task<List<T>> RunContextQueryAsync(ContextQuery<T> ctx)

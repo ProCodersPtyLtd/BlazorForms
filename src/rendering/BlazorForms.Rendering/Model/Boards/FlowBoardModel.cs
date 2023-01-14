@@ -71,13 +71,28 @@ namespace BlazorForms.Rendering.Model
 	{
 		public T Item { get; private set; }
 		public ItemChangedType Type { get; private set; }
+		public string NewState { get; private set; }
+		public string OldState { get; private set; }
 
 		public BoardCardChangedArgs(T item, ItemChangedType type)
 		{
 			Item = item;
 			Type = type;
-		}	
-	}
+		}
+
+        public BoardCardChangedArgs(T item, ItemChangedType type, string oldState, string newState)
+        {
+            Item = item;
+            Type = type;
+			OldState = oldState;
+			NewState = newState;
+        }
+
+		public bool ChangedToTargetState(string state)
+		{
+			return Type == ItemChangedType.State && OldState != NewState && NewState == state;
+		}
+    }
 
 	public class FlowBoardColumn
     {

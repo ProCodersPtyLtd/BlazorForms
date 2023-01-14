@@ -7,7 +7,7 @@
 @using BlazorForms.Rendering.Interfaces
 
 @inject IDynamicFieldValidator FieldValidator
-@inject BlazorForms.Platform.IKnownTypesBinder _knownTypesBinder
+@inject BlazorForms.Shared.IKnownTypesBinder _knownTypesBinder
 
     @if (Field.ControlType == null || Field.ControlType == "Label")
     {

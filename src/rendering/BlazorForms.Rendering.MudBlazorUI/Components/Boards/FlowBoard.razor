@@ -65,12 +65,26 @@
 		<ItemRenderer>
 			<MudListItem OnClick=@(async () => await Click(context))>
 				<MudCard >
-					<MudCardHeader>
+					<MudCardHeader Style=@($"background-color: {CardTitleBackColor}")>
 						<CardHeaderAvatar>
-							<MudAvatar Color="Color.Primary" Size="Size.Small">@context.TitleInitials</MudAvatar>
+							@if (CardAvatar != null)
+							{
+								@CardAvatar(context.Item as TItem)
+							}
+							else
+							{
+								<MudAvatar Color="Color.Primary" Size="Size.Small">@context.TitleInitials</MudAvatar>
+							}
 						</CardHeaderAvatar>
 						<CardHeaderContent>
-							<MudText Typo="Typo.subtitle1">@($"{context.Title}")</MudText>
+							@if (CardTitle != null)
+							{
+								@CardTitle(context.Item as TItem)
+							}
+							else
+							{
+								<MudText Typo="Typo.subtitle1">@($"{context.Title}")</MudText>
+							}
 						</CardHeaderContent>
 						<CardHeaderActions>
 
@@ -100,7 +114,14 @@
 						</CardHeaderActions>
 					</MudCardHeader>
 					<MudCardContent>
+						@if (CardBody != null)
+						{
+							@CardBody(context.Item as TItem)
+						}
+						else
+						{
 							<MudText Typo="Typo.body2">@context.Description</MudText>
+						}
 					</MudCardContent>
 				</MudCard>
 			</MudListItem>
@@ -109,6 +130,24 @@
 </div>
 
 @code {
+	[Parameter]
+	public RenderFragment<TItem> CardAvatar { get; set; }
+
+	[Parameter]
+	public RenderFragment<TItem> CardTitle { get; set; }
+
+	[Parameter]
+	public RenderFragment<TItem> CardBody { get; set; }
+
+	[Parameter]
+	public string CardTitleBackColor { get; set; }
+
+	[Parameter]
+	public BoardFormOptions Options { get; set; } = new();
+
+    [Parameter]
+    public EditFormOptions EditFormOptions { get; set; } = new();
+
 	[Parameter]
 	public List<TItem> Items { get; set; }
 
@@ -155,7 +194,7 @@
 		//await _vm.ReorderCards(args.Card.State, args.Card, 0);
 		if (_isNew)
 		{
-			args.Card.Order = Items.Where(x => x.State == args.Card.State).Max(x => x.Order) + 1;
+			args.Card.Order = Items.Any(x => x.State == args.Card.State) ? Items.Where(x => x.State == args.Card.State).Max(x => x.Order) + 1 : 0;
 		}
 
 		await ItemsChanged.InvokeAsync((new BoardCardChangedArgs<TItem>[]
@@ -163,12 +202,13 @@
 				new BoardCardChangedArgs<TItem>(args.Card as TItem, _isNew ? ItemChangedType.Added : ItemChangedType.Changed)
 			}).ToList());
 
-		StateHasChanged();
+		// StateHasChanged();
+		_container?.Refresh();
 	}
 
 	private async Task OnCardItemsChanged(List<BoardCardChangedArgs<IFlowBoardCard>> changes)
 	{
-		var itemsArgs = changes.Select(x => new BoardCardChangedArgs<TItem>(x.Item as TItem, x.Type)).ToList();
+		var itemsArgs = changes.Select(x => new BoardCardChangedArgs<TItem>(x.Item as TItem, x.Type, x.OldState, x.NewState)).ToList();
 		await ItemsChanged.InvokeAsync(itemsArgs);
 		StateHasChanged();
 	}
@@ -201,26 +241,26 @@
 	}
 
 	private async Task<bool> CheckDeleteConfirmation(CardInfo<IFlowBoardCard> card)
-    {
-        var options = new DialogOptions { CloseOnEscapeKey = true };
+	{
+		var options = new DialogOptions { CloseOnEscapeKey = true };
 
-        var parameters = new DialogParameters 
+		var parameters = new DialogParameters 
         { 
 			["Message"] = $"Are you sure you want to delete card '{card.Item.Title}' ?",
             ["CancelName"] = "No",
             ["OkName"] = "Yes",
         };
 
-        var dialog = await DialogService.ShowAsync<FormConfirmationDialog>(null, parameters, options);
-        var result = await dialog.Result;
+		var dialog = await DialogService.ShowAsync<FormConfirmationDialog>(null, parameters, options);
+		var result = await dialog.Result;
 
-        if (result.Cancelled)
-        {
-            return false;
-        }
+		if (result.Cancelled)
+		{
+			return false;
+		}
 
-        return true;
-    }
+		return true;
+	}
 
 	private string GetIcon(FlowBoardContextMenuAction action)
 	{
@@ -258,7 +298,7 @@
 			dialogParameters["FormSubmitted"] = new EventCallback<BoardDialogSubmittedArgs>(this, DialogFormSubmitted);
 			dialogParameters["AllowAnonymousAccess"] = true;
 			dialogParameters["AllowFlowStorage"] = false;
-			dialogParameters["Options"] = new EditFormOptions { MudBlazorProvidersDefined = true };
+			dialogParameters["Options"] = EditFormOptions;
 			DialogService.Show<BoardDialogForm>(null, dialogParameters, options);
 		}
 	}
@@ -291,7 +331,13 @@
 		if (dropItem.Item.Item.State != dropItem.DropzoneIdentifier)
 		{
 			//dropItem.Item.State = dropItem.DropzoneIdentifier;
-			await _vm.PerformTransition(dropItem.Item, dropItem.DropzoneIdentifier, ShowConfirmDialog);
+			var changed = await _vm.PerformTransition(dropItem.Item, dropItem.DropzoneIdentifier, ShowConfirmDialog);
+
+			if (!changed)
+			{
+				// drop cancelled, refresh board internal state
+				_container.Refresh();
+			}
 		}
 
 		if (dropItem.IndexInZone != dropItem.Item.Item.Order)
@@ -321,7 +367,7 @@
 		//dialogParameters["FormSubmitted"] = new EventCallback<BoardDialogSubmittedArgs>(this, DialogFormSubmitted);
 		dialogParameters["AllowAnonymousAccess"] = true;
 		dialogParameters["AllowFlowStorage"] = false;
-		dialogParameters["Options"] = new EditFormOptions { MudBlazorProvidersDefined = true };
+		dialogParameters["Options"] = EditFormOptions;
 
 		var dialog = await DialogService.ShowAsync<BoardDialogForm>(null, dialogParameters, options);
 		var result = await dialog.Result;

@@ -1,13 +1,19 @@
-﻿using CrmLightDemoApp.Onion.Services.Model;
+﻿using CrmLightDemoApp.Onion.Domain;
+using CrmLightDemoApp.Onion.Services.Model;
 
 namespace CrmLightDemoApp.Onion.Services.Abstractions
 {
     public interface IBoardService
     {
-        Task<List<BoardCardModel>> GetBoardCardsAsync();
-        Task CreatingBoardCardAsync(BoardCardModel card);
-        Task DeleteBoardCardAsync(BoardCardModel card);
-        Task<int> CreateBoardCardAsync(BoardCardModel card);
-        Task UpdateBoardCardAsync(BoardCardModel card);
-    }
+        Task<List<LeadBoardCardModel>> GetBoardCardsAsync();
+        Task CreatingBoardCardAsync(LeadBoardCardModel card);
+        Task DeleteBoardCardAsync(LeadBoardCardModel card);
+        Task<int> CreateBoardCardAsync(LeadBoardCardModel card);
+        Task UpdateBoardCardAsync(LeadBoardCardModel card);
+
+        Task<int> CreateCompanyAsync(Company company);
+        Task<int> CreateClientCompanyAsync(ClientCompany clientCompany);
+        Task UpdateClientCompanyAsync(ClientCompany clientCompany);
+
+	}
 }

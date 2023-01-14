@@ -15,6 +15,7 @@ namespace CrmLightDemoApp.Onion
         public static IServiceCollection AddOnionDependencies([NotNullAttribute] this IServiceCollection serviceCollection)
         {
             serviceCollection
+                // repositories
                 .AddSingleton<IPersonRepository, PersonRepository>()
                 .AddSingleton<ICompanyRepository, CompanyRepository>()
                 .AddSingleton<IPersonCompanyRepository, PersonCompanyRepository>()
@@ -22,6 +23,8 @@ namespace CrmLightDemoApp.Onion
                 .AddSingleton<IRepository<PersonCompanyLinkType>, PersonCompanyLinkTypeRepository>()
                 .AddSingleton<IRepository<LeadSourceType>, LeadSourceTypeRepository>()
                 .AddSingleton<IBoardCardRepository, BoardCardRepository>()
+                .AddSingleton<IClientCompanyRepository, ClientCompanyRepository>()
+                // services
                 .AddSingleton<IBoardService, BoardService>()
 
                 //.AddSingleton<StaticTypeEditFlow<LeadSourceType>, StaticTypeEditFlow<LeadSourceType>>()

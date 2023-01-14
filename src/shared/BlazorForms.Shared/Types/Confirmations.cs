@@ -9,7 +9,7 @@ namespace BlazorForms.Shared
     public enum ConfirmType
     {
         ChangesWillBeLost,
-        Continue,
+        Delete,
         DeleteItem,
     }
 
