@@ -38,7 +38,7 @@ namespace BlazorForms.Platform.Tests.Rules
             var gen = new ProxyGenerator();
             var pa = new RuleDefinitionParser(_serviceProvider);
             var pr = new ModelProxyFactoryProvider(_proxyScopeConfiguration, gen);
-            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>());
+            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>(), _serviceProvider.GetRequiredService<IKnownTypesBinder>());
             var model = new RepeaterRowModel { Rows = new List<RepeaterRowDetails>() };
             model.Rows.Add(new RepeaterRowDetails { Login = "a@b.com", IsSubscriptionAdmin = true });
             model.Rows.Add(new RepeaterRowDetails { Login = "a1@b1.com", IsSubscriptionAdmin = true });
@@ -59,7 +59,7 @@ namespace BlazorForms.Platform.Tests.Rules
             var gen = new ProxyGenerator();
             var pa = new RuleDefinitionParser(_serviceProvider);
             var pr = new ModelProxyFactoryProvider(_proxyScopeConfiguration, gen);
-            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>());
+            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>(), _serviceProvider.GetRequiredService<IKnownTypesBinder>());
             var model = new RepeaterRowModel { Rows = new List<RepeaterRowDetails>() };
             model.Rows.Add(new RepeaterRowDetails { Login = "a@b.com", IsSubscriptionAdmin = true });
             model.Rows.Add(new RepeaterRowDetails { Login = "a1@b1.com", IsSubscriptionAdmin = true });
@@ -84,7 +84,7 @@ namespace BlazorForms.Platform.Tests.Rules
         {
             var pa = new RuleDefinitionParser(_serviceProvider);
             var pr = new ModelProxyFactoryProvider(_proxyScopeConfiguration, _proxyGenerator);
-            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>());
+            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>(), _serviceProvider.GetRequiredService<IKnownTypesBinder>());
 
             int rowIndex = 1;
             var model = new RepeaterRowModel { Rows = new List<RepeaterRowDetails>() };
@@ -121,7 +121,7 @@ namespace BlazorForms.Platform.Tests.Rules
         {
             var pa = new RuleDefinitionParser(_serviceProvider);
             var pr = new ModelProxyFactoryProvider(_proxyScopeConfiguration, _proxyGenerator);
-            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>());
+            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>(), _serviceProvider.GetRequiredService<IKnownTypesBinder>());
 
             int rowIndex = 1;
             var model = new RepeaterRowModel { Rows = new List<RepeaterRowDetails>() };
@@ -144,7 +144,7 @@ namespace BlazorForms.Platform.Tests.Rules
         {
             var pa = new RuleDefinitionParser(_serviceProvider);
             var pr = new ModelProxyFactoryProvider(_proxyScopeConfiguration, _proxyGenerator);
-            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>());
+            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>(), _serviceProvider.GetRequiredService<IKnownTypesBinder>());
 
             var model = new RepeaterRowModel { Rows = new List<RepeaterRowDetails>() };
             model.Rows.Add(new RepeaterRowDetails { Login = "a@b.com", IsSubscriptionAdmin = true, MembershipTypeCode = "" });
@@ -164,7 +164,7 @@ namespace BlazorForms.Platform.Tests.Rules
             var gen = new ProxyGenerator();
             var pa = new RuleDefinitionParser(_serviceProvider);
             var pr = new ModelProxyFactoryProvider(_proxyScopeConfiguration, gen);
-            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>());
+            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>(), _serviceProvider.GetRequiredService<IKnownTypesBinder>());
             var model = new RepeaterRowModel { Rows = new List<RepeaterRowDetails>() };
             model.Rows.Add(new RepeaterRowDetails { Login = "a@b.com", IsSubscriptionAdmin = true, MembershipTypeCode = "" });
             model.Rows.Add(new RepeaterRowDetails { Login = "a1@b1.com", IsSubscriptionAdmin = true, MembershipTypeCode = "" });
@@ -182,7 +182,7 @@ namespace BlazorForms.Platform.Tests.Rules
             var gen = new ProxyGenerator();
             var pa = new RuleDefinitionParser(_serviceProvider);
             var pr = new ModelProxyFactoryProvider(_proxyScopeConfiguration, gen);
-            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>());
+            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>(), _serviceProvider.GetRequiredService<IKnownTypesBinder>());
             var model = new RepeaterRowModel { Rows = new List<RepeaterRowDetails>() };
             model.Rows.Add(new RepeaterRowDetails { Login = "a@b.com", IsSubscriptionAdmin = true });
             model.Rows.Add(new RepeaterRowDetails { Login = "a1@b1.com", IsSubscriptionAdmin = true });

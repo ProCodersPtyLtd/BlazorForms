@@ -63,7 +63,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 
         public async Task DeleteData()
         {
-            await _companyRepository.SoftDeleteAsync(Model.Id);
+            await _companyRepository.SoftDeleteAsync(Model);
         }
 
         public async Task LoadRelatedData()
@@ -102,7 +102,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             {
                 if (item.Id != 0)
                 {
-                    await _personCompanyRepository.SoftDeleteAsync(item.Id);
+                    await _personCompanyRepository.SoftDeleteAsync(item);
                 }
             }
 
@@ -145,7 +145,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             f.Button(ButtonActionTypes.Close, "Close");
 
             f.Button(ButtonActionTypes.Delete, "Delete")
-                .Confirm(ConfirmType.Continue, "Delete this Company?", ConfirmButtons.YesNo);
+                .Confirm(ConfirmType.Delete, "Delete this Company?", ConfirmButtons.YesNo);
 
             f.Button(ButtonActionTypes.Submit, "Edit");
 
@@ -161,8 +161,8 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             f.Confirm(ConfirmType.ChangesWillBeLost, "If you leave before saving, your changes will be lost.", ConfirmButtons.OkCancel);
 
             f.Property(p => p.Name).Label("Name").IsRequired();
-            f.Property(p => p.RegistrationNumber).Label("Reg. No.").IsRequired();
-            f.Property(p => p.EstablishedDate).Label("Established date").IsRequired();
+            f.Property(p => p.RegistrationNumber).Label("Reg. No.");
+            f.Property(p => p.EstablishedDate).Label("Established date");
 
             f.Repeater(p => p.PersonCompanyLinks, e =>
             {

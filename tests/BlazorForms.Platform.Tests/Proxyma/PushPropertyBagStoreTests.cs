@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using Xunit;
 using BlazorForms.Tests.Framework.Helpers;
+using BlazorForms.Shared;
 
 namespace BlazorForms.Platform.Tests.Proxyma
 {

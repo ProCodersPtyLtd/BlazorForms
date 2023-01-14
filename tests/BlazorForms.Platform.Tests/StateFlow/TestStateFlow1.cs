@@ -37,7 +37,7 @@ namespace BlazorForms.Platform.Tests.StateFlow
 
         private TransitionTrigger AssignTrigger()
         {
-            var t = new ButtonTransitionTrigger { Text = "Assign" };
+            var t = new ButtonTransitionTrigger("Assign");
             t.SetSelector(GetAssignedUsersRoles());
             return t;
         }

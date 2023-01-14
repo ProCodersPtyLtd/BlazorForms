@@ -15,6 +15,7 @@ using BlazorForms.Shared.Extensions;
 using BlazorForms.Platform.Definitions.Shared;
 using BlazorForms.Rendering;
 using BlazorForms.Shared.Exceptions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BlazorForms.Platform.ProcessFlow
 {
@@ -458,7 +459,9 @@ namespace BlazorForms.Platform.ProcessFlow
             {
                 // ToDo: why we create rule engine here? use DI
                 var pa = _serviceProvider.GetService(typeof(IRuleDefinitionParser)) as IRuleDefinitionParser;
-                var engine = new InterceptorBasedRuleEngine(pa, _assemblyRegistrator, _modelProxyProvider, _jsonPathNavigator, _logStreamer);
+                
+                var engine = new InterceptorBasedRuleEngine(pa, _assemblyRegistrator, _modelProxyProvider, _jsonPathNavigator, _logStreamer,
+                    _serviceProvider.GetService<IKnownTypesBinder>());
 
                 var dictionary = ruleRequest.DisplayProperties.Select(p => new DisplayDetails
                 {
@@ -557,7 +560,9 @@ namespace BlazorForms.Platform.ProcessFlow
         {
             // ToDo: why we create rule engine here? use DI
             var pa = _serviceProvider.GetService(typeof(IRuleDefinitionParser)) as IRuleDefinitionParser;
-            var engine = new InterceptorBasedRuleEngine(pa, _assemblyRegistrator, _modelProxyProvider, _jsonPathNavigator, _logStreamer);
+
+            var engine = new InterceptorBasedRuleEngine(pa, _assemblyRegistrator, _modelProxyProvider, _jsonPathNavigator, _logStreamer,
+                _serviceProvider.GetService<IKnownTypesBinder>());
 
             var dictionary = ruleRequest.DisplayProperties.Select(p => new DisplayDetails
             {
@@ -603,7 +608,9 @@ namespace BlazorForms.Platform.ProcessFlow
         {
             // ToDo: why we create rule engine here? use DI
             var pa = _serviceProvider.GetService(typeof(IRuleDefinitionParser)) as IRuleDefinitionParser;
-            var engine = new InterceptorBasedRuleEngine(pa, _assemblyRegistrator, _modelProxyProvider, _jsonPathNavigator, _logStreamer);
+
+            var engine = new InterceptorBasedRuleEngine(pa, _assemblyRegistrator, _modelProxyProvider, _jsonPathNavigator, _logStreamer,
+                _serviceProvider.GetService<IKnownTypesBinder>());
 
            var dictionary = displayProperties.Select(p => new DisplayDetails
             {

@@ -51,6 +51,9 @@ namespace BlazorForms.Rendering.ViewModels
 				result.Add(a);
 			}
 
+			var divider = new FlowBoardContextMenuAction { State = FlowBoardContextMenuAction.DIVIDER_ACTION };
+			result.Add(divider);
+
 			var edit = new FlowBoardContextMenuAction { Name = "Edit", FormType = "-", State = FlowBoardContextMenuAction.EDIT_ACTION };
 			result.Add(edit);
 
@@ -105,10 +108,11 @@ namespace BlazorForms.Rendering.ViewModels
             return result;
 		}
 
-		public async Task PerformTransition(CardInfo<IFlowBoardCard> card, string action, 
+		public async Task<bool> PerformTransition(CardInfo<IFlowBoardCard> card, string action, 
 			Func<string, CardInfo<IFlowBoardCard>, Task<bool>> dialogCallback)
 		{
 			var confirmed = true;
+			var anyChange = false;
 			
 			var transition = _flowDetails.Transitions.FirstOrDefault(
 				x => x.FromState == card.Item.State && x.ToState == action && x.IsUserActionTrigger());
@@ -131,13 +135,17 @@ namespace BlazorForms.Rendering.ViewModels
 
 				if (changed)
 				{
+					_changes.Add(new BoardCardChangedArgs<IFlowBoardCard>(card.Item, ItemChangedType.State, card.Item.State, card.Context.CurrentTask));
+					//AddItemChange(card.Item, ItemChangedType.State);
 					card.Item.State = card.Context.CurrentTask;
-					AddItemChange(card.Item, ItemChangedType.State);
+					anyChange = true;
 				}
+
+				// ToDo: we need to save the changed card
+				await NotifyItemsChanged();
 			}
 
-			// ToDo: we need to save the changed card
-			await NotifyItemsChanged();
+			return anyChange;
 		}
 
 		private List<BoardCardChangedArgs<IFlowBoardCard>> _changes = new();

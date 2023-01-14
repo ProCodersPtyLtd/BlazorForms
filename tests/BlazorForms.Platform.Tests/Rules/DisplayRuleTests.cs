@@ -39,7 +39,7 @@ namespace BlazorForms.Platform.Tests.Rules
         {
             var pa = new RuleDefinitionParser(_serviceProvider);
             var pr = new ModelProxyFactoryProvider(_proxyScopeConfiguration, _proxyGenerator);
-            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>());
+            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>(), _serviceProvider.GetRequiredService<IKnownTypesBinder>());
             var model = new Model2 { Client = new ClientModel { BirthDate = DateTime.Now, ResidentialAddress = new AddressModel { PostCode = "2227", Country = "AU" } } };
 
             var parameters = new RuleExecutionParameters { Model = model, TriggeredRuleCode = "CheckBirthDateTestRule", ProcessTaskTypeFullName = "BlazorForms.Platform.Tests.Rules.ProcessTask4",
@@ -59,7 +59,7 @@ namespace BlazorForms.Platform.Tests.Rules
         {
             var pa = new RuleDefinitionParser(_serviceProvider);
             var pr = new ModelProxyFactoryProvider(_proxyScopeConfiguration, _proxyGenerator);
-            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>());
+            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>(), _serviceProvider.GetRequiredService<IKnownTypesBinder>());
             var model = new Model2 { Client = new ClientModel { BirthDate = DateTime.Now, ResidentialAddress = new AddressModel { PostCode = "2227", Country = "AU" } } };
 
             var parameters = new RuleExecutionParameters
@@ -85,7 +85,7 @@ namespace BlazorForms.Platform.Tests.Rules
         {
             var pa = new RuleDefinitionParser(_serviceProvider);
             var pr = new ModelProxyFactoryProvider(_proxyScopeConfiguration, _proxyGenerator);
-            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>());
+            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>(), _serviceProvider.GetRequiredService<IKnownTypesBinder>());
             var model = new Model2 { Client = new ClientModel { BirthDate = DateTime.Now, ResidentialAddress = new AddressModel { PostCode = "2227", Country = "AU" } } };
 
             var parameters = new RuleExecutionParameters
@@ -108,7 +108,7 @@ namespace BlazorForms.Platform.Tests.Rules
         {
             var pa = new RuleDefinitionParser(_serviceProvider);
             var pr = new ModelProxyFactoryProvider(_proxyScopeConfiguration, _proxyGenerator);
-            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>());
+            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>(), _serviceProvider.GetRequiredService<IKnownTypesBinder>());
             var model = new Model2 { Client = new ClientModel { BirthDate = DateTime.Now, ResidentialAddress = new AddressModel { PostCode = "2227", Country = "AU" } } };
 
             var parameters = new RuleExecutionParameters

@@ -24,7 +24,7 @@ namespace BlazorForms.Platform.Tests.Rules
         {
             var pa = new RuleDefinitionParser(_serviceProvider);
             var pr = new ModelProxyFactoryProvider(_proxyScopeConfiguration, _proxyGenerator);
-            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>());
+            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>(), _serviceProvider.GetRequiredService<IKnownTypesBinder>());
             var model = new Model2 { };
             var parameters = new RuleExecutionParameters { Model = model, TriggeredRuleCode = "rule1", ProcessTaskTypeFullName = "BlazorForms.Platform.Tests.Rules.ProcessTask3" };
             var execResult = await engine.Execute(parameters);
@@ -36,7 +36,7 @@ namespace BlazorForms.Platform.Tests.Rules
         {
             var pa = new RuleDefinitionParser(_serviceProvider);
             var pr = new ModelProxyFactoryProvider(_proxyScopeConfiguration, _proxyGenerator);
-            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>());
+            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>(), _serviceProvider.GetRequiredService<IKnownTypesBinder>());
             var model = new Model2 { };
             var parameters = new RuleExecutionParameters { Model = model, TriggeredRuleCode = "rule2", ProcessTaskTypeFullName = "BlazorForms.Platform.Tests.Rules.ProcessTask3" };
             var execResult = await engine.Execute(parameters);
@@ -50,7 +50,7 @@ namespace BlazorForms.Platform.Tests.Rules
         {
             var pa = new RuleDefinitionParser(_serviceProvider);
             var pr = new ModelProxyFactoryProvider(_proxyScopeConfiguration, _proxyGenerator);
-            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>());
+            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>(), _serviceProvider.GetRequiredService<IKnownTypesBinder>());
             var model = new Model2 { };
             var parameters = new RuleExecutionParameters { Model = model, TriggeredRuleCode = "rule3", ProcessTaskTypeFullName = "BlazorForms.Platform.Tests.Rules.ProcessTask3" };
             var execResult = await engine.Execute(parameters);
@@ -64,7 +64,7 @@ namespace BlazorForms.Platform.Tests.Rules
         {
             var pa = new RuleDefinitionParser(_serviceProvider);
             var pr = new ModelProxyFactoryProvider(_proxyScopeConfiguration, _proxyGenerator);
-            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>());
+            var engine = new InterceptorBasedRuleEngine(pa, this, pr, new JsonPathNavigator(), _serviceProvider.GetRequiredService<ILogStreamer>(), _serviceProvider.GetRequiredService<IKnownTypesBinder>());
             var model = new Model2 { };
             
             var parameters = new RuleExecutionParameters

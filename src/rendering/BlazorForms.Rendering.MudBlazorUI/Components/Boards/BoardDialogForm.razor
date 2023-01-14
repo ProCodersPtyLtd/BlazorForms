@@ -12,6 +12,7 @@
 
 @inject ISnackbar Snackbar
 @inject NavigationManager _navigationManager
+@inject IDialogService DialogService
 
 <style>
     .pz-dilaog-grid-align {
@@ -31,11 +32,11 @@
         <MudDialog @onkeydown="@KeyPress" DefaultFocus="DefaultFocus.LastChild">
         <TitleContent>@DialogViewModel.FormData.DisplayName</TitleContent>
         <DialogContent>
-
-            <CascadingValue Value="@(DialogViewModel as IFormViewModel)">
-                <FormContent ModelValueChanged=@ModelActionChanged />
-            </CascadingValue>
-
+            <MudContainer Style="max-height: 680px; overflow-y: scroll">
+                <CascadingValue Value="@(DialogViewModel as IFormViewModel)">
+                    <FormContent ModelValueChanged=@ModelActionChanged />
+                </CascadingValue>
+            </MudContainer>
         </DialogContent>
         <DialogActions>
             <div class="d-flex flex-row flex-grow-1 gap-2 justify-end pz-dialog-content">
@@ -98,12 +99,23 @@
     public bool ValidateButton { get; set; }
 
     private bool _formLocked = false;
+    private IDisposable? _navigationRegistration;
 
     protected override async Task OnParametersSetAsync()
     {
         // We load form once, and every time when parameters changed
         await Setup();
     }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _navigationRegistration = _navigationManager.RegisterLocationChangingHandler(OnLocationChanging);
+        }
+    }
+
+    public void Dispose() => _navigationRegistration?.Dispose();
 
     private Color GetActionColor(FieldControlDetails action)
     {
@@ -130,7 +142,7 @@
             {
                 case ModelBinding.DeleteButtonBinding:
                 case ModelBinding.EditButtonBinding:
-                    //if (await CheckConfirmation(ConfirmType.Continue))
+                    //if (await CheckConfirmation(ConfirmType.Delete))
                     //{
                     //    await ProcessContinueFlow(binding);
                     //}
@@ -187,6 +199,44 @@
         }
     }
 
+    private async ValueTask OnLocationChanging(Microsoft.AspNetCore.Components.Routing.LocationChangingContext context)
+    {
+        var allowNavigation = await CheckConfirmation(ConfirmType.ChangesWillBeLost);
+
+        if (!allowNavigation)
+        {
+            context.PreventNavigation();
+        }
+    }
+
+    private async Task<bool> CheckConfirmation(ConfirmType confirmType)
+    {
+        var list = DialogViewModel.GetAvailableConfirmations(confirmType);
+
+        if (list.Any())
+        {
+            var details = list.First();
+            var options = new DialogOptions { CloseOnEscapeKey = true };
+
+            var parameters = new DialogParameters 
+            { 
+                ["Message"] = details.Message,
+                ["CancelName"] = details.CancelName,
+                ["OkName"] = details.OkName,
+            };
+
+            var dialog = await DialogService.ShowAsync<FormConfirmationDialog>(null, parameters, options);
+            var result = await dialog.Result;
+
+            if (result.Cancelled)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     // Dialog never appears itself, the only way to show dialog is through DialogVM.LoadDialog(...)
     private async Task Setup()
     {
@@ -200,7 +250,7 @@
     {
         if (e.Key == "Enter")
         {
-            SubmitClick();
+            //SubmitClick();
         }
         else if (e.Key == "Esc")
         {

@@ -11,19 +11,13 @@ namespace BlazorForms.Flows
     {
         public static F State<F>(this F flow, state State) where F : class, IStateFlow { RegisterState(flow, State); return flow; }
 
-		public static StateFlowBase Begin(this StateFlowBase flow, Func<Task> onBeginEvent)
+		// ToDo: not sure we need such events
+		[Obsolete]
+		public static StateFlowBase BeginState(this StateFlowBase flow, Func<Task> onBeginEvent)
 		{
 			RegisterBegin(flow, onBeginEvent);
 			return flow;
 		}
-
-		//public static F EditForm<F, TForm>(this F flow) 
-		//          where F : class, IStateFlow 
-		//          where TForm : class
-		//{
-		//          RegisterForm(flow, typeof(TForm));
-		//	return flow; 
-		//      }
 
 		public static StateFlowBase SetEditForm<TForm>(this StateFlowBase flow)
 			where TForm : class
@@ -46,7 +40,18 @@ namespace BlazorForms.Flows
 			return flow;
 		}
 
-		public static F Transition<F>(this F flow, Func<TransitionTrigger> triggerFunction, state state, Action onTransitionEvent = null) 
+        public static StateFlowBase Transition<TTrig>(this StateFlowBase flow, state state, Func<Task> onTransitionEvent = null)
+            where TTrig : TransitionTrigger
+        {
+			var trigger = Activator.CreateInstance<TTrig>();
+            trigger.Text = state.Caption;
+            trigger.CommandText = state.Value;
+
+            RegisterTransition(flow, trigger, state, onTransitionEvent);
+            return flow;
+        }
+
+        public static F Transition<F>(this F flow, Func<TransitionTrigger> triggerFunction, state state, Action onTransitionEvent = null) 
             where F : class, IStateFlow 
         { 
             RegisterTransition(flow, triggerFunction, state, onTransitionEvent); 

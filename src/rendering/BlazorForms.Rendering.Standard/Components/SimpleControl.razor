@@ -6,7 +6,7 @@
 @using BlazorForms.Rendering.Interfaces
 
 @inject IDynamicFieldValidator FieldValidator
-@inject BlazorForms.Platform.IKnownTypesBinder _knownTypesBinder
+@inject IKnownTypesBinder _knownTypesBinder
 
     @if (Field.ControlType == null || Field.ControlType == "Label") // TODO constant
     {

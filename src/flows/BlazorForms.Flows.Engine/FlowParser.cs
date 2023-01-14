@@ -12,11 +12,13 @@ namespace BlazorForms.Flows.Engine
     {
         private IEnumerable<Assembly> _asms;
         private readonly IAssemblyRegistrator _assemblyRegistrator;
+        private readonly IKnownTypesBinder _binder;
 
-        public FlowParser(IAssemblyRegistrator assemblyRegistrator)
+        public FlowParser(IAssemblyRegistrator assemblyRegistrator, IKnownTypesBinder binder)
         {
             _assemblyRegistrator = assemblyRegistrator;
             _asms = _assemblyRegistrator.GetConsideredAssemblies();
+            _binder = binder;
         }
 
         public void SetConsideredAssemblies(IEnumerable<Assembly> asms)
@@ -33,7 +35,8 @@ namespace BlazorForms.Flows.Engine
 
         public Type GetTypeByName(string typeName)
         {
-            var classType = _asms.SelectMany(a => a.GetTypes()).FirstOrDefault(t => t.FullName == typeName);
+            var classType = _binder.KnownTypesDict.ContainsKey(typeName) ? _binder.KnownTypesDict[typeName] :
+                _asms.SelectMany(a => a.GetTypes()).FirstOrDefault(t => t.FullName == typeName);
 
             if (classType == null)
             {

@@ -16,7 +16,7 @@ namespace BlazorForms.Rendering.Interfaces
 		Task LoadAsync(Type flowType);
 		Task RefreshCardsAsync(List<IFlowBoardCard> cards);
 		bool IsTransitionPossible(CardInfo<IFlowBoardCard> card, string column);
-		Task PerformTransition(CardInfo<IFlowBoardCard> card, string newState, Func<string, CardInfo<IFlowBoardCard>, Task<bool>> dialogCallback);
+		Task<bool> PerformTransition(CardInfo<IFlowBoardCard> card, string newState, Func<string, CardInfo<IFlowBoardCard>, Task<bool>> dialogCallback);
 		Task ReorderCards(string state, CardInfo<IFlowBoardCard> card, int newOrder);
 
 		string? GetStateForm(string state);

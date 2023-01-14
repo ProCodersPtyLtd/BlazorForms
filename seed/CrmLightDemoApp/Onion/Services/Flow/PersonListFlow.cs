@@ -55,10 +55,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
                 e.Property(p => p.Phone);
                 e.Property(p => p.Email);
 
-                e.ContextButton("Description", "person-edit/{0}");
-                //e.ContextButton("Edit", typeof(PersonEditFlow), FlowReferenceOperation.Edit);
-                //e.ContextButton("Delete", "person-delete/{0}");
-
+                e.ContextButton("View", "person-edit/{0}");
                 e.NavigationButton("Add", "person-edit/0");
             });
         }

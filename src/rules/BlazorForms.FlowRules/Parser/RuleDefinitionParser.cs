@@ -1,5 +1,6 @@
 ﻿using BlazorForms.FlowRules;
 using BlazorForms.Shared;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -23,7 +24,10 @@ namespace BlazorForms.FlowRules
 
         public IEnumerable<ExecutableRuleDetails> FindAllRules(IEnumerable<Assembly> assemblies)
         {
-            var types = assemblies.SelectMany(a => a.GetTypes()).Where(x => typeof(FlowRules.IFlowRule).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+            var binder = _serviceProvider.GetService<IKnownTypesBinder>();
+
+            var types = assemblies.SelectMany(a => a.GetTypes()).Union(binder.KnownTypes)
+                .Where(x => typeof(IFlowRule).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract && !x.ContainsGenericParameters);
 
             var rules = types.Select(t => new ExecutableRuleDetails
             {
@@ -40,6 +44,12 @@ namespace BlazorForms.FlowRules
         {
             // ToDo: add constructor parameters
             var ruleParameters = TypeHelper.GetConstructorParameters(_serviceProvider, t);
+
+            if (t.ContainsGenericParameters)
+            {
+                //t = t.MakeGenericType(t = t.GenericTypeParameters);
+            }
+
             return Activator.CreateInstance(t, ruleParameters) as IFlowRule;
         }
 

@@ -19,26 +19,27 @@ namespace MudBlazorUIDemo.Flows
 		public override void Define()
 		{
 			this
-				.Begin(OnStartAsync)
+				//.BeginState(OnStartAsync)
 				.SetEditForm<FormCardEdit>()
 				.State(Leads)
-					.Transition(new UserActionTransitionTrigger(), Contacted, OnAssigning)
+					// generic parameter example
+					.Transition<UserActionTransitionTrigger>(Contacted, OnContactedAsync)
 				.State(Contacted)
-					.Transition(new UserActionTransitionTrigger(), Leads)
+                    .Transition<UserActionTransitionTrigger>(Leads)
+					// supplying object example
 					.Transition(new UserActionTransitionTrigger(), MeetingScheduled)
 				.State(MeetingScheduled)
-					.Transition(new UserActionTransitionTrigger(), Contacted)
-					.Transition(new UserActionTransitionTrigger(), ProposalDelivered)
+                    .Transition<UserActionTransitionTrigger>(Contacted)
+                    .Transition<UserActionTransitionTrigger>(ProposalDelivered)
 				.State(ProposalDelivered)
-					.Begin(OnProposalDeliveredAsync)
-					.Transition(new UserActionTransitionTrigger(), MeetingScheduled)
-					//.Transition(new UserActionTransitionTrigger(), Won, OnCloseAsync)
+					//.BeginState(OnProposalDeliveredAsync)
+                    .Transition<UserActionTransitionTrigger>(MeetingScheduled)
 					.TransitionForm<FormCardCommit>(new UserActionTransitionTrigger(), Won, OnCloseAsync)
 				.State(Won)
-					.Transition(new UserActionTransitionTrigger(), Leads)
-					.Transition(new UserActionTransitionTrigger(), Contacted)
-					.Transition(new UserActionTransitionTrigger(), MeetingScheduled)
-					.Transition(new UserActionTransitionTrigger(), ProposalDelivered)
+                    .Transition<UserActionTransitionTrigger>(Leads)
+                    .Transition<UserActionTransitionTrigger>(Contacted)
+                    .Transition<UserActionTransitionTrigger>(MeetingScheduled)
+                    .Transition<UserActionTransitionTrigger>(ProposalDelivered)
 					.End();
 		}
 
@@ -51,7 +52,7 @@ namespace MudBlazorUIDemo.Flows
 			Model.CloseMessage = "Congrats with another win! Click [Ok] to close the card.";
 		}
 
-		private void OnAssigning()
+		private async Task OnContactedAsync()
 		{
 		}
 
@@ -64,6 +65,7 @@ namespace MudBlazorUIDemo.Flows
 	{
 		protected override void Define(FormEntityTypeBuilder<SampleStateModel> f)
 		{
+			f.Property(p => p.State).IsReadOnly();
 			f.Property(p => p.Title).IsRequired();
 			f.Property(p => p.Description).IsRequired();
 
