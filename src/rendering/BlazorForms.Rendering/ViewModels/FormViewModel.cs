@@ -212,20 +212,20 @@ namespace BlazorForms.Rendering
 
             var lists = FormData.Fields.Where(f => f?.DisplayProperties?.Visible == true && f.Binding.BindingType == FieldBindingType.List);
 
+            //Lists = FormData.Fields
+            //    .Where(f => f?.DisplayProperties?.Visible == true && lists.Any(x => x.Binding.TableBinding == f.Binding.TableBinding) &&
+            //        (f.Binding.BindingType == FieldBindingType.ListCard))
+            //    .GroupBy(g => g.Binding.TableBinding).ToDictionary(d => d.Key, d => d.ToList());
+
+            //var ListSets = FormData.Fields
+            //    .Where(f => f?.DisplayProperties?.Visible == true && lists.Any(x => x.Binding.TableBinding == f.Binding.TableBinding) &&
+            //        (f.Binding.BindingType == FieldBindingType.ListCard))
+            //    .GroupBy(g => g.Binding.TableBinding).ToDictionary(d => d.Key, d => FieldSetControlDetails.FindAllSets(d));
+
             Lists = FormData.Fields
                 .Where(f => f?.DisplayProperties?.Visible == true && lists.Any(x => x.Binding.TableBinding == f.Binding.TableBinding) &&
-                    (f.Binding.BindingType == FieldBindingType.ListCard))
-                .GroupBy(g => g.Binding.TableBinding).ToDictionary(d => d.Key, d => d.ToList());
-
-            var ListSets = FormData.Fields
-                .Where(f => f?.DisplayProperties?.Visible == true && lists.Any(x => x.Binding.TableBinding == f.Binding.TableBinding) &&
-                    (f.Binding.BindingType == FieldBindingType.ListCard))
-                .GroupBy(g => g.Binding.TableBinding).ToDictionary(d => d.Key, d => FieldSetControlDetails.FindAllSets(d));
-
-            //Validations = new List<RuleExecutionResult>();
-
-            // We already executed ExecuteFormLoadRules which triggers the same rules (FormRuleTriggers.Loaded)
-            //await TriggerRules(form.ProcessTaskTypeFullName, null, FormRuleTriggers.Loaded);
+                    (f.Binding.BindingType == FieldBindingType.ListCard) && f.FieldSetGroup != null)
+                .GroupBy(g => g.Binding.TableBinding).ToDictionary(d => d.Key, d => FieldControlDetails.FindAllSets(d));
         }
 
         public static RuleExecutionRequest GetRuleRequest(string formName, FieldBinding modelBinding, FormRuleTriggers? trigger, int rowIndex,

@@ -48,42 +48,24 @@
     }
 </style>
 
-@if (Columns != null)
+@if (Columns != null && GetListData() != null)
 {
-    <table mat-table class="table repeater-table">
-        @*Render header*@
-
-        @*<tr class="jsgrid-grid-header">
-            @foreach (var col in Columns)
-            {
-                @if (col?.ControlType == "Repeater" || col?.DisplayProperties?.Visible == false)
+    <MudPaper Width="100%" Elevation="0">
+        <MudList>
+            <MudListItem >
+                @for (int i = 0; i < ListData.Count(); i++)
                 {
-                    continue;
+                    var row = i;
+
+                        @foreach (var col in Columns)
+                        {
+                            <ListCardControl ModelChanged="@ModelChanged" Field="@col" Item="ListData[i]" RowIndex="@row" />
+                        }
+
                 }
-                <th>@col?.DisplayProperties?.Caption</th>
-            }
-        </tr>*@
-
-        @*Render Body*@
-        @if (GetListData() != null)
-        {
-            @for (int i = 0; i < ListData.Count(); i++)
-            {
-                var row = i;
-                <tr class="jsgrid-row-item">
-
-                    @foreach (var col in Columns)
-                    {
-                        <td>
-                            <SimpleControl ModelChanged="@ModelChanged" ModelBinding="" Field="@GetField(row, col)" RowIndex="@row" />
-                        </td>
-                    }
-
-                </tr>
-            }
-        }
-    </table>
-
+            </MudListItem>
+        </MudList>
+    </MudPaper>
 }
 
 @code {
@@ -92,8 +74,10 @@
 
     [Parameter]
     public FieldControlDetails Table { get; set; }
+
     [Parameter]
     public string Caption { get; set; }
+    
     [Parameter]
     public IEnumerable<FieldControlDetails> Columns { get; set; }
 
@@ -145,7 +129,7 @@
         }
     }
 
-    private IEnumerable<object> ListData;
+    private List<object> ListData;
 
     private IEnumerable<object> GetListData()
     {
@@ -154,111 +138,8 @@
             return null;
         }
 
-        ListData = ViewModel.FieldGetItemsValue(ViewModel.ModelUntyped, Table.Binding.TableBinding);
+        ListData = ViewModel.FieldGetItemsValue(ViewModel.ModelUntyped, Table.Binding.TableBinding).ToList();
         return ListData;
-    }
-
-    private FieldControlDetails GetField(int row, FieldControlDetails col)
-    {
-        var field = ViewModel.GetRowField(col, row);
-
-        if (RepeaterParameters.IsLineEditing)
-        {
-            field.DisplayProperties.Disabled = row == RepeaterParameters.CurrentRow ? false : true;
-        }
-        return field;
-    }
-
-    private async Task AddClick()
-    {
-        ViewModel.SetInputChanged();
-
-        var itemType = ListData.GetType().GetGenericArguments()[0];
-        var newItem = Activator.CreateInstance(itemType);
-        var list = ListData as System.Collections.IList;
-        list.Add(newItem);
-        RepeaterParameters.CurrentRow = list.Count - 1;
-        _newRow = (int)RepeaterParameters.CurrentRow;
-
-        // register fields for new row
-        foreach (var col in Columns)
-        {
-            GetField(list.Count - 1, col);
-        }
-
-        // trigger rule after rendering (new fields should be created by GetField())
-        var task = await ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, Table.Binding, FormRuleTriggers.ItemAdded, list.Count - 1);
-
-        StateHasChanged();
-    }
-
-    private async Task<bool> CheckConfirmation(ConfirmType confirmType)
-    {
-        var list = ViewModel.GetAvailableConfirmations(confirmType);
-
-        if (list.Any())
-        {
-            var details = list.First();
-            var options = new DialogOptions { CloseOnEscapeKey = true };
-
-            var parameters = new DialogParameters 
-            { 
-                ["Message"] = details.Message,
-                ["CancelName"] = details.CancelName,
-                ["OkName"] = details.OkName,
-            };
-
-            var dialog = await DialogService.ShowAsync<FormConfirmationDialog>(null, parameters, options);
-            var result = await dialog.Result;
-
-            if (result.Cancelled)
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private async Task DelClick(MouseEventArgs args, int rowIndex)
-    {
-        if (!await CheckConfirmation(ConfirmType.DeleteItem))
-        {
-            return;    
-        }
-
-        ViewModel.SetInputChanged();
-
-        _rowIndex = rowIndex;
-        _isModelChanged = _newRow > -1 ? false : true;
-        _newRow = -1;
-
-        // trigger ItemDeleting rule
-        var task = await ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, Table.Binding, FormRuleTriggers.ItemDeleting, rowIndex);
-
-        var list = ListData as System.Collections.IList;
-        list.RemoveAt(_rowIndex);
-        RepeaterParameters.CurrentRow = null;
-
-        // refresh row fields
-        ViewModel.ClearRowFields();
-
-        for (int i = 0; i < list.Count; i++)
-        {
-            foreach (var col in Columns)
-            {
-                GetField(i, col);
-            }
-        }
-
-        StateHasChanged();
-    }
-
-    private async Task EditClick(MouseEventArgs args, int rowIndex)
-    {
-        RepeaterParameters.CurrentRow = rowIndex;
-        var task = await ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, Table.Binding, FormRuleTriggers.ItemChanged, rowIndex);
-        StateHasChanged();
     }
 
     public async Task ShowPopup()
