@@ -217,6 +217,8 @@ namespace BlazorForms.Forms
                     Group = field.Group,
                     Caption = field.Label ?? "",
                     ControlType = field.ControlType?.Name ?? field.ControlTypeName,
+                    AddDialogFlow = field.AddDialogFlow,
+                    FieldSetGroup = field.FieldSetGroup,
 
                     // new binding concept
                     Binding = field.Binding,

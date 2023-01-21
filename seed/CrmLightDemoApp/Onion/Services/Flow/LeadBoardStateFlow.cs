@@ -1,6 +1,7 @@
 ﻿using BlazorForms.FlowRules;
 using BlazorForms.Flows;
 using BlazorForms.Flows.Definitions;
+using BlazorForms.Flows.Engine.Fluent;
 using BlazorForms.Forms;
 using BlazorForms.Rendering.Model;
 using BlazorForms.Shared;
@@ -80,24 +81,106 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 
 		public static void MainSection(FormEntityTypeBuilder<LeadBoardCardModel> f)
 		{
-            //f.Confirm(ConfirmType.ChangesWillBeLost, "If you leave before saving, your changes will be lost.", ConfirmButtons.OkCancel);
+			//f.Confirm(ConfirmType.ChangesWillBeLost, "If you leave before saving, your changes will be lost.", ConfirmButtons.OkCancel);
+			f.Rule(typeof(FormLeadCard_RefreshSources), FormRuleTriggers.Loaded);
             f.Property(p => p.Title).IsRequired();
             f.Property(p => p.Description);
-            f.Property(p => p.SalesPersonId).DropdownSearch(p => p.AllPersons, m => m.Id, m => m.FullName).Label("Sales person").IsRequired();
-            f.Property(p => p.LeadSourceTypeId).Dropdown(p => p.AllLeadSources, m => m.Id, m => m.Name).Label("Lead source");
-            f.Property(p => p.RelatedPersonId).DropdownSearch(p => p.AllPersons, m => m.Id, m => m.FullName).Label("Lead Contact");
-            f.Property(p => p.RelatedCompanyId).DropdownSearch(p => p.AllCompanies, m => m.Id, m => m.Name).Label("Company");
-            f.Property(p => p.Phone);
+
+            f.Property(p => p.SalesPersonId).DropdownSearch(p => p.AllPersons, m => m.Id, m => m.FullName).Label("Sales person").IsRequired()
+                .NewItemDialog(typeof(PersonDialogFlow));
+            
+			f.Property(p => p.LeadSourceTypeId).Dropdown(p => p.AllLeadSources, m => m.Id, m => m.Name).Label("Lead source");
+
+			f.Property(p => p.RelatedPersonId).DropdownSearch(p => p.AllPersons, m => m.Id, m => m.FullName).Label("Lead Contact")
+				.NewItemDialog(typeof(PersonDialogFlow));
+
+            f.Property(p => p.RelatedCompanyId).DropdownSearch(p => p.AllCompanies, m => m.Id, m => m.Name).Label("Company")
+                .NewItemDialog(typeof(CompanyDialogFlow));
+            
+			f.Property(p => p.Phone);
             f.Property(p => p.Email);
             f.Property(p => p.ContactDetails).Label("Other contact info");
             f.Property(p => p.Comments).Control(ControlType.TextArea);
+
+            f.List(p => p.CardHistory, e => 
+            {
+                e.DisplayName = "History";
+                e.Card(p => p.TitleMarkup, p => p.TextMarkup, p => p.AvatarMarkup);
+            });
 
             f.Button(ButtonActionTypes.Cancel, "Cancel");
             f.Button(ButtonActionTypes.Submit, "Save");
         }
 	}
 
-	public class FormContactedCardEdit : FormEditBase<LeadBoardCardModel>
+    public class PersonDialogFlow : DialogFlowBase<PersonModel, FormPersonEdit>
+    {
+        private readonly IPersonRepository _personRepository;
+
+        public PersonDialogFlow(IPersonRepository personRepository)
+		{
+			_personRepository = personRepository;
+		}
+
+        public override async Task LoadDataAsync()
+        {
+			var fullName = Params["Name"];
+
+			if (fullName != null)
+			{
+				var split = fullName.Split(' ');
+				Model.FirstName = split[0];
+
+				if (split.Count() > 1)
+				{ 
+					Model.LastName = split[1];
+				}
+			}
+        }
+
+        public override async Task SaveDataAsync()
+        {
+			// we need full name for drop down option
+			Model.FullName = $"{Model.FirstName} {Model.LastName}";
+			Model.Id = await _personRepository.CreateAsync(Model);
+        }
+    }
+
+	public class CompanyDialogFlow : DialogFlowBase<CompanyModel, FormCompanyDialogEdit>
+    {
+        private readonly ICompanyRepository _companyRepository;
+
+        public CompanyDialogFlow(ICompanyRepository companyRepository)
+		{
+            _companyRepository = companyRepository;
+		}
+
+        public override async Task LoadDataAsync()
+        {
+			Model.Name = Params["Name"];
+        }
+
+        public override async Task SaveDataAsync()
+        {
+			Model.Id = await _companyRepository.CreateAsync(Model);
+        }
+    }
+
+    public class FormCompanyDialogEdit : FormEditBase<CompanyModel>
+    {
+        protected override void Define(FormEntityTypeBuilder<CompanyModel> f)
+        {
+            f.DisplayName = "Add new company";
+            f.Property(p => p.Name).Label("Name").IsRequired();
+            f.Property(p => p.RegistrationNumber).Label("Reg. No.");
+            f.Property(p => p.EstablishedDate).Label("Established date");
+            f.Button(ButtonActionTypes.Cancel, "Cancel");
+            f.Button(ButtonActionTypes.Submit, "Save");
+        }
+    }
+
+
+    public class FormContactedCardEdit : FormEditBase<LeadBoardCardModel>
 	{
 		protected override void Define(FormEntityTypeBuilder<LeadBoardCardModel> f)
 		{
@@ -187,6 +270,40 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             Result.Fields[SingleField(m => m.Company.Name)].Visible = model.IsNewCompany;
             Result.Fields[SingleField(m => m.Company.RegistrationNumber)].Visible = model.IsNewCompany;
             Result.Fields[SingleField(m => m.Company.EstablishedDate)].Visible = model.IsNewCompany;
+        }
+    }
+    public class FormLeadCard_RefreshSources : FlowRuleAsyncBase<LeadBoardCardModel>
+    {
+		private readonly ICompanyRepository _companyRepository;
+		private readonly IPersonRepository _personRepository;
+
+        public override string RuleCode => "BRD-4";
+
+		public FormLeadCard_RefreshSources(ICompanyRepository companyRepository, IPersonRepository personRepository)
+		{
+			_companyRepository = companyRepository;
+			_personRepository = personRepository;			
+		}
+
+        public override async Task Execute(LeadBoardCardModel model)
+        {
+			// refresh drop down sources
+			model.AllPersons = (await _personRepository.GetAllAsync())
+                .Select(x =>
+                {
+                    var item = new PersonModel();
+                    x.ReflectionCopyTo(item);
+                    item.FullName = $"{x.FirstName} {x.LastName}";
+                    return item;
+                }).OrderBy(x => x.FullName).ToList();
+
+			model.AllCompanies = (await _companyRepository.GetAllAsync())
+                .Select(x =>
+                {
+                    var item = new CompanyModel();
+                    x.ReflectionCopyTo(item);
+                    return item;
+                }).OrderBy(x => x.Name).ToList();
         }
     }
 }

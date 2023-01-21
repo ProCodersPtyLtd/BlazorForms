@@ -19,6 +19,7 @@ namespace BlazorForms.Forms
         public int Order { get; set; }
         public bool Button { get; set; }
         public string Group { get; set; }
+        public string FieldSetGroup { get; set; }
         public List<ConfirmationDetails> Confirmations { get; private set; } = new List<ConfirmationDetails>();
 
         // Select

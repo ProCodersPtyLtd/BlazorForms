@@ -31,6 +31,7 @@ namespace BlazorForms.Rendering.Interfaces
         IEnumerable<IGrouping<string, FieldControlDetails>>? FieldsGrouped { get; }
         Dictionary<string, List<FieldControlDetails>>? Tables { get; }
         Dictionary<string, List<FieldControlDetails>>? Repeaters { get; }
+        Dictionary<string, List<FieldControlDetails>>? Lists { get; }
         IEnumerable<RuleExecutionResult>? Validations { get; set; }
         IJsonPathNavigator? PathNavi { get; }
         bool FormAccessDenied { get; }

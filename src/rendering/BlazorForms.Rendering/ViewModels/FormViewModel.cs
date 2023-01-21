@@ -58,6 +58,7 @@ namespace BlazorForms.Rendering
         public IEnumerable<IGrouping<string, FieldControlDetails>>? FieldsGrouped { get; private set; }
         public Dictionary<string, List<FieldControlDetails>>? Tables { get; private set; }
         public Dictionary<string, List<FieldControlDetails>>? Repeaters { get; private set; }
+        public Dictionary<string, List<FieldControlDetails>>? Lists { get; private set; } = new();
         public IEnumerable<RuleExecutionResult>? Validations { get; set; }
         public IJsonPathNavigator? PathNavi { get; private set; }
         public bool FormAccessDenied { get; private set; }
@@ -202,10 +203,24 @@ namespace BlazorForms.Rendering
             Tables = FormData.Fields.Where(f => f.Binding.BindingType == FieldBindingType.TableColumn || f.Binding.BindingType == FieldBindingType.TableColumnSingleSelect)
                 .GroupBy(g => g.Binding.TableBinding).ToDictionary(d => d.Key, d => d.ToList());
 
+            var repeaters = FormData.Fields.Where(f => f?.DisplayProperties?.Visible == true && f.Binding.BindingType == FieldBindingType.Repeater);
+
             Repeaters = FormData.Fields
-                .Where(f => f?.DisplayProperties?.Visible == true &&
+                .Where(f => f?.DisplayProperties?.Visible == true && repeaters.Any(x => x.Binding.TableBinding == f.Binding.TableBinding) &&
                     (f.Binding.BindingType == FieldBindingType.TableColumn || f.Binding.BindingType == FieldBindingType.TableColumnSingleSelect))
                 .GroupBy(g => g.Binding.TableBinding).ToDictionary(d => d.Key, d => d.ToList());
+
+            var lists = FormData.Fields.Where(f => f?.DisplayProperties?.Visible == true && f.Binding.BindingType == FieldBindingType.List);
+
+            Lists = FormData.Fields
+                .Where(f => f?.DisplayProperties?.Visible == true && lists.Any(x => x.Binding.TableBinding == f.Binding.TableBinding) &&
+                    (f.Binding.BindingType == FieldBindingType.ListCard))
+                .GroupBy(g => g.Binding.TableBinding).ToDictionary(d => d.Key, d => d.ToList());
+
+            var ListSets = FormData.Fields
+                .Where(f => f?.DisplayProperties?.Visible == true && lists.Any(x => x.Binding.TableBinding == f.Binding.TableBinding) &&
+                    (f.Binding.BindingType == FieldBindingType.ListCard))
+                .GroupBy(g => g.Binding.TableBinding).ToDictionary(d => d.Key, d => FieldSetControlDetails.FindAllSets(d));
 
             //Validations = new List<RuleExecutionResult>();
 

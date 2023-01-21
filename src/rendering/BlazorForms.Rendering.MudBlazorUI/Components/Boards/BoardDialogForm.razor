@@ -25,6 +25,7 @@
 </style>
 
 <CascadingValue Value=FormOptions>
+<CascadingValue Value="@EditFormOptions">
 
 @if (DialogViewModel.FormData != null)
 {
@@ -67,12 +68,13 @@
     </div>
 }
 </CascadingValue>
+</CascadingValue>
 
 @code {
     [Parameter]
-    public EditFormOptions Options { get; set; } = new();
+    public EditFormOptions EditFormOptions { get; set; } = new();
 
-    protected FormOptions FormOptions { get { return Options; } }
+    protected FormOptions FormOptions { get { return EditFormOptions; } }
 
     [CascadingParameter] 
     MudDialogInstance MudDialog { get; set; }

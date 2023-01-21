@@ -41,6 +41,12 @@ namespace MudBlazorUIDemo.Flows
             f.Property(p => p.SearchedId).DropdownSearch(e => e.AllPersons, m => m.Id, m => m.FullName).IsRequired().Label("Person Search");
             f.Property(p => p.SelectedFullName).EditWithOptions(e => e.AllPersons, m => m.FullName).IsRequired().Label("Person Edit");
 
+            f.List(p => p.AllPersons, e => 
+            {
+                e.DisplayName = "History";
+                e.Card(p => p.FirstName, p => p.LastName);
+            });
+
             f.Button(ButtonActionTypes.Cancel, "Cancel");
             f.Button(ButtonActionTypes.Submit, "Save");
         }

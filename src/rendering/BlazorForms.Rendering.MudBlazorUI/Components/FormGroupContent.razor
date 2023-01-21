@@ -35,6 +35,7 @@
         {
             @if (field.ControlType == null || field.DisplayProperties?.Visible == false 
                 || field.Binding.BindingType == BlazorForms.Shared.FieldBindingType.TableColumn
+                || field.Binding.BindingType == BlazorForms.Shared.FieldBindingType.ListCard
                 || field.Binding.BindingType == BlazorForms.Shared.FieldBindingType.TableColumnSingleSelect
                 || field.Binding.BindingType == BlazorForms.Shared.FieldBindingType.TableColumnContextMenu)
             {
@@ -74,6 +75,18 @@
 
                 <MudItem xs="12">
                     <RepeaterControl Table="field" Columns="@ViewModel.Repeaters[field.Binding.TableBinding]" Caption="@field.DisplayProperties.Caption"
+                                     Validations="@GetValidations(field.Binding.ResolvedBinding)" ModelValueChanged="@ModelChanged" />
+                </MudItem>
+                continue;
+            }
+            else if (field.ControlType == "List")
+            {
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle2" class="pz-subtitle2">@field.DisplayProperties.Caption</MudText>
+                </MudItem>
+
+                <MudItem xs="12">
+                    <ListControl Table="field" Columns="@ViewModel.Lists[field.Binding.TableBinding]" Caption="@field.DisplayProperties.Caption"
                                      Validations="@GetValidations(field.Binding.ResolvedBinding)" ModelValueChanged="@ModelChanged" />
                 </MudItem>
                 continue;

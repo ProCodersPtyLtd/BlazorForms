@@ -51,9 +51,15 @@ namespace CrmLightDemoApp.Onion.Services
             return await _leadSourceTypeRepository.GetAllAsync();
 		}
 
-        private async Task<List<Company>> GetAllCompanies()
+        private async Task<List<CompanyModel>> GetAllCompanies()
         {
-            return await _companyRepository.GetAllAsync();
+            return (await _companyRepository.GetAllAsync())
+                .Select(x =>
+                {
+                    var item = new CompanyModel();
+                    x.ReflectionCopyTo(item);
+                    return item;
+                }).OrderBy(x => x.Name).ToList();
         }
 
         private async Task<List<PersonModel>> GetAllPersons()

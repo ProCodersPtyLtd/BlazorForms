@@ -153,6 +153,13 @@ namespace BlazorForms.Forms
             return this;
         }
 
+        //public virtual FieldBuilder<TProperty, TEntity> Card<TKey, TKey2, TKey3>(Expression<Func<TEntity, TKey>> avatar,
+        //    Expression<Func<TEntity, TKey2>> title, Expression<Func<TEntity, TKey3>> body)
+        //{
+        //    _field.ControlTypeName = ControlType.Card.ToString(); ;
+        //    return this;
+        //}
+
         public virtual FieldBuilder<TProperty, TEntity> Dropdown<TKey, TKey2, TKey3>(Expression<Func<TEntity, IEnumerable<TKey>>> items,
             Expression<Func<TKey, TKey2>> code, Expression<Func<TKey, TKey3>> name)
         {
@@ -183,6 +190,12 @@ namespace BlazorForms.Forms
             _field.SelectNameProperty = name.Body.ToString().ReplaceLambdaVar();
 
             return this;
+        }
+
+        public virtual FieldBuilder<TProperty, TEntity> NewItemDialog(Type flowType)
+        {
+            _field.AddDialogFlow = flowType.FullName;
+            return this; 
         }
 
         // old drop down

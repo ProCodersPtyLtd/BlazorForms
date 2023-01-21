@@ -86,7 +86,8 @@ namespace BlazorForms.Shared
             {
                 return FieldBindingPathType.SingleSelect;
             }
-            else if (BindingType == FieldBindingType.TableColumn || BindingType == FieldBindingType.TableColumnSingleSelect)
+            else if (BindingType == FieldBindingType.TableColumn || BindingType == FieldBindingType.TableColumnSingleSelect 
+                || BindingType == FieldBindingType.ListCard)
             {
                 return FieldBindingPathType.Column;
             }

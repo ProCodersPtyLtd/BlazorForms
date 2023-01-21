@@ -24,6 +24,8 @@ namespace BlazorForms.Shared
         ListFormContextMenuItem,
         FlowReferenceButtonsItem,
         Form,
+        List,
+        ListCard,
     }
 
     public enum FieldBindingPathType

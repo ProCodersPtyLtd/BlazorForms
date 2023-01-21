@@ -47,6 +47,8 @@
 
 <div class="d-flex flex-column mud-width-full mud-height-full">
 
+	
+
 	<MudDropContainer T="CardInfo<IFlowBoardCard>" Items=@_vm.Cards @ref="_container" ItemsSelector="@((item,dropzone) => item.Item.State == dropzone)"
 					  ItemDropped="async (a) => await ItemUpdated(a)" CanDrop=@CanDrop Class="d-flex flex-wrap flex-grow-1">
 		
@@ -127,6 +129,7 @@
 			</MudListItem>
 		</ItemRenderer>
 	</MudDropContainer>
+
 </div>
 
 @code {
@@ -298,7 +301,7 @@
 			dialogParameters["FormSubmitted"] = new EventCallback<BoardDialogSubmittedArgs>(this, DialogFormSubmitted);
 			dialogParameters["AllowAnonymousAccess"] = true;
 			dialogParameters["AllowFlowStorage"] = false;
-			dialogParameters["Options"] = EditFormOptions;
+			dialogParameters["EditFormOptions"] = EditFormOptions;
 			DialogService.Show<BoardDialogForm>(null, dialogParameters, options);
 		}
 	}

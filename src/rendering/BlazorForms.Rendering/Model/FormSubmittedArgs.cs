@@ -9,5 +9,6 @@ namespace BlazorForms.Rendering.State
     public class FormSubmittedArgs
     {
         public IFlowContext Context { get; set; }
+        public IFlowModel Model { get; set; }
     }
 }

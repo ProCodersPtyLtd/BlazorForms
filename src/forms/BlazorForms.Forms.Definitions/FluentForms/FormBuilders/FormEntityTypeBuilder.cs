@@ -60,6 +60,7 @@ namespace BlazorForms.Forms
             return result;
         }
 
+        // ToDo: check if need to add RepeaterParameters parameters = null
         public virtual FormRepeaterTypeBuilder<TEntity, TKey> Repeater<TKey>(Expression<Func<TEntity, IEnumerable<TKey>>> items, 
             [NotNullAttribute] Action<FormRepeaterTypeBuilder<TEntity, TKey>> buildAction)
             where TKey : class
@@ -108,6 +109,31 @@ namespace BlazorForms.Forms
             buildAction.Invoke(table);
 
             return table;
+        }
+
+        public virtual FormRepeaterTypeBuilder<TEntity, TKey> List<TKey>(Expression<Func<TEntity, IEnumerable<TKey>>> items,
+            [NotNullAttribute] Action<FormRepeaterTypeBuilder<TEntity, TKey>> buildAction)
+            where TKey : class
+        {
+            _propertyOrder++;
+            var bindingProperty = items.Body.ToString().ReplaceLambdaVar();
+            CheckFieldExists(typeof(TEntity), bindingProperty);
+            var resultField = _fields[bindingProperty];
+            resultField.TableBindingProperty = bindingProperty;
+            resultField.BindingProperty = null;
+            resultField.Order = _propertyOrder;
+            resultField.BindingType = FieldBindingType.List;
+            resultField.BindingControlType = typeof(TableBindingControlType).Name;
+            //resultField.ControlType = typeof(Table);
+            resultField.ControlTypeName = "List";
+
+            var builder = new FormRepeaterTypeBuilder<TEntity, TKey>(items.Body, resultField);
+            builder.Group = _currentGroup;
+            RepeaterBuilders.Add(builder);
+
+            buildAction.Invoke(builder);
+
+            return builder;
         }
 
         private void CheckFieldExists(Type propertyType, string bindingProperty)

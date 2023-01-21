@@ -27,8 +27,9 @@ namespace CrmLightDemoApp.Onion.Services.Flow
         public override void Define()
         {
             this
+                .Begin()
                 .If(() => _flowContext.Params.ItemKeyAboveZero)
-                   .Begin(LoadData)
+                   .Next(LoadData)
                    .NextForm(typeof(FormCompanyView))
                 .EndIf()
                 .If(() => _flowContext.ExecutionResult.FormLastAction == ModelBinding.DeleteButtonBinding)
