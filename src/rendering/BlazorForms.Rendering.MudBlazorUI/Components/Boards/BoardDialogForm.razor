@@ -30,14 +30,14 @@
 @if (DialogViewModel.FormData != null)
 {
     <div @onkeydown="@KeyPress">
-        <MudDialog @onkeydown="@KeyPress" DefaultFocus="DefaultFocus.LastChild">
+        <MudDialog @onkeydown="@KeyPress" DefaultFocus="DefaultFocus.LastChild" S>
         <TitleContent>@DialogViewModel.FormData.DisplayName</TitleContent>
         <DialogContent>
-            <MudContainer Style="max-height: 680px; overflow-y: scroll">
+            @*<MudContainer Style="max-height: 680px; overflow-y: scroll; overflow-x: hidden;">*@
                 <CascadingValue Value="@(DialogViewModel as IFormViewModel)">
                     <FormContent ModelValueChanged=@ModelActionChanged />
                 </CascadingValue>
-            </MudContainer>
+            @*</MudContainer>*@
         </DialogContent>
         <DialogActions>
             <div class="d-flex flex-row flex-grow-1 gap-2 justify-end pz-dialog-content">

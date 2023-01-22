@@ -148,8 +148,8 @@
 	[Parameter]
 	public BoardFormOptions Options { get; set; } = new();
 
-    [Parameter]
-    public EditFormOptions EditFormOptions { get; set; } = new();
+	[Parameter]
+	public EditFormOptions EditFormOptions { get; set; } = new();
 
 	[Parameter]
 	public List<TItem> Items { get; set; }
@@ -285,27 +285,6 @@
 
 	private bool _isNew;
 
-	private async Task ShowDialog(CardInfo<IFlowBoardCard> card, bool isNew = false)
-	{
-		_isNew = isNew;
-		var formType = _vm.GetStateForm(card.Item.State);
-
-		if (formType != null)
-		{
-			await DialogVM.LoadDialog(formType, card);
-
-			var options = new DialogOptions { CloseOnEscapeKey = true };
-			var dialogParameters = new DialogParameters();
-			dialogParameters["DialogViewModel"] = DialogVM;
-			dialogParameters["IsNew"] = isNew;
-			dialogParameters["FormSubmitted"] = new EventCallback<BoardDialogSubmittedArgs>(this, DialogFormSubmitted);
-			dialogParameters["AllowAnonymousAccess"] = true;
-			dialogParameters["AllowFlowStorage"] = false;
-			dialogParameters["EditFormOptions"] = EditFormOptions;
-			DialogService.Show<BoardDialogForm>(null, dialogParameters, options);
-		}
-	}
-
 	private async Task Click(CardInfo<IFlowBoardCard> card)
 	{
 		await ShowDialog(card);
@@ -360,17 +339,38 @@
 		//_serverData.UpdateOrder(dropItem, item => item.Order, indexOffset);
 	}
 
+	private async Task ShowDialog(CardInfo<IFlowBoardCard> card, bool isNew = false)
+	{
+		_isNew = isNew;
+		var formType = _vm.GetStateForm(card.Item.State);
+
+		if (formType != null)
+		{
+			await DialogVM.LoadDialog(formType, card);
+
+			var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraExtraLarge };
+			var dialogParameters = new DialogParameters();
+			dialogParameters["DialogViewModel"] = DialogVM;
+			dialogParameters["IsNew"] = isNew;
+			dialogParameters["FormSubmitted"] = new EventCallback<BoardDialogSubmittedArgs>(this, DialogFormSubmitted);
+			dialogParameters["AllowAnonymousAccess"] = true;
+			dialogParameters["AllowFlowStorage"] = false;
+			dialogParameters["EditFormOptions"] = EditFormOptions;
+			await DialogService.ShowAsync<BoardDialogForm>(null, dialogParameters, options);
+		}
+	}
+
 	private async Task<bool> ShowConfirmDialog(string formType, CardInfo<IFlowBoardCard> card)
 	{
 		await DialogVM.LoadDialog(formType, card);
 
-		var options = new DialogOptions { CloseOnEscapeKey = true };
+		var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraExtraLarge };
 		var dialogParameters = new DialogParameters();
 		dialogParameters["DialogViewModel"] = DialogVM;
 		//dialogParameters["FormSubmitted"] = new EventCallback<BoardDialogSubmittedArgs>(this, DialogFormSubmitted);
 		dialogParameters["AllowAnonymousAccess"] = true;
 		dialogParameters["AllowFlowStorage"] = false;
-		dialogParameters["Options"] = EditFormOptions;
+		dialogParameters["EditFormOptions"] = EditFormOptions;
 
 		var dialog = await DialogService.ShowAsync<BoardDialogForm>(null, dialogParameters, options);
 		var result = await dialog.Result;

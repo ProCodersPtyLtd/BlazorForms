@@ -75,13 +75,19 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 		protected override void Define(FormEntityTypeBuilder<LeadBoardCardModel> f)
 		{
 			f.DisplayName = "Lead Card";
+
+            f.Group("left");
             f.Property(p => p.State).IsReadOnly();
 			MainSection(f);
-        }
+
+       }
 
 		public static void MainSection(FormEntityTypeBuilder<LeadBoardCardModel> f)
 		{
 			//f.Confirm(ConfirmType.ChangesWillBeLost, "If you leave before saving, your changes will be lost.", ConfirmButtons.OkCancel);
+			f.Layout = FormLayout.TwoColumns;
+			f.Group("left");
+
 			f.Rule(typeof(FormLeadCard_RefreshSources), FormRuleTriggers.Loaded);
             f.Property(p => p.Title).IsRequired();
             f.Property(p => p.Description);
@@ -100,6 +106,8 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 			f.Property(p => p.Phone);
             f.Property(p => p.Email);
             f.Property(p => p.ContactDetails).Label("Other contact info");
+
+            f.Group("right");
             f.Property(p => p.Comments).Control(ControlType.TextArea);
 
             f.List(p => p.CardHistory, e => 
@@ -185,7 +193,9 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 		protected override void Define(FormEntityTypeBuilder<LeadBoardCardModel> f)
 		{
 			f.DisplayName = "Lead Contacted Card";
-			f.Property(p => p.State).IsReadOnly();
+            f.Group("left");
+
+            f.Property(p => p.State).IsReadOnly();
 			f.Property(p => p.FollowUpDate).Label("Follow up date");
 			f.Property(p => p.FollowUpDetails).Label("Follow up details");
 			FormLeadCardEdit.MainSection(f);
@@ -276,14 +286,17 @@ namespace CrmLightDemoApp.Onion.Services.Flow
     {
 		private readonly ICompanyRepository _companyRepository;
 		private readonly IPersonRepository _personRepository;
+        private readonly IBoardCardHistoryRepository _boardCardHistoryRepository;
 
         public override string RuleCode => "BRD-4";
 
-		public FormLeadCard_RefreshSources(ICompanyRepository companyRepository, IPersonRepository personRepository)
+		public FormLeadCard_RefreshSources(ICompanyRepository companyRepository, IPersonRepository personRepository,
+            IBoardCardHistoryRepository boardCardHistoryRepository)
 		{
 			_companyRepository = companyRepository;
-			_personRepository = personRepository;			
-		}
+			_personRepository = personRepository;
+            _boardCardHistoryRepository = boardCardHistoryRepository;
+        }
 
         public override async Task Execute(LeadBoardCardModel model)
         {
@@ -304,6 +317,18 @@ namespace CrmLightDemoApp.Onion.Services.Flow
                     x.ReflectionCopyTo(item);
                     return item;
                 }).OrderBy(x => x.Name).ToList();
+
+            // refresh comments
+            if (model.Id > 0)
+            {
+                model.CardHistory = (await _boardCardHistoryRepository.GetListByCardIdAsync(model.Id))
+                    .Select(x =>
+                    {
+                        var item = new CardHistoryModel();
+                        x.ReflectionCopyTo(item);
+                        return item;
+                    }).ToList();
+            }
         }
     }
 }

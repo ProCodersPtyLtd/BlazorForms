@@ -8,13 +8,18 @@
         display: grid;
         grid-template-columns: repeat(10, 80px);
         grid-template-rows: repeat(4, 160px);
-        grid-gap: 16px;
+        grid-gap: 14px;
     }
 
     .grid-item {
         min-width: 80px;
         min-height: 160px;
         overflow-wrap: anywhere;
+    }
+
+    .pz-dialog-form {
+        padding: 0;
+        max-width: 680px;
     }
 </style>
 
@@ -28,7 +33,7 @@ else
     @if (ViewModel.LayoutParams != null)
     {
         @*<MudContainer Style="max-height: 680px; overflow-y: scroll"></MudContainer>*@
-        <div class="grid-layout" style="max-height: 680px; overflow-y: scroll">
+        <div class="grid-layout" style="max-height: 680px; overflow-y: scroll; overflow-x: hidden;">
             @foreach (var element in ViewModel.LayoutParams.Elements!)
             {
                 <div data-grid="@element" class="grid-item" style="grid-area: @GetGridAreaStyle(element);">
@@ -41,7 +46,7 @@ else
     }
     else
     {
-        <div id="pz-form" style="padding:0">
+        <div class="pz-dialog-form">
             @foreach (var group in ViewModel.FieldsGrouped)
             {
                 <div id="pz-group-@group.Key" class="mat-layout-grid-cell mat-layout-grid-cell-span-@CellSpan">

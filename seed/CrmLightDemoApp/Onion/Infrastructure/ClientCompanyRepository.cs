@@ -58,37 +58,6 @@ namespace CrmLightDemoApp.Onion.Infrastructure
             return new ContextQuery<ClientCompanyDetails>(cq._context, q);
         }
 
-        //public async Task<List<ClientCompanyDetails>> GetAllDetailsAsync(int companyId)
-        //{
-        //    var result = new List<ClientCompanyDetails>();
-        //    var list = await GetAllAsync();
-        //    var companyIds = list.Select(x => x.CompanyId).Distinct().ToList();
-        //    var companies = (await _companyRepository.GetListByIdsAsync(companyIds)).ToDictionary(x => x.Id, x => x);
-        //    var personIds = list.Where(x => x.ClientManagerId > 0).Select(x => x.ClientManagerId.Value).ToList();
-        //    personIds = personIds.Union(list.Where(x => x.AlternativeClientManagerId > 0).Select(x => x.AlternativeClientManagerId.Value)).Distinct().ToList();
-            
-        //    var persons = (await _personRepository.GetListByIdsAsync(personIds))
-        //        .Select(x => 
-        //        {
-        //            var p = new PersonModel();
-        //            x.ReflectionCopyTo(p);
-        //            p.FirstName = $"{x.FirstName} {x.LastName}";
-        //            return p;
-        //        })
-        //        .ToDictionary(x => x.Id, x => x);
-
-        //    list.ForEach(x => 
-        //    {
-        //        var r = new ClientCompanyDetails();
-        //        x.ReflectionCopyTo(r);
-        //        r.Company = r.CompanyId > 0 ? companies[r.CompanyId] : null;
-        //        r.Manager = r.ClientManagerId > 0 ? persons[r.ClientManagerId.Value] : null;
-        //        r.AlternativeManager = r.AlternativeClientManagerId > 0 ? persons[r.AlternativeClientManagerId.Value] : null;
-        //    });
-
-        //    return result;
-        //}
-
         public async Task<ClientCompany> FindByCompanyIdAsync(int companyId)
         {
             var result = _localCache.FirstOrDefault(x => x.CompanyId == companyId && !x.Deleted);

@@ -15,15 +15,20 @@ namespace CrmLightDemoApp.Onion.Services
         private readonly ICompanyRepository _companyRepository;
         private readonly IClientCompanyRepository _clientCompanyRepository;
         private readonly IRepository<LeadSourceType> _leadSourceTypeRepository;
+        private readonly IBoardCardHistoryRepository _boardCardHistoryRepository;
+        private readonly IAppAuthState _appAuthState;
 
         public BoardService(IBoardCardRepository repo, IPersonRepository personRepository, IClientCompanyRepository clientCompanyRepository,
-			ICompanyRepository companyRepository, IRepository<LeadSourceType> leadSourceTypeRepository) 
+			ICompanyRepository companyRepository, IRepository<LeadSourceType> leadSourceTypeRepository,
+            IBoardCardHistoryRepository boardCardHistoryRepository, IAppAuthState appAuthState) 
         { 
             _repo = repo;
             _personRepository = personRepository;
             _clientCompanyRepository = clientCompanyRepository;
 			_companyRepository = companyRepository;
             _leadSourceTypeRepository = leadSourceTypeRepository;
+            _boardCardHistoryRepository = boardCardHistoryRepository;
+            _appAuthState = appAuthState;
         }
 
         public async Task<int> CreateBoardCardAsync(LeadBoardCardModel card)
@@ -98,6 +103,20 @@ namespace CrmLightDemoApp.Onion.Services
             var item = new BoardCard();
             card.ReflectionCopyTo(item);
             await _repo.UpdateAsync(item);
+
+            if (!string.IsNullOrWhiteSpace(card.Comments))
+            {
+                var comment = new BoardCardHistory
+                {
+                    BoardCardId = card.Id,
+                    Title = "Comment",
+                    Text = card.Comments,
+                    PersonId = _appAuthState.CurrentUser.Id,
+                    Date = DateTime.Now,
+                };
+
+                await _boardCardHistoryRepository.CreateAsync(comment);
+            }
         }
 
 		public async Task<int> CreateCompanyAsync(Company company)
