@@ -177,6 +177,7 @@
 
     async Task ModelChanged(ValueChangedArgs args)
     {
+
         if (args.Operation != ModelChangedOperation.Default)
         {
             StateHasChanged(); 
@@ -191,7 +192,9 @@
         if (args.Binding.BindingType != BlazorForms.Shared.FieldBindingType.ActionButton
             && args.Binding.BindingType != BlazorForms.Shared.FieldBindingType.Table)
         {
-            //ViewModel.ModelNaviSetValue(args.Binding.ResolvedBinding, args.NewValue);
+            // always inform upper control that value is changed
+            await ModelValueChanged.InvokeAsync(args); 
+            
             ViewModel.FieldSetValue(ViewModel.ModelUntyped, args.Binding, args.NewValue);
             ViewModel.SetInputChanged();
         }

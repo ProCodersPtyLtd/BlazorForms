@@ -348,7 +348,7 @@
 		{
 			await DialogVM.LoadDialog(formType, card);
 
-			var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraExtraLarge };
+			var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraExtraLarge, DisableBackdropClick = true };
 			var dialogParameters = new DialogParameters();
 			dialogParameters["DialogViewModel"] = DialogVM;
 			dialogParameters["IsNew"] = isNew;
@@ -364,7 +364,7 @@
 	{
 		await DialogVM.LoadDialog(formType, card);
 
-		var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraExtraLarge };
+		var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraExtraLarge, DisableBackdropClick = true };
 		var dialogParameters = new DialogParameters();
 		dialogParameters["DialogViewModel"] = DialogVM;
 		//dialogParameters["FormSubmitted"] = new EventCallback<BoardDialogSubmittedArgs>(this, DialogFormSubmitted);

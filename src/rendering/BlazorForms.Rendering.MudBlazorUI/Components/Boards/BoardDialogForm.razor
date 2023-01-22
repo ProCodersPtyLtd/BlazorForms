@@ -29,13 +29,12 @@
 
 @if (DialogViewModel.FormData != null)
 {
-    <div @onkeydown="@KeyPress">
-        <MudDialog @onkeydown="@KeyPress" DefaultFocus="DefaultFocus.LastChild" S>
+    <MudDialog DefaultFocus="DefaultFocus.LastChild" OnBackdropClick="OnBackdropClick" IsVisibleChanged="IsVisibleChanged">
         <TitleContent>@DialogViewModel.FormData.DisplayName</TitleContent>
         <DialogContent>
             @*<MudContainer Style="max-height: 680px; overflow-y: scroll; overflow-x: hidden;">*@
                 <CascadingValue Value="@(DialogViewModel as IFormViewModel)">
-                    <FormContent ModelValueChanged=@ModelActionChanged />
+                    <FormContent ModelValueChanged=@ModelChanged />
                 </CascadingValue>
             @*</MudContainer>*@
         </DialogContent>
@@ -65,7 +64,6 @@
             </div>
         </DialogActions>
     </MudDialog>
-    </div>
 }
 </CascadingValue>
 </CascadingValue>
@@ -103,6 +101,13 @@
     private bool _formLocked = false;
     private IDisposable? _navigationRegistration;
 
+    protected override async Task OnInitializedAsync()
+    {
+        //MudDialog.Options.CloseOnEscapeKey = true;
+        //MudDialog.Options.MaxWidth = MaxWidth.ExtraExtraLarge;
+        //MudDialog.Options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraExtraLarge, DisableBackdropClick = true };
+    }
+
     protected override async Task OnParametersSetAsync()
     {
         // We load form once, and every time when parameters changed
@@ -118,6 +123,27 @@
     }
 
     public void Dispose() => _navigationRegistration?.Dispose();
+
+    private async Task ModelChanged(ValueChangedArgs args)
+    {
+        if (args.Operation == ModelChangedOperation.Default)
+        {
+            // prevent close by escape if model changed
+            var options = new DialogOptions { CloseOnEscapeKey = false, MaxWidth = MaxWidth.ExtraExtraLarge, DisableBackdropClick = true };
+            MudDialog.SetOptions(options);
+        }
+
+        await ModelActionChanged.InvokeAsync(args);
+    }
+
+    private void OnBackdropClick()
+    {
+
+    }
+
+    private void IsVisibleChanged(bool b)
+    {
+    }
 
     private Color GetActionColor(FieldControlDetails action)
     {
@@ -151,7 +177,7 @@
                     break;
 
                 case ModelBinding.CloseButtonBinding:
-                    //if (await CheckConfirmation(ConfirmType.ChangesWillBeLost))
+                    if (await CheckConfirmation(ConfirmType.ChangesWillBeLost))
                     {
                         await CancelClick();
                     }
@@ -218,7 +244,7 @@
         if (list.Any())
         {
             var details = list.First();
-            var options = new DialogOptions { CloseOnEscapeKey = true };
+            var options = new DialogOptions { CloseOnEscapeKey = true, DisableBackdropClick = true };
 
             var parameters = new DialogParameters 
             { 
@@ -247,18 +273,18 @@
         DialogViewModel.FormSettings.AllowFlowStorage = AllowFlowStorage;        
     }
 
-    // ToDo: not working
-    private void KeyPress(KeyboardEventArgs e)
-    {
-        if (e.Key == "Enter")
-        {
-            //SubmitClick();
-        }
-        else if (e.Key == "Esc")
-        {
-            CancelClick();
-        }
-    }
+    //// ToDo: not working
+    //private void KeyPress(KeyboardEventArgs e)
+    //{
+    //    if (e.Key == "Enter")
+    //    {
+    //        //SubmitClick();
+    //    }
+    //    else if (e.Key == "Esc")
+    //    {
+    //        CancelClick();
+    //    }
+    //}
 
     private async Task CancelClick()
     {

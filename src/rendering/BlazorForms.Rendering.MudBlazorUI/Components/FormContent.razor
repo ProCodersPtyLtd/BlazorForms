@@ -72,18 +72,19 @@ else
 
     private async Task ModelChanged(ValueChangedArgs args)
     {
-        if (args.Operation != ModelChangedOperation.Default)
-        {
-            StateHasChanged();
-            if (args.Operation == ModelChangedOperation.Refresh)
-            {               
-                return;
-            }
-            else if (args.Operation == ModelChangedOperation.SubmitAndRefresh)
-            {               
-                await ModelValueChanged.InvokeAsync(args);
-            }
-        }
+        await ModelValueChanged.InvokeAsync(args);
+        //if (args.Operation != ModelChangedOperation.Default)
+        //{
+        //    StateHasChanged();
+        //    if (args.Operation == ModelChangedOperation.Refresh)
+        //    {               
+        //        return;
+        //    }
+        //    else if (args.Operation == ModelChangedOperation.SubmitAndRefresh)
+        //    {               
+        //        await ModelValueChanged.InvokeAsync(args);
+        //    }
+        //}
     }
 
     private int CellSpan
