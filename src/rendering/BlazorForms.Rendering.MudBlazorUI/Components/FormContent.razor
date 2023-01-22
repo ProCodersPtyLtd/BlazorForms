@@ -1,6 +1,23 @@
-﻿@using MudBlazor
+﻿@using BlazorForms.Rendering.Types;
+@using MudBlazor
 @using BlazorForms.Rendering.State
 @using BlazorForms.Rendering.Interfaces
+
+<style>
+    .grid-layout {
+        display: grid;
+        grid-template-columns: repeat(10, 80px);
+        grid-template-rows: repeat(4, 160px);
+        grid-gap: 16px;
+    }
+
+    .grid-item {
+        min-width: 80px;
+        min-height: 160px;
+        overflow-wrap: anywhere;
+    }
+</style>
+
 
 @if (ViewModel.ModelUntyped == null)
 {
@@ -8,14 +25,31 @@
 }
 else
 {
-    <div id="pz-form" style="padding:0">
-        @foreach (var group in ViewModel.FieldsGrouped)
-        {
-            <div id="pz-group-@group.Key" class="mat-layout-grid-cell mat-layout-grid-cell-span-@CellSpan">
-                <FormGroupContent Group="@group" ModelValueChanged="@ModelChanged" />
-            </div>
-        }
-    </div>
+    @if (ViewModel.LayoutParams != null)
+    {
+        @*<MudContainer Style="max-height: 680px; overflow-y: scroll"></MudContainer>*@
+        <div class="grid-layout" style="max-height: 680px; overflow-y: scroll">
+            @foreach (var element in ViewModel.LayoutParams.Elements!)
+            {
+                <div data-grid="@element" class="grid-item" style="grid-area: @GetGridAreaStyle(element);">
+                   @* <DynamicComponent Type="@element.WidgetType" Parameters="@element.Parameters"></DynamicComponent>*@
+                    <FormGroupContent Group="@element.Group" ModelValueChanged="@ModelChanged" />
+                </div>
+            }
+        </div>
+        
+    }
+    else
+    {
+        <div id="pz-form" style="padding:0">
+            @foreach (var group in ViewModel.FieldsGrouped)
+            {
+                <div id="pz-group-@group.Key" class="mat-layout-grid-cell mat-layout-grid-cell-span-@CellSpan">
+                    <FormGroupContent Group="@group" ModelValueChanged="@ModelChanged" />
+                </div>
+            }
+        </div>
+    }
 }
 
 @code {
@@ -26,7 +60,12 @@ else
     [Parameter]
     public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
 
-    async Task ModelChanged(ValueChangedArgs args)
+    private string GetGridAreaStyle(LayoutFormElement element)
+    {
+        return $"{element.Row} / {element.Col} / span {element.RowSpan} / span {element.ColSpan}";
+    }
+
+    private async Task ModelChanged(ValueChangedArgs args)
     {
         if (args.Operation != ModelChangedOperation.Default)
         {

@@ -89,7 +89,7 @@ namespace BlazorForms.Shared.FastReflection
 
             if (!properties.TryGetValue(binding, out emitter))
             {
-                emitter = GetJsonPathStraightEmitterSet(modelType, binding).CreateDelegate();
+                emitter = GetJsonPathStraightEmitterSet(modelType, binding)?.CreateDelegate();
                 properties[binding] = emitter;
             }
 
@@ -184,6 +184,12 @@ namespace BlazorForms.Shared.FastReflection
             else
             {
                 result.CastClass(propInfo.PropertyType);
+            }
+
+            // if SetMethod doesn't exist
+            if (propInfo.SetMethod == null)
+            {
+                return null;
             }
 
             result.Call(propInfo.GetSetMethod(true)!);

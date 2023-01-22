@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BlazorForms.Rendering.Model;
+using BlazorForms.Rendering.Types;
 
 namespace BlazorForms.Rendering.Interfaces
 {
@@ -33,6 +34,7 @@ namespace BlazorForms.Rendering.Interfaces
         Dictionary<string, List<FieldControlDetails>>? Repeaters { get; }
         Dictionary<string, List<FieldControlDetails>>? Lists { get; }
         IEnumerable<RuleExecutionResult>? Validations { get; set; }
+        LayoutFormParams? LayoutParams { get; }
         IJsonPathNavigator? PathNavi { get; }
         bool FormAccessDenied { get; }
         string? FormAssignedUser { get; }

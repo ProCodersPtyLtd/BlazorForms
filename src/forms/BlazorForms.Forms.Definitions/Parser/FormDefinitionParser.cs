@@ -166,7 +166,8 @@ namespace BlazorForms.Forms
             var details = new FormDetails 
             {
                 ProcessTaskTypeFullName = formType.FullName,
-                DisplayName = form.DisplayName, 
+                DisplayName = form.DisplayName,
+                Layout = form.Layout,
                 ChildProcessTypeFullName = form.ChildProcess?.FullName,
                 Fields = new List<FieldControlDetails>(),
                 //DisplayProperties = new FormDisplayDetails { Confirmations = new List<FormConfirmationDetails>() },
@@ -214,6 +215,7 @@ namespace BlazorForms.Forms
                 var newControl = new FieldControlDetails
                 {
                     Name = field.Name,
+                    Layout = field.Layout,
                     Group = field.Group,
                     Caption = field.Label ?? "",
                     ControlType = field.ControlType?.Name ?? field.ControlTypeName,

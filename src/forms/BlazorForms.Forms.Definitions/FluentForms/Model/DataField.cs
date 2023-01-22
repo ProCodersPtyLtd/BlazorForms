@@ -9,6 +9,7 @@ namespace BlazorForms.Forms
     public class DataField : Field
     {
         public string Name { get; set; }
+        public FormLayout Layout { get; set; }
         public string BindingProperty { get; set; }
         public string TableBindingProperty { get; set; }
         public string BindingControlType { get; set; }

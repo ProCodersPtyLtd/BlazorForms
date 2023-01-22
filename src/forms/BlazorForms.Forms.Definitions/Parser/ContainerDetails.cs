@@ -6,6 +6,7 @@ namespace BlazorForms.Forms
     public class ContainerDetails
     {
         public string Name { get; set; }
+        public FormLayout Layout { get; set; }
         public string Group { get; set; }
         public string Caption { get; set; }
         public string ControlType { get; set; }

@@ -22,6 +22,7 @@ using System.Collections;
 using System.Net.WebSockets;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 using BlazorForms.Rendering.Model;
+using BlazorForms.Rendering.Types;
 
 namespace BlazorForms.Rendering
 {
@@ -82,6 +83,51 @@ namespace BlazorForms.Rendering
             _modelNavi = modelNavi;
             _navigationManager = navigationManager;
             _modelBindingNavigator = modelBindingNavigator;
+        }
+
+        public LayoutFormParams? LayoutParams 
+        { 
+            get
+            {
+                if (FormData.Layout == FormLayout.Default)
+                {
+                    return null;
+                }
+                else if (FormData.Layout == FormLayout.TwoColumns)
+                {
+                    var layoutForm = new LayoutFormParams();
+
+                    var left = new LayoutFormElement
+                    {
+                        Row = 1,
+                        Col = 1,
+                        RowSpan = 3,
+                        ColSpan = 5,
+                        Group = FieldsGrouped.First()
+                    };
+                    layoutForm.Elements.Add(left);
+
+                    var right = new LayoutFormElement
+                    {
+                        Row = 1,
+                        Col = 6,
+                        RowSpan = 3,
+                        ColSpan = 5,
+                        Group = FieldsGrouped.Skip(1).First()
+                    };
+                    layoutForm.Elements.Add(right);
+
+                    return layoutForm;
+                }
+
+                //return GetFormLayoutParams();
+                throw new NotImplementedException();
+            }
+        }
+
+        private LayoutFormParams? GetFormLayoutParams()
+        {
+            throw new NotImplementedException();
         }
 
         public async Task InitiateFlow(string flowName, string refId, string pk)

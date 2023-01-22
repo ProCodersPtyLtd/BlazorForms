@@ -29,11 +29,13 @@ namespace BlazorForms.Forms
 
             ItemsPath = _builder.Builder.ItemsPath;
             DisplayName = _builder.Builder.DisplayName;
+            // Layout = _builder.Layout;
             ChildProcess = _builder.Builder.ChildProcess;
             Access = _builder.Builder.Access;
         }
 
         public string DisplayName { get; private set; }
+        public FormLayout Layout { get; private set; }
         public Type ChildProcess { get; private set; }
         public FormAllowAccess Access { get; private set; }
         public string ItemsPath { get; private set; }

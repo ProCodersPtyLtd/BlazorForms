@@ -25,6 +25,15 @@ namespace MudBlazorUIDemo.Flows
                 new PersonModel { Id=2, FirstName = "Gary", LastName = "Gansler" },
             }).ToList();
 
+            Model.CommentHistory = (new CommentHistoryItem[]
+            {
+                new CommentHistoryItem { Id=1, FirstName = "Adi", LastName = "Puma", Date = DateTime.Now },
+                new CommentHistoryItem { Id=2, FirstName = "Gary", LastName = "Gansler", Date = DateTime.Now.AddDays(1) },
+                new CommentHistoryItem { Id=3, FirstName = "Bary", LastName = "London", Date = DateTime.Now.AddDays(1).AddHours(1) },
+                new CommentHistoryItem { Id=4, FirstName = "Semen", LastName = "Petrov", Date = DateTime.Now.AddDays(1).AddHours(2) },
+                new CommentHistoryItem { Id=5, FirstName = "Crazy", LastName = "Man", Date = DateTime.Now.AddDays(1).AddHours(12) },
+            }).ToList();
+
             Model.AllPersons.ForEach(p => p.FullName = $"{p.FirstName} {p.LastName}");
         }
 
@@ -36,15 +45,22 @@ namespace MudBlazorUIDemo.Flows
     {
         protected override void Define(FormEntityTypeBuilder<SampleModel> f)
         {
+            f.DisplayName = "Sample layout form";
+            f.Layout = FormLayout.TwoColumns;
+
+            f.Group("1");
             f.Property(p => p.Title).Label("Title").IsRequired();
             f.Property(p => p.SelectedId).Dropdown(e => e.AllPersons, m => m.Id, m => m.FullName).IsRequired().Label("Person Select");
             f.Property(p => p.SearchedId).DropdownSearch(e => e.AllPersons, m => m.Id, m => m.FullName).IsRequired().Label("Person Search");
             f.Property(p => p.SelectedFullName).EditWithOptions(e => e.AllPersons, m => m.FullName).IsRequired().Label("Person Edit");
 
-            f.List(p => p.AllPersons, e => 
+            f.Group("2");
+            f.Property(p => p.Comment).Control(ControlType.TextArea);
+            
+            f.List(p => p.CommentHistory, e => 
             {
                 e.DisplayName = "History";
-                e.Card(p => p.FirstName, p => p.LastName);
+                e.Card(p => p.TitleMarkup, p => p.TextMarkup);
             });
 
             f.Button(ButtonActionTypes.Cancel, "Cancel");
@@ -58,7 +74,9 @@ namespace MudBlazorUIDemo.Flows
         public virtual int SelectedId { get; set; }
         public virtual int SearchedId { get; set; }
         public virtual string? SelectedFullName { get; set; }
+        public virtual string? Comment { get; set; }
         public virtual List<PersonModel> AllPersons { get; set; }
+        public virtual List<CommentHistoryItem> CommentHistory { get; set; } = new();
     }
 
     public class PersonModel
@@ -67,5 +85,16 @@ namespace MudBlazorUIDemo.Flows
         public virtual string? FirstName { get; set; }
         public virtual string? LastName { get; set; }
         public virtual string? FullName { get; set; }
+    }
+
+    public class CommentHistoryItem
+    {
+        public virtual int Id { get; set; }
+        public virtual string? FirstName { get; set; }
+        public virtual string? LastName { get; set; }
+        public virtual DateTime? Date { get; set; }
+
+        public virtual string? TitleMarkup { get { return $"<p><b>{FirstName} {LastName}</b> at {Date?.ToString("dd/MM/yyyy hh:mm")}</p>"; } }
+        public virtual string? TextMarkup { get { return "<p class='markup'>This is a <em>markup string</em>.</p>"; } }
     }
 }

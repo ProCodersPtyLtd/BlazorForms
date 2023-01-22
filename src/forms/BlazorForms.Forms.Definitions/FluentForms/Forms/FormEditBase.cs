@@ -26,11 +26,13 @@ namespace BlazorForms.Forms
             _builder.AssertValid();
 
             DisplayName = _builder.DisplayName;
+            Layout = _builder.Layout;
             ChildProcess = _builder.ChildProcess;
             Access = _builder.Access;
         }
 
         public string DisplayName { get; private set; }
+        public FormLayout Layout { get; private set; }
         public Type ChildProcess { get; private set; }
         public FormAllowAccess Access { get; private set; }
         public string ItemsPath { get; private set; }

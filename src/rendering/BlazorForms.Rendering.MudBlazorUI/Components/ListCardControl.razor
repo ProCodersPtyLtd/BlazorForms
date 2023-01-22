@@ -23,7 +23,7 @@
 <MudCard Class="pz-list-card">
     <MudCardHeader>
         <CardHeaderContent>
-            <MudText Typo="Typo.subtitle1">@GetTitle()</MudText>
+            <MudText Typo="Typo.subtitle1">@((MarkupString)GetTitle())</MudText>
         </CardHeaderContent>
 @*        <CardHeaderActions>
             <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" />
@@ -34,7 +34,7 @@
         </CardHeaderActions>
     </MudCardHeader>
     <MudCardContent>
-        <MudText Typo="Typo.body2">@GetText()</MudText>
+        <MudText Typo="Typo.body2">@((MarkupString)GetText())</MudText>
         @*<MudText Typo="Typo.body2">The quick, brown fox jumps over a lazy dog.</MudText>*@
     </MudCardContent>
     @*<MudCardActions>
