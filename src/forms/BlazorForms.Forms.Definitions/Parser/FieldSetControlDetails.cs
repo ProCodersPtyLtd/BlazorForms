@@ -11,7 +11,7 @@
 //    {
 //        public string GroupBinding { get; set; }
 //        public FieldBindingType BindingType { get; set; }
-//        public List<FieldControlDetails> Fields { get; set; } = new();
+//        public CardList<FieldControlDetails> Fields { get; set; } = new();
 
 //        public FieldSetControlDetails() { }
 
@@ -28,7 +28,7 @@
 //            return result;
 //        }
 
-//        public static List<FieldSetControlDetails> FindAllSets(IEnumerable<FieldControlDetails> fields)
+//        public static CardList<FieldSetControlDetails> FindAllSets(IEnumerable<FieldControlDetails> fields)
 //        {
 //            var result = fields.GroupBy(x => x.FieldSetGroup).Select(g => new FieldSetControlDetails(g.Key, g)).ToList();
 //            return result;

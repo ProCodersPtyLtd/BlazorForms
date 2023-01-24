@@ -57,7 +57,7 @@ namespace MudBlazorUIDemo.Flows
             f.Group("2");
             f.Property(p => p.Comment).Control(ControlType.TextArea);
             
-            f.List(p => p.CommentHistory, e => 
+            f.CardList(p => p.CommentHistory, e => 
             {
                 e.DisplayName = "History";
                 e.Card(p => p.TitleMarkup, p => p.TextMarkup);

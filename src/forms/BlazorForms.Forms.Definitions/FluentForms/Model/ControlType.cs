@@ -36,5 +36,6 @@ namespace BlazorForms.Forms
         CardAvatar,
         CardTitle,
         CardBody,
+        CardButton,
     }
 }

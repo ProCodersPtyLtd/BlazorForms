@@ -146,7 +146,7 @@ using BlazorForms.FlowRules;");
                 }
                 else
                 {
-                    sb.AppendLine($"        // Warning: Cannot find Reference List for property {prop.GetPath()}");
+                    sb.AppendLine($"        // Warning: Cannot find Reference CardList for property {prop.GetPath()}");
                 }
             }
             else if (p.Name.EndsWith(CodeConst.IdSuffix) || p.Name.EndsWith(CodeConst.CodeSuffix))
@@ -170,7 +170,7 @@ using BlazorForms.FlowRules;");
                 }
                 else
                 {
-                    sb.AppendLine($"        // Warning: Cannot find Reference List for property {prop.GetPath()}");
+                    sb.AppendLine($"        // Warning: Cannot find Reference CardList for property {prop.GetPath()}");
                 }
             }
             else if (p.PropertyType == typeof(int) || p.PropertyType == typeof(int?)

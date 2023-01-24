@@ -1,4 +1,5 @@
 ﻿@using BlazorForms.Rendering.State
+@using BlazorForms.Rendering.ViewModels;
 @using MudBlazor
 @using BlazorForms.Forms
 @using BlazorForms.FlowRules
@@ -11,6 +12,7 @@
 @inject ISnackbar Snackbar
 @inject NavigationManager _NavigationManager
 @inject IDialogService DialogService
+@inject CardListViewModel CardListVM
 
 <style>
     .jsgrid-grid-header {
@@ -59,7 +61,7 @@
 
                         @foreach (var col in Columns)
                         {
-                            <ListCardControl ModelChanged="@ModelChanged" Field="@col" Item="ListData[i]" RowIndex="@row" />
+                            <CardControl ModelChanged="@ModelChanged" FieldSet="@col" Item="ListData[i]" RowIndex="@row" Table="Table" />
                         }
 
                 }
@@ -67,6 +69,8 @@
         </MudList>
     </MudPaper>
 }
+
+@implements IAsyncDisposable
 
 @code {
     [CascadingParameter]
@@ -77,7 +81,7 @@
 
     [Parameter]
     public string Caption { get; set; }
-    
+
     [Parameter]
     public IEnumerable<FieldControlDetails> Columns { get; set; }
 
@@ -97,6 +101,9 @@
 
     protected override async Task OnInitializedAsync()
     {
+        // register ControlViewModel that dialog can check if it can close without save
+        ViewModel.RegisterChildControlViewModel(CardListVM);
+
         if (Table.Binding.Parameters == null)
         {
             RepeaterParameters = new RepeaterParameters();
@@ -107,26 +114,41 @@
         }
     }
 
+    public async ValueTask DisposeAsync()
+    {
+        ViewModel.UnregisterChildControlViewModel(CardListVM);
+
+        if (CardListVM.IsEditing)
+        {
+            await CardListVM.ApplyChanges(ViewModel, ListData[CardListVM.EdititngRowIndex], Table);
+        }
+    }
+
     private async Task ModelChanged(ValueChangedArgs args)
     {
-        ViewModel.SetInputChanged();
-
-        _isModelChanged = true;
-        ViewModel.ModelNaviSetValue(Table.Binding.TableBinding, args.RowIndex, args.Binding.Binding, args.NewValue);
-
-        try
+        if (args.Operation == ModelChangedOperation.Refresh)
         {
-            var task = await ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, args.Binding, rowIndex: args.RowIndex);
-            ViewModel.CheckUniqueValidationRules(Table.Binding.TableBinding);
             StateHasChanged();
+        }
 
-            await ModelValueChanged.InvokeAsync(new ValueChangedArgs { Operation = ModelChangedOperation.Refresh });
-        }
-        catch (Exception exc)
-        {
-            ViewModel.PopulateException(exc);
-            await ShowPopup();
-        }
+        //ViewModel.SetInputChanged();
+
+        //_isModelChanged = true;
+        //ViewModel.ModelNaviSetValue(Table.Binding.TableBinding, args.RowIndex, args.Binding.Binding, args.NewValue);
+
+        //try
+        //{
+        //    var task = await ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, args.Binding, rowIndex: args.RowIndex);
+        //    ViewModel.CheckUniqueValidationRules(Table.Binding.TableBinding);
+        //    StateHasChanged();
+
+        //    await ModelValueChanged.InvokeAsync(new ValueChangedArgs { Operation = ModelChangedOperation.Refresh });
+        //}
+        //catch (Exception exc)
+        //{
+        //    ViewModel.PopulateException(exc);
+        //    await ShowPopup();
+        //}
     }
 
     private List<object> ListData;
@@ -149,5 +171,25 @@
             Snackbar.Add("Operation failed. Please notify BlazorForms Support", Severity.Error);
             await ViewModel.SaveException();
         }
+    }
+
+    private void RefreshRowFields()
+    {
+        // refresh row fields
+        ViewModel.ClearRowFields();
+
+        for (int i = 0; i < ListData.Count; i++)
+        {
+            foreach (var col in Columns)
+            {
+                GetField(i, col);
+            }
+        }
+    }
+
+    private FieldControlDetails GetField(int row, FieldControlDetails col)
+    {
+        var field = ViewModel.GetRowField(col, row);
+        return field;
     }
 }

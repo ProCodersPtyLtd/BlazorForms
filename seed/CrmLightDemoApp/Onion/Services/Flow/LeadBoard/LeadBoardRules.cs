@@ -1,6 +1,8 @@
 ﻿using BlazorForms.FlowRules;
+using BlazorForms.Forms;
 using BlazorForms.Shared;
 using CrmLightDemoApp.Onion.Domain.Repositories;
+using CrmLightDemoApp.Onion.Services.Abstractions;
 using CrmLightDemoApp.Onion.Services.Model;
 
 namespace CrmLightDemoApp.Onion.Services.Flow.LeadBoard
@@ -62,15 +64,17 @@ namespace CrmLightDemoApp.Onion.Services.Flow.LeadBoard
         private readonly ICompanyRepository _companyRepository;
         private readonly IPersonRepository _personRepository;
         private readonly IBoardCardHistoryRepository _boardCardHistoryRepository;
+        private readonly IAppAuthState _appAuthState;
 
         public override string RuleCode => "BRD-4";
 
         public FormLeadCard_RefreshSources(ICompanyRepository companyRepository, IPersonRepository personRepository,
-            IBoardCardHistoryRepository boardCardHistoryRepository)
+            IBoardCardHistoryRepository boardCardHistoryRepository, IAppAuthState appAuthState)
         {
             _companyRepository = companyRepository;
             _personRepository = personRepository;
             _boardCardHistoryRepository = boardCardHistoryRepository;
+            _appAuthState = appAuthState;
         }
 
         public override async Task Execute(LeadBoardCardModel model)
@@ -104,6 +108,51 @@ namespace CrmLightDemoApp.Onion.Services.Flow.LeadBoard
                         return item;
                     }).ToList();
             }
+
+            // display buttons only for comment owners
+            for (int i = 0; i < model.CardHistory.Count; i++)
+            {
+                var isCurrentUser = _appAuthState.GetCurrentUser().Id == model.CardHistory[i].PersonId;
+                Result.Fields[FindField(m => m.CardHistory, ModelBinding.EditButtonBinding, i)].Visible = isCurrentUser;
+                Result.Fields[FindField(m => m.CardHistory, ModelBinding.DeleteButtonBinding, i)].Visible = isCurrentUser;
+            }
+        }
+    }
+
+    public class FormLeadCardEdit_ItemChangedRule : FlowRuleAsyncBase<LeadBoardCardModel>
+    {
+        private readonly IBoardCardHistoryRepository _boardCardHistoryRepository;
+
+        public override string RuleCode => "BRD-5";
+
+        public FormLeadCardEdit_ItemChangedRule(IBoardCardHistoryRepository boardCardHistoryRepository)
+        {
+            _boardCardHistoryRepository = boardCardHistoryRepository;
+        }
+
+        public override async Task Execute(LeadBoardCardModel model)
+        {
+            var changedCard = model.CardHistory[RunParams.RowIndex];
+            await _boardCardHistoryRepository.UpdateAsync(changedCard);
+            Result.SkipThisChange = true;
+        }
+    }
+
+    public class FormLeadCardEdit_ItemDeletingRule : FlowRuleAsyncBase<LeadBoardCardModel>
+    {
+        private readonly IBoardCardHistoryRepository _boardCardHistoryRepository;
+
+        public override string RuleCode => "BRD-6";
+
+        public FormLeadCardEdit_ItemDeletingRule(IBoardCardHistoryRepository boardCardHistoryRepository)
+        {
+            _boardCardHistoryRepository = boardCardHistoryRepository;
+        }
+
+        public override async Task Execute(LeadBoardCardModel model)
+        {
+            await _boardCardHistoryRepository.SoftDeleteAsync(model.CardHistory[RunParams.RowIndex]);
+            Result.SkipThisChange = true;
         }
     }
 }

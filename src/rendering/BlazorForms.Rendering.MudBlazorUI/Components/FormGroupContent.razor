@@ -79,14 +79,14 @@
                 </MudItem>
                 continue;
             }
-            else if (field.ControlType == "List")
+            else if (field.ControlType == "CardList")
             {
                 <MudItem xs="12">
                     <MudText Typo="Typo.subtitle2" class="pz-subtitle2">@field.DisplayProperties.Caption</MudText>
                 </MudItem>
 
                 <MudItem xs="12">
-                    <ListControl Table="field" Columns="@ViewModel.Lists[field.Binding.TableBinding]" Caption="@field.DisplayProperties.Caption"
+                    <CardListControl Table="field" Columns="@ViewModel.Lists[field.Binding.TableBinding]" Caption="@field.DisplayProperties.Caption"
                                      Validations="@GetValidations(field.Binding.ResolvedBinding)" ModelValueChanged="@ModelChanged" />
                 </MudItem>
                 continue;

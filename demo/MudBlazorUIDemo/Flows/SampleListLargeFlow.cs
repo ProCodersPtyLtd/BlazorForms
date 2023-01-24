@@ -109,7 +109,7 @@ namespace MudBlazorUIDemo.Flows
         {
             builder.List(p => p.Data, e =>
             {
-                e.DisplayName = "Large List Form";
+                e.DisplayName = "Large CardList Form";
 
                 e.Property(p => p.CustomerId).IsPrimaryKey();
                 e.Property(p => p.FirstName).Label("First Name").Filter(FieldFilterType.TextStarts);

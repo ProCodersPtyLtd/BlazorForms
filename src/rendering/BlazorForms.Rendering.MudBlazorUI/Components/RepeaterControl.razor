@@ -283,6 +283,7 @@
         // trigger ItemDeleting rule
         var task = await ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, Table.Binding, FormRuleTriggers.ItemDeleting, rowIndex);
 
+        // delete item
         var list = ListData as System.Collections.IList;
         list.RemoveAt(_rowIndex);
         RepeaterParameters.CurrentRow = null;

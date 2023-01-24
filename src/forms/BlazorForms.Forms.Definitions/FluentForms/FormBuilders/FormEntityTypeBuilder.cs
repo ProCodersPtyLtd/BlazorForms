@@ -111,8 +111,8 @@ namespace BlazorForms.Forms
             return table;
         }
 
-        public virtual FormRepeaterTypeBuilder<TEntity, TKey> List<TKey>(Expression<Func<TEntity, IEnumerable<TKey>>> items,
-            [NotNullAttribute] Action<FormRepeaterTypeBuilder<TEntity, TKey>> buildAction)
+        public virtual FormCardListTypeBuilder<TEntity, TKey> CardList<TKey>(Expression<Func<TEntity, IEnumerable<TKey>>> items,
+            [NotNullAttribute] Action<FormCardListTypeBuilder<TEntity, TKey>> buildAction)
             where TKey : class
         {
             _propertyOrder++;
@@ -125,9 +125,9 @@ namespace BlazorForms.Forms
             resultField.BindingType = FieldBindingType.List;
             resultField.BindingControlType = typeof(TableBindingControlType).Name;
             //resultField.ControlType = typeof(Table);
-            resultField.ControlTypeName = "List";
+            resultField.ControlTypeName = "CardList";
 
-            var builder = new FormRepeaterTypeBuilder<TEntity, TKey>(items.Body, resultField);
+            var builder = new FormCardListTypeBuilder<TEntity, TKey>(items.Body, resultField);
             builder.Group = _currentGroup;
             RepeaterBuilders.Add(builder);
 

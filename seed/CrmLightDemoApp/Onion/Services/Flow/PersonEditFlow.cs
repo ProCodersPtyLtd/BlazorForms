@@ -78,12 +78,12 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             f.Property(p => p.Phone).IsReadOnly();
             f.Property(p => p.Email).IsReadOnly();
 
-            f.Button(ButtonActionTypes.Close, "Close");
+            f.Button(ButtonActionTypes.Submit, "Edit");
 
             f.Button(ButtonActionTypes.Delete, "Delete")
                 .Confirm(ConfirmType.Delete, "Delete this Person?", ConfirmButtons.YesNo);
 
-            f.Button(ButtonActionTypes.Submit, "Edit");
+            f.Button(ButtonActionTypes.Close, "Close");
         }
     }
 

@@ -91,13 +91,12 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             f.Property(p => p.AlternativeClientManagerId).DropdownSearch(p => p.AllPersons, m => m.Id, m => m.FullName).Label("Alternative manager").IsReadOnly();
             f.Property(p => p.StartContractDate).Label("Contract date").Format("dd/MM/yyyy").IsReadOnly();
 
-            f.Button(ButtonActionTypes.Close, "Close");
+            f.Button(ButtonActionTypes.Edit, "Edit");
 
             f.Button(ButtonActionTypes.Delete, "Delete")
                 .Confirm(ConfirmType.Delete, "Delete this Company?", ConfirmButtons.YesNo);
 
-            f.Button(ButtonActionTypes.Edit, "Edit");
-
+            f.Button(ButtonActionTypes.Close, "Close");
         }
     }
 

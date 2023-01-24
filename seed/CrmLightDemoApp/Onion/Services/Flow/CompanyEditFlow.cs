@@ -184,8 +184,8 @@ namespace CrmLightDemoApp.Onion.Services.Flow
                 //    .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged);
             }).Confirm(ConfirmType.DeleteItem, "Delete this association?", ConfirmButtons.YesNo);
 
-            f.Button(ButtonActionTypes.Cancel, "Cancel");
             f.Button(ButtonActionTypes.Submit, "Save");
+            f.Button(ButtonActionTypes.Cancel, "Cancel");
         }
     }
 

@@ -15,6 +15,9 @@ namespace CrmLightDemoApp.Onion.Services
                 BirthDate = new DateTime(2001, 3, 16) };
         }
 
-        public PersonModel CurrentUser => _currentUser;
+        public PersonModel GetCurrentUser()
+        {
+            return _currentUser;
+        }
     }
 }

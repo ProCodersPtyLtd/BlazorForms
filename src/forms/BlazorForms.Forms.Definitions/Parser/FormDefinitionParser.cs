@@ -170,7 +170,7 @@ namespace BlazorForms.Forms
                 Layout = form.Layout,
                 ChildProcessTypeFullName = form.ChildProcess?.FullName,
                 Fields = new List<FieldControlDetails>(),
-                //DisplayProperties = new FormDisplayDetails { Confirmations = new List<FormConfirmationDetails>() },
+                //DisplayProperties = new FormDisplayDetails { Confirmations = new CardList<FormConfirmationDetails>() },
             };
 
             if (form.Access != null)
@@ -221,6 +221,7 @@ namespace BlazorForms.Forms
                     ControlType = field.ControlType?.Name ?? field.ControlTypeName,
                     AddDialogFlow = field.AddDialogFlow,
                     FieldSetGroup = field.FieldSetGroup,
+                    ActionLink = field.ActionLink,
 
                     // new binding concept
                     Binding = field.Binding,

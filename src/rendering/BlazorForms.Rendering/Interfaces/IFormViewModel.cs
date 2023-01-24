@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BlazorForms.Rendering.Model;
 using BlazorForms.Rendering.Types;
+using BlazorForms.Rendering.ViewModels;
 
 namespace BlazorForms.Rendering.Interfaces
 {
@@ -65,9 +66,12 @@ namespace BlazorForms.Rendering.Interfaces
         IEnumerable<RuleExecutionResult> GetValidations(FieldControlDetails field);
 
         // track user input changes
+        void RegisterChildControlViewModel(ControlViewModel child);
+        void UnregisterChildControlViewModel(ControlViewModel child);
         void SetInputChanged(bool changed = true);
         void IgnoreInputChanged();
         void RestoreInputChanged();
+        bool InputChangedIgnored { get; }
 
         // useful api
         List<SelectableListItem> GetSelectableListData(FieldControlDetails field);

@@ -111,7 +111,7 @@ namespace CrmLightDemoApp.Onion.Services
                     BoardCardId = card.Id,
                     Title = "Comment",
                     Text = card.Comments,
-                    PersonId = _appAuthState.CurrentUser.Id,
+                    PersonId = _appAuthState.GetCurrentUser().Id,
                     Date = DateTime.Now,
                 };
 

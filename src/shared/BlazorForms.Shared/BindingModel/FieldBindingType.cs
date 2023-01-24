@@ -26,6 +26,7 @@ namespace BlazorForms.Shared
         Form,
         List,
         ListCard,
+        RepeaterActionButton,
     }
 
     public enum FieldBindingPathType

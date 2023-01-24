@@ -78,7 +78,8 @@ namespace BlazorForms.Shared
         public FieldBindingPathType GetPathType()
         {
             if (BindingType == FieldBindingType.Form || Binding == null || 
-                BindingType == FieldBindingType.Repeater || BindingType == FieldBindingType.Table)
+                BindingType == FieldBindingType.Repeater || BindingType == FieldBindingType.Table || BindingType == FieldBindingType.ActionButton
+                 || BindingType == FieldBindingType.RepeaterActionButton)
             {
                 return FieldBindingPathType.Unsupported;
             }

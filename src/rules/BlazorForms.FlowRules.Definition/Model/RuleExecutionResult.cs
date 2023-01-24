@@ -10,6 +10,7 @@ namespace BlazorForms.FlowRules
     {
         public RuleValidationResult ValidationResult { get; set; }
         public string ValidationMessage { get; set; }
+        public bool SkipThisChange { get; set; }
         //public DynamicParams DynamicProperties { get; set; }
         public AutoDictionary<string, DisplayDetails> Fields { get; } = new AutoDictionary<string, DisplayDetails>();
         public string RuleCode { get; set; }

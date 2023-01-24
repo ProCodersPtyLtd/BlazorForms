@@ -27,8 +27,8 @@ namespace CrmLightDemoApp.Onion.Services.Flow.LeadBoard
             f.Property(p => p.Company.RegistrationNumber).Label("Reg. No.").IsRequired();
             f.Property(p => p.Company.EstablishedDate).Label("Established date");
 
-            f.Button(ButtonActionTypes.Cancel, "Cancel");
             f.Button(ButtonActionTypes.Submit, "Save");
+            f.Button(ButtonActionTypes.Cancel, "Cancel");
         }
     }
 }

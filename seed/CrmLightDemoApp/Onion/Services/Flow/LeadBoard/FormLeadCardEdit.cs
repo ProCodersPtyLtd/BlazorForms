@@ -1,4 +1,5 @@
-﻿using BlazorForms.Forms;
+﻿using BlazorForms.FlowRules;
+using BlazorForms.Forms;
 using BlazorForms.Shared;
 using CrmLightDemoApp.Onion.Services.Model;
 
@@ -44,14 +45,23 @@ namespace CrmLightDemoApp.Onion.Services.Flow.LeadBoard
             f.Group("right");
             f.Property(p => p.Comments).Control(ControlType.TextArea);
 
-            f.List(p => p.CardHistory, e =>
+            f.CardList(p => p.CardHistory, e =>
             {
-                e.DisplayName = "History";
-                e.Card(p => p.TitleMarkup, p => p.TextMarkup, p => p.AvatarMarkup);
+                e.DisplayName = "Comment history";
+                e.Card(p => p.TitleMarkup, p => p.Text, p => p.AvatarMarkup);
+
+                e.Rule(typeof(FormLeadCardEdit_ItemChangedRule));
+                e.Rule(typeof(FormLeadCardEdit_ItemDeletingRule), FormRuleTriggers.ItemDeleting);
+                e.Confirm(ConfirmType.DeleteItem, "Delete this comment?", ConfirmButtons.YesNo);
+
+                e.Button(ButtonActionTypes.Edit);
+                e.Button(ButtonActionTypes.Delete);
             });
 
-            f.Button(ButtonActionTypes.Cancel, "Cancel");
             f.Button(ButtonActionTypes.Submit, "Save");
+            f.Button(ButtonActionTypes.Cancel, "Cancel");
         }
     }
+
+    
 }

@@ -40,7 +40,7 @@ namespace CrmLightDemoApp.Onion.Services.Model
     public class CardHistoryModel : BoardCardHistoryDetails, IFlowModel
     {
         public virtual string AvatarMarkup { get { return null; } }
-        public virtual string TitleMarkup { get { return $"<b>{PersonFullName}</b> at {Date.ToString("dd/MM/yyyy hh:mm")}"; } }
+        public virtual string TitleMarkup { get { return $"<b>{PersonFullName}</b> on {Date.ToString("dd/MM/yyyy hh:mm")}"; } }
         public virtual string TextMarkup { get { return Text; } }
     }
 }

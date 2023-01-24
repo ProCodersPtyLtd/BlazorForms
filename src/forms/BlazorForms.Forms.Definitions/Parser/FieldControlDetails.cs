@@ -37,11 +37,18 @@ namespace BlazorForms.Forms
             GroupBinding = groupBinding;
             FieldSet = fields.ToList();
             BindingType = fields.First().Binding.BindingType;
+            Binding = fields.First().Binding;
+            Binding.Binding = "$.FieldSet";
         }
 
         public FieldControlDetails FindField(ControlType controlType)
         {
             var result = FieldSet.FirstOrDefault(x => x.ControlType == controlType.ToString());
+            return result;
+        }
+        public List<FieldControlDetails> FindFields(ControlType controlType)
+        {
+            var result = FieldSet.Where(x => x.ControlType == controlType.ToString()).ToList();
             return result;
         }
 

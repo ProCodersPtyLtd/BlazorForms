@@ -22,7 +22,7 @@ namespace BlazorFormsDemoFlows.Flows
 
             if (_blink)
             {
-                throw new Exception("List Form Flow ERROR 4");
+                throw new Exception("CardList Form Flow ERROR 4");
             }
 
             var result = new CustAddrCountModel { Data = new List<CustAddrCount>() };
@@ -37,7 +37,7 @@ namespace BlazorFormsDemoFlows.Flows
         {
             builder.List(p => p.Data, e => 
             {
-                e.DisplayName = "List Form V2";
+                e.DisplayName = "CardList Form V2";
 
                 e.Property(p => p.CustomerId).IsPrimaryKey();
                 e.Property(p => p.FirstName).Label("First Name").Filter(FieldFilterType.TextStarts);
@@ -66,7 +66,7 @@ namespace BlazorFormsDemoFlows.Flows
 
         public override async Task Execute(CustAddrCountModel model)
         {
-            throw new Exception("List Form Loaded rule ERROR 3");
+            throw new Exception("CardList Form Loaded rule ERROR 3");
         }
     }
 }

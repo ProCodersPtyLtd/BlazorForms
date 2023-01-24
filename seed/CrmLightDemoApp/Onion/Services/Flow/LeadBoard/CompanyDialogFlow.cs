@@ -33,8 +33,8 @@ namespace CrmLightDemoApp.Onion.Services.Flow.LeadBoard
             f.Property(p => p.Name).Label("Name").IsRequired();
             f.Property(p => p.RegistrationNumber).Label("Reg. No.");
             f.Property(p => p.EstablishedDate).Label("Established date");
-            f.Button(ButtonActionTypes.Cancel, "Cancel");
             f.Button(ButtonActionTypes.Submit, "Save");
+            f.Button(ButtonActionTypes.Cancel, "Cancel");
         }
     }
 }

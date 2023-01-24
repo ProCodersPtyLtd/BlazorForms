@@ -356,7 +356,7 @@
 			dialogParameters["AllowAnonymousAccess"] = true;
 			dialogParameters["AllowFlowStorage"] = false;
 			dialogParameters["EditFormOptions"] = EditFormOptions;
-			await DialogService.ShowAsync<BoardDialogForm>(null, dialogParameters, options);
+			await DialogService.ShowAsync<BoardDialogForm>(null, dialogParameters, null);
 		}
 	}
 
@@ -372,7 +372,7 @@
 		dialogParameters["AllowFlowStorage"] = false;
 		dialogParameters["EditFormOptions"] = EditFormOptions;
 
-		var dialog = await DialogService.ShowAsync<BoardDialogForm>(null, dialogParameters, options);
+		var dialog = await DialogService.ShowAsync<BoardDialogForm>(null, dialogParameters, null);
 		var result = await dialog.Result;
 
 		return !result.Cancelled;
