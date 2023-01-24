@@ -267,6 +267,11 @@ namespace BlazorForms.FlowRules
                 ruleDetails.Instance.Result.RuleCode = ruleDetails.RuleCode;
                 result.Validations.Add(ruleDetails.Instance.Result);
             }
+
+            if (ruleDetails.Instance.Result.SkipThisChange)
+            {
+                result.SkipThisChange = true;
+            }
         }
 
         private Dictionary<string, int> SpreadBindingRulesForLists(Dictionary<string, IEnumerable<RuleDetails>> bindingDictionary, object model)

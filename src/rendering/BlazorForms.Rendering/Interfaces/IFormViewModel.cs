@@ -11,6 +11,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BlazorForms.Rendering.Model;
+using BlazorForms.Rendering.Types;
+using BlazorForms.Rendering.ViewModels;
 
 namespace BlazorForms.Rendering.Interfaces
 {
@@ -31,7 +33,9 @@ namespace BlazorForms.Rendering.Interfaces
         IEnumerable<IGrouping<string, FieldControlDetails>>? FieldsGrouped { get; }
         Dictionary<string, List<FieldControlDetails>>? Tables { get; }
         Dictionary<string, List<FieldControlDetails>>? Repeaters { get; }
+        Dictionary<string, List<FieldControlDetails>>? Lists { get; }
         IEnumerable<RuleExecutionResult>? Validations { get; set; }
+        LayoutFormParams? LayoutParams { get; }
         IJsonPathNavigator? PathNavi { get; }
         bool FormAccessDenied { get; }
         string? FormAssignedUser { get; }
@@ -62,9 +66,12 @@ namespace BlazorForms.Rendering.Interfaces
         IEnumerable<RuleExecutionResult> GetValidations(FieldControlDetails field);
 
         // track user input changes
+        void RegisterChildControlViewModel(ControlViewModel child);
+        void UnregisterChildControlViewModel(ControlViewModel child);
         void SetInputChanged(bool changed = true);
         void IgnoreInputChanged();
         void RestoreInputChanged();
+        bool InputChangedIgnored { get; }
 
         // useful api
         List<SelectableListItem> GetSelectableListData(FieldControlDetails field);

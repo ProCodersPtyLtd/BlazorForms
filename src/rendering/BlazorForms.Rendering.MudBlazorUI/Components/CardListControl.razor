@@ -1,0 +1,195 @@
+﻿@using BlazorForms.Rendering.State
+@using BlazorForms.Rendering.ViewModels;
+@using MudBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Platform
+@using BlazorForms.Shared
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.Rendering.Interfaces
+
+@inject IReflectionProvider _reflectionProvider
+@inject ISnackbar Snackbar
+@inject NavigationManager _NavigationManager
+@inject IDialogService DialogService
+@inject CardListViewModel CardListVM
+
+<style>
+    .jsgrid-grid-header {
+        text-align: center;
+        border-collapse: collapse;
+        background: #ebebeb;
+    }
+
+    .repeater-table>:not(caption)>*>* {
+        padding: 0.01rem 0.1rem !important;
+        border-bottom-width: 0px !important;
+    }
+
+    .pz-add-button {
+        margin-left: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .pz-ref-button {
+        margin-left: 1rem;
+        margin-top: 0.5rem;
+        width: auto;
+    }
+
+    .comments-col {
+        width: inherit;
+    }
+
+    .custom-col {
+        width: 15%;        
+    }
+
+    .table{
+        width: 100%;
+    }
+</style>
+
+@if (Columns != null && GetListData() != null)
+{
+    <MudPaper Width="100%" Elevation="0">
+        <MudList>
+            <MudListItem >
+                @for (int i = 0; i < ListData.Count(); i++)
+                {
+                    var row = i;
+
+                        @foreach (var col in Columns)
+                        {
+                            <CardControl ModelChanged="@ModelChanged" FieldSet="@col" Item="ListData[i]" RowIndex="@row" Table="Table" />
+                        }
+
+                }
+            </MudListItem>
+        </MudList>
+    </MudPaper>
+}
+
+@implements IAsyncDisposable
+
+@code {
+    [CascadingParameter]
+    public IFormViewModel ViewModel { get; set; }
+
+    [Parameter]
+    public FieldControlDetails Table { get; set; }
+
+    [Parameter]
+    public string Caption { get; set; }
+
+    [Parameter]
+    public IEnumerable<FieldControlDetails> Columns { get; set; }
+
+    [Parameter]
+    public IEnumerable<RuleExecutionResult> Validations { get; set; }
+
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelValueChanged { get; set; }
+
+    private RepeaterParameters RepeaterParameters { get; set; }
+
+    private bool _isModelChanged { get; set; }
+
+    private int _newRow { get; set; } = -1;
+
+    private int _rowIndex;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // register ControlViewModel that dialog can check if it can close without save
+        ViewModel.RegisterChildControlViewModel(CardListVM);
+
+        if (Table.Binding.Parameters == null)
+        {
+            RepeaterParameters = new RepeaterParameters();
+        }
+        else
+        { 
+            RepeaterParameters = Table.Binding.Parameters as BlazorForms.Flows.Definitions.RepeaterParameters;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        ViewModel.UnregisterChildControlViewModel(CardListVM);
+
+        if (CardListVM.IsEditing)
+        {
+            await CardListVM.ApplyChanges(ViewModel, ListData[CardListVM.EdititngRowIndex], Table);
+        }
+    }
+
+    private async Task ModelChanged(ValueChangedArgs args)
+    {
+        if (args.Operation == ModelChangedOperation.Refresh)
+        {
+            StateHasChanged();
+        }
+
+        //ViewModel.SetInputChanged();
+
+        //_isModelChanged = true;
+        //ViewModel.ModelNaviSetValue(Table.Binding.TableBinding, args.RowIndex, args.Binding.Binding, args.NewValue);
+
+        //try
+        //{
+        //    var task = await ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, args.Binding, rowIndex: args.RowIndex);
+        //    ViewModel.CheckUniqueValidationRules(Table.Binding.TableBinding);
+        //    StateHasChanged();
+
+        //    await ModelValueChanged.InvokeAsync(new ValueChangedArgs { Operation = ModelChangedOperation.Refresh });
+        //}
+        //catch (Exception exc)
+        //{
+        //    ViewModel.PopulateException(exc);
+        //    await ShowPopup();
+        //}
+    }
+
+    private List<object> ListData;
+
+    private IEnumerable<object> GetListData()
+    {
+        if (ViewModel.ModelUntyped == null)
+        {
+            return null;
+        }
+
+        ListData = ViewModel.FieldGetItemsValue(ViewModel.ModelUntyped, Table.Binding.TableBinding).ToList();
+        return ListData;
+    }
+
+    public async Task ShowPopup()
+    {
+        if (ViewModel.ExceptionType != null && ViewModel.ExceptionType != typeof(FlowStopException).Name)
+        {
+            Snackbar.Add("Operation failed. Please notify BlazorForms Support", Severity.Error);
+            await ViewModel.SaveException();
+        }
+    }
+
+    private void RefreshRowFields()
+    {
+        // refresh row fields
+        ViewModel.ClearRowFields();
+
+        for (int i = 0; i < ListData.Count; i++)
+        {
+            foreach (var col in Columns)
+            {
+                GetField(i, col);
+            }
+        }
+    }
+
+    private FieldControlDetails GetField(int row, FieldControlDetails col)
+    {
+        var field = ViewModel.GetRowField(col, row);
+        return field;
+    }
+}

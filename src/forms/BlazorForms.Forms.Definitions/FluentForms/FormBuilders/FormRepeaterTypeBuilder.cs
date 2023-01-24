@@ -21,7 +21,7 @@ namespace BlazorForms.Forms
 
         public FieldBuilder FieldBuilder { get { return _fieldBuilder; } }
         public IEnumerable<DataField> Fields {  get { return _fields.Values; } }
-        public List<DialogButtonDetails> DialogButtons { get; private set; }  = new List<DialogButtonDetails>();
+        public List<DialogButtonDetails> ControlButtons { get; private set; }  = new List<DialogButtonDetails>();
         
         public string DisplayName 
         { 
@@ -62,11 +62,64 @@ namespace BlazorForms.Forms
             return this;
         }
 
+        //public virtual void Card<TKey, TKey2>([NotNull] Expression<Func<TEntity, TKey>> title, [NotNull] Expression<Func<TEntity, TKey2>> body)
+        //{
+        //    Card<TKey, TKey2, object>(title, body, null);
+        //}
+
+
+        //public virtual void Card<TKey, TKey2, TKey3>([NotNull] Expression<Func<TEntity, TKey>> title, [NotNull] Expression<Func<TEntity, TKey2>> body, 
+        //    Expression<Func<TEntity, TKey3>> avatar)
+        //{
+        //    //_field.ControlTypeName = ControlType.Card.ToString(); ;
+        //    //return this;
+        //    _propertyOrder++;
+        //    DataField resultField;
+        //    string property;
+
+        //    property = title.Body.ToString().ReplaceLambdaVar();
+        //    var fieldSetGroup = property;
+        //    CreateFieldIfNotExists(typeof(TKey), property);
+        //    resultField = _fields[property];
+        //    resultField.ControlTypeName = ControlType.CardTitle.ToString();
+        //    resultField.Order = _propertyOrder;
+        //    resultField.TableBindingProperty = ItemsPath;
+        //    resultField.BindingType = FieldBindingType.ListCard;
+        //    resultField.BindingControlType = typeof(TableColumnBindingControlType).Name;
+        //    resultField.Hidden = false;
+        //    resultField.FieldSetGroup = fieldSetGroup;
+
+        //    property = body.Body.ToString().ReplaceLambdaVar();
+        //    CreateFieldIfNotExists(typeof(TKey2), property);
+        //    resultField = _fields[property];
+        //    resultField.ControlTypeName = ControlType.CardBody.ToString();
+        //    resultField.Order = _propertyOrder;
+        //    resultField.TableBindingProperty = ItemsPath;
+        //    resultField.BindingType = FieldBindingType.ListCard;
+        //    resultField.BindingControlType = typeof(TableColumnBindingControlType).Name;
+        //    resultField.Hidden = false;
+        //    resultField.FieldSetGroup = fieldSetGroup;
+
+        //    if (avatar != null)
+        //    {
+        //        property = avatar.Body.ToString().ReplaceLambdaVar();
+        //        CreateFieldIfNotExists(typeof(TKey3), property);
+        //        resultField = _fields[property];
+        //        resultField.ControlTypeName = ControlType.CardAvatar.ToString();
+        //        resultField.Order = _propertyOrder;
+        //        resultField.TableBindingProperty = ItemsPath;
+        //        resultField.BindingType = FieldBindingType.ListCard;
+        //        resultField.BindingControlType = typeof(TableColumnBindingControlType).Name;
+        //        resultField.Hidden = false;
+        //        resultField.FieldSetGroup = fieldSetGroup;
+        //    }
+        //}
+
         public virtual RepeaterFieldBuilder<TMainEntity, TProperty, TEntity> PropertyRoot<TProperty>([NotNullAttribute] Expression<Func<TEntity, TProperty>> propertyExpression)
         {
             _propertyOrder++;
             var bindingProperty = propertyExpression.Body.ToString().ReplaceLambdaVar();
-            CheckFieldExists(typeof(TProperty), bindingProperty);
+            CreateFieldIfNotExists(typeof(TProperty), bindingProperty);
             var resultField = _fields[bindingProperty];
             resultField.Order = _propertyOrder;
             resultField.Group = Group;
@@ -88,7 +141,7 @@ namespace BlazorForms.Forms
         {
             _propertyOrder++;
             var bindingProperty = propertyExpression.Body.ToString().ReplaceLambdaVar();
-            CheckFieldExists(typeof(TProperty), bindingProperty);
+            CreateFieldIfNotExists(typeof(TProperty), bindingProperty);
             var resultField = _fields[bindingProperty];
             resultField.Order = _propertyOrder;
             resultField.Group = Group;
@@ -113,7 +166,7 @@ namespace BlazorForms.Forms
             return this;
         }
 
-        private void CheckFieldExists(Type propertyType, string bindingProperty)
+        private void CreateFieldIfNotExists(Type propertyType, string bindingProperty)
         {
             if (!_fields.ContainsKey(bindingProperty))
             {
@@ -132,13 +185,13 @@ namespace BlazorForms.Forms
         // ToDo: add support of named format parameters like actionLink: "Form2/{id}/{id2}", where id, id2 - named page parameters
         public virtual FormRepeaterTypeBuilder<TMainEntity, TEntity> DialogButton(ButtonActionTypes actionType, string text = null, string hint = null, string actionLink = null)
         {
-            DialogButtons.Add(new DialogButtonDetails { Action = actionType, Text = text, Hint = hint, LinkText = actionLink });
+            ControlButtons.Add(new DialogButtonDetails { Action = actionType, Text = text, Hint = hint, LinkText = actionLink });
             return this;
         }
 
         public virtual FormRepeaterTypeBuilder<TMainEntity,TEntity> DialogButton(string actionLink, ButtonActionTypes actionType, string text = null, string hint = null)
         {
-            DialogButtons.Add(new DialogButtonDetails { Action = actionType, Text = text, Hint = hint, LinkText = actionLink });
+            ControlButtons.Add(new DialogButtonDetails { Action = actionType, Text = text, Hint = hint, LinkText = actionLink });
             return this;
         }
     }

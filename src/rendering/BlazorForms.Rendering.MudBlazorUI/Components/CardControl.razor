@@ -1,0 +1,340 @@
+﻿@using BlazorForms.Flows.Definitions;
+@using BlazorForms.Rendering.State
+@using BlazorForms.Rendering.ViewModels;
+@using MudBlazor
+@using BlazorForms.Forms
+@using BlazorForms.FlowRules
+@using BlazorForms.Rendering.Validation
+@using BlazorForms.Shared
+
+@inject IDynamicFieldValidator FieldValidator
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject CardListViewModel CardListVM
+
+<style>
+    .mud-card-header {
+        padding: 7px !important;
+    }
+
+    .pz-list-card {
+        margin-bottom: 4px;
+    }
+</style>
+
+@*<MudTextField id="@MyId" Value="@ObjectValue.AsString()" Disabled="@Field.DisplayProperties.Disabled" 
+              T="string" ValueChanged="@(a => ValueChanged(a))" InputType="@MyType" Style="width: 100%;" Variant="FormOptions.Variant" />*@
+
+<MudCard Class="pz-list-card">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.subtitle1">@((MarkupString)GetTitle())</MudText>
+        </CardHeaderContent>
+@*        <CardHeaderActions>
+            <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" />
+        </CardHeaderActions>*@
+        <CardHeaderActions>
+            @if (CardListVM.IsEditingRow(RowIndex))
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.CheckCircle" OnClick="@(async (args) => await ApplyClick(args))"
+                           Color="Color.Success" Size="Size.Small" />
+
+                <MudIconButton Icon="@Icons.Material.Filled.Cancel" OnClick="@(async (args) => await CancelClick(args))"
+                           Color="Color.Error" Size="Size.Small" />
+            }
+            else
+            {
+                @if (_editButton != null && _editButton.DisplayProperties.Visible)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.EditNote" OnClick="@(async (args) => await EditClick(args))" 
+                        Color="Color.Default" Size="Size.Small" />
+                }
+
+                @if (_deleteButton != null && _deleteButton.DisplayProperties.Visible)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.DeleteForever" OnClick="@(async (args) => await DelClick(args))" 
+                        Color="Color.Default" Size="Size.Small" />
+                }
+            }
+        </CardHeaderActions>
+    </MudCardHeader>
+    <MudCardContent>
+        @if (CardListVM.IsEditingRow(RowIndex))
+        {
+            <MudTextField T="string" @bind-Text=CardListVM.EditingTextValue
+                      ValueChanged=@(async a => await BodyChanged(a)) 
+                      OnKeyPress=@BodyTextChanged
+                      Lines=@GetLines() FullWidth="true" Style="width: 100%;"
+                      Variant="FormOptions.Variant" @ref=BodyTextRef />
+        }
+        else
+        {
+            <MudText Typo="Typo.body2">@((MarkupString)GetText())</MudText>
+        }
+    </MudCardContent>
+    <MudCardActions>
+        @*@if (CardListVM.IsEditingRow(RowIndex))
+        {
+            <MudIconButton Icon="@Icons.Material.Filled.Done" OnClick="@(async (args) => await ApplyClick(args))"
+                       Color="Color.Success" Size="Size.Small" />
+
+            <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="@(async (args) => await CancelClick(args))"
+                       Color="Color.Error" Size="Size.Small" />
+        }*@
+    </MudCardActions>
+</MudCard>
+
+@code {
+    [CascadingParameter]
+    public FormOptions FormOptions { get; set; }
+
+    [CascadingParameter]
+    public IFormViewModel ViewModel { get; set; }
+
+    [Parameter]
+    public int RowIndex { get; set; }
+
+    [Parameter]
+    public FieldControlDetails FieldSet { get; set; }
+
+    [Parameter]
+    public FieldControlDetails Table { get; set; }
+
+    [Parameter]
+    public string Caption { get; set; }
+    [Parameter]
+    public string Name { get; set; }
+    [Parameter]
+    public EventCallback<ValueChangedArgs> ModelChanged { get; set; }
+
+    [Parameter]
+    public object Item { get; set; }
+
+    [CascadingParameter]
+    public MudTextField<string> BodyTextRef { get; set; }
+
+    private List<FieldControlDetails> _buttons;
+    private FieldControlDetails _editButton;
+    private FieldControlDetails _deleteButton;
+    //private string _bodyTextValue;
+
+    private string MyId
+    {
+        get
+        {
+            return $"{FieldSet.Group}-{FieldSet.Name}-{FieldSet.Caption}-{RowIndex}";
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (CardListVM.IsEditingRow(RowIndex) && BodyTextRef != null)
+        {
+            await BodyTextRef.FocusAsync();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _buttons = FieldSet.FindFields(ControlType.CardButton);
+        _editButton = _buttons.FirstOrDefault(x => x.Binding.Binding.Contains(ModelBinding.EditButtonBinding.ToString().Replace("$", "")));
+        _editButton = GetRegisteredField(_editButton);
+        _deleteButton = _buttons.FirstOrDefault(x => x.Binding.Binding.Contains(ModelBinding.DeleteButtonBinding.ToString().Replace("$", "")));
+        _deleteButton = GetRegisteredField(_deleteButton);
+    }
+
+    private FieldControlDetails GetRegisteredField(FieldControlDetails col)
+    {
+        if (col == null)
+        {
+            return null;
+        }
+
+        var field = ViewModel.GetRowField(col, RowIndex);
+        return field;
+    }
+
+    private async Task<bool> CheckConfirmation(ConfirmType confirmType)
+    {
+        var list = ViewModel.GetAvailableConfirmations(confirmType);
+
+        if (list.Any())
+        {
+            var details = list.First();
+            var options = new DialogOptions { CloseOnEscapeKey = true };
+
+            var parameters = new DialogParameters 
+            { 
+                ["Message"] = details.Message,
+                ["CancelName"] = details.CancelName,
+                ["OkName"] = details.OkName,
+            };
+
+            var dialog = await DialogService.ShowAsync<FormConfirmationDialog>(null, parameters, options);
+            var result = await dialog.Result;
+
+            if (result.Cancelled)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private async Task DelClick(MouseEventArgs args)
+    {
+        if (!await CheckConfirmation(ConfirmType.DeleteItem))
+        {
+            return;    
+        }
+
+        try
+        {
+            // trigger ItemDeleting rule
+            var task = await ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, Table.Binding, FormRuleTriggers.ItemDeleting, RowIndex);
+
+            // if card repository delete operation is executed inside rule the other input is not happen and dialog should be cancelled without confirmation
+            // so it is not consistent behaviour - we should ignore deleteion change if it saved to db immediately
+            if (!task.SkipThisChange)
+            {
+                ViewModel.SetInputChanged();
+            }
+        }
+        catch (Exception exc)
+        {
+            ViewModel.PopulateException(exc);
+            await ShowPopup();
+        }
+
+        // delete item
+        var items = ViewModel.FieldGetItemsValue(ViewModel.ModelUntyped, Table.Binding.TableBinding) as System.Collections.IList;
+        items.RemoveAt(RowIndex);
+
+        // refresh CardList
+        await ModelChanged.InvokeAsync(new ValueChangedArgs { RowIndex = RowIndex, Operation = ModelChangedOperation.Refresh, Binding = Table.Binding });
+    }
+
+    private async Task EditClick(MouseEventArgs args)
+    {
+        if (CardListVM.StartEdit(RowIndex))
+        {
+            CardListVM.EditingTextValue = GetText();
+            StateHasChanged();
+        }
+    }
+
+    int _lines = 2;
+
+    private async Task BodyTextChanged(KeyboardEventArgs args)
+    {
+        if (args.Code == "Enter" && BodyTextRef != null)
+        {
+            await BodyTextRef.BlurAsync();
+            BodyTextRef.ForceRender(false);
+            await BodyTextRef.FocusAsync();
+            BodyTextRef.ForceRender(false);
+        }
+    }
+
+    private async Task BodyChanged(string text)
+    {
+        var lines = text.Split('\n');
+        _lines = Math.Max(lines.Length, 2);
+
+        if (BodyTextRef != null)
+        {
+            BodyTextRef.Lines = _lines;
+            BodyTextRef.ForceRender(false);
+        }
+
+        StateHasChanged();
+    }
+
+    private int GetLines()
+    {
+        return _lines;
+    }
+
+    private async Task ApplyClick(MouseEventArgs args)
+    {
+        if (await CardListVM.ApplyChanges(ViewModel, Item, Table))
+        {
+            await ShowPopup();
+        }
+
+        //var body = FieldSet.FindField(ControlType.CardBody);
+
+        //if (body != null)
+        //{
+        //    GetRegisteredField(body);
+        //    ViewModel.FieldSetValue(Item, body.Binding, _bodyTextValue);
+
+        //    try
+        //    {
+        //        //await ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, body.Binding);
+        //        var task = await ViewModel.TriggerRules(ViewModel.FormData.ProcessTaskTypeFullName, Table.Binding, FormRuleTriggers.ItemChanged, RowIndex);
+
+        //        if (!task.SkipThisChange)
+        //        {
+        //            ViewModel.SetInputChanged();
+        //        }
+        //    }
+        //    catch (Exception exc)
+        //    {
+        //        ViewModel.PopulateException(exc);
+        //        await ShowPopup();
+        //    }
+        //}
+
+        //CardListVM.FinishEdit();
+        StateHasChanged();
+    }
+
+    private async Task CancelClick(MouseEventArgs args)
+    {
+        CardListVM.FinishEdit();
+        StateHasChanged();
+    }
+
+    private string GetTitle()
+    {
+        string result = null;
+        var title = FieldSet.FindField(ControlType.CardTitle);
+
+        if (title != null)
+        {
+            GetRegisteredField(title);
+            result = ViewModel.FieldGetValue(Item, title.Binding).AsString();
+        }
+
+        return result;
+    }
+
+    private string GetText()
+    {
+        string result = null;
+        var body = FieldSet.FindField(ControlType.CardBody);
+
+        if (body != null)
+        {
+            GetRegisteredField(body);
+            result = ViewModel.FieldGetValue(Item, body.Binding).AsString();
+        }
+
+        return result;
+    }
+
+    public async Task ShowPopup()
+    {
+        if (ViewModel.ExceptionType != null && ViewModel.ExceptionType != typeof(FlowStopException).Name)
+        {
+            Snackbar.Add("Operation failed. Please notify BlazorForms Support", Severity.Error);
+            await ViewModel.SaveException();
+        }
+    }
+}

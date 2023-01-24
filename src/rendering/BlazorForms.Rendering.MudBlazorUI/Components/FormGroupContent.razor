@@ -26,7 +26,7 @@
 
 @if (!string.IsNullOrEmpty(Group.Key))
 {
-    <MudText Typo="Typo.h6" class="pz-clean-margin">@Group.Key</MudText>
+    @*<MudText Typo="Typo.h6" class="pz-clean-margin">@Group.Key</MudText>*@
 }
 
         <MudGrid Spacing="1" Justify="Justify.Center" class="pz-grid-align">
@@ -35,6 +35,7 @@
         {
             @if (field.ControlType == null || field.DisplayProperties?.Visible == false 
                 || field.Binding.BindingType == BlazorForms.Shared.FieldBindingType.TableColumn
+                || field.Binding.BindingType == BlazorForms.Shared.FieldBindingType.ListCard
                 || field.Binding.BindingType == BlazorForms.Shared.FieldBindingType.TableColumnSingleSelect
                 || field.Binding.BindingType == BlazorForms.Shared.FieldBindingType.TableColumnContextMenu)
             {
@@ -74,6 +75,18 @@
 
                 <MudItem xs="12">
                     <RepeaterControl Table="field" Columns="@ViewModel.Repeaters[field.Binding.TableBinding]" Caption="@field.DisplayProperties.Caption"
+                                     Validations="@GetValidations(field.Binding.ResolvedBinding)" ModelValueChanged="@ModelChanged" />
+                </MudItem>
+                continue;
+            }
+            else if (field.ControlType == "CardList")
+            {
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle2" class="pz-subtitle2">@field.DisplayProperties.Caption</MudText>
+                </MudItem>
+
+                <MudItem xs="12">
+                    <CardListControl Table="field" Columns="@ViewModel.Lists[field.Binding.TableBinding]" Caption="@field.DisplayProperties.Caption"
                                      Validations="@GetValidations(field.Binding.ResolvedBinding)" ModelValueChanged="@ModelChanged" />
                 </MudItem>
                 continue;
@@ -164,6 +177,7 @@
 
     async Task ModelChanged(ValueChangedArgs args)
     {
+
         if (args.Operation != ModelChangedOperation.Default)
         {
             StateHasChanged(); 
@@ -178,7 +192,9 @@
         if (args.Binding.BindingType != BlazorForms.Shared.FieldBindingType.ActionButton
             && args.Binding.BindingType != BlazorForms.Shared.FieldBindingType.Table)
         {
-            //ViewModel.ModelNaviSetValue(args.Binding.ResolvedBinding, args.NewValue);
+            // always inform upper control that value is changed
+            await ModelValueChanged.InvokeAsync(args); 
+            
             ViewModel.FieldSetValue(ViewModel.ModelUntyped, args.Binding, args.NewValue);
             ViewModel.SetInputChanged();
         }

@@ -24,6 +24,9 @@ namespace BlazorForms.Shared
         ListFormContextMenuItem,
         FlowReferenceButtonsItem,
         Form,
+        List,
+        ListCard,
+        RepeaterActionButton,
     }
 
     public enum FieldBindingPathType

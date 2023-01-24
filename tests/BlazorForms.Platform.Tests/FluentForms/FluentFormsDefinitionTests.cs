@@ -307,7 +307,7 @@ namespace BlazorForms.Platform.Tests.FluentForms
         {
             b.List(p => p.Data, e =>
             {
-                e.DisplayName = "Test Form List";
+                e.DisplayName = "Test Form CardList";
                 e.Property(p => p.CustomerId).IsPrimaryKey().IsHidden();
                 e.Property(p => p.FirstName).Label("Firts Name").Filter(FieldFilterType.TextStarts);
                 e.Property(p => p.LastName).Label("Last Name").Filter(FieldFilterType.TextStarts);

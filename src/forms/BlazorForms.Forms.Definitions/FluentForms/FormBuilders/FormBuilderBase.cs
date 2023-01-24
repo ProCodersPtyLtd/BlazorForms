@@ -14,6 +14,7 @@ namespace BlazorForms.Forms.Definitions.FluentForms.FormBuilders
         protected Dictionary<string, DataField> _fields = new Dictionary<string, DataField>();
 
         public string DisplayName { get => _formField.Name; set => _formField.Name = value; }
+        public FormLayout Layout { get => _formField.Layout; set => _formField.Layout = value; }
         public Type ChildProcess { get; set; }
         public FormAllowAccess Access { get; set; }
 

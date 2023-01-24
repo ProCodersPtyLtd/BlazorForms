@@ -39,11 +39,37 @@ namespace BlazorForms.FlowRules
             await Execute(model as M);
         }
 
+        public string FindField<TKey>(Expression<Func<M, TKey>> selector, string propertyBinding, int rowIndex = -1 )
+        {
+            var selectorString = selector.Body.ToString();
+            selectorString = JsonPathHelper.ReplaceLambdaVar(selectorString);
+
+            // assemble binding
+            var suff = rowIndex >= 0 ? $"[{rowIndex}]" : "";
+            var end = propertyBinding?.Replace("$", "");
+            selectorString = $"{selectorString}{suff}{end}";
+            return selectorString;
+        }
+
         public string SingleField<TKey>(Expression<Func<M, TKey>> selector)
         {
             var selectorString = selector.Body.ToString();
             selectorString = JsonPathHelper.ReplaceLambdaVar(selectorString);
             return selectorString;
+        }
+
+        public static string RowField<TKey, TKey2>(Expression<Func<M, IEnumerable<TKey>>> items, Expression<Func<TKey, TKey2>> column, int rowIndex)
+        {
+            var field = new FieldBinding
+            {
+                TableBinding = JsonPathHelper.ReplaceLambdaVar(items.Body.ToString()),
+                Binding = JsonPathHelper.ReplaceLambdaVar(column.Body.ToString()),
+                BindingControlType = typeof(TableColumnBindingControlType).Name,
+                BindingType = FieldBindingType.TableColumn
+            };
+
+            field.ResolveKey(new FieldBindingArgs { RowIndex = rowIndex });
+            return field.Key;
         }
 
         public string ModelProp<TKey>(Expression<Func<M, TKey>> selector)

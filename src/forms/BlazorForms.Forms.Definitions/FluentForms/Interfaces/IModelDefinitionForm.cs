@@ -18,6 +18,7 @@ namespace BlazorForms.Forms
         IEnumerable<ActionRouteLink> GetContextLinks();
 
         string DisplayName { get; }
+        FormLayout Layout { get; }
         Type ChildProcess { get; }
         FormAllowAccess Access { get; }
         string ItemsPath { get; }

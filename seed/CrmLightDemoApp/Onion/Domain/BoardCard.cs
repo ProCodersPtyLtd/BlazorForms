@@ -13,7 +13,7 @@
 
         public virtual int? LeadSourceTypeId { get; set; }
         public virtual string? ContactDetails { get; set; }
-        public virtual string? Comments { get; set; }
+        //public virtual string? Comments { get; set; }
 		public virtual int? RelatedCompanyId { get; set; }
 		public virtual int? RelatedPersonId { get; set; }
 		public virtual string? Phone { get; set; }

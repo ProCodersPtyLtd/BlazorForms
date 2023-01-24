@@ -10,6 +10,7 @@ namespace BlazorForms.Forms
         public Type DataType { get; set; }
         public Type ControlType { get; set; }
         public string ControlTypeName { get; set; }
+        public string AddDialogFlow { get; set; }
         public Type ViewModeControlType { get; set; }
         public string Label { get; set; }
         public bool Required { get; set; }

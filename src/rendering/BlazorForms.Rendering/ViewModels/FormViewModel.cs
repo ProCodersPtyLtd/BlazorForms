@@ -22,6 +22,8 @@ using System.Collections;
 using System.Net.WebSockets;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 using BlazorForms.Rendering.Model;
+using BlazorForms.Rendering.Types;
+using BlazorForms.Rendering.ViewModels;
 
 namespace BlazorForms.Rendering
 {
@@ -58,6 +60,7 @@ namespace BlazorForms.Rendering
         public IEnumerable<IGrouping<string, FieldControlDetails>>? FieldsGrouped { get; private set; }
         public Dictionary<string, List<FieldControlDetails>>? Tables { get; private set; }
         public Dictionary<string, List<FieldControlDetails>>? Repeaters { get; private set; }
+        public Dictionary<string, List<FieldControlDetails>>? Lists { get; private set; } = new();
         public IEnumerable<RuleExecutionResult>? Validations { get; set; }
         public IJsonPathNavigator? PathNavi { get; private set; }
         public bool FormAccessDenied { get; private set; }
@@ -81,6 +84,51 @@ namespace BlazorForms.Rendering
             _modelNavi = modelNavi;
             _navigationManager = navigationManager;
             _modelBindingNavigator = modelBindingNavigator;
+        }
+
+        public LayoutFormParams? LayoutParams 
+        { 
+            get
+            {
+                if (FormData.Layout == FormLayout.Default)
+                {
+                    return null;
+                }
+                else if (FormData.Layout == FormLayout.TwoColumns)
+                {
+                    var layoutForm = new LayoutFormParams();
+
+                    var left = new LayoutFormElement
+                    {
+                        Row = 1,
+                        Col = 1,
+                        RowSpan = 3,
+                        ColSpan = 5,
+                        Group = FieldsGrouped.First()
+                    };
+                    layoutForm.Elements.Add(left);
+
+                    var right = new LayoutFormElement
+                    {
+                        Row = 1,
+                        Col = 6,
+                        RowSpan = 3,
+                        ColSpan = 5,
+                        Group = FieldsGrouped.Skip(1).First()
+                    };
+                    layoutForm.Elements.Add(right);
+
+                    return layoutForm;
+                }
+
+                //return GetFormLayoutParams();
+                throw new NotImplementedException();
+            }
+        }
+
+        private LayoutFormParams? GetFormLayoutParams()
+        {
+            throw new NotImplementedException();
         }
 
         public async Task InitiateFlow(string flowName, string refId, string pk)
@@ -145,6 +193,18 @@ namespace BlazorForms.Rendering
             }
         }
 
+        private FieldControlDetails CreateNewRowFieldByRowBinding(string bindingKey)
+        {
+            var start = bindingKey.IndexOf('[');
+            var end = bindingKey.IndexOf(']');
+            var stringIndex = bindingKey.Substring(start + 1, end - start - 1);
+            var rowIndex = int.Parse(stringIndex);
+            var templateKey = $"{bindingKey.Substring(0, start + 1)}__index{bindingKey.Substring(end, bindingKey.Length - end)}";
+            var templateField = GetAllFields().FirstOrDefault(f => f.Binding.Key == templateKey);
+            var newField = GetRowField(templateField, rowIndex);
+            return newField;
+        }
+
         protected async Task Load(FormDetails form)
         {
             FormData = form;
@@ -167,18 +227,37 @@ namespace BlazorForms.Rendering
                     var disp = prop.Value;
                     var target = allFields.FirstOrDefault(f => f.Binding.Key == prop.Key)?.DisplayProperties;
 
-                    if (target != null)
+                    if (target == null)
                     {
-                        target.Caption = disp.Caption;
-                        target.Disabled = disp.Disabled;
-                        target.Highlighted = disp.Highlighted;
-                        target.Required = disp.Required;
-                        // ToDo: do we need this?
-                        target.Binding = disp.Binding.CopyWithKey();
-                        target.Name = disp.Name;
-                        target.Hint = disp.Hint;
-                        target.Visible = disp.Visible;
+                        // create new row field if not found
+                        // $.CardHistory[0].ActionButtons.Edit does not exist yet
+                        //var start = prop.Key.IndexOf('[');
+                        //var end = prop.Key.IndexOf(']');
+                        //var stringIndex = prop.Key.Substring(start + 1, end - start - 1);
+                        //var rowIndex = int.Parse(stringIndex);
+                        //var templateKey = $"{prop.Key.Substring(0, start+1)}__index{prop.Key.Substring(end, prop.Key.Length-end)}";
+                        //var templateField = allFields.FirstOrDefault(f => f.Binding.Key == templateKey);
+                        //var newField = GetRowField(templateField, rowIndex);
+                        //target = newField.DisplayProperties;
+                        var newRowField = CreateNewRowFieldByRowBinding(prop.Key);
+                        target = newRowField.DisplayProperties;
+
+                        // for new fields recived from rules binding can be missed
+                        if (disp.Binding == null)
+                        {
+                            disp.Binding = newRowField.Binding.CopyWithKey();
+                        }
                     }
+
+                    target.Caption = disp.Caption;
+                    target.Disabled = disp.Disabled;
+                    target.Highlighted = disp.Highlighted;
+                    target.Required = disp.Required;
+                    // ToDo: do we need this CopyWithKey?
+                    //target.Binding = disp.Binding?.CopyWithKey();
+                    target.Name = disp.Name;
+                    target.Hint = disp.Hint;
+                    target.Visible = disp.Visible;
                 }
             }
 
@@ -202,15 +281,30 @@ namespace BlazorForms.Rendering
             Tables = FormData.Fields.Where(f => f.Binding.BindingType == FieldBindingType.TableColumn || f.Binding.BindingType == FieldBindingType.TableColumnSingleSelect)
                 .GroupBy(g => g.Binding.TableBinding).ToDictionary(d => d.Key, d => d.ToList());
 
+            var repeaters = FormData.Fields.Where(f => f?.DisplayProperties?.Visible == true && f.Binding.BindingType == FieldBindingType.Repeater);
+
             Repeaters = FormData.Fields
-                .Where(f => f?.DisplayProperties?.Visible == true &&
+                .Where(f => f?.DisplayProperties?.Visible == true && repeaters.Any(x => x.Binding.TableBinding == f.Binding.TableBinding) &&
                     (f.Binding.BindingType == FieldBindingType.TableColumn || f.Binding.BindingType == FieldBindingType.TableColumnSingleSelect))
                 .GroupBy(g => g.Binding.TableBinding).ToDictionary(d => d.Key, d => d.ToList());
 
-            //Validations = new List<RuleExecutionResult>();
+            var lists = FormData.Fields.Where(f => f?.DisplayProperties?.Visible == true && f.Binding.BindingType == FieldBindingType.List);
 
-            // We already executed ExecuteFormLoadRules which triggers the same rules (FormRuleTriggers.Loaded)
-            //await TriggerRules(form.ProcessTaskTypeFullName, null, FormRuleTriggers.Loaded);
+            //Lists = FormData.Fields
+            //    .Where(f => f?.DisplayProperties?.Visible == true && lists.Any(x => x.Binding.TableBinding == f.Binding.TableBinding) &&
+            //        (f.Binding.BindingType == FieldBindingType.ListCard))
+            //    .GroupBy(g => g.Binding.TableBinding).ToDictionary(d => d.Key, d => d.ToList());
+
+            //var ListSets = FormData.Fields
+            //    .Where(f => f?.DisplayProperties?.Visible == true && lists.Any(x => x.Binding.TableBinding == f.Binding.TableBinding) &&
+            //        (f.Binding.BindingType == FieldBindingType.ListCard))
+            //    .GroupBy(g => g.Binding.TableBinding).ToDictionary(d => d.Key, d => FieldSetControlDetails.FindAllSets(d));
+
+            Lists = FormData.Fields
+                .Where(f => f?.DisplayProperties?.Visible == true && lists.Any(x => x.Binding.TableBinding == f.Binding.TableBinding) 
+                    && (f.Binding.BindingType == FieldBindingType.ListCard || f.Binding.BindingType == FieldBindingType.RepeaterActionButton) 
+                    && f.FieldSetGroup != null)
+                .GroupBy(g => g.Binding.TableBinding).ToDictionary(d => d.Key, d => FieldControlDetails.FindAllSets(d));
         }
 
         public static RuleExecutionRequest GetRuleRequest(string formName, FieldBinding modelBinding, FormRuleTriggers? trigger, int rowIndex,
@@ -222,7 +316,7 @@ namespace BlazorForms.Rendering
                 Disabled = d.Disabled,
                 Highlighted = d.Highlighted,
                 Hint = d.Hint,
-                Binding = d.Binding.CopyWithKey(),
+                Binding = d.Binding?.CopyWithKey(),
                 Name = d.Name,
                 Required = d.Required,
                 Visible = d.Visible
@@ -490,11 +584,14 @@ namespace BlazorForms.Rendering
             foreach (var x in allFields)
             {
                 //var r = _dynamicFieldValidator.Validate(x, PathNavi.GetValue(ModelUntyped, x.Binding.Key));
-                var r = _dynamicFieldValidator.Validate(x, PathNavi.GetValue(ModelUntyped, x.Binding.Key), ModelUntyped);
-
-                if (r != null)
+                if (x.Binding.BindingType != FieldBindingType.RepeaterActionButton && x.Binding.BindingType != FieldBindingType.ListCard)
                 {
-                    result.AddRange(r);
+                    var r = _dynamicFieldValidator.Validate(x, PathNavi.GetValue(ModelUntyped, x.Binding.Key), ModelUntyped);
+
+                    if (r != null)
+                    {
+                        result.AddRange(r);
+                    }
                 }
             }
 
@@ -675,7 +772,7 @@ namespace BlazorForms.Rendering
             if (binding == null)
             {
                 // Form Confirmations
-                if (_changed && confirmType == ConfirmType.ChangesWillBeLost)
+                if (IsAnythingChanged() && confirmType == ConfirmType.ChangesWillBeLost)
                 {
                     result.AddRange(list.Where(c => c.Type == ConfirmType.ChangesWillBeLost));
                 }
@@ -688,6 +785,25 @@ namespace BlazorForms.Rendering
 
         protected bool _changed;
         protected bool _ignoreChanged;
+
+        public bool InputChangedIgnored { get { return _ignoreChanged; } }
+
+        private bool IsAnythingChanged()
+        {
+            var isAnythingChanged = _changed;
+            _childControlViewModels.ToList().ForEach(c => { isAnythingChanged = isAnythingChanged || c.PreventCloseWithoutSave(); });
+            return isAnythingChanged;
+        }
+
+        public void RegisterChildControlViewModel(ControlViewModel child)
+        {
+            _childControlViewModels.Add(child);
+        }
+
+        public void UnregisterChildControlViewModel(ControlViewModel child)
+        {
+            _childControlViewModels.Remove(child);
+        }
 
         public void SetInputChanged(bool changed = true)
         {
@@ -726,5 +842,7 @@ namespace BlazorForms.Rendering
         {
             return Validations.Where(v => v.AffectedField == field.Binding.ResolvedBinding);
         }
+
+        private HashSet<ControlViewModel> _childControlViewModels = new HashSet<ControlViewModel>();
     }
 }

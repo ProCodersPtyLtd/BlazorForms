@@ -5,13 +5,13 @@ using CrmLightDemoApp.Onion.Domain.Repositories;
 
 namespace CrmLightDemoApp.Onion.Infrastructure
 {
-    public class PersonCompanyRepository : LocalCacheRepository<PersonCompanyLink>, IPersonCompanyRepository
+    public class PersonCompanyLinkRepository : LocalCacheRepository<PersonCompanyLink>, IPersonCompanyRepository
     {
         private readonly IPersonRepository _personRepository;
         private readonly ICompanyRepository _companyRepository;
         private readonly IPersonCompanyLinkTypeRepository _personCompanyLinkTypeRepository;
 
-        public PersonCompanyRepository(IPersonRepository personRepository, ICompanyRepository companyRepository,
+        public PersonCompanyLinkRepository(IPersonRepository personRepository, ICompanyRepository companyRepository,
             IPersonCompanyLinkTypeRepository personCompanyLinkTypeRepository) 
         { 
             _personRepository = personRepository;

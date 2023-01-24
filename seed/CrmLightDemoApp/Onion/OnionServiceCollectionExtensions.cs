@@ -18,14 +18,16 @@ namespace CrmLightDemoApp.Onion
                 // repositories
                 .AddSingleton<IPersonRepository, PersonRepository>()
                 .AddSingleton<ICompanyRepository, CompanyRepository>()
-                .AddSingleton<IPersonCompanyRepository, PersonCompanyRepository>()
+                .AddSingleton<IPersonCompanyRepository, PersonCompanyLinkRepository>()
                 .AddSingleton<IPersonCompanyLinkTypeRepository, PersonCompanyLinkTypeRepository>()
                 .AddSingleton<IRepository<PersonCompanyLinkType>, PersonCompanyLinkTypeRepository>()
                 .AddSingleton<IRepository<LeadSourceType>, LeadSourceTypeRepository>()
                 .AddSingleton<IBoardCardRepository, BoardCardRepository>()
                 .AddSingleton<IClientCompanyRepository, ClientCompanyRepository>()
+                .AddSingleton<IBoardCardHistoryRepository, BoardCardHistoryRepository>()
                 // services
-                .AddSingleton<IBoardService, BoardService>()
+                .AddScoped<IBoardService, BoardService>()
+                .AddScoped<IAppAuthState, MockAppAuthState>()
 
                 //.AddSingleton<StaticTypeEditFlow<LeadSourceType>, StaticTypeEditFlow<LeadSourceType>>()
                 ;

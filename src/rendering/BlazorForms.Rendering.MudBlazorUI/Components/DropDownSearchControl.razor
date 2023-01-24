@@ -1,11 +1,16 @@
-﻿@using BlazorForms.Rendering.State
+﻿@using BlazorForms.Flows.Definitions;
+@using BlazorForms.Rendering.Model;
+@using BlazorForms.Rendering.State
 @using BlazorForms.Shared
 @using MudBlazor
 @using BlazorForms.Forms
 @using BlazorForms.FlowRules
 @using BlazorForms.Rendering.Validation
+@using System.Collections;
 
 @inject IDynamicFieldValidator FieldValidator
+@inject ControlDialogFormViewModel DialogVM
+@inject IDialogService DialogService
 
 <MudAutocomplete T="Tuple<string, string>" Value="@SelectedValue" SearchFunc="@GetOptions" Disabled="@Field.DisplayProperties.Disabled"
                  TextChanged=@TextChanged ValueChanged=@ValueChanged 
@@ -18,6 +23,9 @@
 @code {
     [CascadingParameter]
     public FormOptions FormOptions { get; set; }
+
+    [CascadingParameter]
+    public EditFormOptions EditFormOptions { get; set; }
 
     [CascadingParameter]
     public IFormViewModel ViewModel { get; set; }
@@ -55,8 +63,12 @@
 
     private Tuple<string, string> SelectedValue;
     private string _selectedId;
+    private const string NEW_ITEM_KEY = "new-item-dialog";
+    private List<string>? _textLog = new();
+    private string _submittedNewItem;
+
     //private IEnumerable<object> _options;
-    private IDictionary<string, Tuple<string, string>> _optionsDictionary;
+    //private IDictionary<string, Tuple<string, string>> _optionsDictionary;
 
     private string MyId
     {
@@ -69,18 +81,29 @@
     protected override async Task OnParametersSetAsync()
     {
         _selectedId = FieldValue;
-        SelectedValue = _selectedId != null && _optionsDictionary.ContainsKey(_selectedId) ? _optionsDictionary[_selectedId] : null;
+        //SelectedValue = _selectedId != null && _optionsDictionary.ContainsKey(_selectedId) ? _optionsDictionary[_selectedId] : null;
+        SelectedValue = GetValues().FirstOrDefault(x => x.Item1 == _selectedId);
     }
 
     protected override async Task OnInitializedAsync()
     {
-        var items = ViewModel.FieldGetItemsValue(ViewModel.ModelUntyped, ItemsBinding);
+        //var items = ViewModel.FieldGetItemsValue(ViewModel.ModelUntyped, ItemsBinding);
 
-        _optionsDictionary = items.ToDictionary(
-                i => ViewModel.FieldGetIdValue(i, Field.Binding).AsString(),
-                i => new Tuple<string, string>(
-                    ViewModel.FieldGetIdValue(i, Field.Binding).AsString(), 
+        //_optionsDictionary = items.ToDictionary(
+        //        i => ViewModel.FieldGetIdValue(i, Field.Binding).AsString(),
+        //        i => new Tuple<string, string>(
+        //            ViewModel.FieldGetIdValue(i, Field.Binding).AsString(), 
+        //            ViewModel.FieldGetNameValue(i, Field.Binding).AsString()));
+    }
+
+    private IEnumerable<Tuple<string, string>> GetValues()
+    {
+        var items = ViewModel.FieldGetItemsValue(ViewModel.ModelUntyped, ItemsBinding)
+            .Select(i => new Tuple<string, string>(
+                    ViewModel.FieldGetIdValue(i, Field.Binding).AsString(),
                     ViewModel.FieldGetNameValue(i, Field.Binding).AsString()));
+
+        return items;
     }
 
     private IEnumerable<RuleExecutionResult> GetValidations()
@@ -90,7 +113,14 @@
 
     private async Task<IEnumerable<Tuple<string, string>>> GetOptions(string pattern)
     {
-        var options = _optionsDictionary.Values.Where(item => item?.Item2?.Contains(pattern ?? "", StringComparison.OrdinalIgnoreCase) == true);
+        //var options = _optionsDictionary.Values.Where(item => item?.Item2?.Contains(pattern ?? "", StringComparison.OrdinalIgnoreCase) == true).ToList();
+        var options = GetValues().Where(item => item?.Item2?.Contains(pattern ?? "", StringComparison.OrdinalIgnoreCase) == true).ToList();
+
+        if (!options.Any() && Field.AddDialogFlow != null)
+        {
+            options.Insert(0, new Tuple<string, string>(NEW_ITEM_KEY, "Add new..."));
+        }
+
         return options;
     }
 
@@ -99,10 +129,12 @@
         return value?.Item2;
     }
 
-    void TextChanged(string text)
+    private void TextChanged(string text)
     {
+        _textLog.Add(text);
+
         // Text is changed, if value is not an exact option - we set value to -1 (IncorrectTextCode) and provoke incorrect value validation
-        var selectedValue = _optionsDictionary.Values.FirstOrDefault(item => item.Item2 == text);
+        var selectedValue = GetValues().FirstOrDefault(item => item.Item2 == text);
 
         if (!string.IsNullOrWhiteSpace(text))
         {
@@ -113,14 +145,42 @@
                 ViewModel.RefreshValidations(Field);
                 return;
             }
-        
-            ValueChanged(selectedValue);
+
+            if (selectedValue?.Item1 != SelectedValue?.Item1)
+            {
+                ValueChanged(selectedValue);
+            }
         }
 
     }
 
-    void ValueChanged(Tuple<string, string> val)
+    private async void ValueChanged(Tuple<string, string> val)
     {
+        if (val?.Item1 == NEW_ITEM_KEY)
+        {
+            // run dialog, then set value    
+            var id = await CreateDialogFlow();
+
+            if (id != null)
+            {
+                ControlRef.Clear();
+                _selectedId = id;
+                //SelectedValue = _optionsDictionary.Values.FirstOrDefault(item => item.Item1 == _selectedId);
+                SelectedValue = GetValues().FirstOrDefault(item => item.Item1 == _selectedId);
+                ControlRef.Text = SelectedValue.Item2;
+            }
+            else
+            {
+                SelectedValue = null;
+                _selectedId = null;
+                ControlRef.Clear();
+            }
+
+            ViewModel.RefreshValidations(Field);
+            ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = _selectedId, RowIndex = RowIndex });
+            StateHasChanged();
+        }
+        else
         if (SelectedValue != val)
         {
             SelectedValue = val;
@@ -128,6 +188,54 @@
 
             ViewModel.RefreshValidations(Field);
             ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = _selectedId, RowIndex = RowIndex });
+        }
+    }
+
+    private async Task<string?> CreateDialogFlow()
+    {
+        var ps = new FlowParamsGeneric();
+        ps["Name"] = _textLog.Count > 1 ? _textLog[_textLog.Count-2] : "";
+        //await DialogVM.LoadDialog("CrmLightDemoApp.Onion.Services.Flow.PersonDialogFlow", ps);
+        await DialogVM.LoadDialog(Field.AddDialogFlow, ps);
+
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var dialogParameters = new DialogParameters();
+        dialogParameters["DialogViewModel"] = DialogVM;
+        //dialogParameters["IsNew"] = isNew;
+        dialogParameters["FormSubmitted"] = new EventCallback<FormSubmittedArgs>(this, DialogFormSubmitted);
+        dialogParameters["AllowAnonymousAccess"] = true;
+        dialogParameters["AllowFlowStorage"] = false;
+        dialogParameters["Options"] = EditFormOptions;
+        var dialog = await DialogService.ShowAsync<EmbeddedDialogForm>(null, dialogParameters, options);
+        var result = await dialog.Result;
+
+        if (result.Cancelled)
+        {
+            return null;
+        }
+
+        return _submittedNewItem;
+    }
+
+    private async Task DialogFormSubmitted(FormSubmittedArgs args)
+    {
+        // when dialog submitted the new value will be saved (by Flow) but local collection is not refreshed - we simulate refresh adding new item
+        // other controls not refreshed and new item is missed everywhere
+        var model = args.Model;
+
+        //var newItem = new Tuple<string, string>(
+        //            ViewModel.FieldGetIdValue(model, Field.Binding).AsString(),
+        //            ViewModel.FieldGetNameValue(model, Field.Binding).AsString());
+
+        //_optionsDictionary.Add(newItem.Item1, newItem);
+        _submittedNewItem = ViewModel.FieldGetIdValue(model, Field.Binding).AsString();
+
+        // try to add new value to the source
+        var items = ViewModel.FieldGetItemsValue(ViewModel.ModelUntyped, ItemsBinding) as IList;
+
+        if (items != null)
+        {
+            items.Add(model);
         }
     }
 }

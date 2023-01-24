@@ -90,8 +90,8 @@ namespace CrmLightDemoApp.Onion.Services.Flow
                     .Rule(typeof(FormStaticType_ItemChangedRule<T>), FormRuleTriggers.ItemChanged);
             });
 
-            f.Button(ButtonActionTypes.Close);
             f.Button(ButtonActionTypes.Submit, "Save Changes");
+            f.Button(ButtonActionTypes.Close);
         }
     }
 

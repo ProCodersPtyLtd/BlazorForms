@@ -28,11 +28,11 @@
         <MudDialog @bind-IsVisible="@DialogViewModel.DialogIsOpen" @onkeydown="@KeyPress" DefaultFocus="DefaultFocus.LastChild">
         <TitleContent>@DialogViewModel.FormData.DisplayName</TitleContent>
         <DialogContent>
-
-            <CascadingValue Value="@(DialogViewModel as IFormViewModel)">
-                <FormContent ModelValueChanged=@ModelActionChanged />
-            </CascadingValue>
-
+            @*<MudContainer Style="max-height: 680px; overflow-y: scroll">*@
+                <CascadingValue Value="@(DialogViewModel as IFormViewModel)">
+                    <FormContent ModelValueChanged=@ModelActionChanged />
+                </CascadingValue>
+            @*</MudContainer>*@
         </DialogContent>
         <DialogActions>
             <div class="d-flex flex-row flex-grow-1 gap-2 justify-end pz-dialog-content">

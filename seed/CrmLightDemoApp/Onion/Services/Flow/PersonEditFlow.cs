@@ -21,8 +21,9 @@ namespace CrmLightDemoApp.Onion.Services.Flow
         public override void Define()
         {
             this
+                .Begin()
                 .If(() => _flowContext.Params.ItemKeyAboveZero)
-                   .Begin(LoadData)
+                   .Next(LoadData)
                    .NextForm(typeof(FormPersonView))
                 .EndIf()
                 .If(() => _flowContext.ExecutionResult.FormLastAction == ModelBinding.DeleteButtonBinding)
@@ -77,13 +78,12 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             f.Property(p => p.Phone).IsReadOnly();
             f.Property(p => p.Email).IsReadOnly();
 
-            f.Button(ButtonActionTypes.Close, "Close");
+            f.Button(ButtonActionTypes.Submit, "Edit");
 
             f.Button(ButtonActionTypes.Delete, "Delete")
                 .Confirm(ConfirmType.Delete, "Delete this Person?", ConfirmButtons.YesNo);
 
-            f.Button(ButtonActionTypes.Submit, "Edit");
-
+            f.Button(ButtonActionTypes.Close, "Close");
         }
     }
 
@@ -102,7 +102,6 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 
             f.Button(ButtonActionTypes.Cancel, "Cancel");
             f.Button(ButtonActionTypes.Submit, "Save");
-
         }
     }
 }

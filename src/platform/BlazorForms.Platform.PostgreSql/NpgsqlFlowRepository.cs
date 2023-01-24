@@ -63,7 +63,7 @@ namespace BlazorForms.Platform
 //                    cmd.Parameters.AddWithValue("p1", flowName);
 //                    await sql.OpenAsync();
 //                    var reader = await cmd.ExecuteReaderAsync();
-//                    var list = new List<int>();
+//                    var list = new CardList<int>();
 
 //                    while (await reader.ReadAsync())
 //                    {
@@ -103,7 +103,7 @@ namespace BlazorForms.Platform
 //                {
 //                    cmd.CommandType = System.Data.CommandType.Text;
 
-//                    var list = new List<FlowLastModel>();
+//                    var list = new CardList<FlowLastModel>();
 
 //                    if (flowRunIdList.Count() > 0)
 //                    {

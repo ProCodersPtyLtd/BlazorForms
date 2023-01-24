@@ -41,7 +41,7 @@ namespace BlazorFormsDemoFlows.Flows
         {
             builder.List(p => p.Data, e => 
             {
-                e.DisplayName = "List Form V2";
+                e.DisplayName = "CardList Form V2";
 
                 e.Property(p => p.CustomerId).IsPrimaryKey();
                 e.Property(p => p.FirstName).Label("First Name").Filter(FieldFilterType.TextStarts);

@@ -14,6 +14,7 @@ namespace BlazorForms.FlowRules
         public List<RuleExecutionResult> Validations { get; set; }
 
         public Dictionary<string, DisplayDetails> FieldsDisplayProperties { get; set; }
+        public bool SkipThisChange { get; set; }
     }
 
     public class RuleEngineExecutionResult : RuleEngineExecutionResultNoModel

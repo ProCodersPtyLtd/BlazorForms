@@ -29,11 +29,11 @@
     <DialogActions>
         <div class="d-flex flex-row flex-grow-1 gap-2 justify-end pz-dialog-content">
             <div class="d-inline-flex">
-                <MudButton Variant="Variant.Filled" OnClick="@CancelClick" >@CancelName</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@SubmitClick">@OkName</MudButton>
             </div>
 
             <div class="d-inline-flex">
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@SubmitClick">@OkName</MudButton>
+                <MudButton Variant="Variant.Filled" OnClick="@CancelClick" >@CancelName</MudButton>
             </div>
         </div>
     </DialogActions>

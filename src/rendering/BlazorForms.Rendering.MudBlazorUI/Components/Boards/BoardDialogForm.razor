@@ -25,18 +25,18 @@
 </style>
 
 <CascadingValue Value=FormOptions>
+<CascadingValue Value="@EditFormOptions">
 
 @if (DialogViewModel.FormData != null)
 {
-    <div @onkeydown="@KeyPress">
-        <MudDialog @onkeydown="@KeyPress" DefaultFocus="DefaultFocus.LastChild">
+    <MudDialog DefaultFocus="DefaultFocus.LastChild">
         <TitleContent>@DialogViewModel.FormData.DisplayName</TitleContent>
         <DialogContent>
-            <MudContainer Style="max-height: 680px; overflow-y: scroll">
+            @*<MudContainer Style="max-height: 680px; overflow-y: scroll; overflow-x: hidden;">*@
                 <CascadingValue Value="@(DialogViewModel as IFormViewModel)">
-                    <FormContent ModelValueChanged=@ModelActionChanged />
+                    <FormContent ModelValueChanged=@ModelChanged />
                 </CascadingValue>
-            </MudContainer>
+            @*</MudContainer>*@
         </DialogContent>
         <DialogActions>
             <div class="d-flex flex-row flex-grow-1 gap-2 justify-end pz-dialog-content">
@@ -64,15 +64,15 @@
             </div>
         </DialogActions>
     </MudDialog>
-    </div>
 }
+</CascadingValue>
 </CascadingValue>
 
 @code {
     [Parameter]
-    public EditFormOptions Options { get; set; } = new();
+    public EditFormOptions EditFormOptions { get; set; } = new();
 
-    protected FormOptions FormOptions { get { return Options; } }
+    protected FormOptions FormOptions { get { return EditFormOptions; } }
 
     [CascadingParameter] 
     MudDialogInstance MudDialog { get; set; }
@@ -99,7 +99,14 @@
     public bool ValidateButton { get; set; }
 
     private bool _formLocked = false;
-    private IDisposable? _navigationRegistration;
+    //private IDisposable? _navigationRegistration;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //MudDialog.Options.CloseOnEscapeKey = true;
+        //MudDialog.Options.MaxWidth = MaxWidth.ExtraExtraLarge;
+        MudDialog.SetOptions(new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraExtraLarge, DisableBackdropClick = true });
+    }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -111,11 +118,23 @@
     {
         if (firstRender)
         {
-            _navigationRegistration = _navigationManager.RegisterLocationChangingHandler(OnLocationChanging);
+            //_navigationRegistration = _navigationManager.RegisterLocationChangingHandler(OnLocationChanging);
         }
     }
 
-    public void Dispose() => _navigationRegistration?.Dispose();
+    //public void Dispose() => _navigationRegistration?.Dispose();
+
+    private async Task ModelChanged(ValueChangedArgs args)
+    {
+        if (args.Operation == ModelChangedOperation.Default && !DialogViewModel.InputChangedIgnored)
+        {
+            // prevent close by escape if model changed
+            var options = new DialogOptions { CloseOnEscapeKey = false, MaxWidth = MaxWidth.ExtraExtraLarge, DisableBackdropClick = true };
+            MudDialog.SetOptions(options);
+        }
+
+        await ModelActionChanged.InvokeAsync(args);
+    }
 
     private Color GetActionColor(FieldControlDetails action)
     {
@@ -149,7 +168,7 @@
                     break;
 
                 case ModelBinding.CloseButtonBinding:
-                    //if (await CheckConfirmation(ConfirmType.ChangesWillBeLost))
+                    if (await CheckConfirmation(ConfirmType.ChangesWillBeLost))
                     {
                         await CancelClick();
                     }
@@ -216,7 +235,7 @@
         if (list.Any())
         {
             var details = list.First();
-            var options = new DialogOptions { CloseOnEscapeKey = true };
+            var options = new DialogOptions { CloseOnEscapeKey = true, DisableBackdropClick = true };
 
             var parameters = new DialogParameters 
             { 
@@ -245,18 +264,18 @@
         DialogViewModel.FormSettings.AllowFlowStorage = AllowFlowStorage;        
     }
 
-    // ToDo: not working
-    private void KeyPress(KeyboardEventArgs e)
-    {
-        if (e.Key == "Enter")
-        {
-            //SubmitClick();
-        }
-        else if (e.Key == "Esc")
-        {
-            CancelClick();
-        }
-    }
+    //// ToDo: not working
+    //private void KeyPress(KeyboardEventArgs e)
+    //{
+    //    if (e.Key == "Enter")
+    //    {
+    //        //SubmitClick();
+    //    }
+    //    else if (e.Key == "Esc")
+    //    {
+    //        CancelClick();
+    //    }
+    //}
 
     private async Task CancelClick()
     {

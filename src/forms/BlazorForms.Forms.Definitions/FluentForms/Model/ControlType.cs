@@ -32,5 +32,10 @@ namespace BlazorForms.Forms
         // for Quiz
         Image,
         Paragraph,
+        Card,
+        CardAvatar,
+        CardTitle,
+        CardBody,
+        CardButton,
     }
 }
