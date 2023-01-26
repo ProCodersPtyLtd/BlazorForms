@@ -38,7 +38,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow.LeadBoard
 				// ToDo: add event that is executed each time when flow model is changed
 				//.SetOnChange(BoardChangedAsync)
 				.State(Lead)
-					.TransitionForm<FormContactedCardEdit>(new UserActionTransitionTrigger(), Contacted, OnContactedAsync)
+					.TransitionForm<FormContactedCardEdit>(new UserActionTransitionTrigger(), Contacted)
 				.State(Contacted)
 					//.SetEditForm<FormContactedCardEdit>()
 					// ToDo: add Events that executed when flow is in the paticular state (Contacted) and trigger condition is met
@@ -52,21 +52,13 @@ namespace CrmLightDemoApp.Onion.Services.Flow.LeadBoard
                     .Transition<UserActionTransitionTrigger>(ProposalDelivered)
 				.State(ProposalDelivered)
                     .Transition<UserActionTransitionTrigger>(MeetingScheduled)
-					.TransitionForm<FormCardCommit>(new UserActionTransitionTrigger(), Won, SaveClientRecordAsync)
+					.TransitionForm<FormCardCommit>(new UserActionTransitionTrigger(), Won)
 				.State(Won)
                     .Transition<UserActionTransitionTrigger>(Lead)
                     .Transition<UserActionTransitionTrigger>(Contacted)
                     .Transition<UserActionTransitionTrigger>(MeetingScheduled)
                     .Transition<UserActionTransitionTrigger>(ProposalDelivered)
 					.End();
-		}
-
-		private async Task OnContactedAsync()
-		{
-		}
-
-		private async Task SaveClientRecordAsync()
-		{
 		}
 	}
 }
