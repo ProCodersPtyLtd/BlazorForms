@@ -215,6 +215,10 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
+        // we need to make sure that no content is shown while we load ViewModel
+        _vm.Loading = true;
+        StateHasChanged();
+
         // We load form once, and every time when parameters changed
         await Reload();
         await base.OnParametersSetAsync();
@@ -229,6 +233,7 @@ else
             _vm.FormSettings.AllowFlowStorage = AllowFlowStorage;
             await _vm.InitiateFlow(FlowName, null, Pk);
 
+            _vm.Loading = false;
             _loading = false;
             StateHasChanged();
         }

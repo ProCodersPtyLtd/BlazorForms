@@ -126,7 +126,8 @@
 
     private async Task ModelChanged(ValueChangedArgs args)
     {
-        if (args.Operation == ModelChangedOperation.Default && !DialogViewModel.InputChangedIgnored)
+        if ((args.Operation == ModelChangedOperation.Default || args.Operation == ModelChangedOperation.StartEditing) 
+            && !DialogViewModel.InputChangedIgnored)
         {
             // prevent close by escape if model changed
             var options = new DialogOptions { CloseOnEscapeKey = false, MaxWidth = MaxWidth.ExtraExtraLarge, DisableBackdropClick = true };

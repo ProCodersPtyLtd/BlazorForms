@@ -23,6 +23,19 @@ namespace BlazorForms.Flows
                 .End();
         }
 
+        protected int GetId()
+        {
+            var strid = Params["Id"];
+            int id;
+
+            if (strid != null && int.TryParse(strid, out id))
+            {
+                return id;
+            }
+
+            return 0;
+        }
+
         public abstract Task LoadDataAsync();
         public abstract Task SaveDataAsync();
     }

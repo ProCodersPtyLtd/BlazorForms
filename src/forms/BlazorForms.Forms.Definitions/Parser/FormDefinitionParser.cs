@@ -219,7 +219,7 @@ namespace BlazorForms.Forms
                     Group = field.Group,
                     Caption = field.Label ?? "",
                     ControlType = field.ControlType?.Name ?? field.ControlTypeName,
-                    AddDialogFlow = field.AddDialogFlow,
+                    ItemDialogFlow = field.AddDialogFlow,
                     FieldSetGroup = field.FieldSetGroup,
                     ActionLink = field.ActionLink,
 

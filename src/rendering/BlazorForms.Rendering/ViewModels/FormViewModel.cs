@@ -71,6 +71,7 @@ namespace BlazorForms.Rendering
         public FieldControlDetails? RejectAction { get; private set; }
         public string? RejectActionName { get; private set; }
         public string? SaveActionName { get; private set; }
+        public bool Loading { get; set; }
 
         public FormViewModel(ILogger<FormViewModel> logger, IFlowRunProvider flowRunProvider, IDynamicFieldValidator dynamicFieldValidator,
             IJsonPathNavigator jsonPathNavigator, IModelNavigator modelNavi, IReflectionProvider reflectionProvider, NavigationManager navigationManager,
@@ -353,9 +354,47 @@ namespace BlazorForms.Rendering
         {
             SetInputChanged(false);
             ActionFields = new FieldControlDetails[0];
+            
+            FieldsGrouped = null;
+            Repeaters = new Dictionary<string, List<FieldControlDetails>>();
+            Tables = new Dictionary<string, List<FieldControlDetails>>();
+            Lists = new Dictionary<string, List<FieldControlDetails>>();
+
             _modelNavi.SetModel(ModelUntyped);
             _rowFields = new Dictionary<string, FieldControlDetails>();
             Validations = new List<RuleExecutionResult>();
+        }
+
+        public void RowFieldRemoveAt(int rowIndex)
+        {
+            var sorted = _rowFields.OrderBy(x => x.Value.Binding.RowIndex);
+            var newFields = new List<FieldControlDetails>();
+
+            foreach (var item in sorted)
+            {
+                var key = item.Key;
+                var field = _rowFields[key];
+
+                // remove all fields on the deleted row and below
+                if (field.Binding.RowIndex >= rowIndex)
+                {
+                    _rowFields.Remove(key);
+                }
+                
+                // move all below fields one row up
+                if (field.Binding.RowIndex > rowIndex)
+                {
+                    var newRowIndex = field.Binding.RowIndex.Value - 1;
+                    field.Binding.ResolveKey(new FieldBindingArgs { RowIndex = newRowIndex });
+                    field.DisplayProperties?.Binding.ResolveKey(new FieldBindingArgs { RowIndex = newRowIndex });
+                    newFields.Add(field);
+                }
+            }
+
+            foreach (var field in newFields)
+            {
+                _rowFields[field.Binding.Key] = field;
+            }
         }
 
         public FieldControlDetails GetRowField(FieldControlDetails template, int row)
@@ -366,7 +405,7 @@ namespace BlazorForms.Rendering
             {
                 var newField = CloneField(template); 
                 newField.Binding.ResolveKey(new FieldBindingArgs { RowIndex = row });
-                newField.DisplayProperties.Binding.ResolveKey(new FieldBindingArgs { RowIndex = row });
+                newField.DisplayProperties?.Binding.ResolveKey(new FieldBindingArgs { RowIndex = row });
                 _rowFields[binding] = newField;
             }
 
@@ -386,6 +425,7 @@ namespace BlazorForms.Rendering
             return f;
         }
 
+        // _rowFields store controls for each row in repeaters with bindings like $.List[0..N].Name instead of $.List[__index].Name
         public void ClearRowFields()
         {
             _rowFields = new Dictionary<string, FieldControlDetails>();
@@ -795,9 +835,18 @@ namespace BlazorForms.Rendering
             return isAnythingChanged;
         }
 
+        public async Task Close()
+        {
+            foreach(var child in _childControlViewModels)
+            {
+                await child.Close();
+            }
+        }
+
         public void RegisterChildControlViewModel(ControlViewModel child)
         {
             _childControlViewModels.Add(child);
+            child.RegisterParentControlViewModel(this);
         }
 
         public void UnregisterChildControlViewModel(ControlViewModel child)

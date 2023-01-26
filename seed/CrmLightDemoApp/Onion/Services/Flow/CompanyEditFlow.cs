@@ -143,12 +143,12 @@ namespace CrmLightDemoApp.Onion.Services.Flow
                 e.Property(p => p.PersonFullName).Label("Person");
             });
 
-            f.Button(ButtonActionTypes.Close, "Close");
+            f.Button(ButtonActionTypes.Submit, "Edit");
 
             f.Button(ButtonActionTypes.Delete, "Delete")
                 .Confirm(ConfirmType.Delete, "Delete this Company?", ConfirmButtons.YesNo);
 
-            f.Button(ButtonActionTypes.Submit, "Edit");
+            f.Button(ButtonActionTypes.Close, "Close");
 
         }
     }

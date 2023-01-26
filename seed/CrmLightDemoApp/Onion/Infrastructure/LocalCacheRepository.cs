@@ -48,6 +48,11 @@ namespace CrmLightDemoApp.Onion.Infrastructure
             _localCache.Single(x => x.Id == data.Id).Deleted = true;
         }
 
+        public async Task SoftDeleteAsync(int id)
+        {
+            _localCache.Single(x => x.Id == id).Deleted = true;
+        }
+
         public async Task<List<T>> GetListByIdsAsync(IEnumerable<int> ids)
         {
             return _localCache.Where(x => ids.Contains(x.Id)).Select(x => x.GetCopy()).ToList();

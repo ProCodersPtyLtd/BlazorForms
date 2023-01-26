@@ -211,6 +211,10 @@
             await ShowPopup();
         }
 
+        // Inform VM
+        CardListVM.RemoveAt(RowIndex);
+        ViewModel.RowFieldRemoveAt(RowIndex);
+
         // delete item
         var items = ViewModel.FieldGetItemsValue(ViewModel.ModelUntyped, Table.Binding.TableBinding) as System.Collections.IList;
         items.RemoveAt(RowIndex);
@@ -224,6 +228,13 @@
         if (CardListVM.StartEdit(RowIndex))
         {
             CardListVM.EditingTextValue = GetText();
+            CardListVM.ModelUntyped = Item;
+            CardListVM.ListControl = Table;
+
+            // inform dialog we Editing
+            await ModelChanged.InvokeAsync(new ValueChangedArgs { RowIndex = RowIndex, Operation = ModelChangedOperation.StartEditing, 
+                Binding = Table.Binding });
+
             StateHasChanged();
         }
     }
@@ -262,7 +273,8 @@
 
     private async Task ApplyClick(MouseEventArgs args)
     {
-        if (await CardListVM.ApplyChanges(ViewModel, Item, Table))
+        //if (await CardListVM.ApplyChanges(ViewModel, Item, Table))
+        if (await CardListVM.ApplyChanges())
         {
             await ShowPopup();
         }

@@ -1,4 +1,5 @@
 ﻿using BlazorForms.Flows;
+using BlazorForms.Shared;
 using CrmLightDemoApp.Onion.Domain.Repositories;
 using CrmLightDemoApp.Onion.Services.Model;
 
@@ -15,6 +16,12 @@ namespace CrmLightDemoApp.Onion.Services.Flow.LeadBoard
 
         public override async Task LoadDataAsync()
         {
+            if (GetId() > 0)
+            {
+                var record = await _personRepository.GetByIdAsync(GetId());
+                record.ReflectionCopyTo(Model);
+            }
+
             var fullName = Params["Name"];
 
             if (fullName != null)
@@ -33,7 +40,15 @@ namespace CrmLightDemoApp.Onion.Services.Flow.LeadBoard
         {
             // we need full name for drop down option
             Model.FullName = $"{Model.FirstName} {Model.LastName}";
-            Model.Id = await _personRepository.CreateAsync(Model);
+
+            if (GetId() > 0)
+            {
+                await _personRepository.UpdateAsync(Model);
+            }
+            else
+            {
+                Model.Id = await _personRepository.CreateAsync(Model);
+            }
         }
     }
 }

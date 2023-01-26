@@ -14,7 +14,7 @@ namespace BlazorForms.Forms
         public List<FieldControlDetails> Fields { get; set; }
         public Collection<FormFlowRuleDetails> FlowRules { get; set; } = new();
         public int Order { get; set; }
-        public string AddDialogFlow { get; set; }
+        public string ItemDialogFlow { get; set; }
         public string FieldSetGroup { get; set; }
 
         public bool IsListNotRenderedField 

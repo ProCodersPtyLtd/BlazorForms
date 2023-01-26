@@ -11,6 +11,7 @@ namespace CrmLightDemoApp.Onion.Domain.Repositories
         Task UpdateAsync(T data);
         Task DeleteAsync(int id);
         Task SoftDeleteAsync(T data);
+        Task SoftDeleteAsync(int id);
         Task<List<T>> GetListByIdsAsync(IEnumerable<int> ids);
 
         ContextQuery<T> GetContextQuery();

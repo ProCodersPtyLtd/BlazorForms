@@ -26,8 +26,8 @@ namespace BlazorForms.Flows
 			return flow;
 		}
 
-		public static StateFlowBase TransitionForm<TForm>(this StateFlowBase flow, UserActionTransitionTrigger trigger, state state, 
-			Func<Task> onTransitionEvent)
+		public static StateFlowBase TransitionForm<TForm>(this StateFlowBase flow, UserActionTransitionTrigger trigger, state state,
+			Func<Task> onTransitionEvent = null)
 			where TForm : class
 		{
             if (trigger.Text == null)
