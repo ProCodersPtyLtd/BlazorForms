@@ -18,14 +18,19 @@ namespace BlazorForms.Rendering.ViewModels
         public bool IsEditing => _isEdititng;
 
         public string EditingTextValue { get; set; }
+        public object ModelUntyped { get; set; }
+        public FieldControlDetails ListControl { get; set; }
 
-        public async Task<bool> ApplyChanges(IFormViewModel viewModel, object model, FieldControlDetails table)
+        public async Task<bool> ApplyChanges()
         {
             if (!IsEditing)
             {
                 return true;
             }
 
+            var model = ModelUntyped;
+            var table = ListControl;
+            var viewModel = _formViewModel;
             var rowIndex = _edititngRowIndex;
             var bodyTextValue = EditingTextValue;
             var fieldSet = viewModel.Lists[table.Binding.TableBinding].First();
@@ -57,9 +62,22 @@ namespace BlazorForms.Rendering.ViewModels
             return true;
         }
 
+        public override async Task Close()
+        {
+            await ApplyChanges();
+        }
+
         public override bool PreventCloseWithoutSave()
         {
             return _isEdititng;
+        }
+
+        public void RemoveAt(int rowIndex)
+        {
+            if (IsEditing && rowIndex < _edititngRowIndex)
+            {
+                _edititngRowIndex--;
+            }
         }
 
         public bool IsEditingRow(int rowIndex)

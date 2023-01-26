@@ -12,11 +12,30 @@
 @inject ControlDialogFormViewModel DialogVM
 @inject IDialogService DialogService
 
-<MudAutocomplete T="Tuple<string, string>" Value="@SelectedValue" SearchFunc="@GetOptions" Disabled="@Field.DisplayProperties.Disabled"
-                 TextChanged=@TextChanged ValueChanged=@ValueChanged 
-                 ResetValueOnEmptyText="true" Immediate="true" CoerceText="false" CoerceValue="true"
+@if (Field.ItemDialogFlow != null)
+{
+    <MudAutocomplete T="Tuple<string, string>" Value="@SelectedValue" SearchFunc="@GetOptions" Disabled="@Field.DisplayProperties.Disabled"
+                    TextChanged=@TextChanged ValueChanged=@ValueChanged 
+                    ResetValueOnEmptyText="true" Immediate="true" CoerceText="false" CoerceValue="true" Dense="true"
+                    AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"
+                    Style="width: 100%;" Variant="FormOptions.Variant" @ref=@ControlRef ToStringFunc="@(e=> e?.Item2)" >
+    <ItemTemplate Context="e">
+        <MudText>
+            <MudIconButton Icon="@Icons.Material.Outlined.Pageview" Class="mb-n1 mr-3" Size="Size.Small" OnClick=@(async a => await ViewClick(e)) />
+            @(e.Item2)
+        </MudText>
+    </ItemTemplate>
+    </MudAutocomplete>
+}
+else
+{
+    <MudAutocomplete T="Tuple<string, string>" Value="@SelectedValue" SearchFunc="@GetOptions" Disabled="@Field.DisplayProperties.Disabled"
+                 TextChanged=@TextChanged ValueChanged=@ValueChanged
+                 ResetValueOnEmptyText="true" Immediate="true" CoerceText="false" CoerceValue="true" Dense="true"
                  AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"
-                 Style="width: 100%;" Variant="FormOptions.Variant" @ref=@ControlRef ToStringFunc="@(e=> e?.Item2)" />
+                 Style="width: 100%;" Variant="FormOptions.Variant" @ref=@ControlRef ToStringFunc="@(e=> e?.Item2)">
+    </MudAutocomplete>
+}
 
 <ValidatorControl Validations="@GetValidations().Take(1)"></ValidatorControl>
 
@@ -116,7 +135,7 @@
         //var options = _optionsDictionary.Values.Where(item => item?.Item2?.Contains(pattern ?? "", StringComparison.OrdinalIgnoreCase) == true).ToList();
         var options = GetValues().Where(item => item?.Item2?.Contains(pattern ?? "", StringComparison.OrdinalIgnoreCase) == true).ToList();
 
-        if (!options.Any() && Field.AddDialogFlow != null)
+        if (!options.Any() && Field.ItemDialogFlow != null)
         {
             options.Insert(0, new Tuple<string, string>(NEW_ITEM_KEY, "Add new..."));
         }
@@ -136,6 +155,14 @@
         // Text is changed, if value is not an exact option - we set value to -1 (IncorrectTextCode) and provoke incorrect value validation
         var selectedValue = GetValues().FirstOrDefault(item => item.Item2 == text);
 
+        if (string.IsNullOrWhiteSpace(text) && _selectedId == DynamicFieldValidator.IncorrectTextCode)
+        {
+            _selectedId = null;
+            ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = _selectedId, RowIndex = RowIndex });
+            ViewModel.RefreshValidations(Field);
+            return;
+        }
+
         if (!string.IsNullOrWhiteSpace(text))
         {
             if (selectedValue == null)
@@ -154,7 +181,26 @@
 
     }
 
-    private async void ValueChanged(Tuple<string, string> val)
+    private async Task ViewClick(Tuple<string, string> val)
+    {
+        if (val.Item1 != NEW_ITEM_KEY)
+        {
+            ControlRef.SelectOption(val);
+            var id = await CreateDialogFlow(val.Item1);
+
+            if (id != null)
+            {
+                ControlRef.Clear();
+                _selectedId = id;
+                //SelectedValue = _optionsDictionary.Values.FirstOrDefault(item => item.Item1 == _selectedId);
+                SelectedValue = GetValues().FirstOrDefault(item => item.Item1 == _selectedId);
+                ControlRef.Text = SelectedValue.Item2;
+                ValueChanged(val);
+            }
+        }
+    }
+
+    private async Task ValueChanged(Tuple<string, string> val)
     {
         if (val?.Item1 == NEW_ITEM_KEY)
         {
@@ -191,12 +237,13 @@
         }
     }
 
-    private async Task<string?> CreateDialogFlow()
+    private async Task<string?> CreateDialogFlow(string id = null)
     {
         var ps = new FlowParamsGeneric();
+        ps["Id"] = id;
         ps["Name"] = _textLog.Count > 1 ? _textLog[_textLog.Count-2] : "";
         //await DialogVM.LoadDialog("CrmLightDemoApp.Onion.Services.Flow.PersonDialogFlow", ps);
-        await DialogVM.LoadDialog(Field.AddDialogFlow, ps);
+        await DialogVM.LoadDialog(Field.ItemDialogFlow, ps);
 
         var options = new DialogOptions { CloseOnEscapeKey = true };
         var dialogParameters = new DialogParameters();
@@ -235,7 +282,25 @@
 
         if (items != null)
         {
-            items.Add(model);
+            // check if exists by id
+            if (_submittedNewItem == _selectedId)
+            {
+                // update if model updated
+                foreach (var item in items)
+                {
+                    var itemId = ViewModel.FieldGetIdValue(item, Field.Binding).AsString(); 
+
+                    if (itemId == _submittedNewItem)
+                    {
+                        model.ReflectionCopyTo(item);
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                items.Add(model);
+            }
         }
     }
 }

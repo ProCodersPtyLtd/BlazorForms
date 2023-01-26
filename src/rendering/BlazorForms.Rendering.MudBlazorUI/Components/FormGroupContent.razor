@@ -177,7 +177,12 @@
 
     async Task ModelChanged(ValueChangedArgs args)
     {
-
+        if (args.Operation == ModelChangedOperation.StartEditing)
+        {
+            await ModelValueChanged.InvokeAsync(args);
+            return;
+        }
+        else
         if (args.Operation != ModelChangedOperation.Default)
         {
             StateHasChanged(); 

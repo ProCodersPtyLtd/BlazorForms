@@ -28,15 +28,15 @@ namespace CrmLightDemoApp.Onion.Services.Flow.LeadBoard
             f.Property(p => p.Description);
 
             f.Property(p => p.SalesPersonId).DropdownSearch(p => p.AllPersons, m => m.Id, m => m.FullName).Label("Sales person").IsRequired()
-                .NewItemDialog(typeof(PersonDialogFlow));
+                .ItemDialog(typeof(PersonDialogFlow));
+
+            f.Property(p => p.RelatedCompanyId).DropdownSearch(p => p.AllCompanies, m => m.Id, m => m.Name).Label("Lead company")
+                .ItemDialog(typeof(CompanyDialogFlow));
+
+            f.Property(p => p.RelatedPersonId).DropdownSearch(p => p.AllPersons, m => m.Id, m => m.FullName).Label("Lead contact")
+                .ItemDialog(typeof(PersonDialogFlow));
 
             f.Property(p => p.LeadSourceTypeId).Dropdown(p => p.AllLeadSources, m => m.Id, m => m.Name).Label("Lead source");
-
-            f.Property(p => p.RelatedPersonId).DropdownSearch(p => p.AllPersons, m => m.Id, m => m.FullName).Label("Lead Contact")
-                .NewItemDialog(typeof(PersonDialogFlow));
-
-            f.Property(p => p.RelatedCompanyId).DropdownSearch(p => p.AllCompanies, m => m.Id, m => m.Name).Label("Company")
-                .NewItemDialog(typeof(CompanyDialogFlow));
 
             f.Property(p => p.Phone);
             f.Property(p => p.Email);

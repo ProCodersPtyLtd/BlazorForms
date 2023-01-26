@@ -54,7 +54,7 @@ builder.Services.AddGenericTypes(
         typeof(FormStaticTypeSaved<>) ,
         typeof(FormStaticType_ItemChangedRule<>), 
         typeof(FormStaticType_ItemDeletingRule<>), 
-    }, new Type[] { typeof(LeadSourceType) });
+    }, new Type[] { typeof(LeadSourceType), typeof(PersonCompanyLinkType) });
 
 var app = builder.Build();
 

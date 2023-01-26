@@ -59,6 +59,21 @@ namespace CrmLightDemoApp.Onion.Services.Flow.LeadBoard
             Result.Fields[SingleField(m => m.Company.EstablishedDate)].Visible = model.IsNewCompany;
         }
     }
+
+    public static class CardHistoryRuleHelper
+    {
+        public static void RefreshButtons(LeadBoardCardModel model, FlowRuleAsyncBase<LeadBoardCardModel> rule, RuleExecutionResult Result, 
+            IAppAuthState _appAuthState)
+        {
+            // display buttons only for comment owners
+            for (int i = 0; i < model.CardHistory.Count; i++)
+            {
+                var isCurrentUser = _appAuthState.GetCurrentUser().Id == model.CardHistory[i].PersonId;
+                Result.Fields[rule.FindField(m => m.CardHistory, ModelBinding.EditButtonBinding, i)].Visible = isCurrentUser;
+                Result.Fields[rule.FindField(m => m.CardHistory, ModelBinding.DeleteButtonBinding, i)].Visible = isCurrentUser;
+            }
+        }
+    }
     public class FormLeadCard_RefreshSources : FlowRuleAsyncBase<LeadBoardCardModel>
     {
         private readonly ICompanyRepository _companyRepository;
@@ -109,13 +124,15 @@ namespace CrmLightDemoApp.Onion.Services.Flow.LeadBoard
                     }).ToList();
             }
 
+            // refresh card buttons
+            CardHistoryRuleHelper.RefreshButtons(model, this, Result, _appAuthState);
             // display buttons only for comment owners
-            for (int i = 0; i < model.CardHistory.Count; i++)
-            {
-                var isCurrentUser = _appAuthState.GetCurrentUser().Id == model.CardHistory[i].PersonId;
-                Result.Fields[FindField(m => m.CardHistory, ModelBinding.EditButtonBinding, i)].Visible = isCurrentUser;
-                Result.Fields[FindField(m => m.CardHistory, ModelBinding.DeleteButtonBinding, i)].Visible = isCurrentUser;
-            }
+            //for (int i = 0; i < model.CardHistory.Count; i++)
+            //{
+            //    var isCurrentUser = _appAuthState.GetCurrentUser().Id == model.CardHistory[i].PersonId;
+            //    Result.Fields[FindField(m => m.CardHistory, ModelBinding.EditButtonBinding, i)].Visible = isCurrentUser;
+            //    Result.Fields[FindField(m => m.CardHistory, ModelBinding.DeleteButtonBinding, i)].Visible = isCurrentUser;
+            //}
         }
     }
 
@@ -133,6 +150,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow.LeadBoard
         public override async Task Execute(LeadBoardCardModel model)
         {
             var changedCard = model.CardHistory[RunParams.RowIndex];
+            changedCard.EditedDate = DateTime.Now;
             await _boardCardHistoryRepository.UpdateAsync(changedCard);
             Result.SkipThisChange = true;
         }
@@ -141,18 +159,23 @@ namespace CrmLightDemoApp.Onion.Services.Flow.LeadBoard
     public class FormLeadCardEdit_ItemDeletingRule : FlowRuleAsyncBase<LeadBoardCardModel>
     {
         private readonly IBoardCardHistoryRepository _boardCardHistoryRepository;
+        private readonly IAppAuthState _appAuthState;
 
         public override string RuleCode => "BRD-6";
 
-        public FormLeadCardEdit_ItemDeletingRule(IBoardCardHistoryRepository boardCardHistoryRepository)
+        public FormLeadCardEdit_ItemDeletingRule(IBoardCardHistoryRepository boardCardHistoryRepository, IAppAuthState appAuthState)
         {
             _boardCardHistoryRepository = boardCardHistoryRepository;
+            _appAuthState = appAuthState;
         }
 
         public override async Task Execute(LeadBoardCardModel model)
         {
             await _boardCardHistoryRepository.SoftDeleteAsync(model.CardHistory[RunParams.RowIndex]);
             Result.SkipThisChange = true;
+
+            // refresh card buttons
+            //CardHistoryRuleHelper.RefreshButtons(model, this, Result, _appAuthState);
         }
     }
 }

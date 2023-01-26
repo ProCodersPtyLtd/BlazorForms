@@ -192,7 +192,7 @@ namespace BlazorForms.Forms
             return this;
         }
 
-        public virtual FieldBuilder<TProperty, TEntity> NewItemDialog(Type flowType)
+        public virtual FieldBuilder<TProperty, TEntity> ItemDialog(Type flowType)
         {
             _field.AddDialogFlow = flowType.FullName;
             return this; 

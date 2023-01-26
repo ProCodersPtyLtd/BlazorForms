@@ -19,6 +19,7 @@ namespace BlazorForms.Rendering.State
     {
         Default = 0,
         Refresh,
-        SubmitAndRefresh
+        SubmitAndRefresh,
+        StartEditing,
     }   
 }

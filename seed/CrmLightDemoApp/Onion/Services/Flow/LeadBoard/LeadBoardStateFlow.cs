@@ -40,7 +40,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow.LeadBoard
 				.State(Lead)
 					.TransitionForm<FormContactedCardEdit>(new UserActionTransitionTrigger(), Contacted, OnContactedAsync)
 				.State(Contacted)
-					.SetEditForm<FormContactedCardEdit>()
+					//.SetEditForm<FormContactedCardEdit>()
 					// ToDo: add Events that executed when flow is in the paticular state (Contacted) and trigger condition is met
 					// (for now events can be run when user opens the board)
 					// in future we need a background service that checks events regularly

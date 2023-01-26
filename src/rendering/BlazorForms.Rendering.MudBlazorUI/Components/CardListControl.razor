@@ -53,7 +53,7 @@
 @if (Columns != null && GetListData() != null)
 {
     <MudPaper Width="100%" Elevation="0">
-        <MudList>
+        <MudList @ref="@MudListRef">
             <MudListItem >
                 @for (int i = 0; i < ListData.Count(); i++)
                 {
@@ -73,6 +73,9 @@
 @implements IAsyncDisposable
 
 @code {
+    [CascadingParameter]
+    public MudList MudListRef { get; set; }
+
     [CascadingParameter]
     public IFormViewModel ViewModel { get; set; }
 
@@ -114,21 +117,36 @@
         }
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+        }
+    }
+
     public async ValueTask DisposeAsync()
     {
+        CardListVM.FinishEdit();
         ViewModel.UnregisterChildControlViewModel(CardListVM);
 
-        if (CardListVM.IsEditing)
-        {
-            await CardListVM.ApplyChanges(ViewModel, ListData[CardListVM.EdititngRowIndex], Table);
-        }
+        // this should be done in ViewModel
+        //if (CardListVM.IsEditing)
+        //{
+        //    await CardListVM.ApplyChanges(ViewModel, ListData[CardListVM.EdititngRowIndex], Table);
+        //}
     }
 
     private async Task ModelChanged(ValueChangedArgs args)
     {
         if (args.Operation == ModelChangedOperation.Refresh)
         {
+            //RefreshRowFields();
+            //MudListRef
             StateHasChanged();
+        }
+        else if (args.Operation == ModelChangedOperation.StartEditing)
+        {
+            await ModelValueChanged.InvokeAsync(args);
         }
 
         //ViewModel.SetInputChanged();
@@ -183,6 +201,7 @@
             foreach (var col in Columns)
             {
                 GetField(i, col);
+                col.FindFields(ControlType.CardButton).ForEach(b => GetField(i, b));
             }
         }
     }

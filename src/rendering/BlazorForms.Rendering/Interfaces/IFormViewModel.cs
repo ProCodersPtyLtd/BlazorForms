@@ -48,6 +48,7 @@ namespace BlazorForms.Rendering.Interfaces
         string? ExceptionMessage { get; }
         string? ExceptionStackTrace { get; }
         string? ExceptionType { get; }
+        bool Loading { get; set; }
 
         // main flow api
         Task InitiateFlow(string flowName, string refId, string pk);
@@ -66,6 +67,7 @@ namespace BlazorForms.Rendering.Interfaces
         IEnumerable<RuleExecutionResult> GetValidations(FieldControlDetails field);
 
         // track user input changes
+        Task Close();
         void RegisterChildControlViewModel(ControlViewModel child);
         void UnregisterChildControlViewModel(ControlViewModel child);
         void SetInputChanged(bool changed = true);
@@ -76,6 +78,7 @@ namespace BlazorForms.Rendering.Interfaces
         // useful api
         List<SelectableListItem> GetSelectableListData(FieldControlDetails field);
         FieldControlDetails GetRowField(FieldControlDetails template, int row);
+        void RowFieldRemoveAt(int rowIndex);
         FieldControlDetails GetFieldByName(string name);
         IEnumerable<RuleExecutionResult> GetDynamicFieldValidations();
         Task<bool> CheckFormUserAccess(FormDetails form, UserViewAccessInformation accessInfo, IFlowModel model, FlowParamsGeneric flowParams);

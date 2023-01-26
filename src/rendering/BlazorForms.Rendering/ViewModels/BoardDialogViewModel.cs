@@ -64,6 +64,8 @@ namespace BlazorForms.Rendering
                 return false;
             }
 
+            await Close();
+
             //if (FormSettings.AllowFlowStorage)
             //{
             //    Context = await _flowRunProvider.SubmitListItemForm(RefId, ModelUntyped, SubmitActionName);

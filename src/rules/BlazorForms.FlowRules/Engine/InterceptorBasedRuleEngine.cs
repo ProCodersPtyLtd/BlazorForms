@@ -118,7 +118,9 @@ namespace BlazorForms.FlowRules
                     || parameters.TriggeredTriggerType == FormRuleTriggers.ItemDeleting) &&
                     triggeredFields.Count > parameters.RowIndex)
                 {
-                    var rowField = triggeredFields.ElementAt(parameters.RowIndex);
+                    //var rowField = triggeredFields.ElementAt(parameters.RowIndex);
+                    var element = $"[{parameters.RowIndex}]";
+                    var rowField = triggeredFields.FirstOrDefault(x => x.Contains(element));
                     triggeredFields = new List<string> { rowField };
                 }
 
@@ -138,8 +140,9 @@ namespace BlazorForms.FlowRules
             }
 
             //else if (!string.IsNullOrEmpty(parameters.TriggeredFieldJsonPath))
-            else if (parameters.TriggeredFieldBinding != null)
+            else if (parameters.TriggeredFieldBinding != null && parameters.TriggeredTriggerType == null)
             {
+                // ToDo: if changedFields alred contacins "$.CardHistory[0]" we should not add another $.CardHistory[__index]
                 changedFields.Push(parameters.TriggeredFieldBinding.Key);
             }
 
