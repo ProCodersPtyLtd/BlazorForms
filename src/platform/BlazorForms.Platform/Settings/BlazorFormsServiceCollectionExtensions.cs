@@ -45,7 +45,7 @@ namespace BlazorForms
         {
             serviceCollection.AddBlazorFormsApplicationParts("BlazorForms.");
 
-            config = config ?? new BlazorFormsConfiguration(){ RuleEngineType = RuleEngineType.CascadingPull };
+            config = config ?? new BlazorFormsConfiguration(){ RuleEngineType = RuleEngineType.Simple };
 
             switch (config.RuleEngineType)
             {
