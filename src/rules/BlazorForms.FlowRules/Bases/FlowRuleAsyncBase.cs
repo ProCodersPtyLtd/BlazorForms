@@ -51,6 +51,11 @@ namespace BlazorForms.FlowRules
             return selectorString;
         }
 
+        public void Trigger(string selector, FormRuleTriggers triggerType = FormRuleTriggers.Changed)
+        {
+            Result.ChangedFields.Add(selector);
+        }
+
         public string SingleField<TKey>(Expression<Func<M, TKey>> selector)
         {
             var selectorString = selector.Body.ToString();
