@@ -208,11 +208,11 @@ namespace CrmLightDemoApp.Onion.Services.Flow
         {
             model.PersonCompanyLinks[RunParams.RowIndex].Changed = true;
 
-            // Example: How to trigger cascading rule in FastRuleEngine
+            // Example: How to trigger cascading rule in SimpleFastRuleEngine
             Trigger(RowField(m => m.PersonCompanyLinks, m => m.Changed, RunParams.RowIndex));
 
             // Incorrect example: Don't use SingleField for collections
-            Trigger(SingleField(m => m.PersonCompanyLinks[RunParams.RowIndex].Changed));
+            // Trigger(SingleField(m => m.PersonCompanyLinks[RunParams.RowIndex].Changed));
         }
     }
     public class FormCompanyEdit_CheckNameRule : FlowRuleBase<CompanyModel>

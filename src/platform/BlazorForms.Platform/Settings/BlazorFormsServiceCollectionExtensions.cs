@@ -24,6 +24,7 @@ using System.Reflection;
 using BlazorForms.Shared.FastReflection;
 using BlazorForms.Platform.Definitions.Shared;
 using BlazorForms.Rendering.ViewModels;
+using BlazorForms.FlowRules.Engine;
 
 namespace BlazorForms
 {
@@ -39,9 +40,22 @@ namespace BlazorForms
             return serviceCollection;
         }
 
-        public static IServiceCollection AddServerSideBlazorForms([NotNull] this IServiceCollection serviceCollection)
+        public static IServiceCollection AddServerSideBlazorForms([NotNull] this IServiceCollection serviceCollection, 
+            BlazorFormsConfiguration config = null)
         {
             serviceCollection.AddBlazorFormsApplicationParts("BlazorForms.");
+
+            config = config ?? new BlazorFormsConfiguration(){ RuleEngineType = RuleEngineType.CascadingPull };
+
+            switch (config.RuleEngineType)
+            {
+                case RuleEngineType.CascadingPull:
+                    serviceCollection.AddScoped<IRuleExecutionEngine, InterceptorBasedRuleEngine>();
+                    break;
+                default:
+                    serviceCollection.AddScoped<IRuleExecutionEngine, SimpleFastRuleEngine>();
+                    break;
+            };
 
             serviceCollection
                 .AddScoped<IAuthState, MockAuthState>()
@@ -55,7 +69,8 @@ namespace BlazorForms
                 .AddSingleton<IFastReflectionProvider, FastReflectionProvider>()
 
                 // InterceptorBasedRuleEngine keeps state during execution and cannot be shared between scopes
-                .AddScoped<IRuleExecutionEngine, InterceptorBasedRuleEngine>()
+                //.AddScoped<IRuleExecutionEngine, InterceptorBasedRuleEngine>()
+
                 // RuleDefinitionParser creates all rules, that can have dependencies on Scoped services
                 .AddScoped(typeof(IRuleDefinitionParser), typeof(RuleDefinitionParser))
                 .AddScoped<IFlowRunProvider, FlowRunProvider>()

@@ -299,8 +299,8 @@
 
             if(submitted)
             {
-                await FormSubmitted.InvokeAsync(new BoardDialogSubmittedArgs { Card = DialogViewModel.ModelUntyped as IFlowBoardCard });
                 CloseDialog(true);
+                await FormSubmitted.InvokeAsync(new BoardDialogSubmittedArgs { Card = DialogViewModel.ModelUntyped as IFlowBoardCard });
             }
         }
         catch (Exception exc)

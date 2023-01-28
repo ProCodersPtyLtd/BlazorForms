@@ -16,9 +16,11 @@ namespace BlazorForms.FlowRules
         public string RuleCode { get; set; }
         public string AffectedField { get; set; }
         //public FieldBinding AffectedField { get; set; }
+        public List<string> ChangedFields { get; } = new List<string>();
 
         internal void Clear()
         {
+            ChangedFields.Clear();
             ValidationMessage = null;
             ValidationResult = RuleValidationResult.Ok;
         }

@@ -43,6 +43,7 @@ namespace BlazorForms.FlowRules
 
         public void Trigger(string selector, FormRuleTriggers triggerType = FormRuleTriggers.Changed)
         {
+            Result.ChangedFields.Add(selector);
         }
 
         public static string SingleField<TKey>(Expression<Func<M, TKey>> selector)

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BlazorForms.FlowRules
 {
-    public class SimpleRuleEngine
+    public class AccessRuleEngine : IRuleExecutionEngine
     {
         private readonly IJsonPathNavigator _navigator;
         private readonly IEnumerable<Assembly> _asms;
@@ -23,7 +23,7 @@ namespace BlazorForms.FlowRules
         //private readonly List<string> _changedFields = new List<string>();
 
         // ToDo: should be refactored to load only simple rules
-        public SimpleRuleEngine(IRuleDefinitionParser parser, IAssemblyRegistrator assemblyRegistrator, IProxymaProvider proxyProvider,
+        public AccessRuleEngine(IRuleDefinitionParser parser, IAssemblyRegistrator assemblyRegistrator, IProxymaProvider proxyProvider,
             IJsonPathNavigator navigator)
         {
             _parser = parser;

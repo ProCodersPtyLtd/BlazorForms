@@ -21,8 +21,15 @@
                     Style="width: 100%;" Variant="FormOptions.Variant" @ref=@ControlRef ToStringFunc="@(e=> e?.Item2)" >
     <ItemTemplate Context="e">
         <MudText>
-            <MudIconButton Icon="@Icons.Material.Outlined.Pageview" Class="mb-n1 mr-3" Size="Size.Small" OnClick=@(async a => await ViewClick(e)) />
-            @(e.Item2)
+            @if (e.Item1 == NEW_ITEM_KEY)
+            {
+                @(e.Item2)
+            }
+            else
+            {
+                <MudIconButton Icon="@Icons.Material.Outlined.Pageview" Class="mb-n1 mr-3" Size="Size.Small" OnClick=@(async a => await ViewClick(e)) />
+                @(e.Item2)
+            }
         </MudText>
     </ItemTemplate>
     </MudAutocomplete>
@@ -204,6 +211,7 @@ else
     {
         if (val?.Item1 == NEW_ITEM_KEY)
         {
+            ControlRef.SelectOption(val);
             // run dialog, then set value    
             var id = await CreateDialogFlow();
 
@@ -241,14 +249,12 @@ else
     {
         var ps = new FlowParamsGeneric();
         ps["Id"] = id;
-        ps["Name"] = _textLog.Count > 1 ? _textLog[_textLog.Count-2] : "";
-        //await DialogVM.LoadDialog("CrmLightDemoApp.Onion.Services.Flow.PersonDialogFlow", ps);
+        ps["Name"] = _textLog.Count > 2 ? _textLog[_textLog.Count-3] : "";
         await DialogVM.LoadDialog(Field.ItemDialogFlow, ps);
 
         var options = new DialogOptions { CloseOnEscapeKey = true };
         var dialogParameters = new DialogParameters();
         dialogParameters["DialogViewModel"] = DialogVM;
-        //dialogParameters["IsNew"] = isNew;
         dialogParameters["FormSubmitted"] = new EventCallback<FormSubmittedArgs>(this, DialogFormSubmitted);
         dialogParameters["AllowAnonymousAccess"] = true;
         dialogParameters["AllowFlowStorage"] = false;

@@ -1,83 +1,74 @@
-﻿using BlazorForms.FlowRules;
-using BlazorForms.FlowRules.Engine;
-using BlazorForms.Proxyma;
+﻿using BlazorForms.Proxyma;
 using BlazorForms.Shared;
 using BlazorForms.Shared.Exceptions;
-using BlazorForms.Shared.Reflection;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BlazorForms.FlowRules
+namespace BlazorForms.FlowRules.Engine
 {
-    public class InterceptorBasedRuleEngine : RuleExecutionEngineBase
+    public abstract class RuleExecutionEngineBase : IRuleExecutionEngine
     {
-        private readonly IJsonPathNavigator _navigator;
-        private readonly IEnumerable<Assembly> _asms;
-        private readonly Dictionary<string, Type> _allTypes;
-        private readonly IEnumerable<ExecutableRuleDetails> _allRules;
-        private readonly Dictionary<string, ExecutableRuleDetails> _rulesDictionary;
-        private readonly IRuleDefinitionParser _parser;
-        private readonly IAssemblyRegistrator _assemblyRegistrator;
-        private readonly IProxymaProvider _proxyProvider;
-        private readonly ILogStreamer _logStreamer;
-        private readonly IKnownTypesBinder _binder;
+        protected readonly IJsonPathNavigator _navigator;
+        protected readonly IEnumerable<Assembly> _asms;
+        protected readonly Dictionary<string, Type> _allTypes;
+        protected readonly IEnumerable<ExecutableRuleDetails> _allRules;
+        protected readonly Dictionary<string, ExecutableRuleDetails> _rulesDictionary;
+        protected readonly IRuleDefinitionParser _parser;
+        protected readonly IAssemblyRegistrator _assemblyRegistrator;
+        protected readonly ILogStreamer _logStreamer;
+        protected readonly IKnownTypesBinder _binder;
 
-        public InterceptorBasedRuleEngine(IRuleDefinitionParser parser, IAssemblyRegistrator assemblyRegistrator, IProxymaProvider proxyProvider,
-            IJsonPathNavigator navigator, ILogStreamer logStreamer, IKnownTypesBinder binder)
-            : base(logStreamer, parser, assemblyRegistrator, navigator, binder)
+        public RuleExecutionEngineBase(ILogStreamer logStreamer, IRuleDefinitionParser parser, IAssemblyRegistrator assemblyRegistrator,
+            IJsonPathNavigator navigator, IKnownTypesBinder binder)
         {
-            //_logStreamer = logStreamer;
-            //_parser = parser;
-            //_assemblyRegistrator = assemblyRegistrator;
-            _proxyProvider = proxyProvider;
-            //_navigator = navigator;
-            //_binder = binder;
-            //_asms = _assemblyRegistrator.GetConsideredAssemblies().Distinct();
+            _logStreamer = logStreamer;
+            _parser = parser;
+            _assemblyRegistrator = assemblyRegistrator;
+            _navigator = navigator;
+            _binder = binder;
+            _asms = _assemblyRegistrator.GetConsideredAssemblies().Distinct();
 
-            //_allTypes = _asms
-            //                .SelectMany(a => a.GetTypes())
-            //                .Union(_binder.KnownTypes)
-            //                .GroupBy(t => t.FullName)
-            //                .ToDictionary(t => t.First().FullName, t => t.First());
+            _allTypes = _asms
+                            .SelectMany(a => a.GetTypes())
+                            .Union(_binder.KnownTypes)
+                            .GroupBy(t => t.FullName)
+                            .ToDictionary(t => t.First().FullName, t => t.First());
 
-            //try
-            //{
-            //    _allRules = _parser.FindAllRules(_asms);
+            try
+            {
+                _allRules = _parser.FindAllRules(_asms);
 
-            //    var dups = _allRules.GroupBy(r => r.RuleCode).Where(g => g.Count() > 1);
+                var dups = _allRules.GroupBy(r => r.RuleCode).Where(g => g.Count() > 1);
 
-            //    if(dups.Any())
-            //    {
-            //        var codes = String.Join(",", dups.Select(d => d.Key));
-            //        throw new BlazorFormsValidationException($"Rule code must be unique, the following codes used more than once: {codes}");
-            //    }
+                if (dups.Any())
+                {
+                    var codes = String.Join(",", dups.Select(d => d.Key));
+                    throw new BlazorFormsValidationException($"Rule code must be unique, the following codes used more than once: {codes}");
+                }
 
-            //    _rulesDictionary = _allRules.ToDictionary(d => d.RuleCode, d => d);
-            //}
-            //catch(Exception exc)
-            //{
-            //    _logStreamer.TrackException(exc);
-            //    throw;
-            //}
+                _rulesDictionary = _allRules.ToDictionary(d => d.RuleCode, d => d);
+            }
+            catch (Exception exc)
+            {
+                _logStreamer.TrackException(exc);
+                throw;
+            }
         }
-        public override async Task<RuleEngineExecutionResult> Execute(RuleExecutionParameters parameters)
+
+        public virtual async Task<RuleEngineExecutionResult> Execute(RuleExecutionParameters parameters)
         {
             var changedFields = new ConcurrentStack<string>();
-            var modelProxy = _proxyProvider.GetModelProxy(parameters.Model, (jsonPath, prop, val) => changedFields.Push(jsonPath));
-            var result = await ExecuteLogic(parameters, modelProxy, changedFields);
-            var resultModel = _proxyProvider.GetProxyModel(modelProxy);
-            result.Model = resultModel;
+            var result = await ExecuteLogic(parameters, parameters.Model, changedFields);
             return result;
         }
 
-        public async Task<RuleEngineExecutionResult> ExecuteOld(RuleExecutionParameters parameters)
+        protected async Task<RuleEngineExecutionResult> ExecuteLogic(RuleExecutionParameters parameters, 
+            object modelProxy, ConcurrentStack<string> changedFields)
         {
             // validate parameters
             if (string.IsNullOrEmpty(parameters.TriggeredRuleCode) && parameters.TriggeredFieldBinding == null && parameters.TriggeredTriggerType == null)
@@ -86,7 +77,7 @@ namespace BlazorForms.FlowRules
             }
 
             var currentFieldsDisplayProperties = parameters.FieldsDisplayProperties;
-            var changedFields = new ConcurrentStack<string>();
+            //var changedFields = new ConcurrentStack<string>();
             var processedFileds = new Dictionary<string, int>();
 
             var result = new RuleEngineExecutionResult { Validations = new List<RuleExecutionResult>() };
@@ -120,7 +111,7 @@ namespace BlazorForms.FlowRules
                     bindingDictionary = fields.Where(f => f.Binding.BindingType != FieldBindingType.ActionButton).
                         ToDictionary(f => f.Binding.Key, f => f.Rules.Where(r => r.RuleTriggerType == parameters.TriggeredTriggerType));
                 }
-                
+
                 bindingRowIndexResolution = SpreadBindingRulesForLists(bindingDictionary, parameters.Model);
 
                 var triggeredFields = bindingDictionary.Keys.Where(k => bindingDictionary[k].Any() && k?.Contains(FieldBinding.ColumnIndexMarker) == false).ToList();
@@ -135,11 +126,15 @@ namespace BlazorForms.FlowRules
                     triggeredFields = new List<string> { rowField };
                 }
 
-                changedFields = new ConcurrentStack<string>(triggeredFields);
+                if (triggeredFields.Count > 0)
+                {
+                    changedFields.PushRange(triggeredFields.ToArray());
+                }
+                // changedFields = new ConcurrentStack<string>(triggeredFields);
             }
 
             // Passing a lambda mutating changedFields
-            var modelProxy = _proxyProvider.GetModelProxy(parameters.Model, (jsonPath, prop, val) => changedFields.Push(jsonPath));
+            //var modelProxy = _proxyProvider.GetModelProxy(parameters.Model, (jsonPath, prop, val) => changedFields.Push(jsonPath));
 
             if (!string.IsNullOrEmpty(parameters.TriggeredRuleCode))
             {
@@ -147,13 +142,13 @@ namespace BlazorForms.FlowRules
                 ruleDetails.Instance.Initialize(parameters);
                 ruleDetails.Instance.Result.Initialize(currentFieldsDisplayProperties);
 
-                await ExecuteRule(ruleDetails, parameters?.TriggeredFieldBinding?.Key, result, modelProxy, _logStreamer);
+                await ExecuteRule(changedFields, ruleDetails, parameters?.TriggeredFieldBinding?.Key, result, modelProxy, _logStreamer);
             }
 
             //else if (!string.IsNullOrEmpty(parameters.TriggeredFieldJsonPath))
             else if (parameters.TriggeredFieldBinding != null && parameters.TriggeredTriggerType == null)
             {
-                // ToDo: if changedFields alred contacins "$.CardHistory[0]" we should not add another $.CardHistory[__index]
+                // ToDo: if changedFields already contains "$.CardHistory[0]" we should not add another $.CardHistory[__index]
                 changedFields.Push(parameters.TriggeredFieldBinding.Key);
             }
 
@@ -200,13 +195,13 @@ namespace BlazorForms.FlowRules
                     ruleDetails.Instance.Initialize(parameters);
                     ruleDetails.Instance.Result.Initialize(currentFieldsDisplayProperties);
 
-                    await ExecuteRule(ruleDetails, current, result, modelProxy, _logStreamer);
+                    await ExecuteRule(changedFields, ruleDetails, current, result, modelProxy, _logStreamer);
                 }
             }
 
             // restore all models in hierarchy from proxies
-            var resultModel = _proxyProvider.GetProxyModel(modelProxy);
-            result.Model = resultModel;
+            //var resultModel = _proxyProvider.GetProxyModel(modelProxy);
+            result.Model = modelProxy;
             result.FieldsDisplayProperties = currentFieldsDisplayProperties;
             return result;
         }
@@ -261,7 +256,8 @@ namespace BlazorForms.FlowRules
             return bindingDictionary.ContainsKey(current);
         }
 
-        private static async Task ExecuteRule(ExecutableRuleDetails ruleDetails, string affectedField, RuleEngineExecutionResult result, object modelProxy, ILogStreamer logStreamer)
+        private static async Task ExecuteRule(ConcurrentStack<string> changedFields, ExecutableRuleDetails ruleDetails, string affectedField, 
+            RuleEngineExecutionResult result, object modelProxy, ILogStreamer logStreamer)
         {
             bool isAsync = ruleDetails.Instance.GetType().GetInterfaces()
                         .Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IFlowRuleAsync<>));
@@ -286,6 +282,11 @@ namespace BlazorForms.FlowRules
             {
                 result.SkipThisChange = true;
             }
+
+            if (ruleDetails.Instance.Result.ChangedFields.Any())
+            {
+                changedFields.PushRange(ruleDetails.Instance.Result.ChangedFields.ToArray());
+            }
         }
 
         private Dictionary<string, int> SpreadBindingRulesForLists(Dictionary<string, IEnumerable<RuleDetails>> bindingDictionary, object model)
@@ -300,7 +301,7 @@ namespace BlazorForms.FlowRules
                 var itemPath = parts[1];
                 var list = _navigator.GetItems(model, itemsBinding);
 
-                if(list != null)
+                if (list != null)
                 {
                     var rules = bindingDictionary[binding];
                     // let's keep template binding for a while

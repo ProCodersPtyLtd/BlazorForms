@@ -354,7 +354,8 @@ namespace BlazorForms.Rendering
         {
             SetInputChanged(false);
             ActionFields = new FieldControlDetails[0];
-            
+
+            FormData = null;
             FieldsGrouped = null;
             Repeaters = new Dictionary<string, List<FieldControlDetails>>();
             Tables = new Dictionary<string, List<FieldControlDetails>>();
@@ -856,13 +857,16 @@ namespace BlazorForms.Rendering
 
         public void SetInputChanged(bool changed = true)
         {
-            if (!_ignoreChanged && changed)
+            if (changed && !_ignoreChanged)
             {
                 _changed = true;
                 return;
             }
 
-            _changed = changed;
+            if (!changed)
+            {
+                _changed = false;
+            }
         }
 
         public void IgnoreInputChanged()
