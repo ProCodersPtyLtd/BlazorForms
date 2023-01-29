@@ -36,7 +36,7 @@ builder.Services.AddMudServices(config =>
 });
 
 // BlazorForms
-builder.Services.AddServerSideBlazorForms();
+builder.Services.AddServerSideBlazorForms(new BlazorFormsConfiguration { RuleEngineType = RuleEngineType.Simple });
 builder.Services.AddBlazorFormsMudBlazorUI();
 builder.Services.AddBlazorFormsServerModelAssemblyTypes(typeof(PersonEditFlow));
 

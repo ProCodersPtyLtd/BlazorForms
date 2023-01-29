@@ -24,9 +24,9 @@
 </style>
 
 
-@if (ViewModel.ModelUntyped == null)
+@if (ViewModel.ModelUntyped == null || ViewModel.FormData == null)
 {
-    <MudText Typo="Typo.h6">No Model Found</MudText>
+    @*<MudText Typo="Typo.h6">Form has been cleared already</MudText>*@
 }
 else
 {

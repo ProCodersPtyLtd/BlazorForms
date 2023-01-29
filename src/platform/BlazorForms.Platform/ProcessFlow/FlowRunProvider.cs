@@ -39,6 +39,7 @@ namespace BlazorForms.Platform.ProcessFlow
         private readonly IFluentFlowRunEngine _fluentFlowRunEngine;
         private readonly ILogStreamer _logStreamer;
         private readonly IClientBrowserService _clientBrowserService;
+        private readonly IRuleExecutionEngine _ruleEngine;
         
         // ToDo: StackOverflow thrown if we create ruleEngine through DI
         //private readonly IRuleExecutionEngine _ruleExecutionEngine;
@@ -75,6 +76,7 @@ namespace BlazorForms.Platform.ProcessFlow
             _customConfigProvider = customConfigProvider;
             _authState = authState;
             _fluentFlowRunEngine = fluentFlowRunEngine;
+            _ruleEngine = _serviceProvider.GetService<IRuleExecutionEngine>();
             // ToDo: StackOverflow thrown if we create ruleEngine through _serviceProvider
             //_ruleExecutionEngine = _serviceProvider.GetService(typeof(IRuleExecutionEngine)) as IRuleExecutionEngine;
 
@@ -460,8 +462,10 @@ namespace BlazorForms.Platform.ProcessFlow
                 // ToDo: why we create rule engine here? use DI
                 var pa = _serviceProvider.GetService(typeof(IRuleDefinitionParser)) as IRuleDefinitionParser;
                 
-                var engine = new InterceptorBasedRuleEngine(pa, _assemblyRegistrator, _modelProxyProvider, _jsonPathNavigator, _logStreamer,
-                    _serviceProvider.GetService<IKnownTypesBinder>());
+                //var engine = new InterceptorBasedRuleEngine(pa, _assemblyRegistrator, _modelProxyProvider, _jsonPathNavigator, _logStreamer,
+                //    _serviceProvider.GetService<IKnownTypesBinder>());
+
+                var engine = _ruleEngine;
 
                 var dictionary = ruleRequest.DisplayProperties.Select(p => new DisplayDetails
                 {
@@ -518,7 +522,7 @@ namespace BlazorForms.Platform.ProcessFlow
                 var accessModel = new AccessRuleModel { AssignedTeam = context.AssignedTeam, AssignedUser = context.AssignedUser };
                 var parameters = new RuleExecutionParameters { Model = context.Model, FlowParams = context.Params, AccessModel = accessModel, TriggeredRuleCode = access.CustomRule.FormRuleCode };
                 var pa = _serviceProvider.GetService(typeof(IRuleDefinitionParser)) as IRuleDefinitionParser;
-                var engine = new SimpleRuleEngine(pa, _assemblyRegistrator, _modelProxyProvider, _jsonPathNavigator);
+                var engine = new AccessRuleEngine(pa, _assemblyRegistrator, _modelProxyProvider, _jsonPathNavigator);
                 var execResult = await engine.Execute(parameters);
                 return execResult.AccessModel.Allow;
             }
@@ -548,7 +552,7 @@ namespace BlazorForms.Platform.ProcessFlow
                 var accessModel = new AccessRuleModel { AssignedTeam = accessDetails.AssignedTeam, AssignedUser = accessDetails.AssignedUser };
                 var parameters = new RuleExecutionParameters { Model = model, FlowParams = flowParams, AccessModel = accessModel, TriggeredRuleCode = access.CustomRule.FormRuleCode };
                 var pa = _serviceProvider.GetService(typeof(IRuleDefinitionParser)) as IRuleDefinitionParser;
-                var engine = new SimpleRuleEngine(pa, _assemblyRegistrator, _modelProxyProvider, _jsonPathNavigator);
+                var engine = new AccessRuleEngine(pa, _assemblyRegistrator, _modelProxyProvider, _jsonPathNavigator);
                 var execResult = await engine.Execute(parameters);
                 return execResult.AccessModel.Allow;
             }
@@ -561,8 +565,10 @@ namespace BlazorForms.Platform.ProcessFlow
             // ToDo: why we create rule engine here? use DI
             var pa = _serviceProvider.GetService(typeof(IRuleDefinitionParser)) as IRuleDefinitionParser;
 
-            var engine = new InterceptorBasedRuleEngine(pa, _assemblyRegistrator, _modelProxyProvider, _jsonPathNavigator, _logStreamer,
-                _serviceProvider.GetService<IKnownTypesBinder>());
+            //var engine = new InterceptorBasedRuleEngine(pa, _assemblyRegistrator, _modelProxyProvider, _jsonPathNavigator, _logStreamer,
+            //    _serviceProvider.GetService<IKnownTypesBinder>());
+
+            var engine = _ruleEngine;
 
             var dictionary = ruleRequest.DisplayProperties.Select(p => new DisplayDetails
             {
@@ -609,10 +615,12 @@ namespace BlazorForms.Platform.ProcessFlow
             // ToDo: why we create rule engine here? use DI
             var pa = _serviceProvider.GetService(typeof(IRuleDefinitionParser)) as IRuleDefinitionParser;
 
-            var engine = new InterceptorBasedRuleEngine(pa, _assemblyRegistrator, _modelProxyProvider, _jsonPathNavigator, _logStreamer,
-                _serviceProvider.GetService<IKnownTypesBinder>());
+            //var engine = new InterceptorBasedRuleEngine(pa, _assemblyRegistrator, _modelProxyProvider, _jsonPathNavigator, _logStreamer,
+            //    _serviceProvider.GetService<IKnownTypesBinder>());
 
-           var dictionary = displayProperties.Select(p => new DisplayDetails
+            var engine = _ruleEngine;
+
+            var dictionary = displayProperties.Select(p => new DisplayDetails
             {
                 Caption = p.Caption,
                 Disabled = p.Disabled.Value,

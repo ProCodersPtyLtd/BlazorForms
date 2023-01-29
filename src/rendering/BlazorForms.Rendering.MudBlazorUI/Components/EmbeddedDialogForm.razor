@@ -1,14 +1,11 @@
-﻿@using BlazorForms.Platform.Definitions.Shared
+﻿@using BlazorForms.Forms;
+@using BlazorForms.Platform.Definitions.Shared
 @using BlazorForms.Rendering.State
 @using MudBlazor
 @using BlazorForms.FlowRules
 @using BlazorForms.Rendering.Validation
 @using BlazorForms.Flows.Definitions
 @using BlazorForms.Shared
-
-@inject IDynamicFieldValidator FieldValidator
-@inject ISnackbar Snackbar
-@inject NavigationManager _navigationManager
 
 <style>
     .pz-dilaog-grid-align {
@@ -36,7 +33,21 @@
         </DialogContent>
         <DialogActions>
             <div class="d-flex flex-row flex-grow-1 gap-2 justify-end pz-dialog-content">
-                <div class="d-inline-flex">
+                @if (DialogViewModel.ActionFields != null && DialogViewModel.ActionFields.Count() > 0)
+                {
+                    foreach (var action in DialogViewModel.ActionFields)
+                    {
+                        if (action.DisplayProperties.Visible)
+                        {
+                            <div class="d-inline-flex">
+                                <MudButton Id="@action.Name" Color="GetActionColor(action)" Disabled="@_formLocked"
+                            OnClick="@(async () => await ActionButtonClick(action.Binding.Binding, action.DisplayProperties.Caption))"
+                            Variant="Variant.Filled" DisableElevation="true">@action.DisplayProperties.Caption</MudButton>
+                            </div>
+                        }
+                    }
+                }
+                @*<div class="d-inline-flex">
                     <MudButton Variant="Variant.Filled" OnClick="@CancelClick" Disabled="@_formLocked">Cancel</MudButton>
                 </div>
 
@@ -49,7 +60,7 @@
 
                 <div class="d-inline-flex">
                     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@SubmitClick" Disabled="@_formLocked">@DialogViewModel.SubmitActionName</MudButton>
-                </div>
+                </div>*@
             </div>
         </DialogActions>
     </MudDialog>
@@ -58,6 +69,11 @@
 </CascadingValue>
 
 @code {
+    @inject IDynamicFieldValidator FieldValidator
+    @inject ISnackbar Snackbar
+    @inject NavigationManager _navigationManager
+    @inject IDialogService DialogService
+
     [Parameter]
     public EditFormOptions Options { get; set; } = new();
 
@@ -99,6 +115,116 @@
         DialogViewModel.SetBaseUri(_navigationManager.BaseUri);
         DialogViewModel.FormSettings.AllowAnonymousAccess = AllowAnonymousAccess;
         DialogViewModel.FormSettings.AllowFlowStorage = AllowFlowStorage;        
+    }
+
+    private Color GetActionColor(FieldControlDetails action)
+    {
+        switch (action.Binding.Binding)
+        {
+            case ModelBinding.SubmitButtonBinding:
+                return Color.Primary;
+            case ModelBinding.DeleteButtonBinding:
+                return Color.Secondary;
+            case ModelBinding.CustomButtonBinding:
+                return Color.Secondary;
+        }
+
+        return Color.Default;
+    }
+
+    protected async Task ActionButtonClick(string binding, string caption)
+    {
+        _formLocked = true;
+        StateHasChanged();
+        try
+        {
+            switch (binding)
+            {
+                case ModelBinding.DeleteButtonBinding:
+                case ModelBinding.EditButtonBinding:
+                    //if (await CheckConfirmation(ConfirmType.Delete))
+                    //{
+                    //    await ProcessContinueFlow(binding);
+                    //}
+                    break;
+
+                case ModelBinding.CloseButtonBinding:
+                    if (await CheckConfirmation(ConfirmType.ChangesWillBeLost))
+                    {
+                        await CancelClick();
+                    }
+                    break;
+
+                case ModelBinding.CloseFinishButtonBinding:
+                    //if (await CheckConfirmation(ConfirmType.ChangesWillBeLost))
+                    //{
+                    //    await CancelFinishClick(binding);
+                    //}
+                    break;
+
+                case ModelBinding.RejectButtonBinding:
+                    //if (await CheckConfirmation(ConfirmType.ChangesWillBeLost))
+                    //{
+                    //    await ProcessReject(binding, caption);
+                    //}
+                    break;
+
+                case ModelBinding.ValidateButtonBinding:
+                    //await ValidateClick();
+                    break;
+
+                case ModelBinding.SubmitButtonBinding:
+                    await SubmitClick();
+                    break;
+
+                case ModelBinding.SubmitCloseButtonBinding:
+                    //await ProcessSubmit(loadForm: false);
+                    break;
+
+                case ModelBinding.SaveButtonBinding:
+                    //await ProcessSave(binding);
+                    break;
+
+            }
+        }
+        catch (Exception exc)
+        {
+            DialogViewModel.PopulateException(exc);
+            await ShowPopup();
+        }
+        finally
+        {
+            _formLocked = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task<bool> CheckConfirmation(ConfirmType confirmType)
+    {
+        var list = DialogViewModel.GetAvailableConfirmations(confirmType);
+
+        if (list.Any())
+        {
+            var details = list.First();
+            var options = new DialogOptions { CloseOnEscapeKey = true, DisableBackdropClick = true };
+
+            var parameters = new DialogParameters
+                {
+                    ["Message"] = details.Message,
+                    ["CancelName"] = details.CancelName,
+                    ["OkName"] = details.OkName,
+                };
+
+            var dialog = await DialogService.ShowAsync<FormConfirmationDialog>(null, parameters, options);
+            var result = await dialog.Result;
+
+            if (result.Cancelled)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     // ToDo: not working
