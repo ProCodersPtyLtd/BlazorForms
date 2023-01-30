@@ -9,9 +9,6 @@ trigger:
 resources:
   - repo: self
 
-pool:
-  vmImage: ubuntu-latest
-
 variables:
   - template: yml/variables.yml
   - name: imageName
