@@ -1,0 +1,40 @@
+trigger:
+  batch: true
+  branches:
+    include:
+      - master
+      - development
+      - feature/*
+
+resources:
+  - repo: self
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  - template: yml/variables.yml
+  - name: imageName
+    value: 'blazor-forms-demo-service'
+  - name: imageTag
+    value: '$(major).$(minor)'
+  - name: servicePath
+    value: 'seed/CrmLightDemoApp'
+
+stages:
+  - stage: Build
+    displayName: Build and push stage
+    jobs:
+      - template: yml/build.yml
+        parameters:
+          dockerfilePath: 'seed/CrmLightDemoApp/Dockerfile'
+
+  - stage: Deploy_Production
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+    displayName: Deployment to Production environment
+    dependsOn: Build
+    jobs:
+      - template: yml/deploy.yml
+        parameters:
+          envName: 'Production'
+          resourceGroup: 'PROD.Platz'

@@ -13,13 +13,18 @@
 	  <Company>Pro Coders PTY LTD</Company>
 	  <PackageTags>crm;light;blazor;flow;dynamic;form;forms;rule;framework</PackageTags>
 	  <Authors>Pro Coders PTY LTD</Authors>
+	  <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
-    <!--<PackageReference Include="BlazorForms" Version="0.8.0" />
-    <PackageReference Include="BlazorForms.Rendering.MudBlazorUI" Version="0.8.0" />-->
-	  <ProjectReference Include="..\..\src\platform\BlazorForms.Platform\BlazorForms.Platform.csproj" />
-	  <ProjectReference Include="..\..\src\rendering\BlazorForms.Rendering.MudBlazorUI\BlazorForms.Rendering.MudBlazorUI.csproj" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.2.2" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.2.3" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.1.0" />
+    <PackageReference Include="BlazorForms" Version="0.8.2" />
+    <PackageReference Include="BlazorForms.Rendering.MudBlazorUI" Version="0.8.2" />
+    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.6.0" />
+<!--	  <ProjectReference Include="..\..\src\platform\BlazorForms.Platform\BlazorForms.Platform.csproj" />-->
+<!--	  <ProjectReference Include="..\..\src\rendering\BlazorForms.Rendering.MudBlazorUI\BlazorForms.Rendering.MudBlazorUI.csproj" />-->
 
   </ItemGroup>
 

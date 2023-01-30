@@ -1,7 +1,9 @@
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using BlazorForms;
 using BlazorForms.Flows.Definitions;
 using BlazorForms.Platform;
 using BlazorForms.Platform.Stubs;
+using CrmLightDemoApp;
 using CrmLightDemoApp.Onion;
 using CrmLightDemoApp.Onion.Domain;
 using CrmLightDemoApp.Onion.Services.Flow;
@@ -11,6 +13,8 @@ using MudBlazor;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.ConfigureAzureKeyVaultConfiguration();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -39,6 +43,8 @@ builder.Services.AddMudServices(config =>
 builder.Services.AddServerSideBlazorForms(new BlazorFormsConfiguration { RuleEngineType = RuleEngineType.Simple });
 builder.Services.AddBlazorFormsMudBlazorUI();
 builder.Services.AddBlazorFormsServerModelAssemblyTypes(typeof(PersonEditFlow));
+builder.Services.AddAzureDataProtection(builder.Configuration);
+builder.Services.AddHealthChecks();
 
 // generics
 //builder.Services.AddGenericType(typeof(StaticTypeEditFlow<LeadSourceType>));
@@ -77,6 +83,7 @@ app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+app.MapHealthChecks("/healthz");
 
 app.Run();
 
