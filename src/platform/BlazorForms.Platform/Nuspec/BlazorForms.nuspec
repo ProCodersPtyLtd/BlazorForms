@@ -2,12 +2,12 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>BlazorForms</id>
-    <version>0.3.5</version>
+    <version>1.8.2</version>
     <authors>Pro Coders</authors>
     <owners>Pro Coders</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>BlazorForms is a model-centric framework that helps to create flows, forms and rules</description>
-    <copyright>Copyright (c) 2022 Pro Coders PTY LTD</copyright>
+    <copyright>Copyright (c) 2023 Pro Coders PTY LTD</copyright>
 	<license type="expression">MIT</license>
     <tags>blazor flow form rule framework</tags>
     <dependencies>
