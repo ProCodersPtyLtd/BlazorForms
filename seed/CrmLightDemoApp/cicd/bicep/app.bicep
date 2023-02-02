@@ -25,7 +25,7 @@ param certificateName string
 @secure()
 param certificateValue string
 
-param envVars array = []
+param env object = {}
 
 resource containerAppEnvironment 'Microsoft.App/managedEnvironments@2022-06-01-preview' existing = {
   name: containerAppEnvironmentName
@@ -39,6 +39,11 @@ resource certificate 'Microsoft.App/managedEnvironments/certificates@2022-06-01-
     value: certificateValue
   }
 }
+
+var environmentVariables = [for v in items(env): {
+  name: v.key
+  value: v.value
+}]
 
 resource containerApp 'Microsoft.App/containerApps@2022-03-01' = {
   name: name
@@ -79,7 +84,7 @@ resource containerApp 'Microsoft.App/containerApps@2022-03-01' = {
         {
           image: containerImage
           name: name
-          env: envVars
+          env: environmentVariables
           resources: {
             cpu: cpu
             memory: memory
