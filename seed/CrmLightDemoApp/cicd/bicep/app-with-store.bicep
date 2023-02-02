@@ -46,8 +46,8 @@ module blobStore 'storage.bicep' = {
   name: '${appName}-store'
   params: {
     location: location
-    svcStorageAccountName: guid(config.environmentName, 'app-environment')
-    svcStorageDataProtectionContainerName: appName
+    svcStorageAccountName: 'appstorage${uniqueString(config.environmentName, 'app-environment')}'
+    svcStorageDataProtectionContainerName: '${appName}-key'
     tags: {
     }
   }
@@ -109,6 +109,5 @@ resource keyVaultPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = 
     ]
   }
 }
-
 
 output fqdn string = containerApp.outputs.fqdn
