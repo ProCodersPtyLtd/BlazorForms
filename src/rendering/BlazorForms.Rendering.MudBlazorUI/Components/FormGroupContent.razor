@@ -86,8 +86,11 @@
                 </MudItem>
 
                 <MudItem xs="12">
+                @if (ViewModel.Lists.ContainsKey(field.Binding.TableBinding))
+                {
                     <CardListControl Table="field" Columns="@ViewModel.Lists[field.Binding.TableBinding]" Caption="@field.DisplayProperties.Caption"
                                      Validations="@GetValidations(field.Binding.ResolvedBinding)" ModelValueChanged="@ModelChanged" />
+                }
                 </MudItem>
                 continue;
             }

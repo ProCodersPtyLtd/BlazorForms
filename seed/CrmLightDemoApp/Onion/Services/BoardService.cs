@@ -1,5 +1,5 @@
 ﻿using BlazorForms.Shared;
-using CrmLightDemoApp.Onion.Domain;
+using CrmLightDemoApp.Onion.Domain.Entities;
 using CrmLightDemoApp.Onion.Domain.Repositories;
 using CrmLightDemoApp.Onion.Infrastructure;
 using CrmLightDemoApp.Onion.Services.Abstractions;
@@ -111,7 +111,7 @@ namespace CrmLightDemoApp.Onion.Services
                     BoardCardId = card.Id,
                     Title = "Comment",
                     Text = card.Comments,
-                    PersonId = _appAuthState.GetCurrentUser().Id,
+                    PersonId = _appAuthState.GetCurrentUser().PersonId,
                     Date = DateTime.Now,
                 };
 

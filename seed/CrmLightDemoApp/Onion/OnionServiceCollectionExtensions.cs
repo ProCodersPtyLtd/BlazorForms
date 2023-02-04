@@ -3,10 +3,10 @@ using BlazorForms.Platform;
 using System.Diagnostics.CodeAnalysis;
 using CrmLightDemoApp.Onion.Infrastructure;
 using CrmLightDemoApp.Onion.Domain.Repositories;
-using CrmLightDemoApp.Onion.Domain;
 using CrmLightDemoApp.Onion.Services.Flow;
 using CrmLightDemoApp.Onion.Services.Abstractions;
 using CrmLightDemoApp.Onion.Services;
+using CrmLightDemoApp.Onion.Domain.Entities;
 
 namespace CrmLightDemoApp.Onion
 {
@@ -25,6 +25,8 @@ namespace CrmLightDemoApp.Onion
                 .AddSingleton<IBoardCardRepository, BoardCardRepository>()
                 .AddSingleton<IClientCompanyRepository, ClientCompanyRepository>()
                 .AddSingleton<IBoardCardHistoryRepository, BoardCardHistoryRepository>()
+                .AddSingleton<IUserRepository, UserRepository>()
+                .AddSingleton<ITenantAccountRepository, TenantAccountRepository>()
                 // services
                 .AddScoped<IBoardService, BoardService>()
                 .AddScoped<IAppAuthState, MockAppAuthState>()

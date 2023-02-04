@@ -1,4 +1,4 @@
-﻿namespace CrmLightDemoApp.Onion.Domain
+﻿namespace CrmLightDemoApp.Onion.Domain.Entities
 {
     public class PersonCompanyLinkType : IEntity
     {
@@ -6,7 +6,7 @@
         public virtual string? Name { get; set; }
         public virtual bool Deleted { get; set; }
 
-		// FK
-		public List<PersonCompanyLink> RefPersonCompanyLink { get; } = new();
-	}
+        // FK
+        public List<PersonCompanyLink> RefPersonCompanyLink { get; } = new();
+    }
 }

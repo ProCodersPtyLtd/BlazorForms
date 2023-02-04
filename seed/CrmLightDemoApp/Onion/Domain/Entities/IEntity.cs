@@ -1,4 +1,4 @@
-﻿namespace CrmLightDemoApp.Onion.Domain
+﻿namespace CrmLightDemoApp.Onion.Domain.Entities
 {
     public interface IEntity
     {

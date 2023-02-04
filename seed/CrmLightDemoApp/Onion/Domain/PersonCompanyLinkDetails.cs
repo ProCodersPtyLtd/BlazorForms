@@ -1,4 +1,6 @@
-﻿namespace CrmLightDemoApp.Onion.Domain
+﻿using CrmLightDemoApp.Onion.Domain.Entities;
+
+namespace CrmLightDemoApp.Onion.Domain
 {
     public class PersonCompanyLinkDetails : PersonCompanyLink
     {

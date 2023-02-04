@@ -79,7 +79,9 @@ namespace BlazorForms.Rendering
             //}
 
             //PopulateException(Context);
-            ClearData();
+            
+            // This can cause problems if executed during form rendering
+            //ClearData();
             return true;
         }
     }

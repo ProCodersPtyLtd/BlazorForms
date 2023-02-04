@@ -1,6 +1,7 @@
 ﻿using BlazorForms.Flows.Definitions;
 using BlazorForms.Shared;
 using CrmLightDemoApp.Onion.Domain;
+using CrmLightDemoApp.Onion.Domain.Entities;
 using System.Dynamic;
 
 namespace CrmLightDemoApp.Onion.Services.Model

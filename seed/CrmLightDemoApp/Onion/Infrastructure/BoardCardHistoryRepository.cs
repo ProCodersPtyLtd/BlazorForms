@@ -1,6 +1,7 @@
 ﻿using BlazorForms.Flows;
 using BlazorForms.Shared;
 using CrmLightDemoApp.Onion.Domain;
+using CrmLightDemoApp.Onion.Domain.Entities;
 using CrmLightDemoApp.Onion.Domain.Repositories;
 using System.ComponentModel.Design;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;

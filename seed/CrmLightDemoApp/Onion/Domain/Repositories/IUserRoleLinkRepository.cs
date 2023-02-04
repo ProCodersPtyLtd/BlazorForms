@@ -2,7 +2,7 @@
 
 namespace CrmLightDemoApp.Onion.Domain.Repositories
 {
-    public interface ICompanyRepository : IRepository<Company>
+    public interface IUserRoleLinkRepository : IRepository<UserRoleLink>
     {
     }
 }

@@ -1,4 +1,4 @@
-﻿using CrmLightDemoApp.Onion.Domain;
+﻿using CrmLightDemoApp.Onion.Domain.Entities;
 using CrmLightDemoApp.Onion.Services.Model;
 
 namespace CrmLightDemoApp.Onion.Services.Abstractions

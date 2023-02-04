@@ -70,7 +70,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
         public async Task LoadRelatedData()
         {
             Model.AllLinkTypes = await _personCompanyLinkTypeRepository.GetAllAsync();
-            Model.AllLinkTypes.Insert(0, new Domain.PersonCompanyLinkType { Id = 0, Name = "" });
+            Model.AllLinkTypes.Insert(0, new Domain.Entities.PersonCompanyLinkType { Id = 0, Name = "" });
 
             var persons = (await _personRepository.GetAllAsync())
                 .Select(x => 
