@@ -1,6 +1,6 @@
 ﻿using BlazorForms.Flows;
 using BlazorForms.Shared;
-using CrmLightDemoApp.Onion.Domain;
+using CrmLightDemoApp.Onion.Domain.Entities;
 using CrmLightDemoApp.Onion.Domain.Repositories;
 
 namespace CrmLightDemoApp.Onion.Infrastructure
@@ -14,6 +14,7 @@ namespace CrmLightDemoApp.Onion.Infrastructure
             _localCache.Add(new Company { Id = 2, Name = "Alpha Pajero", RegistrationNumber = "89963222172", EstablishedDate = new DateTime(1956, 5, 14) });
             _localCache.Add(new Company { Id = 3, Name = "Zeppelin Ltd Inc", RegistrationNumber = "63222172899", EstablishedDate = new DateTime(2019, 11, 4) });
             _localCache.Add(new Company { Id = 4, Name = "Perpetuum Automotives Inc", RegistrationNumber = "22217289963", EstablishedDate = new DateTime(2010, 1, 7) });
+            _localCache.Add(new Company { Id = 7, Name = "Experto Imobiliare", RegistrationNumber = "2223223222", EstablishedDate = new DateTime(1918, 10, 23) });
             _id = 10;
         }
     }

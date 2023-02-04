@@ -1,4 +1,5 @@
-﻿using CrmLightDemoApp.Onion.Services.Model;
+﻿using CrmLightDemoApp.Onion.Domain.Entities;
+using CrmLightDemoApp.Onion.Services.Model;
 
 namespace CrmLightDemoApp.Onion.Domain
 {

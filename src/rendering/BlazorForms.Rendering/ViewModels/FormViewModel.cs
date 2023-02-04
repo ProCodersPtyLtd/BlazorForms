@@ -99,25 +99,28 @@ namespace BlazorForms.Rendering
                 {
                     var layoutForm = new LayoutFormParams();
 
-                    var left = new LayoutFormElement
+                    if (FieldsGrouped != null)
                     {
-                        Row = 1,
-                        Col = 1,
-                        RowSpan = 3,
-                        ColSpan = 5,
-                        Group = FieldsGrouped.First()
-                    };
-                    layoutForm.Elements.Add(left);
+                        var left = new LayoutFormElement
+                        {
+                            Row = 1,
+                            Col = 1,
+                            RowSpan = 3,
+                            ColSpan = 5,
+                            Group = FieldsGrouped.First()
+                        };
+                        layoutForm.Elements.Add(left);
 
-                    var right = new LayoutFormElement
-                    {
-                        Row = 1,
-                        Col = 6,
-                        RowSpan = 3,
-                        ColSpan = 5,
-                        Group = FieldsGrouped.Skip(1).First()
-                    };
-                    layoutForm.Elements.Add(right);
+                        var right = new LayoutFormElement
+                        {
+                            Row = 1,
+                            Col = 6,
+                            RowSpan = 3,
+                            ColSpan = 5,
+                            Group = FieldsGrouped.Skip(1).First()
+                        };
+                        layoutForm.Elements.Add(right);
+                    }
 
                     return layoutForm;
                 }

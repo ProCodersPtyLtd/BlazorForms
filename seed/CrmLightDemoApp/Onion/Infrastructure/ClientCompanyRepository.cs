@@ -1,6 +1,7 @@
 ﻿using BlazorForms.Flows;
 using BlazorForms.Shared;
 using CrmLightDemoApp.Onion.Domain;
+using CrmLightDemoApp.Onion.Domain.Entities;
 using CrmLightDemoApp.Onion.Domain.Repositories;
 using CrmLightDemoApp.Onion.Services.Model;
 using Microsoft.EntityFrameworkCore;

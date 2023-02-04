@@ -1,4 +1,4 @@
-﻿namespace CrmLightDemoApp.Onion.Domain
+﻿namespace CrmLightDemoApp.Onion.Domain.Entities
 {
     public class ClientCompany : IEntity
     {
@@ -8,5 +8,5 @@
         public virtual int? ClientManagerId { get; set; }
         public virtual int? AlternativeClientManagerId { get; set; }
         public virtual bool Deleted { get; set; }
-	}
+    }
 }

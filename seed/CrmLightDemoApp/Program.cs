@@ -5,7 +5,7 @@ using BlazorForms.Platform;
 using BlazorForms.Platform.Stubs;
 using CrmLightDemoApp;
 using CrmLightDemoApp.Onion;
-using CrmLightDemoApp.Onion.Domain;
+using CrmLightDemoApp.Onion.Domain.Entities;
 using CrmLightDemoApp.Onion.Services.Flow;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;

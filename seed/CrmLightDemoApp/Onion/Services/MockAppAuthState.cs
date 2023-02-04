@@ -5,19 +5,25 @@ using System.Security.Claims;
 
 namespace CrmLightDemoApp.Onion.Services
 {
+    // This is a simple mock class
+    // Remember that any code can modify its private data using reflection
     public class MockAppAuthState : IAppAuthState
     {
-        private PersonModel _currentUser;
+        private UserModel _currentUser;
 
         public MockAppAuthState() 
         {
-            _currentUser = new PersonModel { Id = 3, FirstName = "Louis", LastName = "Monero", FullName = "Louis Monero", 
-                BirthDate = new DateTime(2001, 3, 16) };
         }
 
-        public PersonModel GetCurrentUser()
+        public UserModel GetCurrentUser()
         {
             return _currentUser;
         }
+
+        // internal method to switch users in demo
+        internal void SetCurrentUser(UserModel user)
+        {
+            _currentUser = user;
+		}
     }
 }

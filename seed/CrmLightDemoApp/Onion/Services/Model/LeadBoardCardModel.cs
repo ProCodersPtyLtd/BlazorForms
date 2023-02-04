@@ -1,6 +1,7 @@
 ﻿using BlazorForms.Flows.Definitions;
 using BlazorForms.Rendering.Model;
 using CrmLightDemoApp.Onion.Domain;
+using CrmLightDemoApp.Onion.Domain.Entities;
 
 namespace CrmLightDemoApp.Onion.Services.Model
 {

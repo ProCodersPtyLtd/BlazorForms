@@ -112,7 +112,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow.LeadBoard
             // refresh card buttons - display buttons only for comment owners
             for (int i = 0; i < model.CardHistory.Count; i++)
             {
-                var isCurrentUser = _appAuthState.GetCurrentUser().Id == model.CardHistory[i].PersonId;
+                var isCurrentUser = _appAuthState.GetCurrentUser().PersonId == model.CardHistory[i].PersonId;
                 Result.Fields[FindField(m => m.CardHistory, ModelBinding.EditButtonBinding, i)].Visible = isCurrentUser;
                 Result.Fields[FindField(m => m.CardHistory, ModelBinding.DeleteButtonBinding, i)].Visible = isCurrentUser;
             }

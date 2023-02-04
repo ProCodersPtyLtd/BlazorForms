@@ -2,7 +2,8 @@
 
 namespace CrmLightDemoApp.Onion.Domain.Repositories
 {
-    public interface ICompanyRepository : IRepository<Company>
+    public interface IUserRepository : IRepository<User>
     {
+        Task<List<UserDetails>> GetAllUserDetailsAsync();
     }
 }

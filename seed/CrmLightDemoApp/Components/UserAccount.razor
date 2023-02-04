@@ -1,0 +1,72 @@
+﻿@using BlazorForms.Shared;
+@using CrmLightDemoApp.Onion.Domain.Repositories;
+@using CrmLightDemoApp.Onion.Domain;
+@using CrmLightDemoApp.Onion.Services.Abstractions;
+@using CrmLightDemoApp.Onion.Services;
+@using CrmLightDemoApp.Onion.Services.Model;
+
+@if (_users != null)
+{
+	<div style="width: 180px; ">
+
+		<MudSelect T="UserDetails" Label="User" Style="background-color: lightgray;" AnchorOrigin="Origin.CenterCenter" Variant="Variant.Filled"
+			   AdornmentColor="Color.Surface" ToStringFunc="t => t?.PersonFullName" Value="GetUser()" ValueChanged="@(async (args) => await ValueChanged(args))">
+
+		@foreach (var user in _users)
+		{
+			<MudSelectItem Value=@user />
+		}
+		</MudSelect>
+	</div>
+}
+
+@code {
+	@inject IAppAuthState _authState
+	@inject IUserRepository _userRepo
+
+	private List<UserDetails> _users;
+
+	protected override async Task OnInitializedAsync()
+	{
+		// set default user first time
+		if (_authState.GetCurrentUser() == null)
+		{
+			var mockAuth = _authState as MockAppAuthState;
+
+			if (mockAuth != null)
+			{
+				var current = UserModel.FromUserDetails((await GetUsers()).First(x => x.Id == 1));
+				//var current = new UserModel();
+				//userDetails.ReflectionCopyTo(current);
+				mockAuth.SetCurrentUser(current);
+			}
+		}
+	}
+
+	protected override async Task OnParametersSetAsync()
+	{
+		_users = await GetUsers();
+	}
+
+	private async Task<List<UserDetails>> GetUsers()
+	{
+		return await _userRepo.GetAllUserDetailsAsync();
+	}
+
+	private UserDetails GetUser()
+	{
+		return _authState.GetCurrentUser();
+	}
+
+	private async Task ValueChanged(UserDetails val)
+	{
+		var mockAuth = _authState as MockAppAuthState;
+
+		if (mockAuth != null)
+		{
+			//var current = new UserModel();
+			//val.ReflectionCopyTo(current);
+			mockAuth.SetCurrentUser(UserModel.FromUserDetails(val));
+		}
+	}
+}
