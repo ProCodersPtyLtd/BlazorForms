@@ -10,6 +10,7 @@ namespace CrmLightDemoApp.Onion.Services
     public class MockAppAuthState : IAppAuthState
     {
         private UserModel _currentUser;
+        private TenantAccountModel _currentTenant;
 
         public MockAppAuthState() 
         {
@@ -20,10 +21,21 @@ namespace CrmLightDemoApp.Onion.Services
             return _currentUser;
         }
 
+		public TenantAccountModel GetCurrentTenantAccount()
+		{
+            return _currentTenant;
+		}
+
         // internal method to switch users in demo
         internal void SetCurrentUser(UserModel user)
         {
             _currentUser = user;
 		}
-    }
+
+        // internal method to set Tenant in demo
+        internal void SetCurrentTenantAccount(TenantAccountModel tenant)
+        {
+            _currentTenant = tenant;
+		}
+	}
 }

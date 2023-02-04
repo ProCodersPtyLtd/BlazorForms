@@ -5,7 +5,7 @@ namespace CrmLightDemoApp.Onion.Services.Model
 {
     public class UserModel : UserDetails
     {
-        public static UserModel FromUserDetails(UserDetails val)
+        public static UserModel FromDetails(UserDetails val)
         {
             var model = new UserModel();
             val.ReflectionCopyTo(model);

@@ -26,6 +26,7 @@ namespace CrmLightDemoApp.Onion
                 .AddSingleton<IClientCompanyRepository, ClientCompanyRepository>()
                 .AddSingleton<IBoardCardHistoryRepository, BoardCardHistoryRepository>()
                 .AddSingleton<IUserRepository, UserRepository>()
+                .AddSingleton<ITenantAccountRepository, TenantAccountRepository>()
                 // services
                 .AddScoped<IBoardService, BoardService>()
                 .AddScoped<IAppAuthState, MockAppAuthState>()

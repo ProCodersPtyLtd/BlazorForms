@@ -5,5 +5,6 @@ namespace CrmLightDemoApp.Onion.Services.Abstractions
     public interface IAppAuthState
     {
         UserModel GetCurrentUser();
+		TenantAccountModel GetCurrentTenantAccount();
     }
 }
