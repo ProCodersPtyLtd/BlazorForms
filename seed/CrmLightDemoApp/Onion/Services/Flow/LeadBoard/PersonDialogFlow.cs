@@ -24,7 +24,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow.LeadBoard
 
             var fullName = Params["Name"];
 
-            if (fullName != null)
+            if (!string.IsNullOrWhiteSpace(fullName))
             {
                 var split = fullName.Split(' ');
                 Model.FirstName = split[0];

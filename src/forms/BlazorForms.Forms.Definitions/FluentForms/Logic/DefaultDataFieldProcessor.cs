@@ -58,7 +58,10 @@ namespace BlazorForms.Forms
             //if (field.Button || field.BindingControlType == typeof(TableColumnBindingControlType))
             if (field.BindingType == FieldBindingType.TableColumn)
             {
-                field.ControlType = field.ControlType ?? typeof(TextEdit);
+                if (string.IsNullOrWhiteSpace(field.ControlTypeName))
+                {
+                    field.ControlType = field.ControlType ?? typeof(TextEdit);
+                }
             }
 
             if (field.Button || field.BindingType != FieldBindingType.SingleField)
