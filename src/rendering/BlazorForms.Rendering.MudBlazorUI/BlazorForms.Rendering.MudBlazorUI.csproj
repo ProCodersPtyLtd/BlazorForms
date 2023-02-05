@@ -5,8 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 	  
-	  <AssemblyVersion>0.8.2</AssemblyVersion>
-	  <PackageVersion>0.8.2</PackageVersion>
+	  <AssemblyVersion>1.8.3</AssemblyVersion>
+	  <PackageVersion>1.8.3</PackageVersion>
 	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
 	  <Copyright>Pro Coders PTY LTD</Copyright>
 	  <Description>BlazorForms.Rendering.MudBlazorUI is a rendering library for BlazorForms framework that helps to create flows, forms and rules</Description>

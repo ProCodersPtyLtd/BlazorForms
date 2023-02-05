@@ -29,7 +29,27 @@ namespace CrmLightDemoApp.Onion.Infrastructure
             _id = 15;
         }
 
-		public async Task<List<UserDetails>> GetAllUserDetailsAsync()
+        public ContextQuery<UserDetails> GetAllDetailsContextQuery()
+        {
+            var uq = GetContextQuery();
+            var pq = _personRepository.GetContextQuery(uq._context);
+
+            var q = from u in uq.Query
+                    join p in pq.Query on u.PersonId equals p.Id
+                    select new UserDetails
+                    {
+                        Id = u.Id,
+                        PersonId = u.PersonId,
+                        TenantAccountId = u.TenantAccountId,
+                        Login = u.Login,
+                        Deleted = u.Deleted,
+                        PersonFullName = p.FirstName + " " + p.LastName,
+                    };
+
+            return new ContextQuery<UserDetails>(uq._context, q);
+        }
+
+        public async Task<List<UserDetails>> GetAllUserDetailsAsync()
 		{
 			var list = _localCache.Where(x => !x.Deleted).Select(x =>
 			{
@@ -48,5 +68,10 @@ namespace CrmLightDemoApp.Onion.Infrastructure
 
 			return list;
 		}
-	}
+
+        public async Task<List<UserDetails>> RunAllDetailsContextQueryAsync(ContextQuery<UserDetails> ctx)
+        {
+            return ctx.Query.ToList();
+        }
+    }
 }

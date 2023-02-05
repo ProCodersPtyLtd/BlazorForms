@@ -2,7 +2,6 @@ using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using BlazorForms;
 using BlazorForms.Flows.Definitions;
 using BlazorForms.Platform;
-using BlazorForms.Platform.Stubs;
 using CrmLightDemoApp;
 using CrmLightDemoApp.Onion;
 using CrmLightDemoApp.Onion.Domain.Entities;

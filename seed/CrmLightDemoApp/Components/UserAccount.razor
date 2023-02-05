@@ -8,7 +8,7 @@
 @if (_users != null)
 {
 	<div style="width: 280px; margin-right: 16px;">
-		<MudText Align="Align.Right">@_tenant.Company.Name</MudText>
+		<MudText Align="Align.Right">@GetTenant().Company.Name</MudText>
 	</div>
 
 	<div style="width: 180px; ">
@@ -29,8 +29,7 @@
 	@inject IUserRepository _userRepo
 	@inject ITenantAccountRepository _tenantRepo
 
-	private List<UserDetails> _users;
-	private TenantAccountModel _tenant;
+	private List<UserDetails>? _users;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -44,8 +43,8 @@
 				var current = UserModel.FromDetails((await GetUsers()).First(x => x.Id == 1));
 				mockAuth.SetCurrentUser(current);
 
-				_tenant = TenantAccountModel.FromDetails((await _tenantRepo.GetTenantAccountDetailsAsync()));
-				mockAuth.SetCurrentTenantAccount(_tenant);
+				var tenant = TenantAccountModel.FromDetails((await _tenantRepo.GetTenantAccountDetailsAsync()));
+				mockAuth.SetCurrentTenantAccount(tenant);
 			}
 		}
 	}
@@ -65,14 +64,17 @@
 		return _authState.GetCurrentUser();
 	}
 
+	private TenantAccountModel GetTenant()
+	{
+		return _authState.GetCurrentTenantAccount();
+	}
+
 	private async Task ValueChanged(UserDetails val)
 	{
 		var mockAuth = _authState as MockAppAuthState;
 
 		if (mockAuth != null)
 		{
-			//var current = new UserModel();
-			//val.ReflectionCopyTo(current);
 			mockAuth.SetCurrentUser(UserModel.FromDetails(val));
 		}
 	}
