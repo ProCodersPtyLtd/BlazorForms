@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CrmLightDemoApp.Onion.Infrastructure
 {
-    public class ClientCompanyRepository : LocalCacheRepository<ClientCompany>, IClientCompanyRepository
+    public class ClientCompanyRepository : RepositoryBase<ClientCompany>, IClientCompanyRepository
     {
         private readonly ICompanyRepository _companyRepository;
         private readonly IPersonRepository _personRepository;

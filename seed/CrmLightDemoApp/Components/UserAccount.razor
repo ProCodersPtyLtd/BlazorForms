@@ -13,7 +13,7 @@
 
 	<div style="width: 180px; ">
 
-		<MudSelect T="UserModel" Label="User" Style="background-color: lightgray;" AnchorOrigin="Origin.CenterCenter" Variant="Variant.Filled"
+		<MudSelect @ref=SelectControlRef T="UserModel" Label="User" Style="background-color: lightgray;" AnchorOrigin="Origin.CenterCenter" Variant="Variant.Filled"
 			   AdornmentColor="Color.Surface" ToStringFunc="t => t?.PersonFullName" Value="GetUser()" 
 			   ValueChanged="@(async (args) => await ValueChanged(args))">
 
@@ -33,6 +33,9 @@
 
 	@implements IDisposable
 
+	[CascadingParameter]
+	public MudSelect<UserModel> SelectControlRef { get; set; }
+
 	private List<UserModel>? _users;
 
 	private async Task NotificationMessage(object sender, MessageEventArgs args)
@@ -41,6 +44,16 @@
 		{
 			await SetTenant();
 			await InvokeAsync(StateHasChanged);
+		}
+		else if (args.Type == MessageEventType.UserAccount)
+		{
+			var users = await RefreshUsers();
+
+			await InvokeAsync(() =>
+			{
+				SelectControlRef.ForceRender(true);
+				StateHasChanged();
+			});
 		}
 	}
 
@@ -64,27 +77,22 @@
 		if (_authState.GetCurrentUser() == null)
 		{
 			var mockAuth = _authState as MockAppAuthState;
+			var current = (await RefreshUsers()).First();
+			mockAuth.SetCurrentUser(current);
 
-			if (mockAuth != null)
-			{
-				var current = (await GetUsers()).First(x => x.Id == 1);
-				mockAuth.SetCurrentUser(current);
-
-			}
-				
 			await SetTenant();
 		}
 	}
 
 	protected override async Task OnParametersSetAsync()
 	{
-		_users = await _userService.GetAllUserDetailsAsync();
+		await RefreshUsers();
 	}
 
-	private async Task<List<UserModel>> GetUsers()
+	private async Task<List<UserModel>> RefreshUsers()
 	{
-		var userList = await _userService.GetAllUserDetailsAsync();
-		return userList;
+		_users = await _userService.GetAllUserDetailsAsync();
+		return _users;
 	}
 
 	private UserModel GetUser()

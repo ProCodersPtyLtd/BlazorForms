@@ -5,7 +5,7 @@ using CrmLightDemoApp.Onion.Domain.Repositories;
 
 namespace CrmLightDemoApp.Onion.Infrastructure
 {
-    public class RoleRepository : LocalCacheRepository<Role>, IRoleRepository
+    public class RoleRepository : RepositoryBase<Role>, IRoleRepository
 	{
         public RoleRepository() 
         {

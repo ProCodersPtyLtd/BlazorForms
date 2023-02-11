@@ -5,7 +5,7 @@ using CrmLightDemoApp.Onion.Domain.Repositories;
 
 namespace CrmLightDemoApp.Onion.Infrastructure
 {
-    public class LeadSourceTypeRepository : LocalCacheRepository<LeadSourceType>
+    public class LeadSourceTypeRepository : RepositoryBase<LeadSourceType>
     {
         public LeadSourceTypeRepository() 
         {

@@ -4,6 +4,7 @@ using BlazorForms.Forms;
 using BlazorForms.Shared;
 using CrmLightDemoApp.Onion.Domain.Repositories;
 using CrmLightDemoApp.Onion.Infrastructure;
+using CrmLightDemoApp.Onion.Services.Abstractions;
 using CrmLightDemoApp.Onion.Services.Flow.LeadBoard;
 using CrmLightDemoApp.Onion.Services.Model;
 
@@ -15,14 +16,16 @@ namespace CrmLightDemoApp.Onion.Services.Flow.Admin
         private readonly IPersonRepository _personRepository;
         private readonly IRoleRepository _roleRepository;
         private readonly IUserRoleLinkRepository _userRoleLinkRepository;
+		private readonly INotificationService _notificationService;
 
-        public UserEditFlow(IUserRepository userRepository, IPersonRepository personRepository, IRoleRepository roleRepository,
-			IUserRoleLinkRepository userRoleLinkRepository)
+		public UserEditFlow(IUserRepository userRepository, IPersonRepository personRepository, IRoleRepository roleRepository,
+			IUserRoleLinkRepository userRoleLinkRepository, INotificationService notificationService)
         {
 			_userRepository = userRepository;
             _personRepository = personRepository;
             _roleRepository = roleRepository;
             _userRoleLinkRepository = userRoleLinkRepository;
+            _notificationService = notificationService;
 		}
 
         public override void Define()
@@ -88,7 +91,9 @@ namespace CrmLightDemoApp.Onion.Services.Flow.Admin
                     await _userRoleLinkRepository.SoftDeleteAsync(item);
                 }
             }
-        }
+
+			await _notificationService.PostMessageAsync(new MessageEventArgs { Type = MessageEventType.UserAccount });
+		}
     }
 
     public class FormUserEdit : FormEditBase<UserModel>

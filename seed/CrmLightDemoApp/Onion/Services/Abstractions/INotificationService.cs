@@ -19,5 +19,6 @@
     public enum MessageEventType
     {
         TenantAccount,
+        UserAccount,
     }
 }
