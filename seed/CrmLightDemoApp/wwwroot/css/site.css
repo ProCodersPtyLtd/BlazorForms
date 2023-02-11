@@ -47,10 +47,6 @@ th {
     font-weight: bold !important;
 }
 
-.mud-card-header {
-    background-color: gray !important;
-}
-
 .mud-drawer-content {
     background-color: #27272e !important;
     color: white !important;
@@ -98,6 +94,10 @@ th.mud-table-cell {
 
 .mud-icon-button {
     color: white !important;
+}
+
+.mud-navmenu.mud-navmenu-default .mud-nav-link-expand-icon.mud-transform {
+    fill: rgb(74, 179, 226) !important;
 }
 
 h1:focus {
