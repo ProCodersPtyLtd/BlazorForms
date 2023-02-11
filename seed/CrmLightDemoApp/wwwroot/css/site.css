@@ -18,7 +18,7 @@ th {
     padding: 4px;
 }
 
-/* Mud styles */
+/* Mud styles start */
 
 .mud-progress-linear {
     display: none !important;
@@ -99,6 +99,8 @@ th.mud-table-cell {
 .mud-navmenu.mud-navmenu-default .mud-nav-link-expand-icon.mud-transform {
     fill: rgb(74, 179, 226) !important;
 }
+
+/* Mud styles end */
 
 h1:focus {
     outline: none;
