@@ -13,8 +13,9 @@
 
 	<div style="width: 180px; ">
 
-		<MudSelect T="UserDetails" Label="User" Style="background-color: lightgray;" AnchorOrigin="Origin.CenterCenter" Variant="Variant.Filled"
-			   AdornmentColor="Color.Surface" ToStringFunc="t => t?.PersonFullName" Value="GetUser()" ValueChanged="@(async (args) => await ValueChanged(args))">
+		<MudSelect T="UserModel" Label="User" Style="background-color: lightgray;" AnchorOrigin="Origin.CenterCenter" Variant="Variant.Filled"
+			   AdornmentColor="Color.Surface" ToStringFunc="t => t?.PersonFullName" Value="GetUser()" 
+			   ValueChanged="@(async (args) => await ValueChanged(args))">
 
 		@foreach (var user in _users)
 		{
@@ -26,13 +27,39 @@
 
 @code {
 	@inject IAppAuthState _authState
-	@inject IUserRepository _userRepo
-	@inject ITenantAccountRepository _tenantRepo
+    @inject IUserService _userService
+    @inject ITenantAccountRepository _tenantRepo
+	@inject INotificationService _notificationService
 
-	private List<UserDetails>? _users;
+	@implements IDisposable
+
+	private List<UserModel>? _users;
+
+	private async Task NotificationMessage(object sender, MessageEventArgs args)
+	{
+		if (args.Type == MessageEventType.TenantAccount)
+		{
+			await SetTenant();
+			await InvokeAsync(StateHasChanged);
+		}
+	}
+
+	private async Task SetTenant()
+	{
+		var mockAuth = _authState as MockAppAuthState;
+		var tenant = TenantAccountModel.FromDetails((await _tenantRepo.GetTenantAccountDetailsAsync()));
+		mockAuth.SetCurrentTenantAccount(tenant);
+	}
+
+	public void Dispose()
+	{
+		_notificationService.OnMessageAsync -= NotificationMessage;
+	}
 
 	protected override async Task OnInitializedAsync()
 	{
+		_notificationService.OnMessageAsync += NotificationMessage;
+
 		// set default user first time
 		if (_authState.GetCurrentUser() == null)
 		{
@@ -40,26 +67,27 @@
 
 			if (mockAuth != null)
 			{
-				var current = UserModel.FromDetails((await GetUsers()).First(x => x.Id == 1));
+				var current = (await GetUsers()).First(x => x.Id == 1);
 				mockAuth.SetCurrentUser(current);
 
-				var tenant = TenantAccountModel.FromDetails((await _tenantRepo.GetTenantAccountDetailsAsync()));
-				mockAuth.SetCurrentTenantAccount(tenant);
 			}
+				
+			await SetTenant();
 		}
 	}
 
 	protected override async Task OnParametersSetAsync()
 	{
-		_users = await GetUsers();
+		_users = await _userService.GetAllUserDetailsAsync();
 	}
 
-	private async Task<List<UserDetails>> GetUsers()
+	private async Task<List<UserModel>> GetUsers()
 	{
-		return await _userRepo.GetAllUserDetailsAsync();
+		var userList = await _userService.GetAllUserDetailsAsync();
+		return userList;
 	}
 
-	private UserDetails GetUser()
+	private UserModel GetUser()
 	{
 		return _authState.GetCurrentUser();
 	}
@@ -69,13 +97,13 @@
 		return _authState.GetCurrentTenantAccount();
 	}
 
-	private async Task ValueChanged(UserDetails val)
+	private async Task ValueChanged(UserModel val)
 	{
 		var mockAuth = _authState as MockAppAuthState;
 
 		if (mockAuth != null)
 		{
-			mockAuth.SetCurrentUser(UserModel.FromDetails(val));
+			mockAuth.SetCurrentUser(val);
 		}
 	}
 }

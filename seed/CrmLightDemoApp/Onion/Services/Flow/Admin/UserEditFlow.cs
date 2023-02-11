@@ -67,39 +67,27 @@ namespace CrmLightDemoApp.Onion.Services.Flow.Admin
  
         public async Task SaveDataAsync()
         {
-            //if (_flowContext.Params.ItemKeyAboveZero)
-            //{
-            //    await _userRepository.UpdateAsync(Model);
-            //}
-            //else
-            //{
-            //    Model.Id = await _userRepository.CreateAsync(Model);
-            //}
+            if (_flowContext.Params.ItemKeyAboveZero)
+            {
+                await _userRepository.UpdateAsync(Model);
+            }
+            else
+            {
+                Model.Id = await _userRepository.CreateAsync(Model);
+            }
 
-            //foreach (var item in Model.PersonCompanyLinksDeleted)
-            //{
-            //    if (item.Id != 0)
-            //    {
-            //        await _personCompanyRepository.SoftDeleteAsync(item);
-            //    }
-            //}
-
-            //foreach (var item in Model.PersonCompanyLinks)
-            //{
-            //    // we use autocomplete control, so need to resolve id by name
-            //    //item.PersonId = Model.PersonDictionary[item.PersonFullName].Id;
-            //    //item.PersonId = Model.AllPersons.First(p => p.FullName == item.PersonFullName).Id;
-
-            //    if (item.Id == 0)
-            //    {
-            //        item.CompanyId = Model.Id;
-            //        await _personCompanyRepository.CreateAsync(item);
-            //    }
-            //    else if (item.Changed)
-            //    {
-            //        await _personCompanyRepository.UpdateAsync(item);
-            //    }
-            //}
+            foreach (var item in Model.CombinedUserRoles)
+            {
+                if (item.Id == 0 && item.Selected)
+                {
+                    item.UserId = Model.Id;
+                    await _userRoleLinkRepository.CreateAsync(item);
+                }
+                else if (item.Id > 0 && !item.Selected)
+                {
+                    await _userRoleLinkRepository.SoftDeleteAsync(item);
+                }
+            }
         }
     }
 

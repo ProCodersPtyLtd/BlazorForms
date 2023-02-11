@@ -184,6 +184,7 @@ namespace BlazorForms.Flows
                         task.NonAsyncAction();
                     }
 
+                    context.Model = flow.GetModel();
                     context.ExecutionResult.ResultState = TaskExecutionResultStateEnum.Success;
                     context.ExecutionResult.FlowState = TaskExecutionFlowStateEnum.Continue;
                 }
@@ -347,6 +348,167 @@ namespace BlazorForms.Flows
         public async Task UpdateFlowContext(IFlowContext context)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<FlowDefinitionDetails> GetFlowDefinitionDetails(FlowRunParameters runParameters)
+        {
+            var result = new FlowDefinitionDetails();
+            var flowType = runParameters.FlowType;
+            //var refId = runParameters.RefId;
+            //var parameters = runParameters.FlowParameters;
+            //var noStorage = runParameters.NoStorageMode;
+            //var context = runParameters.Context;
+
+            var flowParameters = TypeHelper.GetConstructorParameters(_serviceProvider, flowType);
+            var flow = Activator.CreateInstance(flowType, flowParameters) as IFluentFlow;
+
+            if (flow == null)
+            {
+                throw new FlowCreateException($"Flow {flowType} does not support IFluentFlow interface");
+            }
+
+            flow.Parse();
+            var stateNames = new HashSet<string>();
+            var index = -1;
+            TaskDef task = null;
+            //TaskDef prevTask = null;
+            StateDef currentDef = null;
+            StateDef prevDef = null;
+            NextTask();
+
+            while (index < flow.Tasks.Count)
+            {
+                ReadIfBlock();
+                ReadTask();
+
+                if (index == flow.Tasks.Count-1)
+                {
+                    break;
+                }
+
+                NextTask();
+            }
+
+            return result;
+
+            void ReadTask()
+            {
+                if (task.Type != TaskDefTypes.If && task.Type != TaskDefTypes.EndIf)
+                {
+                    var newDef = GetTaskDef(task);
+                    result.States.Add(newDef);
+                    currentDef = newDef;
+
+                    if (prevDef != null)
+                    {
+                        var transition = GetTransitionDef(prevDef, currentDef);
+                        result.Transitions.Add(transition);
+                    }
+                }
+            }
+
+            void NextTask()
+            {
+                index++;
+                //prevTask = task;
+                prevDef = currentDef;
+                task = flow.Tasks[index];
+            }
+
+            void ReadIfBlock() 
+            { 
+                if (task.Type != TaskDefTypes.If)
+                {
+                    return;
+                }
+
+                var startIfDef = GetTaskDef(task);
+                result.States.Add(startIfDef);
+                currentDef = startIfDef;
+
+                if (prevDef != null)
+                {
+                    var transition = GetTransitionDef(prevDef, currentDef);
+                    result.Transitions.Add(transition);
+                }
+
+                StateDef firstBranchEndDef = null;
+                NextTask();
+
+                while (task.Type != TaskDefTypes.EndIf)
+                {
+                    if (task.Type == TaskDefTypes.Else)
+                    {
+                        firstBranchEndDef = prevDef;
+                        NextTask();
+                        prevDef = startIfDef;
+                    }
+                    else
+                    {
+                        ReadIfBlock();
+                        ReadTask();
+                        NextTask();
+                    }
+                }
+
+                //var startDef = GetTaskDef(startIf);
+                var endDef = GetTaskDef(task);
+                result.States.Add(endDef);
+                currentDef = endDef;
+
+                // add first branch to endIf
+                if (firstBranchEndDef != null)
+                {
+                    result.Transitions.Add(GetTransitionDef(firstBranchEndDef, endDef));
+                }
+
+                // add second branch to endIf
+                result.Transitions.Add(GetTransitionDef(prevDef, endDef));
+
+                //NextTask();
+            }
+
+            StateDef GetTaskDef(TaskDef task)
+            {
+                var result = new StateDef
+                {
+                    State = GetAvailableName(task.Name),
+                };
+
+                return result;
+            }
+
+            string GetAvailableName(string name)
+            {
+                if (stateNames.Contains(name))
+                {
+                    int i = 2;
+
+                    while (stateNames.Contains($"{name}{i}"))
+                    {
+                        i++;
+                    }
+
+                    string newName = $"{name}{i}";
+                    stateNames.Add(newName);
+                    return newName;
+                }
+
+                stateNames.Add(name);
+                return name;
+            }
+
+            TransitionDef GetTransitionDef(StateDef from, StateDef to)
+            {
+                var result = new TransitionDef
+                {
+                    FromState = from.State,
+                    ToState = to.State,
+                    Trigger = new TransitionTrigger { Text = "" },
+                };
+
+                return result;
+            }
         }
     }
 }

@@ -42,6 +42,10 @@ builder.Services.AddMudServices(config =>
 builder.Services.AddServerSideBlazorForms(new BlazorFormsConfiguration { RuleEngineType = RuleEngineType.Simple });
 builder.Services.AddBlazorFormsMudBlazorUI();
 builder.Services.AddBlazorFormsServerModelAssemblyTypes(typeof(PersonEditFlow));
+builder.Services.AddAdminBusinessObjects();
+builder.Services.AddBlazorFormsRenderingFlows();
+
+// Docker
 builder.Services.AddAzureDataProtection(builder.Configuration);
 builder.Services.AddHealthChecks();
 

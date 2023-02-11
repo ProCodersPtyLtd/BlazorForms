@@ -147,7 +147,7 @@
     [Parameter]
     public EventCallback<ValueChangedArgs> ModelChanged { get; set; }
 
-    private StateFlowTaskDetails _stateDetails;
+    private FlowDefinitionDetails _stateDetails;
     private DocumentModel _selectedTransaction;
 
     private async Task OnTransitionClick(string text, TransitionDef transition)

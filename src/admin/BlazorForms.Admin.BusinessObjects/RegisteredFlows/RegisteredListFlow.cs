@@ -10,6 +10,8 @@ using BlazorForms.Shared;
 using BlazorForms.Shared.Extensions;
 using BlazorForms.Admin.BusinessObjects.Interfaces;
 using BlazorForms.Admin.BusinessObjects.Model;
+using BlazorForms.Platform;
+using BlazorForms.Admin.BusinessObjects.StorageFlows;
 
 namespace BlazorForms.Admin.BusinessObjects.RegisteredFlows
 {
@@ -18,6 +20,14 @@ namespace BlazorForms.Admin.BusinessObjects.RegisteredFlows
         private readonly IFlowDataProvider _flowDataProvider;
         private readonly IFluentFlowRunEngine _flowEngine;
         private readonly IServiceProvider _serviceProvider;
+
+        private List<Type> _ignoreFlows = new Type[] 
+        { 
+            typeof(RegisteredListFlow), 
+            typeof(RegisteredListItemViewFlow), 
+            typeof(StoredListFlow), 
+            typeof(ErrorEditFlow),  
+        }.ToList();
 
         public RegisteredListFlow(IFlowDataProvider flowDataProvider, IFluentFlowRunEngine flowEngine, IServiceProvider serviceProvider)
         {
@@ -35,7 +45,18 @@ namespace BlazorForms.Admin.BusinessObjects.RegisteredFlows
             var result = new FlowDetailsModel();
             var options = new FlowDataOptions();
             options.ShowNamespaces = Params.GetParam("ShowNamespaces").AsBool();
-            result.Data = await _flowDataProvider.GetRegisteredFlows(options);
+            var list = await _flowDataProvider.GetRegisteredFlows(options);
+
+            if (options.ShowNamespaces == true)
+            {
+                list = list.Where(f => !_ignoreFlows.Any(i => i.FullName == f.FlowType)).ToList();
+            }
+            else 
+            {
+                list = list.Where(f => !_ignoreFlows.Any(i => i.Name == f.FlowType)).ToList();
+            }
+
+            result.Data = list;
             return result;
 
             //var flows = _flowEngine.GetAllFlowTypes();
@@ -75,6 +96,7 @@ namespace BlazorForms.Admin.BusinessObjects.RegisteredFlows
 
                 e.Property(p => p.RefId).IsPrimaryKey().IsHidden();
                 e.Property(p => p.FlowType).Name("Flow");
+                e.Property(p => p.FlowInterface).Name("Type");
                 e.Property(p => p.ModelType).Name("Model");
                 e.Property(p => p.TaskCount).Name("Tasks");
 

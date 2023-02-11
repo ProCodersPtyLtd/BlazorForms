@@ -296,9 +296,9 @@ namespace BlazorForms.Flows.Engine.StateFlow
             throw new NotImplementedException();
         }
 
-        public async Task<StateFlowTaskDetails> GetStateDetails(FlowRunParameters runParameters)
+        public async Task<FlowDefinitionDetails> GetFlowDefinitionDetails(FlowRunParameters runParameters)
         {
-            var result = new StateFlowTaskDetails();
+            var result = new FlowDefinitionDetails();
             var flowType = runParameters.FlowType;
             var refId = runParameters.RefId;
             var parameters = runParameters.FlowParameters;
@@ -346,6 +346,12 @@ namespace BlazorForms.Flows.Engine.StateFlow
         public async Task UpdateFlowContext(IFlowContext context)
         {
             await _storage.SaveProcessExecutionContext(context, context.ExecutionResult);
+        }
+
+        public List<Type> GetAllFlowTypes()
+        {
+            var result = _parser.GetTypesInheritedFrom(typeof(IStateFlow)).Where(t => !t.IsAbstract && !t.ContainsGenericParameters).ToList();
+            return result;
         }
     }
 }

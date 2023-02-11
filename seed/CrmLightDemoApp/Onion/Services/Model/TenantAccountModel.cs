@@ -1,9 +1,10 @@
-﻿using BlazorForms.Shared;
+﻿using BlazorForms.Flows.Definitions;
+using BlazorForms.Shared;
 using CrmLightDemoApp.Onion.Domain;
 
 namespace CrmLightDemoApp.Onion.Services.Model
 {
-	public class TenantAccountModel : TenantAccountDetails
+	public class TenantAccountModel : TenantAccountDetails, IFlowModel
 	{
 		public static TenantAccountModel FromDetails(TenantAccountDetails val)
 		{

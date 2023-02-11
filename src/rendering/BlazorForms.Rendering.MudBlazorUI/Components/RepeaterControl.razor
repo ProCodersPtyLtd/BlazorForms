@@ -53,40 +53,16 @@
     <table mat-table class="table repeater-table">
         @*Render header*@
 
-        @if (@Table.Binding.TableBinding == "$.Timesheet.Records")
-        {
-            <tr class="jsgrid-grid-header">
-                @foreach (var col in Columns)
+        <tr class="jsgrid-grid-header">
+            @foreach (var col in GetColumns())
+            {
+                @if (col?.ControlType == "Repeater" || col?.DisplayProperties?.Visible == false)
                 {
-                    @if (col?.ControlType == "Repeater" || col?.DisplayProperties?.Visible == false)
-                    {
-                        continue;
-                    }
-
-                    @if (@col?.Binding.Binding == "$.Comments")
-                    {
-                        <th class="comments-col">@col?.DisplayProperties?.Caption</th>
-                    }
-                    else
-                    {
-                        <th class="custom-col">@col?.DisplayProperties?.Caption</th>
-                    }
+                    continue;
                 }
-            </tr>
-        }
-        else
-        {
-            <tr class="jsgrid-grid-header">
-                @foreach (var col in Columns)
-                {
-                    @if (col?.ControlType == "Repeater" || col?.DisplayProperties?.Visible == false)
-                    {
-                        continue;
-                    }
-                    <th>@col?.DisplayProperties?.Caption</th>
-                }
-            </tr>
-        }
+                <th>@col?.DisplayProperties?.Caption</th>
+            }
+        </tr>
 
         @*Render Body*@
         @if (GetListData() != null)
@@ -96,38 +72,34 @@
                 var row = i;
                 <tr class="jsgrid-row-item">
 
-                    @foreach (var col in Columns)
+                    @foreach (var col in GetColumns())
                     {
                         <td>
                             <SimpleControl ModelChanged="@ModelChanged" ModelBinding="" Field="@GetField(row, col)" RowIndex="@row" />
                         </td>
                     }
 
-                    @if (RepeaterParameters?.IsFixedList == true)
+                    
+                    @if (_isLineEditing() == true)
                     {
+                        <td>
+                            <MudIconButton Icon="@Icons.Material.TwoTone.Create" OnClick="@(async (args) => await EditClick(args, @row))"></MudIconButton>
+                        </td>
                     }
-                    else
-                    {
-                        @if (RepeaterParameters?.IsLineEditing == true)
-                        {
-                            <td>
-                                <MudIconButton Icon="@Icons.Material.TwoTone.Create" OnClick="@(async (args) => await EditClick(args, @row))"></MudIconButton>
-                            </td>
-                        }
 
+                    @if (_isLineDeleting() == true)
+                    {
                         <td>
                             <MudIconButton Icon="@Icons.Material.TwoTone.DeleteForever" OnClick="@(async (args) => await DelClick(args, @row))"></MudIconButton>
                         </td>
                     }
+                    
                 </tr>
             }
         }
     </table>
 
-    @if (RepeaterParameters?.IsFixedList == true)
-    {
-    }
-    else
+    @if (_isLineAdding() == true)
     {
         <MudButton Variant="Variant.Filled" OnClick="@AddClick" Class="pz-add-button">Add</MudButton>
     }    
@@ -168,6 +140,29 @@
         { 
             RepeaterParameters = Table.Binding.Parameters as BlazorForms.Flows.Definitions.RepeaterParameters;
         }
+    }
+
+    private bool? _isLineEditing()
+    {
+        return Columns.FirstOrDefault(f => f.ControlType == ControlType.CardButton.ToString()
+            && f.Binding.Binding.Contains(ModelBinding.EditButtonBinding.ToString().Replace("$", "")))?.DisplayProperties.Visible;
+    }
+
+    private bool? _isLineDeleting()
+    {
+        return Columns.FirstOrDefault(f => f.ControlType == ControlType.CardButton.ToString()
+            && f.Binding.Binding.Contains(ModelBinding.DeleteButtonBinding.ToString().Replace("$", "")))?.DisplayProperties.Visible;
+    }
+
+    private bool? _isLineAdding()
+    {
+        return Columns.FirstOrDefault(f => f.ControlType == ControlType.CardButton.ToString()
+            && f.Binding.Binding.Contains(ModelBinding.DeleteButtonBinding.ToString().Replace("$", "")))?.DisplayProperties.Visible;
+    }
+
+    private IEnumerable<FieldControlDetails> GetColumns()
+    {
+        return Columns.Where(f => f.ControlType != ControlType.CardButton.ToString());
     }
 
     private async Task ModelChanged(ValueChangedArgs args)

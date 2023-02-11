@@ -36,6 +36,7 @@ namespace BlazorForms.Tests.Framework.Core
         private ServiceProvider _serviceProvider;
         private FlowRunStorage _flowRunStorage;
         private IFlowParser _flowParser;
+        private IFluentFlowRunEngine _fluentFlowEngine;
 
         public IEnumerable<Assembly> GetConsideredAssemblies()
         {
@@ -46,6 +47,10 @@ namespace BlazorForms.Tests.Framework.Core
             return asms.Union(asmsPlatform).Union(asmsApplication).Union(adminAssemblies);
         }
 
+        public IFluentFlowRunEngine FluentFlowRunEngine
+        {
+            get { return _fluentFlowEngine; }
+        }
         public ServiceProvider ServiceProvider
         {
             get { return _serviceProvider; }
@@ -175,6 +180,7 @@ namespace BlazorForms.Tests.Framework.Core
             var customConfigProvider = serviceProvider.GetRequiredService<ICustomConfigProvider>();
             var logger = serviceProvider.GetRequiredService<ILogger<FlowRunProvider>>();
             var fluentEngine = new FluentFlowRunEngine(serviceProvider.GetRequiredService<ILogger<FluentFlowRunEngine>>(), serviceProvider, storage, parser);
+            _fluentFlowEngine = fluentEngine;
             var auth = serviceProvider.GetRequiredService<IAuthState>();
             var clientBrowserService = new Moq.Mock<IClientBrowserService>();
             clientBrowserService.Setup(e => e.GetWindowOrigin()).ReturnsAsync("https://localhost");

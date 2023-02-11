@@ -7,8 +7,10 @@
         public virtual int Id { get; set; }
         public virtual bool Deleted { get; set; }
         public virtual int CompanyId { get; set; }
+        public virtual string Bio { get; set; }
 
         // FK
         public List<User> RefUser { get; } = new();
     }
 }
+    

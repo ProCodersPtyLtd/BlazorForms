@@ -17,5 +17,11 @@ namespace CrmLightDemoApp.Onion.Services.Model
             val.ReflectionCopyTo(model);
             return model;
         }
+
+        public List<string> GetGrantedRoles()
+        {
+            var roles = CombinedUserRoles.Where(x => x.Selected).Select(x => x.Name).ToList();
+            return roles;
+		}
     }
 }

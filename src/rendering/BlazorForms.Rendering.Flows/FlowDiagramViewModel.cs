@@ -13,12 +13,14 @@ namespace BlazorForms.Rendering.Flows
 {
     public class FlowDiagramViewModel
     {
-        private readonly IStateFlowRunEngine _flowEngine;
+        private readonly IStateFlowRunEngine _stateFlowEngine;
+        private readonly IFluentFlowRunEngine _fluentFlowEngine;
         private readonly IFlowParser _parser;
 
-        public FlowDiagramViewModel(IStateFlowRunEngine flowEngine, IFlowParser parser)
+        public FlowDiagramViewModel(IFluentFlowRunEngine fluentFlowEngine, IStateFlowRunEngine flowEngine, IFlowParser parser)
         {
-            _flowEngine = flowEngine;
+            _stateFlowEngine = flowEngine;
+            _fluentFlowEngine = fluentFlowEngine;
             _parser = parser;
         }
 
@@ -31,7 +33,17 @@ namespace BlazorForms.Rendering.Flows
 
             var type = flowType ?? _parser.GetTypeByName(flowId);
             var ps = new FlowRunParameters { FlowType = type, NoStorageMode = true };
-            var flow = await _flowEngine.GetStateDetails(ps);
+            FlowDefinitionDetails flow;
+
+            if (_parser.GetTypesInheritedFrom(typeof(IStateFlow)).Any(f => f == flowType))
+            {
+
+                flow = await _stateFlowEngine.GetFlowDefinitionDetails(ps);
+            }
+            else
+            {
+                flow = await _fluentFlowEngine.GetFlowDefinitionDetails(ps);
+            }
 
             var graph = GenerateGraph(flow);
             var doc = new Diagram(graph);
@@ -40,7 +52,7 @@ namespace BlazorForms.Rendering.Flows
             return svg;
         }
 
-        private Graph GenerateGraph(StateFlowTaskDetails flow)
+        private Graph GenerateGraph(FlowDefinitionDetails flow)
         {
             var graph = new Graph();
 

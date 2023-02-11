@@ -33,6 +33,11 @@ namespace BlazorForms.Flows
             Initialize(Settings);
         }
 
+        public virtual Type GetModelType()
+        {
+            return typeof(M);
+        }
+
         public virtual void Initialize(FlowSettings settings)
         { }
 

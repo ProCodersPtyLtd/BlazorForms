@@ -22,5 +22,8 @@ namespace BlazorForms.Flows.Definitions
         void UpdateOperation(string operationName);
         Task UpdateFlowContextModel(string refId, IFlowModel model);
         Task UpdateFlowContext(IFlowContext context);
+
+        List<Type> GetAllFlowTypes();
+        Task<FlowDefinitionDetails> GetFlowDefinitionDetails(FlowRunParameters runParameters);
     }
 }

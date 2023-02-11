@@ -13,5 +13,7 @@
 	{
 		<MudIconButton Icon="@Icons.Material.Filled.Brightness5" Color="Color.Inherit" OnClick="ToggleTheme" />
 	}
+
+	<MudText>@($"v{System.Reflection.Assembly.GetEntryAssembly().GetName().Version}")</MudText>
 </MudAppBar>
 

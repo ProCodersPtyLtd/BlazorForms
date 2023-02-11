@@ -15,12 +15,15 @@ namespace BlazorForms.Admin.BusinessObjects.Providers
     public class FlowDataProvider : IFlowDataProvider
     {
         private readonly IFluentFlowRunEngine _flowEngine;
+        private readonly IStateFlowRunEngine _stateFlowEngine;
         private readonly IServiceProvider _serviceProvider;
         private readonly IFlowRunStorage _flowRunStorage;
 
-        public FlowDataProvider(IFluentFlowRunEngine flowEngine, IServiceProvider serviceProvider, IFlowRunStorage flowRunStorage)
+        public FlowDataProvider(IServiceProvider serviceProvider, IStateFlowRunEngine stateFlowEngine, IFluentFlowRunEngine flowEngine, 
+            IFlowRunStorage flowRunStorage)
         {
             _flowEngine = flowEngine;
+            _stateFlowEngine = stateFlowEngine;
             _serviceProvider = serviceProvider;
             _flowRunStorage = flowRunStorage;
         }
@@ -36,11 +39,12 @@ namespace BlazorForms.Admin.BusinessObjects.Providers
                 var flowParameters = TypeHelper.GetConstructorParameters(_serviceProvider, flowType);
                 var flow = Activator.CreateInstance(flowType, flowParameters) as IFluentFlow;
                 flow.Parse();
-                var modelType = flow.GetModel().GetType();
+                var modelType = flow.GetModelType();
 
                 var item = new FlowDataDetails
                 {
-                    RefId = flowType.FullName,
+                    FlowInterface = "IFluentFlow",
+                    RefId = flowType.FullName.Replace(".", "-"),
                     FlowType = showNamespaces == true ? flowType.FullName : flowType.Name,
                     ModelType = showNamespaces == true ? modelType.FullName : modelType.Name,
                     TaskCount = flow.Tasks.Count,
@@ -48,6 +52,28 @@ namespace BlazorForms.Admin.BusinessObjects.Providers
 
                 result.Add(item);
             }
+
+            var stateFlows = _stateFlowEngine.GetAllFlowTypes();
+
+            foreach (var flowType in stateFlows)
+            {
+                var flowParameters = TypeHelper.GetConstructorParameters(_serviceProvider, flowType);
+                var flow = Activator.CreateInstance(flowType, flowParameters) as IStateFlow;
+                flow.Parse();
+                var modelType = flow.GetModelType();
+
+                var item = new FlowDataDetails
+                {
+                    FlowInterface = "IStateFlow",
+                    RefId = flowType.FullName.Replace(".", "-"),
+                    FlowType = showNamespaces == true ? flowType.FullName : flowType.Name,
+                    ModelType = showNamespaces == true ? modelType.FullName : modelType.Name,
+                    TaskCount = flow.States.Count,
+                };
+
+                result.Add(item);
+            }
+
 
             return result;
         }
