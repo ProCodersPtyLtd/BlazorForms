@@ -1,8 +1,7 @@
 ﻿@page "/static-type-edit/{entityType}"
+@inject NavigationManager NavigationManager;
 
 @code {
-    @inject NavigationManager NavigationManager;
-
     [Parameter]
     public string entityType { get; set; }
 

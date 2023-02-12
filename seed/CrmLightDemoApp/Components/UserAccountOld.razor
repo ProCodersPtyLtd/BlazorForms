@@ -1,9 +1,13 @@
-﻿@using BlazorForms.Shared;
-@using CrmLightDemoApp.Onion.Domain.Repositories;
+﻿@using CrmLightDemoApp.Onion.Domain.Repositories;
 @using CrmLightDemoApp.Onion.Domain;
 @using CrmLightDemoApp.Onion.Services.Abstractions;
 @using CrmLightDemoApp.Onion.Services;
 @using CrmLightDemoApp.Onion.Services.Model;
+
+@inject IAppAuthState _authState
+@inject IUserRepository _userRepo
+@inject IUserService _userService
+@inject ITenantAccountRepository _tenantRepo
 
 @if (_users != null)
 {
@@ -25,11 +29,6 @@
 }
 
 @code {
-	@inject IAppAuthState _authState
-	@inject IUserRepository _userRepo
-    @inject IUserService _userService
-    @inject ITenantAccountRepository _tenantRepo
-
 	private List<UserDetails>? _users;
 
 	protected override async Task OnInitializedAsync()
