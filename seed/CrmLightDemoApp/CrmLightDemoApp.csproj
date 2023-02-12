@@ -24,7 +24,7 @@
       
     <PackageReference Include="BlazorForms" Version="1.8.3" />
     <PackageReference Include="BlazorForms.Rendering.MudBlazorUI" Version="1.8.3" />
-	<PackageReference Include="BlazorForms.Rendering.Flows" Version="1.9.0" />
+	<PackageReference Include="BlazorForms.Rendering.Flows" Version="1.9.1" />
 	  
 	  <!--<ProjectReference Include="..\..\src\platform\BlazorForms.Platform\BlazorForms.Platform.csproj" />
 	  <ProjectReference Include="..\..\src\rendering\BlazorForms.Rendering.Flows\BlazorForms.Rendering.Flows.csproj" />
