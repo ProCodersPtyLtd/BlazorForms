@@ -1,0 +1,11 @@
+﻿@page "/tenant-settings"
+
+<FlowEditForm FlowName="@typeof(CrmLightDemoApp.Onion.Services.Flow.Admin.TenantAccountEditFlow).FullName"
+              Options="GlobalSettings.EditFormOptions" NavigationSuccess="/user-list" />
+
+
+@code {
+    [Parameter]
+    public string Pk { get; set; }
+
+}

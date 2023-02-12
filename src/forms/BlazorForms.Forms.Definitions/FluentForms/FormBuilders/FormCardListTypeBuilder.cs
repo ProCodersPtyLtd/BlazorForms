@@ -50,28 +50,6 @@ namespace BlazorForms.Forms
             return this;
         }
 
-        private string GetButtonBinding(ButtonActionTypes actionType)
-        {
-            var binding = actionType switch
-            {
-                ButtonActionTypes.Reject => ModelBinding.RejectButtonBinding,
-                ButtonActionTypes.Submit => ModelBinding.SubmitButtonBinding,
-                ButtonActionTypes.Save => ModelBinding.SaveButtonBinding,
-                ButtonActionTypes.Close => ModelBinding.CloseButtonBinding,
-                ButtonActionTypes.Cancel => ModelBinding.CloseButtonBinding,
-                ButtonActionTypes.CloseFinish => ModelBinding.CloseFinishButtonBinding,
-                ButtonActionTypes.SubmitClose => ModelBinding.SubmitCloseButtonBinding,
-                ButtonActionTypes.Delete => ModelBinding.DeleteButtonBinding,
-                ButtonActionTypes.Edit => ModelBinding.EditButtonBinding,
-                ButtonActionTypes.Custom => ModelBinding.CustomButtonBinding,
-                _ => throw new Exception($"ActionType {actionType} binding is not found"),
-            };
-            return binding;
-
-            binding = ItemsPath + binding.Replace("$", "");
-            return binding;
-        }
-
         public virtual FormCardListTypeBuilder<TMainEntity, TEntity> Rule([NotNullAttribute] Type ruleType, 
             FormRuleTriggers trigger = FormRuleTriggers.ItemChanged)
         {

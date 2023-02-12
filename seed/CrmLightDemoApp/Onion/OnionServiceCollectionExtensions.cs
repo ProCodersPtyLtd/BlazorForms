@@ -27,8 +27,12 @@ namespace CrmLightDemoApp.Onion
                 .AddSingleton<IBoardCardHistoryRepository, BoardCardHistoryRepository>()
                 .AddSingleton<IUserRepository, UserRepository>()
                 .AddSingleton<ITenantAccountRepository, TenantAccountRepository>()
+                .AddSingleton<IUserRoleLinkRepository, UserRoleLinkRepository>()
+                .AddSingleton<IRoleRepository, RoleRepository>()
                 // services
                 .AddScoped<IBoardService, BoardService>()
+                .AddScoped<IUserService, UserService>()
+                .AddScoped<INotificationService, NotificationService>()
                 .AddScoped<IAppAuthState, MockAppAuthState>()
 
                 //.AddSingleton<StaticTypeEditFlow<LeadSourceType>, StaticTypeEditFlow<LeadSourceType>>()

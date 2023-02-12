@@ -289,7 +289,8 @@ namespace BlazorForms.Rendering
 
             Repeaters = FormData.Fields
                 .Where(f => f?.DisplayProperties?.Visible == true && repeaters.Any(x => x.Binding.TableBinding == f.Binding.TableBinding) &&
-                    (f.Binding.BindingType == FieldBindingType.TableColumn || f.Binding.BindingType == FieldBindingType.TableColumnSingleSelect))
+                    (f.Binding.BindingType == FieldBindingType.TableColumn || f.Binding.BindingType == FieldBindingType.TableColumnSingleSelect
+                    || f.Binding.BindingType == FieldBindingType.RepeaterActionButton))
                 .GroupBy(g => g.Binding.TableBinding).ToDictionary(d => d.Key, d => d.ToList());
 
             var lists = FormData.Fields.Where(f => f?.DisplayProperties?.Visible == true && f.Binding.BindingType == FieldBindingType.List);
@@ -769,7 +770,7 @@ namespace BlazorForms.Rendering
         {
             return _modelBindingNavigator.GetValue(model, binding);
         }
-
+            
         public object FieldGetNameValue(object model, FieldBinding binding)
         {
             return _modelBindingNavigator.GetNameValue(model, binding);

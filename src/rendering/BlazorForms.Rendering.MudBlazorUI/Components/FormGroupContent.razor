@@ -133,7 +133,10 @@
             }
             else
             {
-                @if (field.Binding.BindingType == BlazorForms.Shared.FieldBindingType.ActionButton)
+                @if (field.Binding.BindingType == BlazorForms.Shared.FieldBindingType.RepeaterActionButton)
+                {
+                }
+                else if (field.Binding.BindingType == BlazorForms.Shared.FieldBindingType.ActionButton)
                 {
                     <MudItem xs="12" class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
                         <SimpleControl ModelChanged="@ModelChanged" ModelBinding="" Field="@field" />

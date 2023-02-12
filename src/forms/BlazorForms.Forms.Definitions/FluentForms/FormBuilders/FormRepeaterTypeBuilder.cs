@@ -41,7 +41,27 @@ namespace BlazorForms.Forms
         {
             return _fields;
         }
-    }
+
+		protected string GetButtonBinding(ButtonActionTypes actionType)
+		{
+			var binding = actionType switch
+			{
+				ButtonActionTypes.Reject => ModelBinding.RejectButtonBinding,
+				ButtonActionTypes.Submit => ModelBinding.SubmitButtonBinding,
+				ButtonActionTypes.Save => ModelBinding.SaveButtonBinding,
+				ButtonActionTypes.Close => ModelBinding.CloseButtonBinding,
+				ButtonActionTypes.Cancel => ModelBinding.CloseButtonBinding,
+				ButtonActionTypes.CloseFinish => ModelBinding.CloseFinishButtonBinding,
+				ButtonActionTypes.SubmitClose => ModelBinding.SubmitCloseButtonBinding,
+				ButtonActionTypes.Add => ModelBinding.AddButtonBinding,
+				ButtonActionTypes.Delete => ModelBinding.DeleteButtonBinding,
+				ButtonActionTypes.Edit => ModelBinding.EditButtonBinding,
+				ButtonActionTypes.Custom => ModelBinding.CustomButtonBinding,
+				_ => throw new Exception($"ActionType {actionType} binding is not found"),
+			};
+			return binding;
+		}
+	}
 
     public class FormRepeaterTypeBuilder<TMainEntity, TEntity> : FormRepeaterTypeBuilder
         where TMainEntity : class
@@ -194,5 +214,26 @@ namespace BlazorForms.Forms
             ControlButtons.Add(new DialogButtonDetails { Action = actionType, Text = text, Hint = hint, LinkText = actionLink });
             return this;
         }
-    }
+
+		public virtual FormRepeaterTypeBuilder<TMainEntity, TEntity> Button(ButtonActionTypes actionType, string text = null, string hint = null,
+			string actionLink = null)
+		{
+			_propertyOrder++;
+			var property = GetButtonBinding(actionType);
+			var fieldSetGroup = ItemsPath;
+			CreateFieldIfNotExists(typeof(TEntity), property);
+			var resultField = _fields[property];
+			resultField.ControlTypeName = ControlType.CardButton.ToString();
+			resultField.Order = _propertyOrder;
+			resultField.TableBindingProperty = ItemsPath;
+			resultField.BindingType = FieldBindingType.RepeaterActionButton;
+			resultField.BindingControlType = typeof(TableColumnBindingControlType).Name;
+			resultField.Hidden = false;
+			resultField.FieldSetGroup = fieldSetGroup;
+			resultField.ActionLink = actionLink;
+			resultField.Label = text ?? actionType.ToString();
+			resultField.Hint = hint;
+			return this;
+		}
+	}
 }

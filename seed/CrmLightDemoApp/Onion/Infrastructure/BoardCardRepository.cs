@@ -5,7 +5,7 @@ using CrmLightDemoApp.Onion.Domain.Repositories;
 
 namespace CrmLightDemoApp.Onion.Infrastructure
 {
-    public class BoardCardRepository : LocalCacheRepository<BoardCard>, IBoardCardRepository
+    public class BoardCardRepository : RepositoryBase<BoardCard>, IBoardCardRepository
     {
         public BoardCardRepository()
         {

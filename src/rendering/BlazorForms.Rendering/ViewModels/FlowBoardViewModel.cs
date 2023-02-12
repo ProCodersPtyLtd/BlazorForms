@@ -16,7 +16,7 @@ namespace BlazorForms.Rendering.ViewModels
 	{
 		private readonly IStateFlowRunEngine _flowRunEngine;
 		private Type _currentFlowType;
-		private StateFlowTaskDetails _flowDetails;
+		private FlowDefinitionDetails _flowDetails;
 		private Func<List<BoardCardChangedArgs<IFlowBoardCard>>, Task> _onChanged;
 
 		public List<FlowBoardColumn> Columns {get;set;}
@@ -75,7 +75,7 @@ namespace BlazorForms.Rendering.ViewModels
 				NoStorageMode = !IsStorageEnabled
 			};
 
-			_flowDetails = await _flowRunEngine.GetStateDetails(ps);
+			_flowDetails = await _flowRunEngine.GetFlowDefinitionDetails(ps);
 			Columns = _flowDetails.States.Select(s => new FlowBoardColumn { Id = s.State, Name = s.Caption }).ToList();
 		}
 

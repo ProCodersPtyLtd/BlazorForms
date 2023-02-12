@@ -84,6 +84,11 @@ namespace BlazorForms.Platform.Tests.Flows
 
         public virtual void EndTask()
         { }
+
+        public override Type GetModelType()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class DemoClientTableParamsForm : FlowTaskDefinitionBase<DemoClientTableModel>

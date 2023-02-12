@@ -88,7 +88,10 @@ namespace CrmLightDemoApp.Onion.Services.Flow
 
                 e.Property(p => p.Name).IsRequired().IsUnique().Label("Name")
                     .Rule(typeof(FormStaticType_ItemChangedRule<T>), FormRuleTriggers.ItemChanged);
-            });
+
+				e.Button(ButtonActionTypes.Add);
+				e.Button(ButtonActionTypes.Delete);
+			});
 
             f.Button(ButtonActionTypes.Submit, "Save Changes");
             f.Button(ButtonActionTypes.Close);

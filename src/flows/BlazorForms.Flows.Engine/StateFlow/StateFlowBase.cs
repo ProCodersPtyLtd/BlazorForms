@@ -115,12 +115,18 @@ namespace BlazorForms.Flows
             return Guid.NewGuid().ToString();
         }
 
+        public abstract Type GetModelType();
     }
 
     public abstract class StateFlowBase<M> : StateFlowBase
         where M : class, IFlowModel
     {
         public virtual M Model { get; set; }
+
+        public override Type GetModelType()
+        {
+            return typeof(M);
+        }
 
         protected SpanTransitionTrigger DaySpanTrigger(int days)
         {

@@ -126,5 +126,7 @@ namespace BlazorForms.Flows.Definitions
         {
             return Model;
         }
+
+        public abstract Type GetModelType();
     }
 }

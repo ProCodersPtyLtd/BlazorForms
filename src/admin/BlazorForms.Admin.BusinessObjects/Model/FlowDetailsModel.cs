@@ -16,6 +16,7 @@ namespace BlazorForms.Admin.BusinessObjects.Model
     {
         public virtual string? RefId { get; set; }
         //public virtual string? FlowName { get; set; }
+        public virtual string FlowInterface { get; set; }
         public virtual string FlowType { get; set; }
         public virtual int? TaskCount { get; set; }
         public virtual string? ModelType { get; set; }

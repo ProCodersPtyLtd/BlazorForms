@@ -112,7 +112,7 @@ namespace BlazorFormsStateFlowDemoApp.BusinessObjects
             }
         }
 
-        public async Task<StateFlowTaskDetails> GetTransactionSelectorData(string id)
+        public async Task<FlowDefinitionDetails> GetTransactionSelectorData(string id)
         {
             var t = Transactions.First(d => d.Document.TransactionId == id);
             
@@ -124,7 +124,7 @@ namespace BlazorFormsStateFlowDemoApp.BusinessObjects
                 NoStorageMode = !IsStorageEnabled 
             };
             
-            var result = await _flowRunEngine.GetStateDetails(ps);
+            var result = await _flowRunEngine.GetFlowDefinitionDetails(ps);
             return result;
         }
 

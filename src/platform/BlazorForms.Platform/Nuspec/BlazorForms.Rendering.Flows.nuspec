@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>BlazorForms.Rendering</id>
+    <version>0.3.5</version>
+    <authors>Pro Coders</authors>
+    <owners>Pro Coders</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>BlazorForms.Rendering is a set of Definition Libraries for BlazorForms (model-centric framework that helps to create flows, forms and rules)</description>
+    <copyright>Copyright (c) 2022 Pro Coders PTY LTD</copyright>
+	<license type="expression">MIT</license>
+    <tags>blazor flow form rule framework rendering</tags>
+    <dependencies>
+		<group targetFramework="net7.0">
+			<dependency id="Microsoft.AspNetCore.Components.Web" version="7.0.0" />
+			<dependency id="AutomaticGraphLayout.Drawing" version="1.1.12" />
+			<dependency id="System.Drawing.Common" version="6.0.0" />
+		</group>
+    </dependencies>
+    <contentFiles>
+      <files include="**\*.json" buildAction="None" />
+      <files include="**\*.cmd" buildAction="None" />
+      <files include="**\*.txt" buildAction="None" />
+      <files include="**\*.sql" buildAction="None" />
+    </contentFiles>
+  </metadata>
+  <files>
+    <file src="..\..\..\rendering\BlazorForms.Rendering.Flows\bin\Release\net7.0\BlazorForms.Flows.Engine.dll" target="lib\net7.0\BlazorForms.Flows.Engine.dll" />
+  </files>
+</package>

@@ -8,10 +8,11 @@
     </MudDrawerHeader>
     <MudNavMenu>
         <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Filled.Home">Home</MudNavLink>
-        <MudNavLink Href="/lead-board" Icon="@Icons.Filled.Dashboard">Lead Board</MudNavLink>
+        <MudNavLink Href="/lead-board" Icon="@Icons.Filled.ViewColumn">Lead Board</MudNavLink>
         <MudNavLink Href="/client-company-list" Icon="@Icons.Filled.Savings">Clients</MudNavLink>
         <MudNavLink Href="/person-list" Icon="@Icons.Filled.Person">People</MudNavLink>
         <MudNavLink Href="/company-list" Icon="@Icons.Filled.Factory">Companies</MudNavLink>
+        
         <MudNavGroup Title="Static data" Icon="@Icons.Filled.DashboardCustomize" Expanded="true">
 @*            <MudNavLink Href="/person-company-list-type/id=3" Icon="@Icons.Filled.Work">Person Company Type</MudNavLink>
             <MudNavLink Href=@($"/internal-static-type-edit/{typeof(PersonCompanyLinkType).FullName.Replace(".", "-")}") Icon="@Icons.Filled.Work">Person Company Type</MudNavLink>
@@ -21,6 +22,12 @@
             
             <MudNavLink Href=@($"/static-type-edit/{typeof(LeadSourceType).FullName.Replace(".", "-")}") 
                 Icon="@Icons.Filled.Leaderboard">Lead Source Type</MudNavLink>
+        </MudNavGroup>
+
+        <MudNavGroup Title="Admin" Icon="@Icons.Filled.AdminPanelSettings" Expanded="true">
+            <MudNavLink Href="/tenant-settings" Icon="@Icons.Filled.Settings">Account</MudNavLink>
+            <MudNavLink Href="/user-list" Icon="@Icons.Filled.ManageAccounts">Users</MudNavLink>
+            <MudNavLink Href="/_BlazorForms/admin/registered-flows" Icon="@Icons.Filled.Schema">Flows</MudNavLink>
         </MudNavGroup>
     </MudNavMenu>
 </MudDrawer>

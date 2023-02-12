@@ -8,7 +8,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace CrmLightDemoApp.Onion.Infrastructure
 {
-    public class BoardCardHistoryRepository : LocalCacheRepository<BoardCardHistory>, IBoardCardHistoryRepository
+    public class BoardCardHistoryRepository : RepositoryBase<BoardCardHistory>, IBoardCardHistoryRepository
     {
         private readonly IPersonRepository _personRepository;
 

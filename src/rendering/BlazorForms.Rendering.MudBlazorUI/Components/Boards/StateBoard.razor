@@ -1,0 +1,359 @@
+﻿@using BlazorForms.Rendering.Model
+@using BlazorForms.Rendering.State;
+@using BlazorForms.Rendering.ViewModels;
+@using MudBlazor.Utilities
+@using BlazorForms.Flows.Definitions
+
+@namespace BlazorForms.Rendering.MudBlazorUI.Components
+
+@typeparam TItem where TItem : class, IFlowBoardCard, new()
+
+@inject StateBoardViewModel _vm
+@inject BoardDialogViewModel DialogVM
+@inject IDialogService DialogService
+
+<style>
+	.pz-fixed-column {
+		max-width: 16em;
+	}
+
+	.mud-card-header {
+		padding: 7px !important;
+	}
+
+	.pz-dilaog-grid-align {
+        display: flex;
+    }
+
+    .pz-dialog-content {
+        padding: 0 40px;
+    }
+</style>
+
+<div class="d-flex flex-row flex-grow-1 gap-2 pz-dialog-content">
+	<div class="py-8">
+		<MudButton  Color="@Color.Primary" OnClick="@(async () => await NewButtonClick())"
+                   Variant="Variant.Filled" DisableElevation="true">@NewActionName</MudButton>
+	</div>
+
+    <div class="flex-grow-1 py-8">
+		<MudText Align="Align.Center" Typo="Typo.h6">@Caption</MudText>
+	</div>
+
+	<div class="py-8" style="width: 164px">
+
+	</div>
+</div>
+
+<div class="d-flex flex-column mud-width-full mud-height-full">
+
+	
+
+	<MudDropContainer T="CardInfo<IFlowBoardCard>" Items=@_vm.Cards @ref="_container" ItemsSelector="@((item,dropzone) => item.Item.State == dropzone)"
+					  ItemDropped="async (a) => await ItemUpdated(a)" CanDrop=@CanDrop Class="d-flex flex-wrap flex-grow-1">
+		
+		<ChildContent>
+			@foreach (var column in _vm.Columns)
+			{
+				<MudPaper Class="ma-4 flex-grow-1 pz-fixed-column">
+					<MudList Clickable="true" Class="d-flex flex-column mud-height-full">
+						<MudListSubheader>@column.Name</MudListSubheader>
+						<MudDropZone T="CardInfo<IFlowBoardCard>" Identifier="@column.Id" Class="flex-grow-1" AllowReorder="true" />
+					</MudList>
+				</MudPaper>
+			}
+		</ChildContent>
+
+		<ItemRenderer>
+			<MudListItem OnClick=@(async () => await Click(context))>
+				<MudCard >
+					<MudCardHeader Style=@($"background-color: {CardTitleBackColor}")>
+						<CardHeaderAvatar>
+							@if (CardAvatar != null)
+							{
+								@CardAvatar(context.Item as TItem)
+							}
+							else
+							{
+								<MudAvatar Color="Color.Primary" Size="Size.Small">@context.TitleInitials</MudAvatar>
+							}
+						</CardHeaderAvatar>
+						<CardHeaderContent>
+							@if (CardTitle != null)
+							{
+								@CardTitle(context.Item as TItem)
+							}
+							else
+							{
+								<MudText Typo="Typo.subtitle1">@($"{context.Title}")</MudText>
+							}
+						</CardHeaderContent>
+						<CardHeaderActions>
+
+                                @*<MudIconButton Size="Size.Small" Icon="@Icons.Material.TwoTone.MoreHoriz" Color="Color.Default" />*@
+								<MudMenu Dense="true">
+									<ActivatorContent>
+										<MudIconButton Icon="@Icons.Material.TwoTone.MoreHoriz" Size="Size.Small" 
+											OnClick="@(async() => await @ContextMenuClick())" />
+									</ActivatorContent>
+									<ChildContent>
+										@foreach (var action in _vm.GetContextMenuActions(context))
+										{
+											@if (action.State == FlowBoardContextMenuAction.DIVIDER_ACTION)
+											{
+												<MudDivider />
+											}
+											else
+											{
+												<MudMenuItem OnClick="@(async () => await OnMenuItemClick(context, action))"
+													Icon=@GetIcon(action)
+													 Disabled=@action.Disabled>@action.Name</MudMenuItem>
+											}
+										}
+									</ChildContent>
+								</MudMenu>
+
+						</CardHeaderActions>
+					</MudCardHeader>
+					<MudCardContent>
+						@if (CardBody != null)
+						{
+							@CardBody(context.Item as TItem)
+						}
+						else
+						{
+							<MudText Typo="Typo.body2">@context.Description</MudText>
+						}
+					</MudCardContent>
+				</MudCard>
+			</MudListItem>
+		</ItemRenderer>
+	</MudDropContainer>
+
+</div>
+
+@code {
+	[Parameter]
+	public RenderFragment<TItem> CardAvatar { get; set; }
+
+	[Parameter]
+	public RenderFragment<TItem> CardTitle { get; set; }
+
+	[Parameter]
+	public RenderFragment<TItem> CardBody { get; set; }
+
+	[Parameter]
+	public string CardTitleBackColor { get; set; }
+
+	[Parameter]
+	public BoardFormOptions Options { get; set; } = new();
+
+	[Parameter]
+	public EditFormOptions EditFormOptions { get; set; } = new();
+
+	[Parameter]
+	public List<TItem> Items { get; set; }
+
+	[Parameter]
+	public EventCallback<List<BoardCardChangedArgs<TItem>>> ItemsChanged { get; set; }
+
+	[Parameter]
+	public string Caption { get; set; } = "Board";
+
+	[Parameter]
+	public string NewActionName { get; set; } = "New Card";
+
+	private MudDropContainer<CardInfo<IFlowBoardCard>>? _container;
+
+	protected override async Task OnInitializedAsync()
+	{
+		_vm.SetItemsChangedCallback(OnCardItemsChanged);
+		//await _vm.LoadAsync(typeof(TFlow));
+	}
+
+	protected override async Task OnParametersSetAsync()
+	{
+		await _vm.RefreshCardsAsync(Items.Cast<IFlowBoardCard>().ToList());
+		_container?.Refresh();
+		//StateHasChanged();
+	}
+
+	private async Task NewButtonClick()
+	{
+		var card = new TItem() { State = _vm.Columns[0].Id };
+		var r = new CardInfo<IFlowBoardCard>(card);
+
+		await ItemsChanged.InvokeAsync((new BoardCardChangedArgs<TItem>[]
+		{
+			new BoardCardChangedArgs<TItem>(card as TItem, ItemChangedType.Creating)
+		}).ToList());
+
+		await ShowDialog(r, true);
+	}
+
+	private async Task DialogFormSubmitted(BoardDialogSubmittedArgs args)
+	{
+		// ToDo: we need to reorder cards in column here
+		//await _vm.ReorderCards(args.Card.State, args.Card, 0);
+		if (_isNew)
+		{
+			args.Card.Order = Items.Any(x => x.State == args.Card.State) ? Items.Where(x => x.State == args.Card.State).Max(x => x.Order) + 1 : 0;
+		}
+
+		await ItemsChanged.InvokeAsync((new BoardCardChangedArgs<TItem>[]
+			{
+				new BoardCardChangedArgs<TItem>(args.Card as TItem, _isNew ? ItemChangedType.Added : ItemChangedType.Changed)
+			}).ToList());
+
+		// StateHasChanged();
+		_container?.Refresh();
+	}
+
+	private async Task OnCardItemsChanged(List<BoardCardChangedArgs<IFlowBoardCard>> changes)
+	{
+		var itemsArgs = changes.Select(x => new BoardCardChangedArgs<TItem>(x.Item as TItem, x.Type, x.OldState, x.NewState)).ToList();
+		await ItemsChanged.InvokeAsync(itemsArgs);
+		StateHasChanged();
+	}
+
+	private async Task ContextMenuClick()
+	{		
+	}
+
+	private async Task OnMenuItemClick(CardInfo<IFlowBoardCard> card, FlowBoardContextMenuAction action)
+	{
+		if (action.State == FlowBoardContextMenuAction.EDIT_ACTION)
+		{
+			await ShowDialog(card);
+			return;
+		}
+		else if (action.State == FlowBoardContextMenuAction.DELETE_ACTION)
+		{
+			var delete = await CheckDeleteConfirmation(card);
+
+			await ItemsChanged.InvokeAsync((new BoardCardChangedArgs<TItem>[]
+			{
+				new BoardCardChangedArgs<TItem>(card.Item as TItem, ItemChangedType.Deleted)
+			}).ToList());
+
+			return;
+		}
+
+		//await _vm.PerformTransition(card, action.State, ShowConfirmDialog);
+		_container.Refresh();
+	}
+
+	private async Task<bool> CheckDeleteConfirmation(CardInfo<IFlowBoardCard> card)
+	{
+		var options = new DialogOptions { CloseOnEscapeKey = true };
+
+		var parameters = new DialogParameters 
+        { 
+			["Message"] = $"Are you sure you want to delete card '{card.Item.Title}' ?",
+            ["CancelName"] = "No",
+            ["OkName"] = "Yes",
+        };
+
+		var dialog = await DialogService.ShowAsync<FormConfirmationDialog>(null, parameters, options);
+		var result = await dialog.Result;
+
+		if (result.Cancelled)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	private string GetIcon(FlowBoardContextMenuAction action)
+	{
+		if (action.State == FlowBoardContextMenuAction.EDIT_ACTION)
+		{
+			return Icons.Material.Filled.EditNote;
+		}
+		else if (action.State == FlowBoardContextMenuAction.DELETE_ACTION)
+		{
+			return Icons.Material.Filled.DeleteForever;
+		}
+		else if (action.FormType != null)
+		{
+			return Icons.Material.Filled.Wysiwyg;
+		}
+
+		return null;
+	}
+
+	private bool _isNew;
+
+	private async Task Click(CardInfo<IFlowBoardCard> card)
+	{
+		await ShowDialog(card);
+	}
+
+	private bool CanDrop(CardInfo<IFlowBoardCard> dropItem, string dropzone)
+	{
+		// return _vm.IsTransitionPossible(dropItem, dropzone);
+		// cannot move cards between zones, only reorder
+		return false;
+	}
+
+	private async Task ItemUpdated(MudItemDropInfo<CardInfo<IFlowBoardCard>> dropItem)
+	{
+		if (dropItem.Item.Item.State != dropItem.DropzoneIdentifier)
+		{
+			//var changed = await _vm.PerformTransition(dropItem.Item, dropItem.DropzoneIdentifier, ShowConfirmDialog);
+
+			//if (!changed)
+			//{
+			//	// drop cancelled, refresh board internal state
+			//	_container.Refresh();
+			//}
+		}
+
+		if (dropItem.IndexInZone != dropItem.Item.Item.Order)
+		{
+			await _vm.ReorderCards(dropItem.DropzoneIdentifier, dropItem.Item, dropItem.IndexInZone);
+		}
+
+		StateHasChanged();
+	}
+
+	private async Task ShowDialog(CardInfo<IFlowBoardCard> card, bool isNew = false)
+	{
+		_isNew = isNew;
+		var formType = _vm.GetStateForm(card.Item.State);
+
+		if (formType != null)
+		{
+			await DialogVM.LoadDialog(formType, card);
+
+			var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraExtraLarge, DisableBackdropClick = true };
+			var dialogParameters = new DialogParameters();
+			dialogParameters["DialogViewModel"] = DialogVM;
+			dialogParameters["IsNew"] = isNew;
+			dialogParameters["FormSubmitted"] = new EventCallback<BoardDialogSubmittedArgs>(this, DialogFormSubmitted);
+			dialogParameters["AllowAnonymousAccess"] = true;
+			dialogParameters["AllowFlowStorage"] = false;
+			dialogParameters["EditFormOptions"] = EditFormOptions;
+			await DialogService.ShowAsync<BoardDialogForm>(null, dialogParameters, null);
+		}
+	}
+
+	private async Task<bool> ShowConfirmDialog(string formType, CardInfo<IFlowBoardCard> card)
+	{
+		await DialogVM.LoadDialog(formType, card);
+
+		var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.ExtraExtraLarge, DisableBackdropClick = true };
+		var dialogParameters = new DialogParameters();
+		dialogParameters["DialogViewModel"] = DialogVM;
+		//dialogParameters["FormSubmitted"] = new EventCallback<BoardDialogSubmittedArgs>(this, DialogFormSubmitted);
+		dialogParameters["AllowAnonymousAccess"] = true;
+		dialogParameters["AllowFlowStorage"] = false;
+		dialogParameters["EditFormOptions"] = EditFormOptions;
+
+		var dialog = await DialogService.ShowAsync<BoardDialogForm>(null, dialogParameters, null);
+		var result = await dialog.Result;
+
+		return !result.Cancelled;
+	}
+}

@@ -6,7 +6,7 @@ using CrmLightDemoApp.Onion.Domain.Repositories;
 
 namespace CrmLightDemoApp.Onion.Infrastructure
 {
-    public class TenantAccountRepository : LocalCacheRepository<TenantAccount>, ITenantAccountRepository
+    public class TenantAccountRepository : RepositoryBase<TenantAccount>, ITenantAccountRepository
     {
 		private readonly ICompanyRepository _companyRepository;
 

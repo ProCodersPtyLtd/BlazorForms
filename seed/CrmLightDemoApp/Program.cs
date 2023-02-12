@@ -2,7 +2,6 @@ using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using BlazorForms;
 using BlazorForms.Flows.Definitions;
 using BlazorForms.Platform;
-using BlazorForms.Platform.Stubs;
 using CrmLightDemoApp;
 using CrmLightDemoApp.Onion;
 using CrmLightDemoApp.Onion.Domain.Entities;
@@ -43,6 +42,10 @@ builder.Services.AddMudServices(config =>
 builder.Services.AddServerSideBlazorForms(new BlazorFormsConfiguration { RuleEngineType = RuleEngineType.Simple });
 builder.Services.AddBlazorFormsMudBlazorUI();
 builder.Services.AddBlazorFormsServerModelAssemblyTypes(typeof(PersonEditFlow));
+builder.Services.AddAdminBusinessObjects();
+builder.Services.AddBlazorFormsRenderingFlows();
+
+// Docker
 builder.Services.AddAzureDataProtection(builder.Configuration);
 builder.Services.AddHealthChecks();
 

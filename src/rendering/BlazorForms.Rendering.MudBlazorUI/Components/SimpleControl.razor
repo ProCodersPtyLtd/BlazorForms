@@ -9,7 +9,10 @@
 @inject IDynamicFieldValidator FieldValidator
 @inject IKnownTypesBinder _knownTypesBinder
 
-    @if (Field.ControlType == null || Field.ControlType == "Label")
+    @if (Field.ControlType == "CardButton")
+    {
+    }
+    else if (Field.ControlType == null || Field.ControlType == "Label")
     {
         <MudText Typo="Typo.body1">@GetFieldValue().AsString()</MudText>
     }

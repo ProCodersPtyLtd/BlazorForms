@@ -10,6 +10,7 @@ namespace BlazorForms.Flows.Definitions
     public interface IFlow
     {
         IFlowModel GetModel();
+        Type GetModelType();
         void SetModel(IFlowModel model);
         void SetParams(FlowParamsGeneric p);
         //Task ExecuteFlow();

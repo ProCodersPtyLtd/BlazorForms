@@ -176,13 +176,16 @@ namespace CrmLightDemoApp.Onion.Services.Flow
                 e.PropertyRoot(p => p.PersonId).DropdownSearch(e => e.AllPersons, m => m.Id, m => m.FullName).IsRequired().Label("Person")
                     .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged);
 
-                //e.PropertyRoot(p => p.PersonFullName).EditWithOptions(e => e.AllPersons, m => m.FullName).IsRequired().Label("Person")
-                //    .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged);
-                //.Rule(typeof(FormCompanyEdit_CheckNameRule), FormRuleTriggers.Submit);
+				e.Button(ButtonActionTypes.Add);
+				e.Button(ButtonActionTypes.Delete);
 
-                //e.PropertyRoot(p => p.PersonId).Dropdown(p => p.AllPersons, m => m.Id, m => m.FullName).IsRequired().Label("Person")
-                //    .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged);
-            }).Confirm(ConfirmType.DeleteItem, "Delete this association?", ConfirmButtons.YesNo);
+				//e.PropertyRoot(p => p.PersonFullName).EditWithOptions(e => e.AllPersons, m => m.FullName).IsRequired().Label("Person")
+				//    .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged);
+				//.Rule(typeof(FormCompanyEdit_CheckNameRule), FormRuleTriggers.Submit);
+
+				//e.PropertyRoot(p => p.PersonId).Dropdown(p => p.AllPersons, m => m.Id, m => m.FullName).IsRequired().Label("Person")
+				//    .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged);
+			}).Confirm(ConfirmType.DeleteItem, "Delete this association?", ConfirmButtons.YesNo);
 
             f.Button(ButtonActionTypes.Submit, "Save");
             f.Button(ButtonActionTypes.Cancel, "Cancel");

@@ -8,6 +8,6 @@ namespace BlazorForms.Flows
 {
     public interface IFluentFlowRunEngine : IFlowRunEngine
     {
-        List<Type> GetAllFlowTypes();
+        
     }
 }

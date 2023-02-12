@@ -1,0 +1,24 @@
+﻿@page "/_BlazorForms/admin/registered-flows/{Pk}"
+@using BlazorForms.Rendering.Interfaces
+@using BlazorForms.Flows.Definitions
+@using BlazorForms.Rendering.State
+@using BlazorForms.Rendering.Flows
+
+<MudText>@_flowName</MudText>
+<BlazorFormsFlowDiagram FlowType=_flowType />
+
+@code {
+    @inject IFlowParser _parser
+
+    [Parameter]
+    public string Pk { get; set; }
+    
+    private string _flowName { get; set; }
+    private Type _flowType { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _flowName = Pk.Replace("-", ".");
+        _flowType = _parser.GetTypeByName(_flowName);
+    }
+}
