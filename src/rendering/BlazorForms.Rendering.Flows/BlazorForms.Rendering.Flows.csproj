@@ -27,7 +27,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\flows\BlazorForms.Flows.Engine\BlazorForms.Flows.Engine.csproj" />
+    <ProjectReference Include="..\..\admin\BlazorForms.Admin.BusinessObjects\BlazorForms.Admin.BusinessObjects.csproj" />
+    <ProjectReference Include="..\..\platform\BlazorForms.Platform\BlazorForms.Platform.csproj" />
   </ItemGroup>
 
 </Project>

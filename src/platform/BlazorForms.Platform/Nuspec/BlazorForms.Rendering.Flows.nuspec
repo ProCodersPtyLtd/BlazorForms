@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
-    <id>BlazorForms.Rendering</id>
-    <version>0.3.5</version>
+    <id>BlazorForms.Rendering.Flows</id>
+    <version>1.9.0</version>
     <authors>Pro Coders</authors>
     <owners>Pro Coders</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>BlazorForms.Rendering is a set of Definition Libraries for BlazorForms (model-centric framework that helps to create flows, forms and rules)</description>
+    <description>BlazorForms.Rendering.Flows is a Diagram Drawing Library for BlazorForms (model-centric framework that helps to create flows, forms and rules)</description>
     <copyright>Copyright (c) 2022 Pro Coders PTY LTD</copyright>
 	<license type="expression">MIT</license>
     <tags>blazor flow form rule framework rendering</tags>
@@ -25,6 +25,8 @@
     </contentFiles>
   </metadata>
   <files>
-    <file src="..\..\..\rendering\BlazorForms.Rendering.Flows\bin\Release\net7.0\BlazorForms.Flows.Engine.dll" target="lib\net7.0\BlazorForms.Flows.Engine.dll" />
+	  <file src="..\..\..\rendering\BlazorForms.Rendering.Flows\bin\Release\net7.0\BlazorForms.Rendering.Flows.dll" target="lib\net7.0\BlazorForms.Rendering.Flows.dll" />
+      <file src="..\..\..\rendering\BlazorForms.Rendering.Flows\bin\Release\net7.0\BlazorForms.Platform.dll" target="lib\net7.0\BlazorForms.Platform.dll" />
+	  <file src="..\..\..\rendering\BlazorForms.Rendering.Flows\bin\Release\net7.0\BlazorForms.Admin.BusinessObjects.dll" target="lib\net7.0\BlazorForms.Admin.BusinessObjects.dll" />
   </files>
 </package>
