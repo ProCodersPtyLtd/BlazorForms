@@ -21,8 +21,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="ereno.linux-x64.eugeneereno.System.Drawing" Version="6.1.1.4" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.0" />
     <PackageReference Include="AutomaticGraphLayout.Drawing" Version="1.1.12" />
+    <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
