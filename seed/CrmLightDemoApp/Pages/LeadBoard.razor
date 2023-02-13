@@ -14,16 +14,16 @@
 @inject IBoardService _boardService
 
 <FlowBoard TFlow=LeadBoardStateFlow TItem=LeadBoardCardModel Caption="Lead Board" Items=@_items ItemsChanged=@ItemsChanged
-           CardTitleBackColor="lightblue" Options="GlobalSettings.BoardFormOptions" EditFormOptions="GlobalSettings.EditFormOptions">
+           CardTitleBackColor="gray" Options="GlobalSettings.BoardFormOptions" EditFormOptions="GlobalSettings.EditFormOptions">
     <CardAvatar>
         <MudIcon Icon="@Icons.Material.TwoTone.Savings" />
     </CardAvatar>
     <CardTitle>
-        <MudText Typo="Typo.body1" Color="Color.Info">@context.Title</MudText>
+        <MudText Typo="Typo.body1">@context.Title</MudText>
     </CardTitle>
     <CardBody>
         <MudText Typo="Typo.body2">@context.Description</MudText>
-        <MudText Typo="Typo.caption" Color="Color.Primary">@context.SalesPersonFullName</MudText>
+        <MudText Typo="Typo.caption">@context.SalesPersonFullName</MudText>
     </CardBody>
 </FlowBoard>
 
