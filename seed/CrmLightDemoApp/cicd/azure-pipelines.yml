@@ -2,8 +2,7 @@ trigger:
   batch: true
   branches:
     include:
-      - master
-      - development
+      - main
       - feature/*
 
 resources:

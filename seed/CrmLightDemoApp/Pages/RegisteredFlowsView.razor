@@ -1,14 +1,13 @@
 ﻿@page "/_BlazorForms/admin/registered-flows/{Pk}"
-@using BlazorForms.Rendering.Interfaces
 @using BlazorForms.Flows.Definitions
-@using BlazorForms.Rendering.State
 @using BlazorForms.Rendering.Flows
+@inject IFlowParser _parser
+
 
 <MudText>@_flowName</MudText>
 <BlazorFormsFlowDiagram FlowType=_flowType />
 
 @code {
-    @inject IFlowParser _parser
 
     [Parameter]
     public string Pk { get; set; }

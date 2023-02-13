@@ -5,6 +5,13 @@
 @using CrmLightDemoApp.Onion.Services;
 @using CrmLightDemoApp.Onion.Services.Model;
 
+@inject IAppAuthState _authState
+@inject IUserService _userService
+@inject ITenantAccountRepository _tenantRepo
+@inject INotificationService _notificationService
+
+@implements IDisposable
+
 @if (_users != null)
 {
 	<div style="width: 280px; margin-right: 16px;">
@@ -26,12 +33,6 @@
 }
 
 @code {
-	@inject IAppAuthState _authState
-    @inject IUserService _userService
-    @inject ITenantAccountRepository _tenantRepo
-	@inject INotificationService _notificationService
-
-	@implements IDisposable
 
 	[CascadingParameter]
 	public MudSelect<UserModel> SelectControlRef { get; set; }
