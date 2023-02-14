@@ -20,7 +20,7 @@
 
 	<div style="width: 180px; ">
 
-		<MudSelect @ref=SelectControlRef T="UserModel" Label="User" Style="background-color: lightgray;" AnchorOrigin="Origin.CenterCenter" Variant="Variant.Filled"
+		<MudSelect @ref=SelectControlRef T="UserModel" Style="background-color: lightgray;" AnchorOrigin="Origin.CenterCenter" Variant="Variant.Filled"
 			   AdornmentColor="Color.Surface" ToStringFunc="t => t?.PersonFullName" Value="GetUser()" 
 			   ValueChanged="@(async (args) => await ValueChanged(args))">
 

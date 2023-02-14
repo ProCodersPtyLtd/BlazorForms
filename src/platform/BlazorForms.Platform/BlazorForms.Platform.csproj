@@ -42,7 +42,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Nuspec\contentFiles\any\any\" />
+    <None Include="Nuspec\contentFiles\any\any\Georgia.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Nuspec\contentFiles\any\any\Roboto-Regular.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Nuspec\contentFiles\any\any\Verdana.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

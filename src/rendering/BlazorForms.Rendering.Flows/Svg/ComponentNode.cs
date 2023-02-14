@@ -9,7 +9,7 @@ namespace SvgLayerSample.Svg {
 
             this.Labels.Add(new Svg.Label(title ?? id));
             if (technology != null) {
-                this.Labels.Add(new Svg.Label(technology, new System.Drawing.Font("Verdana", 8f, System.Drawing.FontStyle.Bold)));
+                this.Labels.Add(new Svg.Label(technology, FontFactory.Verdana, 10f));
             }
             if (description != null) {
                 var descriptionLabel = new Svg.Label(description);

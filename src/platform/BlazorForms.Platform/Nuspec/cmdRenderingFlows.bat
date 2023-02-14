@@ -1,5 +1,4 @@
 ﻿rem
-cd C:\repos\BlazorForms\src\rendering\BlazorForms.Rendering.Flows\
-dotnet pack BlazorForms.Rendering.Flows.csproj --output  c:\temp\Nuget
+nuget.exe pack BlazorForms.Rendering.Flows.nuspec -NonInteractive -OutputDirectory c:\temp\Nuget -Verbosity Detailed -version 1.9.5
 
 pause

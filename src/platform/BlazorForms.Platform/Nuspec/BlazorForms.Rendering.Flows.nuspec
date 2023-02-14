@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>BlazorForms.Rendering.Flows</id>
-    <version>1.9.1</version>
+    <version>1.9.6</version>
     <authors>Pro Coders</authors>
     <owners>Pro Coders</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -14,8 +14,9 @@
 		<group targetFramework="net7.0">
 			<dependency id="Microsoft.AspNetCore.Components.Web" version="7.0.0" />
 			<dependency id="AutomaticGraphLayout.Drawing" version="1.1.12" />
-			<dependency id="System.Drawing.Common" version="7.0.0" />
-			<dependency id="ereno.linux-x64.eugeneereno.System.Drawing" version="6.1.1.4" />
+			<dependency id="Microsoft.Maui.Graphics.Skia" version="6.0.501" />
+			<dependency id="SkiaSharp" version="2.88.3" />
+			<dependency id="SkiaSharp.NativeAssets.Linux.NoDependencies" version="2.88.3" />
 		</group>
     </dependencies>
     <contentFiles>
@@ -23,11 +24,16 @@
       <files include="**\*.cmd" buildAction="None" />
       <files include="**\*.txt" buildAction="None" />
       <files include="**\*.sql" buildAction="None" />
+      <files include="**\*.ttf" buildAction="None" copyToOutput="true" />
     </contentFiles>
   </metadata>
   <files>
+	  <file src="contentFiles\any\any\*" target="contentFiles\any\any\"/>
 	  <file src="..\..\..\rendering\BlazorForms.Rendering.Flows\bin\Release\net7.0\BlazorForms.Rendering.Flows.dll" target="lib\net7.0\BlazorForms.Rendering.Flows.dll" />
       <file src="..\..\..\rendering\BlazorForms.Rendering.Flows\bin\Release\net7.0\BlazorForms.Platform.dll" target="lib\net7.0\BlazorForms.Platform.dll" />
 	  <file src="..\..\..\rendering\BlazorForms.Rendering.Flows\bin\Release\net7.0\BlazorForms.Admin.BusinessObjects.dll" target="lib\net7.0\BlazorForms.Admin.BusinessObjects.dll" />
+	  <file src="..\..\..\rendering\BlazorForms.Rendering.Flows\bin\Release\net7.0\Georgia.ttf" target="lib\net7.0\Georgia.ttf" />
+	  <file src="..\..\..\rendering\BlazorForms.Rendering.Flows\bin\Release\net7.0\Verdana.ttf" target="lib\net7.0\Verdana.ttf" />
+	  <file src="..\..\..\rendering\BlazorForms.Rendering.Flows\bin\Release\net7.0\Roboto-Regular.ttf" target="lib\net7.0\Roboto-Regular.ttf" />
   </files>
 </package>

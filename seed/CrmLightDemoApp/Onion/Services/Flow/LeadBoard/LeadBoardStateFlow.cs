@@ -54,9 +54,9 @@ namespace CrmLightDemoApp.Onion.Services.Flow.LeadBoard
                     .Transition<UserActionTransitionTrigger>(MeetingScheduled)
 					.TransitionForm<FormCardCommit>(new UserActionTransitionTrigger(), Won)
 				.State(Won)
-                    .Transition<UserActionTransitionTrigger>(Lead)
-                    .Transition<UserActionTransitionTrigger>(Contacted)
-                    .Transition<UserActionTransitionTrigger>(MeetingScheduled)
+                    //.Transition<UserActionTransitionTrigger>(Lead)
+                    //.Transition<UserActionTransitionTrigger>(Contacted)
+                    //.Transition<UserActionTransitionTrigger>(MeetingScheduled)
                     .Transition<UserActionTransitionTrigger>(ProposalDelivered)
 					.End();
 		}
