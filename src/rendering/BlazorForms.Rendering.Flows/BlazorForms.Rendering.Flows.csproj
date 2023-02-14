@@ -5,8 +5,8 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 
-		<AssemblyVersion>1.9.2</AssemblyVersion>
-		<PackageVersion>1.9.2</PackageVersion>
+		<AssemblyVersion>1.9.5</AssemblyVersion>
+		<PackageVersion>1.9.5</PackageVersion>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Copyright>Pro Coders PTY LTD</Copyright>
 		<Description>BlazorForms.Rendering.Flows is a flow rendering library for BlazorForms framework that helps to create flows, forms and rules</Description>

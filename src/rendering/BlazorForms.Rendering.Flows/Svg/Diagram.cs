@@ -38,7 +38,10 @@ namespace SvgLayerSample.Svg {
 
             var routingSettings = new Microsoft.Msagl.Core.Routing.EdgeRoutingSettings {
                 BendPenalty = 100,
-                EdgeRoutingMode = Microsoft.Msagl.Core.Routing.EdgeRoutingMode.StraightLine
+                EdgeRoutingMode = Microsoft.Msagl.Core.Routing.EdgeRoutingMode.SugiyamaSplines,
+                //CornerRadius = 300,
+                //RouteMultiEdgesAsBundles = false,
+                //KeepOriginalSpline = false,
             };
             var settings = new SugiyamaLayoutSettings {
                 ClusterMargin = 50,
@@ -46,7 +49,7 @@ namespace SvgLayerSample.Svg {
                 PackingMethod = Microsoft.Msagl.Core.Layout.PackingMethod.Columns,
                 RepetitionCoefficientForOrdering = 0,
                 EdgeRoutingSettings = routingSettings,
-                NodeSeparation = 50,
+                NodeSeparation = 100,
                 LayerSeparation = 150
             };
             LayoutHelpers.CalculateLayout(drawingGraph.GeometryGraph, settings, null);
@@ -106,7 +109,7 @@ namespace SvgLayerSample.Svg {
             var box = drawingGraph.BoundingBox;
             xmlWriter.WriteStartElement("svg", "http://www.w3.org/2000/svg");
             xmlWriter.WriteAttributeString("xmlns", "xlink", null, "http://www.w3.org/1999/xlink");
-            xmlWriter.WriteAttribute("width", box.Width);
+            xmlWriter.WriteAttribute("width", box.Width * 1.2);
             xmlWriter.WriteAttribute("height", box.Height);
             xmlWriter.WriteAttribute("id", "svg2");
             xmlWriter.WriteAttribute("version", "1.1");

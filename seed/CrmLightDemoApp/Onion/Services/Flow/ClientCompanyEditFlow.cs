@@ -32,7 +32,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
                 .If(() => _flowContext.ExecutionResult.FormLastAction == ModelBinding.DeleteButtonBinding)
                     .Next(DeleteData)
                 .Else()
-                    .If(() => _flowContext.ExecutionResult.FormLastAction == ModelBinding.EditButtonBinding || !_flowContext.Params.ItemKeyAboveZero)
+                    .If(() => _flowContext.ExecutionResult.FormLastAction == ModelBinding.SubmitButtonBinding || !_flowContext.Params.ItemKeyAboveZero)
                         .NextForm(typeof(FormClientCompanyEdit))
                         .Next(SaveData)
                     .EndIf()
@@ -91,7 +91,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             f.Property(p => p.AlternativeClientManagerId).DropdownSearch(p => p.AllPersons, m => m.Id, m => m.FullName).Label("Alternative manager").IsReadOnly();
             f.Property(p => p.StartContractDate).Label("Contract date").Format("dd/MM/yyyy").IsReadOnly();
 
-            f.Button(ButtonActionTypes.Edit, "Edit");
+            f.Button(ButtonActionTypes.Submit, "Edit");
 
             f.Button(ButtonActionTypes.Delete, "Delete")
                 .Confirm(ConfirmType.Delete, "Delete this Company?", ConfirmButtons.YesNo);
