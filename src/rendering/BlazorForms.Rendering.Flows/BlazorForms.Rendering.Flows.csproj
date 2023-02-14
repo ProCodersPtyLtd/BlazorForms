@@ -5,8 +5,8 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 
-		<AssemblyVersion>1.9.1</AssemblyVersion>
-		<PackageVersion>1.9.1</PackageVersion>
+		<AssemblyVersion>1.9.2</AssemblyVersion>
+		<PackageVersion>1.9.2</PackageVersion>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Copyright>Pro Coders PTY LTD</Copyright>
 		<Description>BlazorForms.Rendering.Flows is a flow rendering library for BlazorForms framework that helps to create flows, forms and rules</Description>
@@ -24,12 +24,29 @@
     <PackageReference Include="ereno.linux-x64.eugeneereno.System.Drawing" Version="6.1.1.4" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.0" />
     <PackageReference Include="AutomaticGraphLayout.Drawing" Version="1.1.12" />
-    <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
+    <!--<PackageReference Include="System.Drawing.Common" Version="7.0.0" />-->
+	  <PackageReference Include="Microsoft.Maui.Graphics.Skia" Version="6.0.501" />
+	  <PackageReference Include="SkiaSharp" Version="2.88.3" />
+	  <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.3" />
+	  <PackageReference Include="SkiaSharp" Version="2.88.3" />
+
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\admin\BlazorForms.Admin.BusinessObjects\BlazorForms.Admin.BusinessObjects.csproj" />
     <ProjectReference Include="..\..\platform\BlazorForms.Platform\BlazorForms.Platform.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Georgia.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Roboto-Regular.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Verdana.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
