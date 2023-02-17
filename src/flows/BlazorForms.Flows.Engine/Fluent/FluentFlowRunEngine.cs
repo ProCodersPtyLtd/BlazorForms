@@ -473,6 +473,7 @@ namespace BlazorForms.Flows
                 var result = new StateDef
                 {
                     State = GetAvailableName(task.Name),
+                    Type = task.Type.ToString(),
                 };
 
                 return result;

@@ -33,6 +33,7 @@
 }
 
 @code {
+	@inject NavigationManager NavigationManager
 
 	[CascadingParameter]
 	public MudSelect<UserModel> SelectControlRef { get; set; }
@@ -113,6 +114,7 @@
 		if (mockAuth != null)
 		{
 			mockAuth.SetCurrentUser(val);
+			NavigationManager.NavigateTo("/");
 		}
 	}
 }
