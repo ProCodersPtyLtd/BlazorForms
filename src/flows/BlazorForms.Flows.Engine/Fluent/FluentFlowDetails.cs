@@ -20,6 +20,7 @@ namespace BlazorForms.Flows
         public Action NonAsyncAction { get; set; }
         public Func<bool> Condition { get; set; }
         public int GotoIndex { get; set; }
+        public int Index { get; set; }
         public string CallbackTask { get; set; }
         public bool PreloadTableData { get; set; }
    }

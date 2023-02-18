@@ -39,10 +39,16 @@ namespace SvgLayerSample.Svg {
             var routingSettings = new Microsoft.Msagl.Core.Routing.EdgeRoutingSettings {
                 BendPenalty = 100,
                 EdgeRoutingMode = Microsoft.Msagl.Core.Routing.EdgeRoutingMode.SugiyamaSplines,
-                //CornerRadius = 300,
-                //RouteMultiEdgesAsBundles = false,
-                //KeepOriginalSpline = false,
-            };
+				Padding = 100,
+				PolylinePadding = 200,
+				ConeAngle = 90,
+				CornerRadius = 90,
+                RouteMultiEdgesAsBundles = false,
+                KeepOriginalSpline = false,
+				IncrementalRoutingThreshold = 10,
+				UseObstacleRectangles = true,
+			};
+
             var settings = new SugiyamaLayoutSettings {
                 ClusterMargin = 50,
                 PackingAspectRatio = 3,
@@ -50,8 +56,9 @@ namespace SvgLayerSample.Svg {
                 RepetitionCoefficientForOrdering = 0,
                 EdgeRoutingSettings = routingSettings,
                 NodeSeparation = 100,
-                LayerSeparation = 150
+                LayerSeparation = 50
             };
+
             LayoutHelpers.CalculateLayout(drawingGraph.GeometryGraph, settings, null);
 
             _run();

@@ -114,7 +114,8 @@
 		if (mockAuth != null)
 		{
 			mockAuth.SetCurrentUser(val);
-			NavigationManager.NavigateTo("/");
+			NavigationManager.NavigateTo("/", false, true);
+			await _notificationService.PostMessageAsync(new MessageEventArgs { Type = MessageEventType.UserAccount });
 		}
 	}
 }
