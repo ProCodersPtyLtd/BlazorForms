@@ -55,15 +55,17 @@ namespace BlazorForms.Rendering.Flows
         private Graph GenerateGraph(FlowDefinitionDetails flow)
         {
             var graph = new Graph();
+            var states = flow.States.ToDictionary(x => x.State, x => x.Caption ?? x.State);
 
             foreach (var n in flow.States)
             {
-                graph.AddNode(new ComponentNode(n.State, technology: "State"));
+                graph.AddNode(new ComponentNode(states[n.State], technology: n.Type));
             }
 
             foreach (var t in flow.Transitions)
             {
-                graph.AddEdge(t.FromState, t.GetTrigger().Text, t.ToState);
+                //graph.AddEdge(t.FromState, t.GetTrigger().Text, t.ToState);
+                graph.AddEdge(states[t.FromState], null, states[t.ToState]);
             }
 
             return graph;

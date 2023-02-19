@@ -393,6 +393,24 @@ namespace BlazorForms.Flows
 
             void ReadTask()
             {
+    //            if (task.Type == TaskDefTypes.Goto)
+    //            {
+				//	var newDef = GetTaskDef(task);
+				//	result.States.Add(newDef);
+				//	currentDef = newDef;
+
+				//	if (prevDef != null)
+				//	{
+				//		var transition = GetTransitionDef(prevDef, currentDef);
+				//		result.Transitions.Add(transition);
+				//	}
+
+    //                //var targetTask = flow.Tasks[task.GotoIndex];
+    //                var labelDef = FindLabel(result, flow.Tasks[task.GotoIndex]);
+				//	var gotoTransition = GetTransitionDef(currentDef, labelDef);
+				//	result.Transitions.Add(gotoTransition);
+				//}
+    //            else 
                 if (task.Type != TaskDefTypes.If && task.Type != TaskDefTypes.EndIf)
                 {
                     var newDef = GetTaskDef(task);
@@ -405,7 +423,24 @@ namespace BlazorForms.Flows
                         result.Transitions.Add(transition);
                     }
                 }
-            }
+
+				if (task.Type == TaskDefTypes.Goto)
+                {
+					var labelDef = FindLabel(result, flow.Tasks[task.GotoIndex]);
+					var gotoTransition = GetTransitionDef(currentDef, labelDef);
+					result.Transitions.Add(gotoTransition);
+                    prevDef = null;
+                    currentDef = null;
+				}
+                else if (task.Type == TaskDefTypes.GotoIf)
+				{
+					var labelDef = FindLabel(result, flow.Tasks[task.GotoIndex]);
+					var gotoTransition = GetTransitionDef(currentDef, labelDef);
+					result.Transitions.Add(gotoTransition);
+					//prevDef = null;
+					//currentDef = null;
+				}
+			}
 
             void NextTask()
             {
@@ -456,24 +491,72 @@ namespace BlazorForms.Flows
                 result.States.Add(endDef);
                 currentDef = endDef;
 
-                // add first branch to endIf
                 if (firstBranchEndDef != null)
                 {
+                    // add first branch to endIf
                     result.Transitions.Add(GetTransitionDef(firstBranchEndDef, endDef));
                 }
+                else
+                {
+					// add direct branch from if to endif
+					result.Transitions.Add(GetTransitionDef(startIfDef, endDef));
+				}
 
                 // add second branch to endIf
-                result.Transitions.Add(GetTransitionDef(prevDef, endDef));
+                if (prevDef != null)
+                {
+                    result.Transitions.Add(GetTransitionDef(prevDef, endDef));
+                }
 
                 //NextTask();
             }
 
-            StateDef GetTaskDef(TaskDef task)
-            {
-                var result = new StateDef
+			StateDef FindLabel(FlowDefinitionDetails details, TaskDef task)
+			{
+                var result = details.States.FirstOrDefault(x => x.State == task.Name);
+
+                if (result == null)
                 {
-                    State = GetAvailableName(task.Name),
-                };
+                    result = new StateDef
+                    {
+                        State = $"{task.Index} : {task.Name}",
+                        Type = task.Type.ToString(),
+                    };
+                }
+
+				return result;
+			}
+
+			StateDef GetTaskDef(TaskDef task)
+            {
+                StateDef result;
+
+				if (task.Type == TaskDefTypes.Goto || task.Type == TaskDefTypes.GotoIf)
+                {
+					result = new StateDef
+					{
+						State = GetAvailableName($"{task.Type.ToString()} {task.Name}"),
+						//Caption = $"{task.Type.ToString()} {task.Name}",
+						Type = task.Type.ToString(),
+					};
+				}
+				else if (task.Type == TaskDefTypes.If || task.Type == TaskDefTypes.EndIf)
+				{
+					result = new StateDef
+					{
+						State = GetAvailableName($"{task.Index} : {task.Name}"),
+						Type = task.Type.ToString(),
+					};
+				}
+				else
+                {
+                    result = new StateDef
+                    {
+                        State = GetAvailableName($"{task.Index} : {task.Name}"),
+                        //Caption = task.Name,
+                        Type = task.Type.ToString(),
+                    };
+                }
 
                 return result;
             }
