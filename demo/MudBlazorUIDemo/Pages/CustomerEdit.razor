@@ -1,0 +1,19 @@
+﻿@page "/customer-edit/{pk}"
+@using MudBlazorUIDemo.Flows.Customer
+
+<FlowEditForm FlowName="@typeof(CustomerEditFlow).FullName" Pk="@Pk"
+              Options="_options" NavigationSuccess="/company-list" />
+
+
+@code {
+    [Parameter]
+    public string Pk { get; set; }
+
+    private readonly ListFormOptions _options = new ListFormOptions
+    {
+        Variant = Variant.Outlined,
+        MudBlazorProvidersDefined = true,
+        DataOptimization = DataOptimization.ServerPagination,
+        UseToolBarCaption = true,
+    };
+}

@@ -1,29 +1,18 @@
-﻿using BlazorForms.Flows.Definitions;
+using BlazorForms.Flows.Definitions;
 
 namespace MudBlazorUIDemo.Flows.Customer;
 
 public class CustomerListFlowModel : IFlowModel
 {
-    public IList<CustomerFlowModel> Customers { get; set; }
+    public virtual IEnumerable<CustomerFlowModel> Customers { get; set; }
 }
 
 public class CustomerFlowModel : IFlowModel
 {
-    public CustomerType Customer { get; set; }
-    public IList<CustomerTypeTag> AllTags { get; set; } 
+    public virtual CustomerType Customer { get; set; }
+    public virtual IEnumerable<CustomerTypeTag> AllTags { get; set; } 
 }
 
-public record CustomerType
-{
-    public string Uid { get; init; }
-    public string Name { get; init; }
-    public string Address { get; init; }
-    public IList<CustomerTypeTag> CustomerTags { get; set; }
-}
+public record CustomerType(string Uid, string Name, string Address, IEnumerable<CustomerTypeTag> CustomerTags);
 
-
-public record CustomerTypeTag
-{
-    public string Uid { get; init; }
-    public string TagName { get; init; }
-}
+public record CustomerTypeTag(string Uid, string TagName);
