@@ -1,0 +1,16 @@
+﻿@page "/customer-list"
+@using MudBlazorUIDemo.Flows.Customer
+
+<FlowListForm FlowType="@typeof(CustomerListFlow).FullName" Options="_options" />
+
+@code {
+
+    private readonly ListFormOptions _options = new ListFormOptions
+    {
+        Variant = Variant.Outlined,
+        MudBlazorProvidersDefined = true,
+        DataOptimization = DataOptimization.ServerPagination,
+        UseToolBarCaption = true,
+    };
+    
+}
