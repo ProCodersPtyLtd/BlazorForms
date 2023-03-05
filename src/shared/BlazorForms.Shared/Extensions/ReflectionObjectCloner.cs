@@ -40,6 +40,14 @@ namespace BlazorForms.Shared
             return (T)target;
         }
 
+        public static T GetPrimitiveCopy<T>(this T source)
+            where T : class
+        {
+            var target = New(source);
+            source.ReflectionPrimitiveCopyTo(target);
+            return (T)target;
+        }
+
         public static object GetCopy(this object source)
         {
             var target = New(source);
@@ -62,6 +70,35 @@ namespace BlazorForms.Shared
             foreach (var property in properties)
             {
                 if (property.GetSetMethod() != null)
+                {
+                    var targetProperty = target.GetType().GetProperty(property.Name);
+
+                    if (targetProperty != null)
+                    {
+                        var value = property.GetValue(source);
+                        targetProperty.SetValue(target, value);
+                    }
+                }
+            }
+        }
+
+        public static bool IsPrimitive(this PropertyInfo property)
+        {
+            var t = property.PropertyType;
+
+            var result = t.IsPrimitive || t == typeof(decimal) || t == typeof(decimal?) || t == typeof(string) || t == typeof(DateTime)
+                || t == typeof(DateTime?);
+
+            return result;
+        }
+
+        public static void ReflectionPrimitiveCopyTo(this object source, object target)
+        {
+            var properties = source.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
+
+            foreach (var property in properties)
+            {
+                if (property.GetSetMethod() != null && property.IsPrimitive())
                 {
                     var targetProperty = target.GetType().GetProperty(property.Name);
 
