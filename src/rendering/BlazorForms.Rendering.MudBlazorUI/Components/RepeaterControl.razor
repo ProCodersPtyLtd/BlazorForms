@@ -215,12 +215,18 @@
     {
         ViewModel.SetInputChanged();
 
-        var itemType = ListData.GetType().GetGenericArguments()[0];
+        var collectionType = ListData.GetType();
+        var itemType = collectionType switch 
+        {
+            { IsGenericType: true } => collectionType.GetGenericArguments()[0],
+            { IsArray: true } => collectionType.GetElementType(),
+            _ => throw new NotImplementedException($"Collection of this type is not supported {collectionType}")
+        };
         var newItem = Activator.CreateInstance(itemType);
         var list = ListData as System.Collections.IList;
-        list.Add(newItem);
-        RepeaterParameters.CurrentRow = list.Count - 1;
-        _newRow = (int)RepeaterParameters.CurrentRow;
+        list?.Add(newItem);
+        RepeaterParameters.CurrentRow = list?.Count - 1;
+        _newRow = RepeaterParameters.CurrentRow ?? 0;
 
         // register fields for new row
         foreach (var col in Columns)

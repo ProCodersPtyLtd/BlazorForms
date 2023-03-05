@@ -165,19 +165,19 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             f.Property(p => p.RegistrationNumber).Label("Reg. No.");
             f.Property(p => p.EstablishedDate).Label("Established date");
 
-            f.Repeater(p => p.PersonCompanyLinks, e =>
+            f.Repeater(p => p.PersonCompanyLinks, builder =>
             {
-                e.DisplayName = "Associations";
-                e.Property(p => p.Id).IsReadOnly().Rule(typeof(FormCompanyEdit_ItemDeletingRule), FormRuleTriggers.ItemDeleting);
+                builder.DisplayName = "Associations";
+                builder.Property(p => p.Id).IsReadOnly().Rule(typeof(FormCompanyEdit_ItemDeletingRule), FormRuleTriggers.ItemDeleting);
                 
-                e.PropertyRoot(p => p.LinkTypeId).Dropdown(p => p.AllLinkTypes, m => m.Id, m => m.Name).IsRequired().Label("Type")
+                builder.PropertyRoot(p => p.LinkTypeId).Dropdown(p => p.AllLinkTypes, m => m.Id, m => m.Name).IsRequired().Label("Type")
                     .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged);
 
-                e.PropertyRoot(p => p.PersonId).DropdownSearch(e => e.AllPersons, m => m.Id, m => m.FullName).IsRequired().Label("Person")
+                builder.PropertyRoot(p => p.PersonId).DropdownSearch(e => e.AllPersons, m => m.Id, m => m.FullName).IsRequired().Label("Person")
                     .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged);
 
-				e.Button(ButtonActionTypes.Add);
-				e.Button(ButtonActionTypes.Delete);
+				builder.Button(ButtonActionTypes.Add);
+				builder.Button(ButtonActionTypes.Delete);
 
 				//e.PropertyRoot(p => p.PersonFullName).EditWithOptions(e => e.AllPersons, m => m.FullName).IsRequired().Label("Person")
 				//    .Rule(typeof(FormCompanyEdit_ItemChangedRule), FormRuleTriggers.ItemChanged);
