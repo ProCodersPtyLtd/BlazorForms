@@ -9,25 +9,23 @@ public static class MockDataGenerator
 
     public static IEnumerable<CustomerTypeTag> GenerateCustomerTypeTags(int count)
     {
-        for (int i = 0; i < count; i++)
-        {
-            yield return new CustomerTypeTag(
-                Uid: GenerateUid(),
-                TagName: _faker.Random.Word());
-        }
+        return _faker.Commerce.Categories(15)
+            .ToHashSet()
+            .Select(c => new CustomerTypeTag { Uid = GenerateUid(), TagName = c })
+            .ToList();
     }
 
-    public static IEnumerable<CustomerType> GenerateCustomerTypes(int count)
+    public static IEnumerable<CustomerType> GenerateCustomerTypes(int count, IList<CustomerTypeTag> tags)
     {
-        var tags = GenerateCustomerTypeTags(5).ToList();
-
-        for (int i = 0; i < count; i++)
+        for (var i = 0; i < count; i++)
         {
-            yield return new CustomerType(
-                Uid: GenerateUid(),
-                Name: _faker.Company.CompanyName(),
-                Address: _faker.Address.FullAddress(),
-                CustomerTags: _faker.Random.ListItems(tags, _faker.Random.Number(0, 5)));
+            var customerTypeTags = _faker.Random.Shuffle(tags).Take(_faker.Random.Int(1, 3)).ToList();
+            yield return new CustomerType{
+                Uid = GenerateUid(),
+                Name = _faker.Company.CompanyName(),
+                Address = _faker.Address.FullAddress(),
+                CustomerTags = customerTypeTags
+            };
         }
     }
 
@@ -35,6 +33,6 @@ public static class MockDataGenerator
     {
         // Assumes the Twitter Snowflake format (maximum length of 8 characters)
         // You can replace this with a similar scalable unique ID generator library.
-        return _faker.Random.Uuid().ToString("n").Substring(0, 8);
+        return _faker.Random.Uuid().ToString("n")[..8];
     }
 }

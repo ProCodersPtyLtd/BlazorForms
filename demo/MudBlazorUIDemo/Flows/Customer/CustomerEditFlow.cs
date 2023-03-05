@@ -24,11 +24,13 @@ public class CustomerEditFlow : FluentFlowBase<CustomerFlowModel>
                 .If(() => _flowContext.ExecutionResult.FormLastAction == ModelBinding.DeleteButtonBinding)
                     .Next(DeleteData)
                     .End()
-                .Else().If(() => _flowContext.ExecutionResult.FormLastAction == ModelBinding.SubmitButtonBinding ||
+                .Else()
+                    .If(() => _flowContext.ExecutionResult.FormLastAction == ModelBinding.SubmitButtonBinding ||
                                            !_flowContext.Params.ItemKeyAboveZero)
-                    .NextForm(typeof(FormCustomerEdit))
-                    .Next(SaveData)
-                    .End()
+                        .NextForm(typeof(FormCustomerEdit))
+                        .Next(SaveData)
+                        .End()
+                    .EndIf()
                 .EndIf()
             .Else()
                 .NextForm(typeof(FormCustomerEdit))
@@ -40,14 +42,20 @@ public class CustomerEditFlow : FluentFlowBase<CustomerFlowModel>
 
     public async Task LoadData()
     {
+        Model.AllTags = (await _customersService.GetAllTags(new CancellationToken())).Values.ToList();
         if (_flowContext.Params.ItemKeyAboveZero)
         {
-            var item = await _customersService.GetByIdAsync(_flowContext.Params.ItemKey.ToString());
-            Model.Customer = item ?? new CustomerType(Guid.NewGuid().ToString(), "<Enter Name>", "<Enter Address>", new List<CustomerTypeTag>());
+            var item = await _customersService.GetByIdAsync(_flowContext.Params.ItemId);
+
+            Model.Customer = item ?? throw new ArgumentException($"Item not found, id {_flowContext.Params.ItemId}");
         }
         else
         {
-            Model.Customer = new CustomerType(Guid.NewGuid().ToString(), "<Enter Name>", "<Enter Address>", new List<CustomerTypeTag>());
+            Model.Customer = new CustomerType
+            {
+                Uid = Guid.NewGuid().ToString(),
+                Name = "<Enter Name>", Address = "<Enter Address>", CustomerTags = new List<CustomerTypeTag>()
+            };
         }
     }
 
@@ -75,7 +83,8 @@ public class FormCustomerView : FormEditBase<CustomerFlowModel>
         f.Table(p => p.Customer.CustomerTags, e => 
         {
             e.DisplayName = "Tags";
-            e.Property(p => p.TagName).Label("Tag");
+            e.Property(p => p.Uid).IsRequired().IsReadOnly();
+            e.Property(p => p.TagName).Label("Tag").IsReadOnly();
         });
 
         f.Button(ButtonActionTypes.Submit, "Edit");
@@ -97,26 +106,28 @@ public class FormCustomerEdit : FormEditBase<CustomerFlowModel>
             ConfirmButtons.OkCancel);
 
         f.Property(p => p.Customer.Uid).Label("Uid").IsRequired().IsReadOnly();
-        f.Property(p => p.Customer.Name).Label("Name").IsReadOnly();
-        f.Property(p => p.Customer.Address).Label("Address").IsReadOnly();
-        f.Table(p => p.Customer.CustomerTags, builder =>
+        f.Property(p => p.Customer.Name).Label("Name");
+        f.Property(p => p.Customer.Address).Label("Address");
+        f.Repeater(p => p.Customer.CustomerTags, builder =>
         {
-            
             builder.DisplayName = "Tags";
-            builder.Property(p => p.Uid).IsReadOnly();
-                
-            builder.PropertyRoot(p => p.TagName).DropdownSearch(sm => sm.AllTags, m => m.Uid, m => m.TagName).IsRequired().Label("Tag")
-                .Rule(typeof(ItemChangedRule), FormRuleTriggers.ItemChanged);
+//            builder.Property(p => p.Uid).IsReadOnly();
+
+            builder.PropertyRoot(p => p.Uid)
+                .DropdownSearch(sm => sm.AllTags, m => m.Uid, m => m.TagName)
+                .IsRequired()
+                .Rule(typeof(ItemChangedRule), FormRuleTriggers.ItemChanged)
+                .Label("Tag");
 
             builder.Button(ButtonActionTypes.Add);
             builder.Button(ButtonActionTypes.Delete);
-            
+
         }).Confirm(ConfirmType.DeleteItem, "Remove this tag?", ConfirmButtons.YesNo);
-        
+
         f.Button(ButtonActionTypes.Submit, "Save");
         f.Button(ButtonActionTypes.Cancel, "Cancel");
     }
-    
+
     public class ItemChangedRule : FlowRuleBase<CustomerFlowModel>
     {
         public override string RuleCode => "CMP-2";

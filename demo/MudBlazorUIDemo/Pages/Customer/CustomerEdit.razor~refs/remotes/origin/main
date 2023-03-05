@@ -1,4 +1,4 @@
-@page "/customer-edit/{pk}"
+﻿@page "/customer-edit/{pk}"
 @using MudBlazorUIDemo.Flows.Customer
 
 <FlowEditForm FlowName="@typeof(CustomerEditFlow).FullName" Pk="@Pk"

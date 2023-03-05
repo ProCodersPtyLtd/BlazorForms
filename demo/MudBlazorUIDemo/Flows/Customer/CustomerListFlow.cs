@@ -16,14 +16,18 @@ public class CustomerListFlow : ListFlowBase<CustomerListFlowModel, FormUserList
     public override async Task<CustomerListFlowModel> LoadDataAsync(QueryOptions queryOptions)
     {
         var customers = await _customersService.GetAllCustomersAsync(new CancellationToken());
+        var tags = await _customersService.GetAllTags(new CancellationToken());
         return new CustomerListFlowModel
         {
             Customers = customers
                 .Select(c => new CustomerFlowModel
                 {
-                    Customer = c
+                    Customer = c,
+                    AllTags = tags.Values.ToList()
                 })
-                .ToList()
+                .ToList(),
+            
+            
         };
     }
 }
