@@ -13,21 +13,10 @@ namespace BlazorForms.Flows.Definitions
 
         public string ItemId { get; set; }
 
-        public bool ItemKeyAboveZero 
-        {
-            get
-            {
-                return int.TryParse(ItemId, out var id) && id > 0;
-            }
-        }
+        public bool ItemKeyAboveZero =>
+            !string.IsNullOrEmpty(ItemId) && (int.TryParse(ItemId, out var id) == false || id > 0);
 
-        public int ItemKey
-        {
-            get
-            {
-                return int.TryParse(ItemId, out var id) ? id : 0;
-            }
-        }
+        public int ItemKey => string.IsNullOrEmpty(ItemId) || !int.TryParse(ItemId, out var id) ? 0 : id;
 
         public string ParentItemId { get; set; }
         public string AssignedUser { get; set; }

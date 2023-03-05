@@ -1,10 +1,8 @@
 using BlazorForms;
 using BlazorForms.Platform.Crm.Artel;
 using BlazorFormsDemoFlows.Flows;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using MudBlazor.Services;
 using MudBlazorUIDemo.Flows;
+using MudBlazorUIDemo.Flows.Customer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +18,7 @@ services.AddBlazorFormsMudBlazorUI();
 services.AddBlazorFormsServerModelAssemblyTypes(typeof(ArtelProjectSettingsModel));
 services.AddBlazorFormsServerModelAssemblyTypes(typeof(SampleListShortFlow));
 services.AddBlazorFormsServerModelAssemblyTypes(typeof(SampleListLargeFlow));
+services.AddCustomerDemoServices(builder.Configuration);
 
 var app = builder.Build();
 
