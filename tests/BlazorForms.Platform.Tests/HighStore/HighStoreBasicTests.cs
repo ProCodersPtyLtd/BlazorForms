@@ -16,7 +16,7 @@ namespace BlazorForms.Platform.Tests.HighStore
             _db = new InMemoryHighStore();
             var p = new Person { FirstName = "Oleg", LastName = "Ivanov", BirthDate = new DateTime(1990, 10, 2) };
             _db.UpsertAsync(p);
-            var u = new User { Login = "a@a.com", PersonId = p.Id };
+            var u = new User { Id = 1, Login = "a@a.com", PersonId = p.Id, Person = p };
             _db.UpsertAsync(u);
         }
 
@@ -25,13 +25,26 @@ namespace BlazorForms.Platform.Tests.HighStore
         {
             var data = await _db.GetQuery<Person>().ToListAsync();
             Assert.NotEqual(0, data.Count());
+
+            var user = await _db.GetQuery<Person>().ToListAsync();
+            Assert.NotEqual(0, data.Count());
         }
 
         [Fact]
-        public async Task GetJoinListTest()
+        public async Task GetByIdTest()
         {
-            var q = _db.GetQuery<User>().Include(m => m.Person);
-            var data = await q.ToListAsync();
+            var user = await _db.GetQuery<User>().FirstOrDefaultAsync();
+            Assert.NotNull(user);
+            Assert.Null(user.Person);
+        }
+
+        [Fact]
+        public async Task GetByIdIncludeTest()
+        {
+            var q = _db.GetByIdQuery<User>(1).Include(m => m.Person);
+            var user = await q.FirstOrDefaultAsync();
+            Assert.NotNull(user);
+            Assert.NotNull(user.Person);
         }
     }
 }

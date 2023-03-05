@@ -20,15 +20,16 @@ namespace BlazorForms.Storage.InMemory
             ContextQuery<T> ctx;
             var data = GetEntityCollection(typeof(T));
 
-            if (typeof(IEntity).IsAssignableFrom(typeof(T)))
-            {
-                // also check config settings to make sure user wants to exclude Deleted
-                ctx = new ContextQuery<T>(null, data.Values.Cast<T>().Where(x => (x as IEntity)?.Deleted == false).AsQueryable());
-            }
-            else
-            {
-                ctx = new ContextQuery<T>(null, data.Values.Cast<T>().AsQueryable());
-            }
+            // also check config settings to make sure user wants to exclude Deleted
+            ctx = new ContextQuery<T>(null, data.Values.Cast<T>().Where(x => x?.Deleted == false).AsQueryable());
+            
+            //if (typeof(IEntity).IsAssignableFrom(typeof(T)))
+            //{
+            //}
+            //else
+            //{
+            //    ctx = new ContextQuery<T>(null, data.Values.Cast<T>().AsQueryable());
+            //}
 
             return ctx;
         }
@@ -37,16 +38,16 @@ namespace BlazorForms.Storage.InMemory
         {
             var data = GetEntityCollection(typeof(T));
 
-            if (IsEntity(entity))
+            //if (IsEntity(entity))
             {
-                var e = entity as IEntity;
+                //var e = entity as IEntity;
 
-                if (e.Id == 0)
+                if (entity.Id == 0)
                 {
-                    e.Id = data.Count() + 1;
+                    entity.Id = data.Count() + 1;
                 }
                     
-                data[e.Id] = e.GetCopy();
+                data[entity.Id] = entity.GetPrimitiveCopy();
                 return entity;
             }
 
@@ -70,7 +71,12 @@ namespace BlazorForms.Storage.InMemory
 
         public ContextQuery<T> GetByIdQuery<T>(int id) where T : class, IEntity
         {
-            throw new NotImplementedException();
+            ContextQuery<T> ctx;
+            var data = GetEntityCollection(typeof(T));
+
+            // also check config settings to make sure user wants to exclude Deleted
+            ctx = new ContextQuery<T>(null, data.Values.Cast<T>().Where(x => x?.Deleted == false && x.Id == id).AsQueryable());
+            return ctx;
         }
     }
 }

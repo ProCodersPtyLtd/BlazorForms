@@ -42,5 +42,9 @@ namespace BlazorForms.Storage.Model
         {
             return Query.ToList();
         }
+        public async Task<T> FirstOrDefaultAsync()
+        {
+            return Query.FirstOrDefault();
+        }
     }
 }
