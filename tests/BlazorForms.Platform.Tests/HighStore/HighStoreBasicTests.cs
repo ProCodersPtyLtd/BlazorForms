@@ -25,9 +25,6 @@ namespace BlazorForms.Platform.Tests.HighStore
         {
             var data = await _db.GetQuery<Person>().ToListAsync();
             Assert.NotEqual(0, data.Count());
-
-            var user = await _db.GetQuery<Person>().ToListAsync();
-            Assert.NotEqual(0, data.Count());
         }
 
         [Fact]
