@@ -1,5 +1,6 @@
 ﻿using BlazorForms.Shared;
 using BlazorForms.Storage.Interfaces;
+using BlazorForms.Storage.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -24,7 +25,9 @@ namespace BlazorForms.Storage.InMemory
             ContextQuery<T> ctx;
             var data = GetEntityCollection(typeof(T));
 
-            // also check config settings to make sure user wants to exclude Deleted
+            if (typeof(IEntity).IsAssignableFrom(typeof(T)))
+            {
+                // also check config settings to make sure user wants to exclude Deleted
             ctx = new ContextQuery<T>(null, data.Values.Cast<T>().Where(x => x?.Deleted == false).AsQueryable());
             
             //if (typeof(IEntity).IsAssignableFrom(typeof(T)))

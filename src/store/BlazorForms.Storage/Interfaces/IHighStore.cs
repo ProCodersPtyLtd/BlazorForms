@@ -19,6 +19,11 @@ namespace BlazorForms.Storage
         //Task<List<T>> GetListByIdsAsync<T>(IEnumerable<int> ids);
         ContextQuery<T> GetQuery<T>() where T: class, IEntity;
         ContextQuery<T> GetByIdQuery<T>(int id) where T : class, IEntity;
+        //Task<T> GetByIdAsync<T>(int id);
+        //Task DeleteAsync(int id);
+        //Task SoftDeleteAsync<T>(T data);
+        //Task SoftDeleteAsync(int id);
+        //Task<List<T>> GetListByIdsAsync<T>(IEnumerable<int> ids);
     }
 }
 
