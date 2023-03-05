@@ -18,6 +18,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow.Resolution
 				.Begin(LoadDataAsync)
 				.NextForm(typeof(FormResolutionEntry))
 				.Label(CaseReview)
+				//.ChatGTP()
 				.Next(AssignArbitratorAsync)
 				.NextForm(typeof(FormResolutionReview))
 				.If(() => _flowContext.ExecutionResult.FormLastAction == ModelBinding.RejectButtonBinding)
@@ -32,7 +33,9 @@ namespace CrmLightDemoApp.Onion.Services.Flow.Resolution
 		}
 
 		private async Task LoadDataAsync()
-		{ }
+		{
+			//ChatGPTServices.Execute()
+		}
 		private async Task AssignArbitratorAsync()
 		{ }
 		private async Task AssignApplicantAsync()
