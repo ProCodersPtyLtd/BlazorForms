@@ -2,18 +2,17 @@
 @using MudBlazorUIDemo.Flows.Customer
 
 <FlowEditForm FlowName="@typeof(CustomerEditFlow).FullName" Pk="@Pk"
-              Options="_options" NavigationSuccess="/company-list" />
+              Options="_options" NavigationSuccess="/customer-list" />
 
 
 @code {
     [Parameter]
     public string Pk { get; set; }
 
-    private readonly ListFormOptions _options = new ListFormOptions
+    private readonly EditFormOptions _options = new()
     {
         Variant = Variant.Outlined,
         MudBlazorProvidersDefined = true,
-        DataOptimization = DataOptimization.ServerPagination,
-        UseToolBarCaption = true,
+        AllowAnonymousAccess = true
     };
 }

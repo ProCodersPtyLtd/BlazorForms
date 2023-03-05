@@ -155,9 +155,9 @@ else
         return value?.Item2;
     }
 
-    private void TextChanged(string text)
+    private async Task TextChanged(string text)
     {
-        _textLog.Add(text);
+        _textLog?.Add(text);
 
         // Text is changed, if value is not an exact option - we set value to -1 (IncorrectTextCode) and provoke incorrect value validation
         var selectedValue = GetValues().FirstOrDefault(item => item.Item2 == text);
@@ -165,7 +165,7 @@ else
         if (string.IsNullOrWhiteSpace(text) && _selectedId == DynamicFieldValidator.IncorrectTextCode)
         {
             _selectedId = null;
-            ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = _selectedId, RowIndex = RowIndex });
+            await ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = _selectedId, RowIndex = RowIndex });
             ViewModel.RefreshValidations(Field);
             return;
         }
@@ -175,14 +175,14 @@ else
             if (selectedValue == null)
             {
                 _selectedId = DynamicFieldValidator.IncorrectTextCode;
-                ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = _selectedId, RowIndex = RowIndex });
+                await ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = _selectedId, RowIndex = RowIndex });
                 ViewModel.RefreshValidations(Field);
                 return;
             }
 
             if (selectedValue?.Item1 != SelectedValue?.Item1)
             {
-                ValueChanged(selectedValue);
+                await ValueChanged(selectedValue);
             }
         }
 
@@ -192,17 +192,17 @@ else
     {
         if (val.Item1 != NEW_ITEM_KEY)
         {
-            ControlRef.SelectOption(val);
+            await ControlRef?.SelectOption(val);
             var id = await CreateDialogFlow(val.Item1);
 
             if (id != null)
             {
-                ControlRef.Clear();
+                await ControlRef.Clear();
                 _selectedId = id;
                 //SelectedValue = _optionsDictionary.Values.FirstOrDefault(item => item.Item1 == _selectedId);
                 SelectedValue = GetValues().FirstOrDefault(item => item.Item1 == _selectedId);
-                ControlRef.Text = SelectedValue.Item2;
-                ValueChanged(val);
+                ControlRef.Text = SelectedValue?.Item2;
+                await ValueChanged(val);
             }
         }
     }
@@ -221,27 +221,27 @@ else
                 _selectedId = id;
                 //SelectedValue = _optionsDictionary.Values.FirstOrDefault(item => item.Item1 == _selectedId);
                 SelectedValue = GetValues().FirstOrDefault(item => item.Item1 == _selectedId);
-                ControlRef.Text = SelectedValue.Item2;
+                ControlRef.Text = SelectedValue?.Item2;
             }
             else
             {
                 SelectedValue = null;
                 _selectedId = null;
-                ControlRef.Clear();
+                await ControlRef.Clear();
             }
 
             ViewModel.RefreshValidations(Field);
-            ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = _selectedId, RowIndex = RowIndex });
+            await ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = _selectedId, RowIndex = RowIndex });
             StateHasChanged();
         }
         else
-        if (SelectedValue != val)
+        if (!Equals(SelectedValue, val))
         {
             SelectedValue = val;
             _selectedId = val?.Item1;
 
             ViewModel.RefreshValidations(Field);
-            ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = _selectedId, RowIndex = RowIndex });
+            await ModelValueChanged.InvokeAsync(new ValueChangedArgs { Binding = Field.Binding, NewValue = _selectedId, RowIndex = RowIndex });
         }
     }
 

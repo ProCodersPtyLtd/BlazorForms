@@ -87,17 +87,17 @@ namespace BlazorForms.Shared
             }
         }
 
-        private PropertyInfo GetLastPropertyIterateThroughPath(object model, string modelBinding, out object target, out string lastPropName)
+        private static PropertyInfo GetLastPropertyIterateThroughPath(object model, string modelBinding, out object target, out string lastPropName)
         {
             target = null;
             var path = modelBinding.Replace("$", "").Split('.').Where(c => !string.IsNullOrWhiteSpace(c)).ToList();
-            object currentObject = model;
+            var currentObject = model;
             lastPropName = path.Last();
             path.RemoveAt(path.Count - 1);
 
             foreach (var propName in path)
             {
-                if (propName.Contains("[") && propName.Contains("]"))
+                if (propName.Contains('[') && propName.Contains(']'))
                 {
                     var propSplit = propName.Split('[');
                     var dictPropName = propSplit[0];
@@ -105,28 +105,22 @@ namespace BlazorForms.Shared
                     dictKey = dictKey.Replace("'", "").Replace("\"", "");
 
                     var prop = currentObject.GetType().GetProperty(dictPropName);
-                    var dict = prop.GetValue(currentObject);
+                    var dict = prop?.GetValue(currentObject);
 
-                    if(dict.GetType().IsGenericType && dict.GetType().GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                    currentObject = dict switch
                     {
-                        var dictObj = dict as IDictionary;
-                        currentObject = dictObj[dictKey];
-                    }
-                    else if (dict.GetType().IsGenericType && dict.GetType().GetGenericTypeDefinition() == typeof(List<>))
-                    {
-                        var lictObj = dict as IList;
-                        var index = int.Parse(dictKey);
-                        currentObject = lictObj[index];
-                    }
-                    else
-                    {
-                        throw new NotImplementedException("Only Dictionary<string, > supported");
-                    }
+                        IDictionary dictObj => dictObj[dictKey],
+                        IList listObj => listObj[
+                            int.TryParse(dictKey, out var listIdx)
+                                ? listIdx
+                                : throw new IndexOutOfRangeException($"Unable to use {dictKey} as an index")],
+                        _ => throw new NotImplementedException("Only IDictionary or IList properties are supported")
+                    };
                 }
                 else
                 {
                     var prop = currentObject.GetType().GetProperty(propName);
-                    currentObject = prop.GetValue(currentObject);
+                    currentObject = prop?.GetValue(currentObject);
                 }
 
                 if(currentObject == null)
