@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
@@ -39,6 +39,7 @@
     <ProjectReference Include="..\..\src\expressions\BlazorForms.Expressions\BlazorForms.Expressions.csproj" />
     <ProjectReference Include="..\..\src\platform\BlazorForms.Platform.Definitions\BlazorForms.Platform.Definitions.csproj" />
     <ProjectReference Include="..\..\src\proxy\BlazorForms.Proxyma\BlazorForms.Proxyma.csproj" />
+    <ProjectReference Include="..\..\src\store\BlazorForms.Storage\BlazorForms.Storage.csproj" />
     <ProjectReference Include="..\BlazorForms.Tests.Framework\BlazorForms.Tests.Framework.csproj" />
   </ItemGroup>
 
