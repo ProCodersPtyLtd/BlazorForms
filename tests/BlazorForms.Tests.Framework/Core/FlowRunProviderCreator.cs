@@ -28,6 +28,8 @@ using BlazorForms.ItemStore;
 using BlazorForms.Admin.BusinessObjects.Interfaces;
 using BlazorForms.Admin.BusinessObjects.Providers;
 using BlazorForms.Shared.FastReflection;
+using BlazorForms.Proxyma;
+using BlazorForms.Tests.Framework.Helpers;
 
 namespace BlazorForms.Tests.Framework.Core
 {
@@ -163,7 +165,11 @@ namespace BlazorForms.Tests.Framework.Core
             var serviceProvider = serviceCollection.BuildServiceProvider();
             _serviceProvider = serviceProvider;
 
-            IFlowParser parser = new FlowParser(this, serviceProvider.GetRequiredService<IKnownTypesBinder>());
+            IProxyScopeConfiguration pc = null;
+            var knownTypesBinder = serviceProvider.GetRequiredService<IKnownTypesBinder>();
+            AppPartsRegistrationHelper.RegisterPlatformParts(ref pc, ref knownTypesBinder);
+
+            IFlowParser parser = new FlowParser(this, knownTypesBinder);
             _flowParser = parser;
             var formParser = new FormDefinitionParser(serviceProvider);
             var ruleParser = new RuleDefinitionParser(serviceProvider);

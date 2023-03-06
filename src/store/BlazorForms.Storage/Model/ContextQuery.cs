@@ -1,4 +1,5 @@
-﻿using BlazorForms.Storage.Interfaces;
+﻿using BlazorForms.Shared.Extensions;
+using BlazorForms.Storage.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,9 @@ namespace BlazorForms.Storage.Model
         where T : class
     {
         //internal readonly DbContext _context;
+
+        protected readonly List<Expression<Func<T, bool>>> _predicates = new();
+        protected readonly List<string> _includes = new();
 
         public IQueryable<T> Query { get; set; }
 
@@ -35,6 +39,13 @@ namespace BlazorForms.Storage.Model
 
         public ContextQuery<T> Include<TProperty>(Expression<Func<T, TProperty>> e)
         {
+            _includes.Add(e.Body.ToString());
+            return this;
+        }
+
+        public ContextQuery<T> Where(Expression<Func<T, bool>> predicate)
+        {
+            _predicates.Add(predicate);
             return this;
         }
 
@@ -42,9 +53,15 @@ namespace BlazorForms.Storage.Model
         {
             return Query.ToList();
         }
+
         public async Task<T> FirstOrDefaultAsync()
         {
             return Query.FirstOrDefault();
+        }
+
+        public async Task<List<T>> ToListAsync(QueryOptions options)
+        {
+            return Query.ToList();
         }
     }
 }

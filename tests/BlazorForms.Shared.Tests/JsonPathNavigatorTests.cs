@@ -24,6 +24,19 @@ namespace BlazorForms.Shared.Tests
         }
 
         [Fact]
+        public void GetNestedValueNullTest()
+        {
+            var nav = new JsonPathNavigator();
+            var model = new Model1 { Client = new ClientModel { FirstName = "Lilu", ResidentialAddress = null } };
+            var result = nav.GetValue(model, "$.Client.FirstName").AsString();
+            Assert.Equal("Lilu", result);
+            result = nav.GetValue(model, "$.Client.LastName").AsString();
+            Assert.Null(result);
+            result = nav.GetValue(model, "$.Client.ResidentialAddress.StreetLine1").AsString();
+            Assert.Null(result);
+        }
+
+        [Fact]
         public void GetWrongMappingValueTest()
         {
             var nav = new JsonPathNavigator();

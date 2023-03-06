@@ -14,4 +14,6 @@
         // FK
         public List<PersonCompanyLink> RefPersonCompanyLink { get; } = new();
     }
+
+    
 }
