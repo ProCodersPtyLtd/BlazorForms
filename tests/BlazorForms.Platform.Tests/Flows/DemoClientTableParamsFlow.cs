@@ -51,13 +51,13 @@ namespace BlazorForms.Platform.Tests.Flows
                         PostCode = $"{2000 + idx}"
                     },
                     CompanyName = $"Sample Company #{idx}"
-                })
+                }).ToList()
             };
 
             if (dynamicParams.Top != null)
             {
                 data.CompaniesCount = dynamicParams.Top;
-                data.Companies = data.Companies.Take(data.CompaniesCount);
+                data.Companies = data.Companies.Take(data.CompaniesCount).ToList();
             }
 
             return data;
@@ -73,11 +73,11 @@ namespace BlazorForms.Platform.Tests.Flows
                 .Select(idx => new CompanyTableRow
                 {
                     Key = idx.ToString(),
-                })
+                }).ToList()
             };
 
             data.CompaniesCount = Model.TableParamTop;
-            data.Companies = data.Companies.Take(data.CompaniesCount);
+            data.Companies = data.Companies.Take(data.CompaniesCount).ToList();
 
             return data;
         }
