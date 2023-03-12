@@ -68,5 +68,65 @@ namespace BlazorForms.Platform.Tests.HighStore
             Assert.NotEmpty(data);
             Assert.Equal(1, data[0].RefPersonLink.Count());
         }
+
+        [Fact]
+        public async Task GetByIdAsyncTest()
+        {
+            var user = _db.GetByIdAsync<User>(1);
+            Assert.NotNull(user);
+            Assert.Equal(1, user.Id);
+        }
+
+        [Fact]
+        public async Task DeleteAsyncTest()
+        {
+            var p = new Person { FirstName = "Oleg", LastName = "Olegov", BirthDate = new DateTime(1990, 10, 2) };
+            await _db.UpsertAsync(p);
+            Assert.True(p.Id > 0);
+
+            var item = await _db.GetByIdAsync<Person>(p.Id);
+            Assert.NotNull(item);
+
+            await _db.DeleteAsync<Person>(p.Id);
+
+            item = await _db.GetByIdAsync<Person>(p.Id);
+            Assert.Null(item);
+        }
+
+        [Fact]
+        public async Task SoftDeleteAsyncTest()
+        {
+            var p = new Person { FirstName = "Oleg", LastName = "Olegov", BirthDate = new DateTime(1990, 10, 2) };
+            await _db.UpsertAsync(p);
+            Assert.True(p.Id > 0);
+            int id = p.Id;
+
+            var item = await _db.GetByIdAsync<Person>(id);
+            Assert.NotNull(item);
+
+            await _db.SoftDeleteAsync<Person>(id);
+
+            item = await _db.GetByIdAsync<Person>(id);
+            Assert.NotNull(item);
+            Assert.True(item.Deleted);
+        }
+
+        [Fact]
+        public async Task SoftDeleteAsyncTypedTest()
+        {
+            var p = new Person { FirstName = "Oleg", LastName = "Olegov", BirthDate = new DateTime(1990, 10, 2) };
+            await _db.UpsertAsync(p);
+            Assert.True(p.Id > 0);
+            int id = p.Id;
+
+            var item = await _db.GetByIdAsync<Person>(id);
+            Assert.NotNull(item);
+
+            await _db.SoftDeleteAsync(p);
+
+            item = await _db.GetByIdAsync<Person>(id);
+            Assert.NotNull(item);
+            Assert.True(item.Deleted);
+        }
     }
 }

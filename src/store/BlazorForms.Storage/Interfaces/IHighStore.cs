@@ -13,10 +13,10 @@ namespace BlazorForms.Storage.Interfaces
         Task<T> UpsertAsync<T>(T entity) where T : class, IEntity;
         ContextQuery<T> GetQuery<T>() where T: class, IEntity;
         ContextQuery<T> GetByIdQuery<T>(int id) where T : class, IEntity;
-        //Task<T> GetByIdAsync<T>(int id);
-        //Task DeleteAsync(int id);
-        //Task SoftDeleteAsync<T>(T data);
-        //Task SoftDeleteAsync(int id);
+        Task<T> GetByIdAsync<T>(int id) where T : class, IEntity;
+        Task DeleteAsync<T>(int id) where T : class, IEntity;
+        Task SoftDeleteAsync<T>(T entity) where T : class, IEntity;
+        Task SoftDeleteAsync<T>(int id) where T : class, IEntity;
         //Task<List<T>> GetListByIdsAsync<T>(IEnumerable<int> ids);
     }
 }

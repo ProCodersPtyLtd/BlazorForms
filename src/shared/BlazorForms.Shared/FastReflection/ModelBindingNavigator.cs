@@ -58,7 +58,15 @@ namespace BlazorForms.Shared.FastReflection
         {
             if (modelBinding.FastReflectionGetter != null)
             {
-                return modelBinding.FastReflectionGetter(model);
+                // work aroung until FastReflectionGetter fixed for nested null properties
+                try
+                {
+                    return modelBinding.FastReflectionGetter(model);
+                }
+                catch
+                {
+                    return _jsonNavigator.GetValue(model, modelBinding.Binding);
+                }
             }
 
             return _jsonNavigator.GetValue(model, modelBinding.Binding);
