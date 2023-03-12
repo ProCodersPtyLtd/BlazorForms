@@ -78,5 +78,38 @@ namespace BlazorForms.Storage.InMemory
             ctx = new ContextQuery<T>(null, data.Values.Cast<T>().Where(x => x?.Deleted == false && x.Id == id).AsQueryable());
             return ctx;
         }
+
+        public async Task<T> GetByIdAsync<T>(int id) where T : class, IEntity
+        {
+            var data = GetEntityCollection(typeof(T));
+
+            if (data.ContainsKey(id))
+            {
+                var item = data[id] as T;
+                return item;
+            }
+
+            return null;
+        }
+
+        public async Task DeleteAsync<T>(int id) where T : class, IEntity
+        {
+            var data = GetEntityCollection(typeof(T));
+            data.Remove(id);
+        }
+
+        public async Task SoftDeleteAsync<T>(T entity) where T : class, IEntity
+        {
+            var data = GetEntityCollection(typeof(T));
+            var item = data[entity.Id] as T;
+            item.Deleted = true;
+        }
+
+        public async Task SoftDeleteAsync<T>(int id) where T : class, IEntity
+        {
+            var data = GetEntityCollection(typeof(T));
+            var item = data[id] as T;
+            item.Deleted = true;
+        }
     }
 }
