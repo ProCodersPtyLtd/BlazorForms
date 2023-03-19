@@ -1,0 +1,11 @@
+{
+    "environmentName": "prod",
+    "blazor-forms-demo-service": {
+        "serviceName": "blazor-forms-demo-service",
+        "certificateName": "crmlight-platz-app",
+        "domainName": "crmlight.platz.app"
+    },
+
+    "cpu": "0.25",
+    "memory": "0.5Gi"
+}

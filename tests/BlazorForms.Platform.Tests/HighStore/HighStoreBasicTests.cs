@@ -1,6 +1,6 @@
 ﻿using BlazorForms.Shared.Extensions;
+using BlazorForms.Storage;
 using BlazorForms.Storage.InMemory;
-using BlazorForms.Storage.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +12,7 @@ namespace BlazorForms.Platform.Tests.HighStore
     public class HighStoreBasicTests
     {
         IHighStore _db;
+
         public HighStoreBasicTests()
         {
             _db = new InMemoryHighStore();
@@ -47,6 +48,30 @@ namespace BlazorForms.Platform.Tests.HighStore
         }
 
         [Fact]
+        public async Task GetWhereTest()
+        {
+            var c = new Company { Name = "Neo1" };
+            await _db.UpsertAsync(c);
+            var cid = c.Id;
+            c = new Company { Name = "Neo11" };
+            await _db.UpsertAsync(c);
+            var cid2 = c.Id;
+
+            var q = _db.GetQuery<PersonCompanyLink>().Where(m => m.CompanyId == cid2);
+            var data = await q.ToListAsync();
+            Assert.Empty(data);
+
+            var l = new PersonCompanyLink { CompanyId = cid, PersonId = 1 };
+            await _db.UpsertAsync(l);
+            l = new PersonCompanyLink { CompanyId = cid2, PersonId = 2 };
+            await _db.UpsertAsync(l);
+
+            q = _db.GetQuery<PersonCompanyLink>().Where(m => m.CompanyId == cid2);
+            data = await q.ToListAsync();
+            Assert.Equal(1, data.Count);
+        }
+
+        [Fact]
         public async Task GetByIdIncludeTest()
         {
             var q = _db.GetByIdQuery<User>(1).Include(m => m.Person);
@@ -58,7 +83,7 @@ namespace BlazorForms.Platform.Tests.HighStore
         [Fact]
         public async Task GetWhereIncludeTest()
         {
-            var c = new Company { Name = "Neo1" };
+            var c = new Company { Name = "Neo2" };
             await _db.UpsertAsync(c);
             var l = new PersonCompanyLink { CompanyId = c.Id, PersonId = 1 };
             await _db.UpsertAsync(l);

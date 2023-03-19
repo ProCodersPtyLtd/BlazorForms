@@ -1,0 +1,8 @@
+variables:
+  azureSubscription: 'pc-partner-subscription'
+  dockerRegistryServiceConnection: 'pc-container-registry'
+  containerRegistry: 'procoders.azurecr.io'
+  dockerfilePath: '**/Dockerfile'
+  location: 'australiaeast'
+  major: 1
+  minor: $[counter(variables['major'], 1)]

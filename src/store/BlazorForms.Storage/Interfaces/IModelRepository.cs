@@ -1,4 +1,4 @@
-﻿using BlazorForms.Storage.Model;
+﻿using BlazorForms.Storage.InMemory;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

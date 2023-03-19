@@ -1,6 +1,5 @@
 ﻿using BlazorForms.Shared;
 using BlazorForms.Storage.Interfaces;
-using BlazorForms.Storage.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -14,6 +13,11 @@ namespace BlazorForms.Storage.InMemory
     public class InMemoryHighStore : IHighStore
     {
         private readonly Dictionary<Type, Dictionary<int, object>> _store = new();
+
+        public async Task<List<T>> GetAllAsync<T>() where T : class, IEntity
+        {
+            return await GetQuery<T>().ToListAsync();
+        }
 
         public ContextQuery<T> GetQuery<T>() where T : class, IEntity
         {

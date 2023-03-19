@@ -1,23 +1,24 @@
-﻿using BlazorForms.Storage.Model;
+﻿using BlazorForms.Storage.InMemory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BlazorForms.Storage.Interfaces
+namespace BlazorForms.Storage
 {
     // IHighStorage ?
     public interface IHighStore
     {
+        Task<List<T>> GetAllAsync<T>() where T : class, IEntity;
         Task<T> UpsertAsync<T>(T entity) where T : class, IEntity;
-        ContextQuery<T> GetQuery<T>() where T: class, IEntity;
-        ContextQuery<T> GetByIdQuery<T>(int id) where T : class, IEntity;
         Task<T> GetByIdAsync<T>(int id) where T : class, IEntity;
         Task DeleteAsync<T>(int id) where T : class, IEntity;
         Task SoftDeleteAsync<T>(T entity) where T : class, IEntity;
         Task SoftDeleteAsync<T>(int id) where T : class, IEntity;
         //Task<List<T>> GetListByIdsAsync<T>(IEnumerable<int> ids);
+        ContextQuery<T> GetQuery<T>() where T: class, IEntity;
+        ContextQuery<T> GetByIdQuery<T>(int id) where T : class, IEntity;
     }
 }
 
