@@ -1,4 +1,4 @@
-﻿namespace BlazorForms.Storage.Interfaces
+﻿namespace BlazorForms.Storage
 {
     public interface IEntity
     {

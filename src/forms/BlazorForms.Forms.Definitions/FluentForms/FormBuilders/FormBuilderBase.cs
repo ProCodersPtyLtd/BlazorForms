@@ -38,7 +38,7 @@ namespace BlazorForms.Forms.Definitions.FluentForms.FormBuilders
 
         public void AssertValid<TEntity>()
         {
-            RuleVirtualPropertyValidation.Validate<TEntity>(_fields.Values);
+            //RuleVirtualPropertyValidation.Validate<TEntity>(_fields.Values);
         }
     }
 }

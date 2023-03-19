@@ -1,5 +1,5 @@
 ﻿using BlazorForms.Flows.Definitions;
-using BlazorForms.Storage.Interfaces;
+using BlazorForms.Storage;
 
 namespace BlazorForms.Platform.Tests.HighStore
 {

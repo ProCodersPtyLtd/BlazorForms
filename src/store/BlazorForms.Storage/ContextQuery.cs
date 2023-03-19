@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
-namespace BlazorForms.Storage.Model
+namespace BlazorForms.Storage
 {
     public class ContextQuery<T> : IDisposable, IContextQuery
         where T : class
@@ -49,19 +49,34 @@ namespace BlazorForms.Storage.Model
             return this;
         }
 
-        public async Task<List<T>> ToListAsync()
-        {
-            return Query.ToList();
-        }
-
         public async Task<T> FirstOrDefaultAsync()
         {
-            return Query.FirstOrDefault();
+            var query = ApplyPredicates(Query);
+            return query.FirstOrDefault();
+        }
+
+        public async Task<List<T>> ToListAsync()
+        {
+            var query = ApplyPredicates(Query);
+            return query.ToList();
         }
 
         public async Task<List<T>> ToListAsync(QueryOptions options)
         {
-            return Query.ToList();
+            var query = ApplyPredicates(Query);
+            return query.ToList();
+        }
+
+        private IQueryable<T> ApplyPredicates(IQueryable<T> query)
+        {
+            var result = query;
+
+            foreach(var predicate in _predicates)
+            {
+                result = result.Where(predicate);
+            }
+
+            return result;
         }
     }
 }

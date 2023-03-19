@@ -1,0 +1,119 @@
+@using BlazorForms.Shared;
+@using CrmLightDemoApp.Store.Onion.Services.Abstractions;
+@using CrmLightDemoApp.Store.Onion.Services;
+@using CrmLightDemoApp.Store.Onion.Services.Model;
+
+@inject IAppAuthState _authState
+@inject IUserService _userService
+@inject ITenantAccountRepository _tenantRepo
+@inject INotificationService _notificationService
+
+@implements IDisposable
+
+@if (_users != null)
+{
+	<div style="width: 280px; margin-right: 16px;">
+		<MudText Align="Align.Right">@GetTenant().Company.Name</MudText>
+	</div>
+
+	<div style="width: 180px; ">
+
+		<MudSelect @ref=SelectControlRef T="UserModel" Style="background-color: lightgray;" AnchorOrigin="Origin.CenterCenter" Variant="Variant.Filled"
+			   AdornmentColor="Color.Surface" ToStringFunc="t => t?.PersonFullName" Value="GetUser()" 
+			   ValueChanged="@(async (args) => await ValueChanged(args))">
+
+		@foreach (var user in _users)
+		{
+			<MudSelectItem Value=@user />
+		}
+		</MudSelect>
+	</div>
+}
+
+@code {
+	@inject NavigationManager NavigationManager
+
+	[CascadingParameter]
+	public MudSelect<UserModel> SelectControlRef { get; set; }
+
+	private List<UserModel>? _users;
+
+	private async Task NotificationMessage(object sender, MessageEventArgs args)
+	{
+		if (args.Type == MessageEventType.TenantAccount)
+		{
+			await SetTenant();
+			await InvokeAsync(StateHasChanged);
+		}
+		else if (args.Type == MessageEventType.UserAccount)
+		{
+			var users = await RefreshUsers();
+
+			await InvokeAsync(() =>
+			{
+				SelectControlRef.ForceRender(true);
+				StateHasChanged();
+			});
+		}
+	}
+
+	private async Task SetTenant()
+	{
+		var mockAuth = _authState as MockAppAuthState;
+		var tenant = TenantAccountModel.FromDetails((await _tenantRepo.GetTenantAccountDetailsAsync()));
+		mockAuth.SetCurrentTenantAccount(tenant);
+	}
+
+	public void Dispose()
+	{
+		_notificationService.OnMessageAsync -= NotificationMessage;
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		_notificationService.OnMessageAsync += NotificationMessage;
+
+		// set default user first time
+		if (_authState.GetCurrentUser() == null)
+		{
+			var mockAuth = _authState as MockAppAuthState;
+			var current = (await RefreshUsers()).First();
+			mockAuth.SetCurrentUser(current);
+
+			await SetTenant();
+		}
+	}
+
+	protected override async Task OnParametersSetAsync()
+	{
+		await RefreshUsers();
+	}
+
+	private async Task<List<UserModel>> RefreshUsers()
+	{
+		_users = await _userService.GetAllUserDetailsAsync();
+		return _users;
+	}
+
+	private UserModel GetUser()
+	{
+		return _authState.GetCurrentUser();
+	}
+
+	private TenantAccountModel GetTenant()
+	{
+		return _authState.GetCurrentTenantAccount();
+	}
+
+	private async Task ValueChanged(UserModel val)
+	{
+		var mockAuth = _authState as MockAppAuthState;
+
+		if (mockAuth != null)
+		{
+			mockAuth.SetCurrentUser(val);
+			NavigationManager.NavigateTo("/", false, true);
+			await _notificationService.PostMessageAsync(new MessageEventArgs { Type = MessageEventType.UserAccount });
+		}
+	}
+}

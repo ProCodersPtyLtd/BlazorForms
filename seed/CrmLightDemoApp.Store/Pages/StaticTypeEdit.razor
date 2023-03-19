@@ -1,0 +1,12 @@
+﻿@page "/static-type-edit/{entityType}"
+@inject NavigationManager NavigationManager;
+
+@code {
+    [Parameter]
+    public string entityType { get; set; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        NavigationManager.NavigateTo($"/static-type-edit-internal/{entityType}");
+    }
+}

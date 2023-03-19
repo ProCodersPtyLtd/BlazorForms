@@ -1,0 +1,39 @@
+parameters:
+  - name: 'envName'
+  - name: 'resourceGroup'
+
+jobs:
+- deployment: 'To_${{ parameters.envName }}'
+  environment: ${{ parameters.envName }}
+  displayName: 'Deployment to ${{ parameters.envName }} environment'
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+          - checkout: self
+          - task: CmdLine@2
+            displayName: List files2
+            inputs:
+              script: |
+                echo "Using Azure Subscription: $(azureSubscription)"
+                echo "Structure of work folder of this pipeline:"
+                tree $(Pipeline.Workspace)
+          - task: AzureCLI@2
+            displayName: Create resources and deploy using Bicep
+            inputs:
+              azureSubscription: $(azureSubscription)
+              scriptType: pscore
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                param ($ResourceGroup, $Env, $Location, $Registry, $ImageName, $ImageTag)
+
+                # store username in $acrUser
+                $acrUser=$(az acr credential show -n $Registry --query username -o tsv)
+
+                # store password in $acrPassword
+                $acrPassword=$(az acr credential show -n $Registry --query "passwords[0].value" -o tsv)
+
+                # create resources
+                az deployment group create -n "${ImageName}-group" -g ${ResourceGroup} --template-file ./main.bicep -p envName=${Env} appName=${ImageName} containerImage="${Registry}/${ImageName}:${ImageTag}" containerPort=80 registry=${Registry} registryUsername=${acrUser} registryPassword=${acrPassword}
+              arguments: '-ResourceGroup ${{ parameters.resourceGroup }} -Env ${{ parameters.envName }} -ImageName $(imageName) -ImageTag "$(imageTag)" -Location $(location) -Registry $(containerRegistry)'
+              workingDirectory: '$(Build.SourcesDirectory)/$(servicePath)/cicd'
