@@ -25,20 +25,22 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+	  <!--<PackageReference Include="BlazorForms.Shared" Version="1.11.0" />-->
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\dynamic-code\BlazorForms.DynamicCode\BlazorForms.DynamicCode.csproj" />
     <ProjectReference Include="..\..\flows\BlazorForms.Flows.Definitions\BlazorForms.Flows.Definitions.csproj" />
-    <ProjectReference Include="..\..\flows\BlazorForms.Flows.Engine\BlazorForms.Flows.Engine.csproj" />
     <ProjectReference Include="..\..\forms\BlazorForms.Forms.Definitions\BlazorForms.Forms.Definitions.csproj" />
-    <ProjectReference Include="..\..\proxy\BlazorForms.Proxyma\BlazorForms.Proxyma.csproj" />
+    <ProjectReference Include="..\BlazorForms.Platform.Definitions\BlazorForms.Platform.Definitions.csproj" />
+    <ProjectReference Include="..\BlazorForms.Platform.Shared\BlazorForms.Platform.Shared.csproj" />
     <ProjectReference Include="..\..\rendering\BlazorForms.Rendering\BlazorForms.Rendering.csproj" />
+    
+	  <ProjectReference Include="..\..\dynamic-code\BlazorForms.DynamicCode\BlazorForms.DynamicCode.csproj" />
+    <ProjectReference Include="..\..\flows\BlazorForms.Flows.Engine\BlazorForms.Flows.Engine.csproj" />
+    <ProjectReference Include="..\..\proxy\BlazorForms.Proxyma\BlazorForms.Proxyma.csproj" />
     <ProjectReference Include="..\..\rules\BlazorForms.FlowRules\BlazorForms.FlowRules.csproj" />
     <ProjectReference Include="..\..\store\BlazorForms.ItemStore\BlazorForms.ItemStore.csproj" />
     <ProjectReference Include="..\BlazorForms.Platform.Config\BlazorForms.Platform.Config.csproj" />
-    <ProjectReference Include="..\BlazorForms.Platform.Definitions\BlazorForms.Platform.Definitions.csproj" />
-    <ProjectReference Include="..\BlazorForms.Platform.Shared\BlazorForms.Platform.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,0 +1,58 @@
+﻿<MudText Align="Align.Center" Typo="Typo.h4">
+	Welcome to Crm Light Demo created with
+	<br /> BlazorForms and Material design.
+</MudText>
+
+<MudPaper Elevation="3" Class="my-5 py-5">
+	<MudText Align="Align.Center">
+		<MudAvatar Color="Color.Primary" Size="Size.Small">
+			<MudIcon Color="Color.Dark" Icon="@Icons.Filled.AccountBox" Size="Size.Small" />
+		</MudAvatar>
+		You logged in as
+		@*<b>@_authState.GetCurrentUser().PersonFullName</b>*@
+	</MudText>
+</MudPaper>
+
+<MudPaper Elevation="3" Class="my-5 py-5">
+    <MudText Align="Align.Center">
+        Feel free to visit the
+        <MudLink Href="https://www.procoders.com.au"
+                 Target="_blank" Typo="Typo.h6">
+            Pro Coders
+        </MudLink>
+        website.
+    </MudText>
+</MudPaper>
+
+<p style="text-align:center;">
+	@*<img src="/assets/CodeMazeShopImage.png" alt="products image for the Home component" />*@
+</p>
+
+@using CrmLightDemoApp.Store.Onion.Services.Abstractions
+@implements IDisposable
+
+@code {
+	@inject IAppAuthState _authState
+	@inject INotificationService _notificationService
+
+	protected override async Task OnInitializedAsync()
+	{
+		_notificationService.OnMessageAsync += NotificationMessage;
+	}
+
+	public void Dispose()
+	{
+		_notificationService.OnMessageAsync -= NotificationMessage;
+	}
+
+	private async Task NotificationMessage(object sender, MessageEventArgs args)
+	{
+		if (args.Type == MessageEventType.UserAccount)
+		{
+			await InvokeAsync(() =>
+			{
+				StateHasChanged();
+			});
+		}
+	}
+}

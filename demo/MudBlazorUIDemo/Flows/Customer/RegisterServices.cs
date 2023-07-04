@@ -1,4 +1,4 @@
-﻿using BlazorForms;
+using BlazorForms;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace MudBlazorUIDemo.Flows.Customer;

@@ -1,0 +1,15 @@
+parameters:
+  - name: 'dockerfilePath'
+
+jobs:
+  - job: Build
+    displayName: Build
+
+    steps:
+    - task: Docker@2
+      inputs:
+        containerRegistry: $(dockerRegistryServiceConnection)
+        repository: '$(imageName)'
+        tags: '$(imageTag)'
+        command: 'buildAndPush'
+        Dockerfile: '${{ parameters.dockerfilePath }}'

@@ -1,4 +1,4 @@
-﻿namespace MudBlazorUIDemo.Flows.Customer;
+namespace MudBlazorUIDemo.Flows.Customer;
 
 using Bogus;
 using System.Collections.Generic;

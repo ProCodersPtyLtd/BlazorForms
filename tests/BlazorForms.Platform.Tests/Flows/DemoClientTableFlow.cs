@@ -40,8 +40,12 @@ namespace BlazorForms.Platform.Tests.Flows
                         PostCode = $"{2000+idx}"
                     },
                     CompanyName = $"Sample Company #{idx}"
-                })
+                }).ToList()
             };
+
+            // mark first address null to test null exceptions
+            data.Companies[0].Address = null;
+
             return data;
         }
 
@@ -55,7 +59,7 @@ namespace BlazorForms.Platform.Tests.Flows
         /// <summary>
         /// This must be called Items as frontent will be looking for items property
         /// </summary>
-        public virtual IEnumerable<CompanyTableRow> Companies { get; set; }
+        public virtual List<CompanyTableRow> Companies { get; set; }
         /// <summary>
         /// Total number of rows in the view
         /// </summary>
@@ -106,6 +110,10 @@ namespace BlazorForms.Platform.Tests.Flows
         [FormComponent(typeof(TextEdit))]
         [Display("Street Address", Required = true)]
         public object StreetAddress => TableColumn(t => t.Companies, c => c.Address.Line1 + c.Address.City);
+
+        [FormComponent(typeof(TextEdit))]
+        [Display("Street City")]
+        public object StreetAddressCity => TableColumn(t => t.Companies, c => c.Address.City);
 
         public object CompaniesCount => TableCount(t => t.Companies, c => c.CompaniesCount);
     }

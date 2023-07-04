@@ -75,6 +75,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             f.Property(p => p.FirstName).Label("First name").IsReadOnly();
             f.Property(p => p.LastName).Label("Last name").IsReadOnly();
             f.Property(p => p.BirthDate).Label("Date of birth").IsReadOnly();
+            //f.Property(p => p.Fomo.Name).Label("Fomo name").IsReadOnly();
             f.Property(p => p.Phone).IsReadOnly();
             f.Property(p => p.Email).IsReadOnly();
 

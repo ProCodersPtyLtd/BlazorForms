@@ -1,12 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-
-	  <AssemblyVersion>1.10.0</AssemblyVersion>
-	  <PackageVersion>1.10.0</PackageVersion>
+	  
+	  <AssemblyVersion>1.12.0</AssemblyVersion>
+	  <PackageVersion>1.12.0</PackageVersion>
 	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
 	  <Copyright>Pro Coders PTY LTD</Copyright>
 	  <Description>BlazorForms.Rendering.MudBlazorUI is a rendering library for BlazorForms framework that helps to create flows, forms and rules</Description>
@@ -21,13 +21,13 @@
   </ItemGroup>
 
   <ItemGroup>
-	<PackageReference Include="BlazorForms.Rendering" Version="1.10.0" /> 
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.0" />
     <PackageReference Include="MudBlazor" Version="6.1.5" />
+	  <!--<PackageReference Include="BlazorForms.Rendering" Version="1.12.0" />-->
   </ItemGroup>
 
   <ItemGroup>
-     <!--<ProjectReference Include="..\BlazorForms.Rendering\BlazorForms.Rendering.csproj" />--> 
+    <ProjectReference Include="..\BlazorForms.Rendering\BlazorForms.Rendering.csproj" />
   </ItemGroup>
 
 </Project>

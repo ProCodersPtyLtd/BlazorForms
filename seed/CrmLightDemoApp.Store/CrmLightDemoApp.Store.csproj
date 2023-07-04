@@ -1,0 +1,69 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+	  <AssemblyVersion>0.10.0</AssemblyVersion>
+	  <PackageVersion>0.10.0</PackageVersion>
+	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
+	  <Copyright>Pro Coders PTY LTD</Copyright>
+	  <Description>Blazor Forms Crm Light Demo Application</Description>
+	  <Company>Pro Coders PTY LTD</Company>
+	  <PackageTags>crm;light;blazor;flow;dynamic;form;forms;rule;framework</PackageTags>
+	  <Authors>Pro Coders PTY LTD</Authors>
+	  <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Onion\Services\Flow\Admin\**" />
+    <Compile Remove="Onion\Services\Flow\LeadBoard\**" />
+    <Content Remove="Onion\Services\Flow\Admin\**" />
+    <Content Remove="Onion\Services\Flow\LeadBoard\**" />
+    <EmbeddedResource Remove="Onion\Services\Flow\Admin\**" />
+    <EmbeddedResource Remove="Onion\Services\Flow\LeadBoard\**" />
+    <None Remove="Onion\Services\Flow\Admin\**" />
+    <None Remove="Onion\Services\Flow\LeadBoard\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Onion\Services\Flow\CompanyEditFlow.cs" />
+    <Compile Remove="Onion\Services\Flow\CompanyListFlow.cs" />
+    <Compile Remove="Onion\Services\Flow\PersonCompanyLinkTypeEditFlow.cs" />
+    <Compile Remove="Onion\Services\Flow\StaticTypeEditFlow.cs" />
+    <Compile Remove="Onion\Services\UserService.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Components\UserAccount.razor" />
+    <Content Remove="Pages\CompanyEdit.razor" />
+    <Content Remove="Pages\CompanyList.razor" />
+    <Content Remove="Pages\LeadBoard.razor" />
+    <Content Remove="Pages\PersonCompanyListType.razor" />
+    <Content Remove="Pages\StaticTypeEditInternal.razor" />
+    <Content Remove="Pages\TenantSettings.razor" />
+    <Content Remove="Pages\UserEdit.razor" />
+    <Content Remove="Pages\UserList.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.2.2" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.2.3" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.6.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
+    <ProjectReference Include="..\..\src\flows\BlazorForms.Flows.Definitions\BlazorForms.Flows.Definitions.csproj" />
+    <ProjectReference Include="..\..\src\forms\BlazorForms.Forms.Definitions\BlazorForms.Forms.Definitions.csproj" />
+    <ProjectReference Include="..\..\src\platform\BlazorForms.Platform\BlazorForms.Platform.csproj" />
+    <ProjectReference Include="..\..\src\rendering\BlazorForms.Rendering.Flows\BlazorForms.Rendering.Flows.csproj" />
+      
+    <!--<PackageReference Include="BlazorForms" Version="1.12.0" />
+    <PackageReference Include="BlazorForms.Rendering.MudBlazorUI" Version="1.12.0" />
+	<PackageReference Include="BlazorForms.Rendering.Flows" Version="1.12.0" />-->
+	  <ProjectReference Include="..\..\src\rendering\BlazorForms.Rendering.MudBlazorUI\BlazorForms.Rendering.MudBlazorUI.csproj" />
+	  <ProjectReference Include="..\..\src\store\BlazorForms.Storage\BlazorForms.Storage.csproj" />
+
+  </ItemGroup>
+
+</Project>

@@ -1,4 +1,4 @@
-﻿using BlazorForms.FlowRules;
+using BlazorForms.FlowRules;
 using BlazorForms.Flows;
 using BlazorForms.Forms;
 using BlazorForms.Shared;

@@ -1,4 +1,4 @@
-﻿using BlazorForms.Flows.Engine.Fluent;
+using BlazorForms.Flows.Engine.Fluent;
 using BlazorForms.Forms;
 using BlazorForms.Shared.Extensions;
 

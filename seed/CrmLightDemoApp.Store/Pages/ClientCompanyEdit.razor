@@ -1,0 +1,13 @@
+﻿@page "/client-company-edit/{pk}"
+
+@using BlazorForms.Rendering.MudBlazorUI.Components
+
+<FlowEditForm FlowName="@typeof(CrmLightDemoApp.Store.Onion.Services.Flow.ClientCompanyEditFlow).FullName" Pk="@Pk"
+              Options="GlobalSettings.EditFormOptions" NavigationSuccess="/client-company-list" />
+
+
+@code {
+    [Parameter]
+    public string Pk { get; set; }
+
+}

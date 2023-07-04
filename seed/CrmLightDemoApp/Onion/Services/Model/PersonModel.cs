@@ -10,5 +10,11 @@ namespace CrmLightDemoApp.Onion.Services.Model
     {
         public virtual string? FullName { get; set; }
         public virtual List<PersonCompanyLinkDetails> CompanyLinks { get; set; }
+        public virtual Fomo Fomo { get; set; }
+    }
+
+    public class Fomo
+    {
+        public virtual string? Name { get; set; }
     }
 }

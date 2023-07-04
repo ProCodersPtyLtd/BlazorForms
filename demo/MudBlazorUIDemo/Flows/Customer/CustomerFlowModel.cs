@@ -1,4 +1,4 @@
-﻿using BlazorForms.Flows.Definitions;
+using BlazorForms.Flows.Definitions;
 
 namespace MudBlazorUIDemo.Flows.Customer;
 

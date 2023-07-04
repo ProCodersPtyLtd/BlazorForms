@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!--<PackageReference Include="BlazorForms" Version="1.10.0" />
+    <PackageReference Include="BlazorForms.Rendering.MudBlazorUI" Version="1.10.0" />-->
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\platform\BlazorForms.Platform\BlazorForms.Platform.csproj" />
     <ProjectReference Include="..\..\src\rendering\BlazorForms.Rendering.MudBlazorUI\BlazorForms.Rendering.MudBlazorUI.csproj" />
     <ProjectReference Include="..\BlazorFormsDemoFlows\BlazorFormsDemoFlows.csproj" />
