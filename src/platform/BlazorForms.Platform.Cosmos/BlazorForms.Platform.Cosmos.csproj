@@ -19,11 +19,13 @@
     <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.18.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.9" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\flows\BlazorForms.Flows.Definitions\BlazorForms.Flows.Definitions.csproj" />
     <ProjectReference Include="..\BlazorForms.Platform.Definitions\BlazorForms.Platform.Definitions.csproj" />
   </ItemGroup>
+
 
 </Project>
