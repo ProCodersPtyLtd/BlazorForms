@@ -79,7 +79,7 @@ namespace BlazorForms.Flows.Engine
         {
             var tId = await _tenantedScope.GetTenantId();
             var details = await _repo.GetFlowByRef(tId, refId);
-            var last = details.Context;
+            var last = details?.Context;
             return last;
         }
 

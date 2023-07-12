@@ -147,6 +147,14 @@ namespace BlazorForms.Flows
                 else
                 {
                     context = await _storage.GetProcessExecutionContext(refId);
+
+                    if (context == null)
+                    {
+                        context = await _storage.CreateProcessExecutionContext(flow, parameters, true);
+                        context.RefId = refId;
+                        await _storage.SaveProcessExecutionContext(context, context.ExecutionResult, true);
+                    }
+
                     context.ExecutionResult.FlowState = TaskExecutionFlowStateEnum.Continue;
                     context.ExecutionResult.ResultState = TaskExecutionResultStateEnum.Success;
                 }

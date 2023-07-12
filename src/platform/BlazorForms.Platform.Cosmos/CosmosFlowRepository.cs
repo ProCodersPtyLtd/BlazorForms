@@ -1,53 +1,52 @@
-using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
-using Microsoft.Azure.Documents.Linq;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using BlazorForms.Flows.Definitions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+using BlazorForms.Flows;
+using BlazorForms.Flows.Definitions;
+using BlazorForms.Platform.Cosmos.Configuration;
 using BlazorForms.Shared;
 using BlazorForms.Shared.Extensions;
-using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore;
-using System.Reflection;
-using BlazorForms.Flows;
+using Microsoft.Azure.Documents;
+using Microsoft.Azure.Documents.Client;
+using Microsoft.Azure.Documents.Linq;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace BlazorForms.Platform.ProcessFlow
+namespace BlazorForms.Platform.Cosmos
 {
     public class CosmosFlowRepository: IFlowRepository
     {
         private readonly ILogger _logger;
         private readonly IKnownTypesBinder _knownTypesBinder;
         private readonly ILogStreamer _logStreamer;
+        private readonly CosmosDbOptions _cosmosDbOptions;
 
         public CosmosFlowRepository(
             IKnownTypesBinder knownTypesBinder,
             ILogger<CosmosFlowRepository> logger,
-            IConfiguration configuration,
+            IOptionsSnapshot<CosmosDbOptions> cosmosDbOptions,
             ILogStreamer logStreamer)
         {
+            _cosmosDbOptions = cosmosDbOptions.Value;
             _logger = logger;
             _logStreamer = logStreamer;
             _knownTypesBinder = knownTypesBinder;
 
-            //var cosmos = config.GetSection("CosmosDb");
-            var cosmos = configuration.GetSection("CosmosDb");
-
-            if (cosmos != null)
+            if (string.IsNullOrEmpty(_cosmosDbOptions.Database) 
+                || string.IsNullOrEmpty(_cosmosDbOptions.Uri) 
+                || string.IsNullOrEmpty(_cosmosDbOptions.Key)
+                || string.IsNullOrEmpty(_cosmosDbOptions.EnvironmentTag))
             {
-                _flowDatabase = cosmos["Database"] ?? _flowDatabase;
-                _databaseUri = cosmos["Uri"] ?? _databaseUri;
-                _databaseKey = cosmos["Key"] ?? _databaseKey;
-                _environmentTag = string.IsNullOrEmpty(cosmos["EnvironmentTag"]) ? _environmentTag : cosmos["EnvironmentTag"];
+                throw new ArgumentException("Not all required CosmosDB settings provided.", nameof(cosmosDbOptions));
             }
 
-            GetOrCreateDatabase(_flowDatabase);
+            _cosmosDbOptions.FlowCollection ??= DEFAULT_FLOW_COLLECTION;
+
+            GetOrCreateDatabase(_cosmosDbOptions.Database);
         }
 
         #region Schema
@@ -55,23 +54,9 @@ namespace BlazorForms.Platform.ProcessFlow
         private Database _database;
 
         private const int DEFAULT_THROUGHPUT = 400;
-        // local emulator - default
-        private readonly string _flowDatabase = "platform";
-        private readonly string _databaseUri = "https://localhost:8081";
-        private readonly string _databaseKey = "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
-        private readonly string _environmentTag = Environment.MachineName;
-        // ci
-        //private readonly string _flowDatabase = "platform-ci";
-        //private readonly string _databaseUri = "https://dev-cosmos.documents.azure.com:443/";
-        //private readonly string _databaseKey = "8PvbcQkcHSfvMtNBC8skIfKuIPyE9dsPKr5PjVgbGv46PqilX19gUJzdBOjxYklAjEic6J1EdeUEnHyk9feqQQ==";
-
-        //private readonly string FormFlowCollection = "FormFlowCollection";
-        private readonly string FlowCollection = DEFAULT_FLOW_COLLECTION;
-        private static readonly string DEFAULT_FLOW_COLLECTION = "FlowCollection";
+        
+        private static readonly string DEFAULT_FLOW_COLLECTION = "_cosmosDbOptions.FlowCollection";
         private static string _flowDocType = FlowEntityTypes.Flow.GetDescription();
-
-
-        //private DocumentCollection FormFlow => GetFormFlowCollection();
 
         private void GetOrCreateDatabase(string id)
         {
@@ -83,7 +68,7 @@ namespace BlazorForms.Platform.ProcessFlow
             };
 
             _client = new DocumentClient(
-                new Uri(_databaseUri), _databaseKey, settigns);
+                new Uri(_cosmosDbOptions.Uri), _cosmosDbOptions.Key, settigns);
 
             // Get the database by name, or create a new one if one with the name provided doesn't exist.
             // Create a query object for database, filter by name.
@@ -110,14 +95,14 @@ namespace BlazorForms.Platform.ProcessFlow
         {
             try
             {
-                return _client.ReadDocumentCollectionAsync(UriFactory.CreateDocumentCollectionUri(_database.Id, FlowCollection)).Result;
+                return _client.ReadDocumentCollectionAsync(UriFactory.CreateDocumentCollectionUri(_database.Id, _cosmosDbOptions.FlowCollection)).Result;
             }
             catch (Exception e)
             {
                 _logStreamer.TrackException(e);
                 DocumentCollection myCollection = new DocumentCollection
                 {
-                    Id = FlowCollection
+                    Id = _cosmosDbOptions.FlowCollection
                 };
 
                 // ToDo: why we need that?
@@ -149,7 +134,7 @@ namespace BlazorForms.Platform.ProcessFlow
             };
 
             var client = new DocumentClient(
-                new Uri(_databaseUri), _databaseKey, settigns);
+                new Uri(_cosmosDbOptions.Uri), _cosmosDbOptions.Key, settigns);
 
             // Get the database by name, or create a new one if one with the name provided doesn't exist.
             // Create a query object for database, filter by name.
@@ -179,8 +164,8 @@ namespace BlazorForms.Platform.ProcessFlow
             try
             {
                 flowEntity.TenantId = tenantId ?? flowEntity.TenantId;
-                flowEntity.EnvTag = _environmentTag;
-                var result = await _client.UpsertDocumentAsync(UriFactory.CreateDocumentCollectionUri(_database.Id, FlowCollection), flowEntity);
+                flowEntity.EnvTag = _cosmosDbOptions.EnvironmentTag;
+                var result = await _client.UpsertDocumentAsync(UriFactory.CreateDocumentCollectionUri(_database.Id, _cosmosDbOptions.FlowCollection), flowEntity);
                 return result.Resource.Id;
             }
             catch(Exception exc)
@@ -196,7 +181,7 @@ namespace BlazorForms.Platform.ProcessFlow
             try
             {
                 var query = _client
-                    .CreateDocumentQuery<FlowEntity>(UriFactory.CreateDocumentCollectionUri(_database.Id, FlowCollection), new FeedOptions { EnableCrossPartitionQuery = true })
+                    .CreateDocumentQuery<FlowEntity>(UriFactory.CreateDocumentCollectionUri(_database.Id, _cosmosDbOptions.FlowCollection), new FeedOptions { EnableCrossPartitionQuery = true })
                     .Where(f => f.RefId == refId);
 
                 if (!string.IsNullOrEmpty(tenantId))
@@ -219,8 +204,8 @@ namespace BlazorForms.Platform.ProcessFlow
         public async IAsyncEnumerable<string> GetActiveFlowsIds(string tenantId, string flowName)
         {
             var query = _client
-                .CreateDocumentQuery<FlowEntity>(UriFactory.CreateDocumentCollectionUri(_database.Id, FlowCollection), new FeedOptions { EnableCrossPartitionQuery = true })
-                .Where(f => f.EnvTag == _environmentTag &&
+                .CreateDocumentQuery<FlowEntity>(UriFactory.CreateDocumentCollectionUri(_database.Id, _cosmosDbOptions.FlowCollection), new FeedOptions { EnableCrossPartitionQuery = true })
+                .Where(f => f.EnvTag == _cosmosDbOptions.EnvironmentTag &&
                     f.FlowStatus != FlowStatus.Deleted && f.FlowStatus != FlowStatus.Finished &&
                     f.FlowName == flowName);
 
@@ -242,8 +227,8 @@ namespace BlazorForms.Platform.ProcessFlow
         public async IAsyncEnumerable<string> GetAllWaitingFlowsIds(string tenantId)
         {
             var query = _client
-                .CreateDocumentQuery<FlowEntity>(UriFactory.CreateDocumentCollectionUri(_database.Id, FlowCollection), new FeedOptions { EnableCrossPartitionQuery = true })
-                .Where(f => f.EnvTag == _environmentTag && 
+                .CreateDocumentQuery<FlowEntity>(UriFactory.CreateDocumentCollectionUri(_database.Id, _cosmosDbOptions.FlowCollection), new FeedOptions { EnableCrossPartitionQuery = true })
+                .Where(f => f.EnvTag == _cosmosDbOptions.EnvironmentTag && 
                     f.Context.ExecutionResult.IsWaitTask == true && f.FlowStatus != FlowStatus.Deleted 
                     && f.FlowStatus != FlowStatus.Finished);
 
@@ -297,9 +282,9 @@ namespace BlazorForms.Platform.ProcessFlow
                 flowModelsQueryOptions.FlowStatuses = new List<FlowStatus> { FlowStatus.Created, FlowStatus.Started, FlowStatus.Waiting, FlowStatus.Failed };
             }
 
-            var q = _client.CreateDocumentQuery<FlowEntity>(UriFactory.CreateDocumentCollectionUri(_database.Id, FlowCollection), new FeedOptions { EnableCrossPartitionQuery = true });
+            var q = _client.CreateDocumentQuery<FlowEntity>(UriFactory.CreateDocumentCollectionUri(_database.Id, _cosmosDbOptions.FlowCollection), new FeedOptions { EnableCrossPartitionQuery = true });
             var query = q
-                    .Where(f => f.EnvTag == _environmentTag)
+                    .Where(f => f.EnvTag == _cosmosDbOptions.EnvironmentTag)
                     .Where(f => f.FlowStatus != FlowStatus.Deleted && flowModelsQueryOptions.FlowStatuses.Contains(f.FlowStatus))
                     .Where(f => f.Context != null && f.Context.Model != null);
 
@@ -361,9 +346,9 @@ namespace BlazorForms.Platform.ProcessFlow
                 flowModelsQueryOptions.FlowStatuses = new List<FlowStatus> { FlowStatus.Created, FlowStatus.Started, FlowStatus.Waiting, FlowStatus.Failed };
             }
 
-            var q = _client.CreateDocumentQuery<FlowEntity>(UriFactory.CreateDocumentCollectionUri(_database.Id, FlowCollection), new FeedOptions { EnableCrossPartitionQuery = true });
+            var q = _client.CreateDocumentQuery<FlowEntity>(UriFactory.CreateDocumentCollectionUri(_database.Id, _cosmosDbOptions.FlowCollection), new FeedOptions { EnableCrossPartitionQuery = true });
             var query = q
-                    .Where(f => f.EnvTag == _environmentTag)
+                    .Where(f => f.EnvTag == _cosmosDbOptions.EnvironmentTag)
                     .Where(f => f.FlowStatus != FlowStatus.Deleted && flowModelsQueryOptions.FlowStatuses.Contains(f.FlowStatus))
                     .Where(f => f.Context != null && f.Context.Model != null);
 
