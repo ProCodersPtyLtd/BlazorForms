@@ -28,7 +28,7 @@ namespace BlazorForms.Platform.Cosmos
         public CosmosFlowRepository(
             IKnownTypesBinder knownTypesBinder,
             ILogger<CosmosFlowRepository> logger,
-            IOptionsSnapshot<CosmosDbOptions> cosmosDbOptions,
+            IOptions<CosmosDbOptions> cosmosDbOptions,
             ILogStreamer logStreamer)
         {
             _cosmosDbOptions = cosmosDbOptions.Value;
