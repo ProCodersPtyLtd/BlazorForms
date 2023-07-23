@@ -177,21 +177,32 @@ namespace BlazorForms.Platform.Cosmos
 
         public async Task<FlowEntity> GetFlowByRef(string tenantId, string refId)
         {
+            FlowEntity result = null;
             var watch = System.Diagnostics.Stopwatch.StartNew();
             try
             {
                 var query = _client
-                    .CreateDocumentQuery<FlowEntity>(UriFactory.CreateDocumentCollectionUri(_database.Id, _cosmosDbOptions.FlowCollection), new FeedOptions { EnableCrossPartitionQuery = true })
+                    .CreateDocumentQuery<FlowEntity>(
+                        UriFactory.CreateDocumentCollectionUri(_database.Id, _cosmosDbOptions.FlowCollection),
+                        new FeedOptions { EnableCrossPartitionQuery = true })
                     .Where(f => f.RefId == refId);
 
                 if (!string.IsNullOrEmpty(tenantId))
                 {
                     query = query.Where(f => f.TenantId == tenantId);
                 }
+                
+                query = query.Take(1);
 
-                using var request = query.Take(1).AsDocumentQuery();
-
-                return (await request.ExecuteNextAsync()).FirstOrDefault();
+                using var documentQuery = query.AsDocumentQuery();
+                while (documentQuery.HasMoreResults)
+                {
+                    var dbResults = await documentQuery.ExecuteNextAsync<FlowEntity>().ConfigureAwait(false);
+                    foreach (var entity in dbResults)
+                    {
+                        result = entity;
+                    }
+                }
             }
             finally
             {
@@ -199,6 +210,8 @@ namespace BlazorForms.Platform.Cosmos
                 var elapsedMs = watch.ElapsedMilliseconds;
                 Console.WriteLine($"[GetFlowByFlowRunId] Elapsed {elapsedMs} ms");
             }
+
+            return result;
         }
 
         public async IAsyncEnumerable<string> GetActiveFlowsIds(string tenantId, string flowName)

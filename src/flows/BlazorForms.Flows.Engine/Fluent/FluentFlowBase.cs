@@ -137,7 +137,7 @@ namespace BlazorForms.Flows
             await _executionEngine.CallViewDataCallback(formType, callback.Method.Name);
         }
 
-        // ToDo: all these NotImplementedException's break Leskov SOLID principle
+        // ToDo: all these NotImplementedException's break Liskov SOLID principle
         public Task ExecuteFlow()
         {
             throw new NotImplementedException();
@@ -165,7 +165,7 @@ namespace BlazorForms.Flows
 
         public IFlowContext GetCurrentContext()
         {
-            throw new NotImplementedException();
+            return _executionEngine.CurrentContext;
         }
 
         private class StackType
