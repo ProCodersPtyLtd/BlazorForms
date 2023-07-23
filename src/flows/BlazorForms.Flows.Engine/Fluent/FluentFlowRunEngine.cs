@@ -1,13 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using BlazorForms.Flows.Definitions;
-using BlazorForms.Flows.Engine;
 using BlazorForms.Shared;
-using BlazorForms.Shared.Exceptions;
 using BlazorForms.Shared.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace BlazorForms.Flows
@@ -176,163 +173,170 @@ namespace BlazorForms.Flows
             flow.SetParams(context.Params);
             flow.SetModel(context.Model);
 
-            await Work();
+            await RunFlowTasks(index, flow, context, noStorage);
             return context;
-
-            async Task ExecuteTask(TaskDef task)
+        }
+        
+        private static async Task ExecuteTask(TaskDef task, IFlow flow, IFlowContext context)
+        {
+            try
             {
-                try
+                if (task.Action != null)
                 {
-                    if (task.Action != null)
-                    {
-                        await task.Action();
-                    }
-                    else if (task.NonAsyncAction != null)
-                    {
-                        task.NonAsyncAction();
-                    }
+                    await task.Action();
+                }
+                else if (task.NonAsyncAction != null)
+                {
+                    task.NonAsyncAction();
+                }
 
-                    context.Model = flow.GetModel();
-                    context.ExecutionResult.ResultState = TaskExecutionResultStateEnum.Success;
-                    context.ExecutionResult.FlowState = TaskExecutionFlowStateEnum.Continue;
-                }
-                catch (Exception exc)
-                {
-                    context.ExecutionResult.ResultState = TaskExecutionResultStateEnum.Fail;
-                    context.ExecutionResult.ExceptionMessage = exc.Message;
-                    context.ExecutionResult.ExceptionStackTrace = exc.StackTrace;
-                    context.ExecutionResult.ExceptionType = exc.GetType().FullName;
-                    context.ExecutionResult.ExecutionException = exc;
-                }
+                context.Model = flow.GetModel();
+                context.ExecutionResult.ResultState = TaskExecutionResultStateEnum.Success;
+                context.ExecutionResult.FlowState = TaskExecutionFlowStateEnum.Continue;
             }
-
-            async Task Work()
+            catch (Exception exc)
             {
-                int i = index;
-                int _currentIteration = 0;
+                context.ExecutionResult.ResultState = TaskExecutionResultStateEnum.Fail;
+                context.ExecutionResult.ExceptionMessage = exc.Message;
+                context.ExecutionResult.ExceptionStackTrace = exc.StackTrace;
+                context.ExecutionResult.ExceptionType = exc.GetType().FullName;
+                context.ExecutionResult.ExecutionException = exc;
+            }
+        }
 
-                while (i < flow.Tasks.Count)
+        private async Task RunFlowTasks(int index, IFluentFlow flow, IFlowContext context, bool noStorage)
+        {
+            var i = index;
+            var currentIteration = 0;
+
+            while (i < flow.Tasks.Count)
+            {
+                if (context.ExecutionResult.ResultState == TaskExecutionResultStateEnum.Fail ||
+                    context.ExecutionResult.FlowState == TaskExecutionFlowStateEnum.Stop ||
+                    context.ExecutionResult.FlowState == TaskExecutionFlowStateEnum.Finished)
                 {
-                    if(context.ExecutionResult.ResultState == TaskExecutionResultStateEnum.Fail ||
-                       context.ExecutionResult.FlowState == TaskExecutionFlowStateEnum.Stop ||
-                       context.ExecutionResult.FlowState == TaskExecutionFlowStateEnum.Finished )
+                    // save context and stop if flow settings NoStoreTillStop
+                    if (flow.Settings.StoreModel == FlowExecutionStoreModel.NoStoreTillStop &&
+                        context.ExecutionResult.FlowState == TaskExecutionFlowStateEnum.Stop)
                     {
-                        // save context and stop if flow settings NoStoreTillStop
-                        if (flow.Settings.StoreModel == FlowExecutionStoreModel.NoStoreTillStop && context.ExecutionResult.FlowState == TaskExecutionFlowStateEnum.Stop)
+                        await _storage.SaveProcessExecutionContext(context, context.ExecutionResult, true);
+                    }
+                    else if (!noStorage)
+                    {
+                        await _storage.SaveProcessExecutionContext(context, context.ExecutionResult);
+                    }
+
+                    return;
+                }
+
+                currentIteration++;
+
+                if (currentIteration > MAX_LOOP_COUNT)
+                {
+                    throw new FlowInfiniteExecutionException();
+                }
+
+                var task = flow.Tasks[i];
+                context.CurrentTask = task.Name;
+                context.CurrentTaskLine = i;
+
+                switch (task.Type)
+                {
+                    case TaskDefTypes.Goto:
+                        i = task.GotoIndex;
+                        continue;
+
+                    case TaskDefTypes.GotoIf:
+                        if (task.Condition())
                         {
-                            await _storage.SaveProcessExecutionContext(context, context.ExecutionResult, true);
+                            i = task.GotoIndex;
                         }
-                        else if (!noStorage)
+
+                        i++;
+                        continue;
+
+                    case TaskDefTypes.Label:
+                        i++;
+                        continue;
+
+                    case TaskDefTypes.Begin:
+                    case TaskDefTypes.Task:
+                        await ExecuteTask(task, flow, context);
+                        i++;
+                        continue;
+
+                    case TaskDefTypes.Wait:
+
+                        if (task.Condition())
                         {
-                            await _storage.SaveProcessExecutionContext(context, context.ExecutionResult);
+                            // stop execution and wait until the condition is met
+                            context.ExecutionResult.ResultState = TaskExecutionResultStateEnum.Success;
+                            context.ExecutionResult.FlowState = TaskExecutionFlowStateEnum.Stop;
+                            context.ExecutionResult.IsWaitTask = true;
+                        }
+                        else
+                        {
+                            context.ExecutionResult.IsWaitTask = false;
+                            i++;
                         }
 
-                        return;
-                    }
+                        continue;
 
-                    _currentIteration++;
+                    case TaskDefTypes.Form:
+                        if (task.Action is not null)
+                        {
+                            await ExecuteTask(task, flow, context);
+                        }
 
-                    if(_currentIteration > MAX_LOOP_COUNT)
-                    {
-                        throw new FlowInfiniteExecutionException();
-                    }
+                        if (context.ExecutionResult.FormState != FormTaskStateEnum.Submitted &&
+                            context.ExecutionResult.FormState != FormTaskStateEnum.Rejected)
+                        {
+                            // stop execution and wait for Form submit
+                            context.ExecutionResult.ResultState = TaskExecutionResultStateEnum.Success;
+                            context.ExecutionResult.FlowState = TaskExecutionFlowStateEnum.Stop;
+                            context.ExecutionResult.FormId = task.FormType?.FullName ?? task.FormTypeName;
+                            context.ExecutionResult.IsFormTask = true;
+                            context.ExecutionResult.CallbackTaskId = task.CallbackTask;
+                            context.ExecutionResult.PreloadTableData = task.PreloadTableData;
+                        }
+                        else
+                        {
+                            // form submitted - goto next task
+                            context.ExecutionResult.ResultState = TaskExecutionResultStateEnum.Success;
+                            context.ExecutionResult.FlowState = TaskExecutionFlowStateEnum.Continue;
+                            context.ExecutionResult.IsFormTask = false;
+                            context.ExecutionResult.FormState = FormTaskStateEnum.Initialized;
+                            i++;
+                        }
 
-                    var task = flow.Tasks[i];
-                    context.CurrentTask = task.Name;
-                    context.CurrentTaskLine = i;
+                        continue;
 
-                    switch (task.Type)
-                    {
-                        case TaskDefTypes.Goto:
+                    case TaskDefTypes.End:
+                        await ExecuteTask(task, flow, context);
+                        context.ExecutionResult.FlowState = TaskExecutionFlowStateEnum.Finished;
+                        continue;
+
+                    case TaskDefTypes.If:
+                        if (task.Condition())
+                        {
+                            i++;
+                        }
+                        else
+                        {
+                            // goto Else/EndIf
                             i = task.GotoIndex;
-                            continue;
+                        }
 
-                        case TaskDefTypes.GotoIf:
-                            if (task.Condition())
-                            {
-                                i = task.GotoIndex;
-                            }
+                        continue;
 
-                            i++;
-                            continue;
+                    case TaskDefTypes.Else:
+                        // meet this operator only after passing all tasks inside if { ... } body, so use goto to EndIf
+                        i = task.GotoIndex;
+                        continue;
 
-                        case TaskDefTypes.Label:
-                            i++;
-                            continue;
-
-                        case TaskDefTypes.Begin:
-                        case TaskDefTypes.Task:
-                            await ExecuteTask(task);
-                            i++;
-                            continue;
-
-                        case TaskDefTypes.Wait:
-
-                            if (task.Condition())
-                            {
-                                // stop execution and wait until the condition is met
-                                context.ExecutionResult.ResultState = TaskExecutionResultStateEnum.Success;
-                                context.ExecutionResult.FlowState = TaskExecutionFlowStateEnum.Stop;
-                                context.ExecutionResult.IsWaitTask = true;
-                            }
-                            else
-                            {
-                                context.ExecutionResult.IsWaitTask = false;
-                                i++;
-                            }
-
-                            continue;
-
-                        case TaskDefTypes.Form:
-                            if (context.ExecutionResult.FormState != FormTaskStateEnum.Submitted && context.ExecutionResult.FormState != FormTaskStateEnum.Rejected)
-                            {
-                                // stop execution and wait for Form submit
-                                context.ExecutionResult.ResultState = TaskExecutionResultStateEnum.Success;
-                                context.ExecutionResult.FlowState = TaskExecutionFlowStateEnum.Stop;
-                                context.ExecutionResult.FormId = task.FormType?.FullName ?? task.FormTypeName;
-                                context.ExecutionResult.IsFormTask = true;
-                                context.ExecutionResult.CallbackTaskId = task.CallbackTask;
-                                context.ExecutionResult.PreloadTableData = task.PreloadTableData;
-                            }
-                            else
-                            {
-                                // form submitted - goto next task
-                                context.ExecutionResult.ResultState = TaskExecutionResultStateEnum.Success;
-                                context.ExecutionResult.FlowState = TaskExecutionFlowStateEnum.Continue;
-                                context.ExecutionResult.IsFormTask = false;
-                                context.ExecutionResult.FormState = FormTaskStateEnum.Initialized;
-                                i++;
-                            }
-
-                            continue;
-
-                        case TaskDefTypes.End:
-                            await ExecuteTask(task);
-                            context.ExecutionResult.FlowState = TaskExecutionFlowStateEnum.Finished;
-                            continue;
-
-                        case TaskDefTypes.If:
-                            if (task.Condition())
-                            {
-                                i++;
-                            }
-                            else
-                            {
-                                // goto Else/EndIf
-                                i = task.GotoIndex;
-                            }
-
-                            continue;
-
-                        case TaskDefTypes.Else:
-                            // meet this operator only after passing all tasks inside if { ... } body, so use goto to EndIf
-                            i = task.GotoIndex;
-                            continue;
-
-                        case TaskDefTypes.EndIf:
-                            i++;
-                            continue;
-                    }
+                    case TaskDefTypes.EndIf:
+                        i++;
+                        continue;
                 }
             }
         }

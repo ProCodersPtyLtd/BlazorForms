@@ -15,6 +15,8 @@ namespace BlazorForms.Flows
         public static F End<F>(this F flow) where F : class, IFluentFlow { RegisterFinish(flow.Tasks, null); return flow; }
         public static F Next<F>(this F flow, Func<Task> action) where F : class, IFluentFlow { RegisterTask(flow.Tasks, action.Method.Name, action); return flow; }
         public static F Next<F>(this F flow, Action action) where F : class, IFluentFlow { RegisterTask(flow.Tasks, action.Method.Name, action); return flow; }
+        public static F NextForm<F>(this F flow, Type formType, Func<Task> action) where F : class, IFluentFlow { RegisterFormTask(flow.Tasks, formType.Name, formType, action); return flow; }
+        
         public static F NextForm<F>(this F flow, Type formType) where F : class, IFluentFlow { RegisterFormTask(flow.Tasks, formType.Name, formType); return flow; }
         public static F NextForm<F>(this F flow, string formName) where F : class, IFluentFlow { RegisterFormTask(flow.Tasks, formName, formName); return flow; }
         
@@ -99,6 +101,11 @@ namespace BlazorForms.Flows
         private static void RegisterTask(List<TaskDef> tasks, string name, Action action)
         {
             tasks.Add(new TaskDef { NonAsyncAction = action, Name = name, Type = TaskDefTypes.Task });
+        }
+        
+        private static void RegisterFormTask(List<TaskDef> tasks, string name, Type formType, Func<Task> action)
+        {
+            tasks.Add(new TaskDef { Name = name, Type = TaskDefTypes.Form, FormType = formType, Action = action });
         }
 
         private static void RegisterLabel(List<TaskDef> tasks, string name)
