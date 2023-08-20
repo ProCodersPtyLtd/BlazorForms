@@ -1,7 +1,7 @@
 ﻿using BlazorForms.Flows;
 using BlazorForms.Flows.Definitions;
+using BlazorForms.Flows.Definitions.Abstractions;
 using BlazorForms.Forms;
-using BlazorFormsDemoFlows;
 
 namespace MudBlazorUIDemo.Flows
 {
@@ -41,7 +41,7 @@ namespace MudBlazorUIDemo.Flows
         { }
     }
 
-    public class FormSampleEdit : FormEditBase<SampleModel>
+    public class FormSampleEdit : FormEditBase<SampleModel>, IFormRulesCollection<SampleModel>
     {
         protected override void Define(FormEntityTypeBuilder<SampleModel> f)
         {
@@ -65,6 +65,18 @@ namespace MudBlazorUIDemo.Flows
 
             f.Button(ButtonActionTypes.Cancel, "Cancel");
             f.Button(ButtonActionTypes.Submit, "Save");
+        }
+
+        public IEnumerable<Func<IFlowModel, Task<bool>>> Rules => new[]
+        {
+            Rule1
+        };
+
+        private async Task<bool> Rule1(IFlowModel flowModel)
+        {
+            // update the model and return true if re-iteration is requested
+            var model = flowModel as SampleModel;
+            return false;
         }
     }
 

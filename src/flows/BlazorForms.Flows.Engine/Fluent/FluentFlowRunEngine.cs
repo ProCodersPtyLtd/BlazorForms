@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BlazorForms.Flows.Definitions.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BlazorForms.Flows
 {
@@ -283,6 +285,32 @@ namespace BlazorForms.Flows
                         continue;
 
                     case TaskDefTypes.Form:
+                        if (task.FormType != null)
+                        {
+                            // get an instance of the FormRulesCollection generic for this model, it must be registered in DI
+                            var formRulesCollectionServices = _serviceProvider.GetServices(task.FormType);
+                            var formRulesCollectionType = typeof(IFormRulesCollection<>).MakeGenericType(context.Model.GetType());
+                            var formRulesCollection = formRulesCollectionServices
+                                .FirstOrDefault(s => s?.GetType().GetInterfaces().Any(type => type == formRulesCollectionType) ?? false);
+                            
+                            var propertyInfo = formRulesCollectionType.GetProperty("Rules");
+
+                            // Extract the rules from the property
+                            var rulesObj = propertyInfo?.GetValue(formRulesCollection);
+                            if (rulesObj is IEnumerable<Func<IFlowModel, Task<bool>>> rules)
+                            {
+                                var rulesArray = rules as Func<IFlowModel, Task<bool>>[] ?? rules.ToArray();
+                                // Run the rules
+                                for (var maxLoops = MAX_LOOP_COUNT; maxLoops > 0; maxLoops--)
+                                {
+                                    if (await RunFormRules(context, rulesArray))
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        
                         if (task.Action is not null)
                         {
                             await ExecuteTask(task, flow, context);
@@ -339,6 +367,38 @@ namespace BlazorForms.Flows
                         continue;
                 }
             }
+        }
+
+        private static async Task<bool> RunFormRules(IFlowContext context, IEnumerable<Func<IFlowModel, Task<bool>>> rules)
+        {
+            foreach (var ruleFunc in rules)
+            {
+                if (ruleFunc == null)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    if (await ruleFunc(context.Model))
+                    {
+                        // return false to indicate that another iteration should be performed
+                        return false;
+                    }
+                }
+                catch (Exception exc)
+                {
+                    context.ExecutionResult.ResultState = TaskExecutionResultStateEnum.Fail;
+                    context.ExecutionResult.ExceptionMessage = $"Rule {ruleFunc.Method.Name} execution failed: {exc.Message}";
+                    context.ExecutionResult.ExceptionStackTrace = exc.StackTrace;
+                    context.ExecutionResult.ExceptionType = exc.GetType().FullName;
+                    context.ExecutionResult.ExecutionException = exc;
+                    break;
+                }
+            }
+
+            // return true to indicate that no more iterations are needed
+            return true;
         }
 
         public async Task<UserViewModelPageResult> ExecuteFlowTask(string flowType, IFlowContext context, string userViewCallbackTaskName, QueryOptions queryOptions, dynamic dynamicParams = null)
