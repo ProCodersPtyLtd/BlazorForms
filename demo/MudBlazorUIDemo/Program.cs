@@ -19,6 +19,7 @@ services.AddBlazorFormsServerModelAssemblyTypes(typeof(ArtelProjectSettingsModel
 services.AddBlazorFormsServerModelAssemblyTypes(typeof(SampleListShortFlow));
 services.AddBlazorFormsServerModelAssemblyTypes(typeof(SampleListLargeFlow));
 services.AddCustomerDemoServices(builder.Configuration);
+services.AddTransient<FormSampleEdit>();
 
 var app = builder.Build();
 
