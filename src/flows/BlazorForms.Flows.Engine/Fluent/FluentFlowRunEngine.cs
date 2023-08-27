@@ -6,7 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BlazorForms.Flows.Definitions.Abstractions;
+using BlazorForms.Forms;
+using BlazorForms.Forms.Definitions.FluentForms.Rules;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BlazorForms.Flows
@@ -288,25 +289,21 @@ namespace BlazorForms.Flows
                         if (task.FormType != null)
                         {
                             // get an instance of the FormRulesCollection generic for this model, it must be registered in DI
-                            var formRulesCollectionServices = _serviceProvider.GetServices(task.FormType);
-                            var formRulesCollectionType = typeof(IFormRulesCollection<>).MakeGenericType(context.Model.GetType());
-                            var formRulesCollection = formRulesCollectionServices
-                                .FirstOrDefault(s => s?.GetType().GetInterfaces().Any(type => type == formRulesCollectionType) ?? false);
+                            var formInstance = _serviceProvider.GetService(task.FormType);
+                            var formInstanceType = formInstance?.GetType();
+                            var methodInfo = formInstanceType?.GetMethod("RootRule");
                             
-                            var propertyInfo = formRulesCollectionType.GetProperty("Rules");
+                            var formRuleInstance = methodInfo?.Invoke(formInstance, null);
+                                
+                            var formRuleInstanceType = formRuleInstance?.GetType();
+                            var formRuleMethodInfo = formRuleInstanceType?.GetMethod("Handle");
 
-                            // Extract the rules from the property
-                            var rulesObj = propertyInfo?.GetValue(formRulesCollection);
-                            if (rulesObj is IEnumerable<Func<IFlowModel, Task<bool>>> rules)
+                            // Run the rules
+                            for (var maxLoops = MAX_LOOP_COUNT; maxLoops > 0; maxLoops--)
                             {
-                                var rulesArray = rules as Func<IFlowModel, Task<bool>>[] ?? rules.ToArray();
-                                // Run the rules
-                                for (var maxLoops = MAX_LOOP_COUNT; maxLoops > 0; maxLoops--)
+                                if (formRuleMethodInfo?.Invoke(formRuleInstance, new object[]{ context.Model }) is not Task<bool> resultTask || await resultTask)
                                 {
-                                    if (await RunFormRules(context, rulesArray))
-                                    {
-                                        break;
-                                    }
+                                    break;
                                 }
                             }
                         }

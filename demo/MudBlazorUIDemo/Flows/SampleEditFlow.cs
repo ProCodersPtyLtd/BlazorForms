@@ -1,7 +1,7 @@
 ﻿using BlazorForms.Flows;
 using BlazorForms.Flows.Definitions;
-using BlazorForms.Flows.Definitions.Abstractions;
 using BlazorForms.Forms;
+using BlazorForms.Forms.Definitions.FluentForms.Rules;
 
 namespace MudBlazorUIDemo.Flows
 {
@@ -41,8 +41,9 @@ namespace MudBlazorUIDemo.Flows
         { }
     }
 
-    public class FormSampleEdit : FormEditBase<SampleModel>, IFormRulesCollection<SampleModel>
+    public class FormSampleEdit : FormEditBase<SampleModel>
     {
+        
         protected override void Define(FormEntityTypeBuilder<SampleModel> f)
         {
             f.DisplayName = "Sample layout form";
@@ -67,16 +68,18 @@ namespace MudBlazorUIDemo.Flows
             f.Button(ButtonActionTypes.Submit, "Save");
         }
 
-        public IEnumerable<Func<IFlowModel, Task<bool>>> Rules => new[]
+        public override IFormRule<SampleModel> RootRule()
         {
-            Rule1
-        };
-
-        private async Task<bool> Rule1(IFlowModel flowModel)
+            return new SampleModelRulePackOne();
+        }
+    }
+    
+    public class SampleModelRulePackOne : FormRuleBase<SampleModel>
+    {
+        public override async Task<bool> Handle(SampleModel? model)
         {
-            // update the model and return true if re-iteration is requested
-            var model = flowModel as SampleModel;
-            return false;
+            var doSomething = model?.AllPersons.Average(p => p.Id);
+            return await base.Handle(model);
         }
     }
 

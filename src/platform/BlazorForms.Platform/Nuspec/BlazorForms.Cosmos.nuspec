@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>BlazorForms.Cosmos</id>
-    <version>1.13.3</version>
+    <version>1.13.6</version>
     <authors>Pro Coders</authors>
     <owners>Pro Coders</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -15,6 +15,7 @@
 			<dependency id="Microsoft.Azure.DocumentDB.Core" version="2.18.0" />
 			<dependency id="Microsoft.EntityFrameworkCore" version="6.0.9" />
 			<dependency id="Microsoft.Extensions.Configuration" version="6.0.1" />
+      <dependency id="BlazorForms" version="1.13.6" />
 		</group>
     </dependencies>
     <contentFiles>
@@ -27,7 +28,5 @@
   </metadata>
   <files>
 	  <file src="..\..\..\platform\BlazorForms.Platform.Cosmos\bin\Release\net6.0\BlazorForms.Platform.Cosmos.dll" target="lib\net6.0\BlazorForms.Platform.Cosmos.dll" />
-	  <file src="..\..\..\platform\BlazorForms.Platform.Cosmos\bin\Release\net6.0\BlazorForms.Platform.Definitions.dll" target="lib\net6.0\BlazorForms.Platform.Definitions.dll" />
-	  <file src="..\..\..\platform\BlazorForms.Platform.Cosmos\bin\Release\net6.0\BlazorForms.Flows.Definitions.dll" target="lib\net6.0\BlazorForms.Flows.Definitions.dll" />
   </files>
 </package>

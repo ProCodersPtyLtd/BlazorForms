@@ -3,6 +3,7 @@ using BlazorForms.Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using BlazorForms.Forms.Definitions.FluentForms.Rules;
 
 namespace BlazorForms.Forms
 {
@@ -83,6 +84,11 @@ namespace BlazorForms.Forms
         }
 
         protected abstract void Define(FormEntityTypeBuilder<TModel> builder);
+
+        public virtual IFormRule<TModel> RootRule()
+        {
+            return null;
+        }
 
         private string FindDefaultFormat(Type dataType)
         {

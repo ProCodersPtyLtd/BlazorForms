@@ -1,5 +1,0 @@
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<PropertyGroup>
-		<BlazorFormsExampleDirectory>$(MSBuildThisFileDirectory)..\content\any\any\BlazorForms.Config.Link\</BlazorFormsExampleDirectory>
-	</PropertyGroup>
-</Project>

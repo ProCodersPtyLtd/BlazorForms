@@ -1,17 +1,17 @@
-using BlazorForms.Flows.Definitions;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using BlazorForms.Flows.Definitions;
 
-namespace BlazorForms.Flows.Engine
+namespace BlazorForms.Flows.Engine.Persistence
 {
     public class FlowRunStorage : IFlowRunStorage
     {
-        private readonly IFlowRepository _repo;
+        private readonly ICachedFlowRepository _repo;
         private readonly IObjectCloner _cloner;
         private readonly ITenantedScope _tenantedScope;
 
-        public FlowRunStorage(IFlowRepository repo, IObjectCloner cloner, ITenantedScope tenantedScope)
+        public FlowRunStorage(ICachedFlowRepository repo, IObjectCloner cloner, ITenantedScope tenantedScope)
         {
             _repo = repo;
             _cloner = cloner;
@@ -44,15 +44,17 @@ namespace BlazorForms.Flows.Engine
                 RefId = context.RefId,
                 FlowName = context.FlowName,
                 FlowTags = context.FlowTags,
+                Context = context as FlowContext
             };
 
-            entity.Context = context as FlowContext;
-
-            if (noStorage == false && (flow.Settings.StoreModel == FlowExecutionStoreModel.Full || flow.Settings.StoreModel == FlowExecutionStoreModel.FullNoHistory))
+            if (noStorage || (flow.Settings.StoreModel != FlowExecutionStoreModel.Full &&
+                              flow.Settings.StoreModel != FlowExecutionStoreModel.FullNoHistory))
             {
-                var tId = await _tenantedScope.GetTenantId();
-                context.Id = await _repo.UpsertFlow(tId, entity);
+                return context;
             }
+
+            var tId = await _tenantedScope.GetTenantId();
+            context.Id = await _repo.UpsertFlow(tId, entity);
 
             return context;
         }
