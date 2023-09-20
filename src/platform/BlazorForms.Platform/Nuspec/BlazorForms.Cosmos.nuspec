@@ -12,7 +12,7 @@
     <tags>blazor flow form rule framework cosmos</tags>
     <dependencies>
 		<group targetFramework="net6.0">
-			<dependency id="Microsoft.Azure.DocumentDB.Core" version="2.18.0" />
+			<dependency id="Microsoft.Azure.Cosmos" version="3.35.4" />
 			<dependency id="Microsoft.EntityFrameworkCore" version="6.0.9" />
 			<dependency id="Microsoft.Extensions.Configuration" version="6.0.1" />
       <dependency id="BlazorForms" version="1.13.6" />

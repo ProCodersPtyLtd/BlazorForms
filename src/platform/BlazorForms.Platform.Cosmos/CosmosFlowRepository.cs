@@ -1,16 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using BlazorForms.Flows;
 using BlazorForms.Flows.Definitions;
 using BlazorForms.Platform.Cosmos.Configuration;
 using BlazorForms.Shared;
 using BlazorForms.Shared.Extensions;
-using Microsoft.Azure.Documents;
-using Microsoft.Azure.Documents.Client;
-using Microsoft.Azure.Documents.Linq;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -18,145 +18,75 @@ using Newtonsoft.Json.Linq;
 
 namespace BlazorForms.Platform.Cosmos
 {
-    public class CosmosFlowRepository: IFlowRepository
+    public class CosmosFlowRepository : IFlowRepository
     {
-        private readonly ILogger _logger;
         private readonly IKnownTypesBinder _knownTypesBinder;
+        private readonly BfCosmosSerializer _serializer;
+        private readonly ILogger _logger;
         private readonly ILogStreamer _logStreamer;
         private readonly CosmosDbOptions _cosmosDbOptions;
 
         public CosmosFlowRepository(
             IKnownTypesBinder knownTypesBinder,
+            BfCosmosSerializer serializer,
             ILogger<CosmosFlowRepository> logger,
             IOptions<CosmosDbOptions> cosmosDbOptions,
             ILogStreamer logStreamer)
         {
             _cosmosDbOptions = cosmosDbOptions.Value;
+            _knownTypesBinder = knownTypesBinder;
+            _serializer = serializer;
             _logger = logger;
             _logStreamer = logStreamer;
-            _knownTypesBinder = knownTypesBinder;
 
-            if (string.IsNullOrEmpty(_cosmosDbOptions.Database) 
-                || string.IsNullOrEmpty(_cosmosDbOptions.Uri) 
+            if (string.IsNullOrEmpty(_cosmosDbOptions.Database)
+                || string.IsNullOrEmpty(_cosmosDbOptions.Uri)
                 || string.IsNullOrEmpty(_cosmosDbOptions.Key)
                 || string.IsNullOrEmpty(_cosmosDbOptions.EnvironmentTag))
             {
                 throw new ArgumentException("Not all required CosmosDB settings provided.", nameof(cosmosDbOptions));
             }
 
-            _cosmosDbOptions.FlowCollection ??= DEFAULT_FLOW_COLLECTION;
+            _cosmosDbOptions.FlowCollection ??= DefaultFlowCollection;
 
-            GetOrCreateDatabase(_cosmosDbOptions.Database);
+            GetOrCreateDatabase(_cosmosDbOptions.Database)
+                .ConfigureAwait(true)
+                .GetAwaiter()
+                .GetResult();
         }
 
         #region Schema
-        private DocumentClient _client; //=> _clientLazy.Value.Result;
+
+        private CosmosClient _client; //=> _clientLazy.Value.Result;
         private Database _database;
 
-        private const int DEFAULT_THROUGHPUT = 400;
-        
-        private static readonly string DEFAULT_FLOW_COLLECTION = "_cosmosDbOptions.FlowCollection";
-        private static string _flowDocType = FlowEntityTypes.Flow.GetDescription();
+        private const int DefaultThroughput = 400;
+        private const string DefaultFlowCollection = "_cosmosDbOptions.FlowCollection";
 
-        private void GetOrCreateDatabase(string id)
+        private Container _container;
+
+        private async Task GetOrCreateDatabase(string id)
         {
-            var settigns = new JsonSerializerSettings
+            _client = new CosmosClient(_cosmosDbOptions.Uri, _cosmosDbOptions.Key, new CosmosClientOptions
             {
-                TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
-                TypeNameHandling = TypeNameHandling.Objects,
-                SerializationBinder = _knownTypesBinder
-            };
-
-            _client = new DocumentClient(
-                new Uri(_cosmosDbOptions.Uri), _cosmosDbOptions.Key, settigns);
+                Serializer = _serializer
+            });
 
             // Get the database by name, or create a new one if one with the name provided doesn't exist.
             // Create a query object for database, filter by name.
-            var feed = new FeedOptions { };
-            IEnumerable<Database> query = from db in _client.CreateDatabaseQuery()
-                                          where db.Id == id
-                                          select db;
+            _database = await _client.CreateDatabaseIfNotExistsAsync(id, 
+                ThroughputProperties.CreateAutoscaleThroughput(DefaultThroughput));
 
-            // Run the query and get the database (there should be only one) or null if the query didn't return anything.
-            // Note: this will run synchronously. If async exectution is preferred, use IDocumentServiceQuery<T>.ExecuteNextAsync.
-            _database = query.FirstOrDefault();
-
-            if (_database == null)
+            _container = await _database.CreateContainerIfNotExistsAsync(new ContainerProperties
             {
-                // Create the database.
-                var options = new RequestOptions { OfferThroughput = DEFAULT_THROUGHPUT };
-                _database = _client.CreateDatabaseAsync(new Database { Id = id }, options).Result;
-            }
-
-            GetFlowCollectionNonAsync();
-        }
-
-        private DocumentCollection GetFlowCollectionNonAsync()
-        {
-            try
-            {
-                return _client.ReadDocumentCollectionAsync(UriFactory.CreateDocumentCollectionUri(_database.Id, _cosmosDbOptions.FlowCollection)).Result;
-            }
-            catch (Exception e)
-            {
-                _logStreamer.TrackException(e);
-                DocumentCollection myCollection = new DocumentCollection
+                Id = _cosmosDbOptions.FlowCollection,
+                PartitionKeyPath = "/FlowName",
+                IndexingPolicy = new IndexingPolicy
                 {
-                    Id = _cosmosDbOptions.FlowCollection
-                };
-
-                // ToDo: why we need that?
-                //myCollection.PartitionKey.Paths.Add("/RefId");
-                myCollection.PartitionKey.Paths.Add("/FlowName");
-
-                myCollection.UniqueKeyPolicy = new UniqueKeyPolicy
-                {
-                    UniqueKeys =
-                    new Collection<UniqueKey>
-                    {
-                        new UniqueKey { Paths = new Collection<string> { "/RefId" } },
-                    }
-                };
-
-                var result = _client.CreateDocumentCollectionAsync(UriFactory.CreateDatabaseUri(_database.Id), myCollection, new RequestOptions { OfferThroughput = DEFAULT_THROUGHPUT }).Result;
-                //CreateIdentityDocument(_client).Wait();
-                return result;
-            }
+                    IncludedPaths = { new IncludedPath { Path = "/RefId" } }
+                }
+            });
         }
-
-        private async Task<DocumentClient> GetClientAndCreateDatabaseIfNeeded(string id)
-        {
-            var settigns = new JsonSerializerSettings
-            {
-                TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
-                TypeNameHandling = TypeNameHandling.Objects,
-                SerializationBinder = _knownTypesBinder
-            };
-
-            var client = new DocumentClient(
-                new Uri(_cosmosDbOptions.Uri), _cosmosDbOptions.Key, settigns);
-
-            // Get the database by name, or create a new one if one with the name provided doesn't exist.
-            // Create a query object for database, filter by name.
-            var feed = new FeedOptions { };
-            IEnumerable<Database> query = from db in client.CreateDatabaseQuery()
-                                          where db.Id == id
-                                          select db;
-
-            // Run the query and get the database (there should be only one) or null if the query didn't return anything.
-            // Note: this will run synchronously. If async exectution is preferred, use IDocumentServiceQuery<T>.ExecuteNextAsync.
-            _database = query.FirstOrDefault();
-
-            if (_database == null)
-            {
-                // Create the database.
-                var options = new RequestOptions { OfferThroughput = DEFAULT_THROUGHPUT };
-                _database = await client.CreateDatabaseAsync(new Database { Id = id }, options);
-            }
-
-            return client;
-        }
-
         #endregion
 
         public async Task<string> UpsertFlow(string tenantId, FlowEntity flowEntity)
@@ -165,10 +95,10 @@ namespace BlazorForms.Platform.Cosmos
             {
                 flowEntity.TenantId = tenantId ?? flowEntity.TenantId;
                 flowEntity.EnvTag = _cosmosDbOptions.EnvironmentTag;
-                var result = await _client.UpsertDocumentAsync(UriFactory.CreateDocumentCollectionUri(_database.Id, _cosmosDbOptions.FlowCollection), flowEntity);
-                return result.Resource.Id;
+                var result = await _container.UpsertItemAsync(flowEntity);
+                return result.Resource.id;
             }
-            catch(Exception exc)
+            catch (Exception exc)
             {
                 _logStreamer.TrackException(exc);
                 throw;
@@ -181,27 +111,25 @@ namespace BlazorForms.Platform.Cosmos
             var watch = System.Diagnostics.Stopwatch.StartNew();
             try
             {
-                var query = _client
-                    .CreateDocumentQuery<FlowEntity>(
-                        UriFactory.CreateDocumentCollectionUri(_database.Id, _cosmosDbOptions.FlowCollection),
-                        new FeedOptions { EnableCrossPartitionQuery = true })
-                    .Where(f => f.RefId == refId);
+                var queryable = _container.GetItemLinqQueryable<FlowEntity>();
+                var query = queryable.Where(f => f.RefId == refId);
 
                 if (!string.IsNullOrEmpty(tenantId))
                 {
                     query = query.Where(f => f.TenantId == tenantId);
                 }
-                
+
                 query = query.Take(1);
 
-                using var documentQuery = query.AsDocumentQuery();
-                while (documentQuery.HasMoreResults)
+                // Convert to feed iterator
+                using var linqFeed = query.ToFeedIterator();
+                
+                // Iterate query result
+                while (linqFeed.HasMoreResults)
                 {
-                    var dbResults = await documentQuery.ExecuteNextAsync<FlowEntity>().ConfigureAwait(false);
-                    foreach (var entity in dbResults)
-                    {
-                        result = entity;
-                    }
+                    var response = await linqFeed.ReadNextAsync();
+
+                    result = response.FirstOrDefault();
                 }
             }
             finally
@@ -216,47 +144,57 @@ namespace BlazorForms.Platform.Cosmos
 
         public async IAsyncEnumerable<string> GetActiveFlowsIds(string tenantId, string flowName)
         {
-            var query = _client
-                .CreateDocumentQuery<FlowEntity>(UriFactory.CreateDocumentCollectionUri(_database.Id, _cosmosDbOptions.FlowCollection), new FeedOptions { EnableCrossPartitionQuery = true })
+            var queryable = _container.GetItemLinqQueryable<FlowEntity>();
+            var query = queryable
                 .Where(f => f.EnvTag == _cosmosDbOptions.EnvironmentTag &&
-                    f.FlowStatus != FlowStatus.Deleted && f.FlowStatus != FlowStatus.Finished &&
-                    f.FlowName == flowName);
+                            f.FlowStatus != FlowStatus.Deleted && f.FlowStatus != FlowStatus.Finished &&
+                            f.FlowName == flowName);
 
             if (!string.IsNullOrEmpty(tenantId))
             {
                 query = query.Where(f => f.TenantId == tenantId);
             }
 
-            using var request = query.
-                Select(f => f.RefId)
-                .AsDocumentQuery();
+            // Convert to feed iterator
+            // using var iterator = query.ToFeedIterator();
+            
+            using var iterator = query
+                .Select(f => f.RefId)
+                .ToFeedIterator();
 
-            await foreach(var item in request.AsAsyncEnumerable())
+            while (iterator.HasMoreResults)
             {
-                yield return item;
+                foreach (var item in await iterator.ReadNextAsync())
+                {
+                    yield return item;
+                }
             }
         }
-
+        
         public async IAsyncEnumerable<string> GetAllWaitingFlowsIds(string tenantId)
         {
-            var query = _client
-                .CreateDocumentQuery<FlowEntity>(UriFactory.CreateDocumentCollectionUri(_database.Id, _cosmosDbOptions.FlowCollection), new FeedOptions { EnableCrossPartitionQuery = true })
-                .Where(f => f.EnvTag == _cosmosDbOptions.EnvironmentTag && 
-                    f.Context.ExecutionResult.IsWaitTask == true && f.FlowStatus != FlowStatus.Deleted 
-                    && f.FlowStatus != FlowStatus.Finished);
+            var queryable = _container.GetItemLinqQueryable<FlowEntity>();
+            var query = queryable
+                .Where(f => f.EnvTag == _cosmosDbOptions.EnvironmentTag &&
+                            f.Context.ExecutionResult.IsWaitTask == true && 
+                            f.FlowStatus != FlowStatus.Deleted &&
+                            f.FlowStatus != FlowStatus.Finished);
 
             if (!string.IsNullOrEmpty(tenantId))
             {
                 query = query.Where(f => f.TenantId == tenantId);
             }
 
-            using var request = query.
-                Select(f => f.RefId)
-                .AsDocumentQuery();
+            using var iterator = query
+                .Select(f => f.RefId)
+                .ToFeedIterator();
 
-            await foreach (var item in request.AsAsyncEnumerable())
+            while (iterator.HasMoreResults)
             {
-                yield return item;
+                foreach (var item in await iterator.ReadNextAsync())
+                {
+                    yield return item;
+                }
             }
         }
 
@@ -266,40 +204,37 @@ namespace BlazorForms.Platform.Cosmos
             public dynamic Model;
         }
 
-        private IEnumerable<(string RefId, T)> CastoToFlowModel<T>(IEnumerable<FlowIdModel> p) where T : class, IFlowModel
+        private (string RefId, T) CastToFlowModel<T>(FlowIdModel p) where T : class, IFlowModel
         {
-            return p.Select(i =>
+            try
             {
-                try
-                {
-                    // TODO: Confirm this is the best performance option
-                    //var item = new { PK = 0L, LastModel = default(T) };
-                    //var value = CastTo(item, i);
-                    //return ((long)value.PK, (T)value.LastModel);
-                    var cast = (FlowIdModel)i;
-                    return (cast.RefId, (T)cast.Model);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"Failed to deserialize flow RefId {i.RefId}, {ex}");
-                }
-                return (null, null);
-            })
-                .Where(i => i.Item2 != null);
+                // TODO: Confirm this is the best performance option
+                //var item = new { PK = 0L, LastModel = default(T) };
+                //var value = CastTo(item, i);
+                //return ((long)value.PK, (T)value.LastModel);
+                return (p.RefId, (T)p.Model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Failed to deserialize flow RefId {RefId}, {ex}", p.RefId, ex);
+            }
+
+            return (null, null);
         }
 
         public async IAsyncEnumerable<(string, T)> GetFlowModels<T>(string tenantId, FlowModelsQueryOptions flowModelsQueryOptions) where T : class, IFlowModel
         {
-            if (flowModelsQueryOptions.FlowStatuses == null)
+            flowModelsQueryOptions.FlowStatuses ??= new List<FlowStatus>
             {
-                flowModelsQueryOptions.FlowStatuses = new List<FlowStatus> { FlowStatus.Created, FlowStatus.Started, FlowStatus.Waiting, FlowStatus.Failed };
-            }
+                FlowStatus.Created, FlowStatus.Started, FlowStatus.Waiting, FlowStatus.Failed
+            };
 
-            var q = _client.CreateDocumentQuery<FlowEntity>(UriFactory.CreateDocumentCollectionUri(_database.Id, _cosmosDbOptions.FlowCollection), new FeedOptions { EnableCrossPartitionQuery = true });
-            var query = q
-                    .Where(f => f.EnvTag == _cosmosDbOptions.EnvironmentTag)
-                    .Where(f => f.FlowStatus != FlowStatus.Deleted && flowModelsQueryOptions.FlowStatuses.Contains(f.FlowStatus))
-                    .Where(f => f.Context != null && f.Context.Model != null);
+            var queryable = _container.GetItemLinqQueryable<FlowEntity>();
+            var query = queryable
+                .Where(f => f.EnvTag == _cosmosDbOptions.EnvironmentTag)
+                .Where(f => f.FlowStatus != FlowStatus.Deleted &&
+                            flowModelsQueryOptions.FlowStatuses.Contains(f.FlowStatus))
+                .Where(f => f.Context != null && f.Context.Model != null);
 
             if (!string.IsNullOrEmpty(tenantId))
             {
@@ -319,7 +254,9 @@ namespace BlazorForms.Platform.Cosmos
                 }
                 else
                 {
-                    query = query.Where(f => f.FlowTags.Count(ft => flowModelsQueryOptions.Tags.Contains(ft)) == flowModelsQueryOptions.Tags.Count());
+                    query = query.Where(f =>
+                        f.FlowTags.Count(ft => flowModelsQueryOptions.Tags.Contains(ft)) ==
+                        flowModelsQueryOptions.Tags.Count());
                 }
             }
 
@@ -327,10 +264,12 @@ namespace BlazorForms.Platform.Cosmos
             {
                 query = query.Where(f => flowModelsQueryOptions.RefIds.Contains(f.RefId));
             }
+
             if (flowModelsQueryOptions.QueryOptions?.AllowFiltering == true)
             {
                 query = QueryOptionsFilterHelper.ApplyFilters(query, flowModelsQueryOptions.QueryOptions, typeof(T));
             }
+
             if (flowModelsQueryOptions.QueryOptions?.AllowSort == true)
             {
                 query = QueryOptionsSortHelper.OrderBy(query, flowModelsQueryOptions.QueryOptions, typeof(T));
@@ -339,31 +278,35 @@ namespace BlazorForms.Platform.Cosmos
             {
                 query = query.OrderByDescending(f => f.Created);
             }
+
             if (flowModelsQueryOptions.QueryOptions?.AllowPagination == true)
             {
                 query = QueryOptionsPaginationHelper.GetPaginationResult(query, flowModelsQueryOptions.QueryOptions);
             }
-            var selector = query.Select(f => new FlowIdModel() { RefId = f.RefId, Model = f.Context.Model });
-            using var request = selector.AsDocumentQuery();
 
-            await foreach (var item in request.AsAsyncEnumerable(p => CastoToFlowModel<T>(p)))
+            var selector = query.Select(f => new FlowIdModel { RefId = f.RefId, Model = f.Context.Model });
+            using var iterator = selector.ToFeedIterator();
+
+            while (iterator.HasMoreResults)
             {
-                yield return item;
+                foreach (var item in await iterator.ReadNextAsync())
+                {
+                    yield return CastToFlowModel<T>(item);
+                }
             }
         }
 
         public async Task<List<FlowContextJsonModel>> GetFlowContexts(string tenantId, FlowModelsQueryOptions flowModelsQueryOptions)
         {
-            if (flowModelsQueryOptions.FlowStatuses == null)
-            {
-                flowModelsQueryOptions.FlowStatuses = new List<FlowStatus> { FlowStatus.Created, FlowStatus.Started, FlowStatus.Waiting, FlowStatus.Failed };
-            }
+            flowModelsQueryOptions.FlowStatuses ??= new List<FlowStatus>
+                { FlowStatus.Created, FlowStatus.Started, FlowStatus.Waiting, FlowStatus.Failed };
 
-            var q = _client.CreateDocumentQuery<FlowEntity>(UriFactory.CreateDocumentCollectionUri(_database.Id, _cosmosDbOptions.FlowCollection), new FeedOptions { EnableCrossPartitionQuery = true });
-            var query = q
-                    .Where(f => f.EnvTag == _cosmosDbOptions.EnvironmentTag)
-                    .Where(f => f.FlowStatus != FlowStatus.Deleted && flowModelsQueryOptions.FlowStatuses.Contains(f.FlowStatus))
-                    .Where(f => f.Context != null && f.Context.Model != null);
+            var queryable = _container.GetItemLinqQueryable<FlowEntity>();
+            var query = queryable
+                .Where(f => f.EnvTag == _cosmosDbOptions.EnvironmentTag)
+                .Where(f => f.FlowStatus != FlowStatus.Deleted &&
+                            flowModelsQueryOptions.FlowStatuses.Contains(f.FlowStatus))
+                .Where(f => f.Context != null && f.Context.Model != null);
 
             if (!string.IsNullOrEmpty(tenantId))
             {
@@ -383,7 +326,9 @@ namespace BlazorForms.Platform.Cosmos
                 }
                 else
                 {
-                    query = query.Where(f => f.FlowTags.Count(ft => flowModelsQueryOptions.Tags.Contains(ft)) == flowModelsQueryOptions.Tags.Count());
+                    query = query.Where(f =>
+                        f.FlowTags.Count(ft => flowModelsQueryOptions.Tags.Contains(ft)) ==
+                        flowModelsQueryOptions.Tags.Count());
                 }
             }
 
@@ -391,12 +336,12 @@ namespace BlazorForms.Platform.Cosmos
             {
                 query = query.Where(f => flowModelsQueryOptions.RefIds.Contains(f.RefId));
             }
-            
+
             if (flowModelsQueryOptions.QueryOptions?.AllowFiltering == true)
             {
                 query = QueryOptionsFilterHelper.ApplyFilters(query, flowModelsQueryOptions.QueryOptions);
             }
-            
+
             if (flowModelsQueryOptions.QueryOptions?.AllowSort == true)
             {
                 query = QueryOptionsSortHelper.OrderBy(query, flowModelsQueryOptions.QueryOptions);
@@ -405,29 +350,26 @@ namespace BlazorForms.Platform.Cosmos
             {
                 query = query.OrderByDescending(f => f.Created);
             }
-            
+
             if (flowModelsQueryOptions.QueryOptions?.AllowPagination == true)
             {
                 query = QueryOptionsPaginationHelper.GetPaginationResult(query, flowModelsQueryOptions.QueryOptions);
             }
 
-            //var selector = query.Select(f => f.Context);
-            //var data = await selector.ToListAsync();
-
-            var data = query.Select(f => f.Context).AsDocumentQuery();
-
+            
             var result = new List<FlowContextJsonModel>();
             var jsons = new List<JObject>();
 
-            while (data.HasMoreResults)
-            {
-                var page = await data.ExecuteNextAsync<JObject>();
-                //var page = await data.ExecuteNextAsync<FlowContext>();
-                jsons.AddRange(page);
-                //result.AddRange(page);
-            }
+            var selector = query.Select(f => f.Context);
 
-            foreach(var json in jsons)
+            using var iterator = selector.ToFeedIterator();
+            
+            while (iterator.HasMoreResults)
+            {
+                jsons.AddRange((await iterator.ReadNextAsync()).Select(JObject.FromObject));
+            }
+            
+            foreach (var json in jsons)
             {
                 try
                 {
@@ -450,46 +392,56 @@ namespace BlazorForms.Platform.Cosmos
                     context.ModelType = modelTypeName;
                     result.Add(context);
                 }
-                catch(Exception exc)
+                catch (Exception exc)
                 {
 
                 }
-               
             }
 
             return result;
         }
+    }
 
-        private async Task<IEnumerable<(string, T)>> FetchQueryResults<T>(IDocumentQuery<FlowIdModel> query) where T : class, IFlowModel
+    public class BfCosmosSerializer : CosmosSerializer
+    {
+        private readonly JsonSerializerSettings _settings;
+
+        public BfCosmosSerializer(IKnownTypesBinder knownTypesBinder)
         {
-            var result = new List<(string, T)>();
-            while (query.HasMoreResults)
+            _settings = new JsonSerializerSettings
             {
-                var page = await query.ExecuteNextAsync();
+                TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
+                TypeNameHandling = TypeNameHandling.Objects,
+                SerializationBinder = knownTypesBinder
+            };
+        }
 
-                result.AddRange(
-                    page.Select(i =>
-                    {
-                        try
-                        {
-                            // TODO: Confirm this is the best performance option
-                            //var item = new { PK = 0L, LastModel = default(T) };
-                            //var value = CastTo(item, i);
-                            //return ((long)value.PK, (T)value.LastModel);
-                            var cast = (FlowIdModel)i;
-                            return (cast.RefId, (T)cast.Model);
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError($"Failed to deserialize flow RefId {i.RefId}, {ex}");
-                        }
-                        return (null, null);
-                    })
-                    .Where(i => i.Item2 != null)
-                );
+        public override T FromStream<T>(Stream stream)
+        {
+            if (stream == null || stream.Length == 0)
+            {
+                return default;
             }
 
-            return result;
+            using var sr = new StreamReader(stream);
+            using var reader = new JsonTextReader(sr);
+            
+            var serializer = JsonSerializer.Create(_settings);
+            return serializer.Deserialize<T>(reader);
+        }
+
+        public override Stream ToStream<T>(T input)
+        {
+            var stream = new MemoryStream();
+            using var sw = new StreamWriter(stream, new UTF8Encoding(), 1024, true);
+            using var writer = new JsonTextWriter(sw);
+
+            var serializer = JsonSerializer.Create(_settings);
+            serializer.Serialize(writer, input);
+            writer.Flush();
+            
+            stream.Position = 0;
+            return stream;
         }
     }
 }
