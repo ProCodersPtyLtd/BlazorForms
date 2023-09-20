@@ -12,8 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\forms\BlazorForms.Forms.Definitions\BlazorForms.Forms.Definitions.csproj" />
     <ProjectReference Include="..\..\shared\BlazorForms.Shared\BlazorForms.Shared.csproj" />
     <ProjectReference Include="..\BlazorForms.Flows.Definitions\BlazorForms.Flows.Definitions.csproj" />
   </ItemGroup>
+
 
 </Project>

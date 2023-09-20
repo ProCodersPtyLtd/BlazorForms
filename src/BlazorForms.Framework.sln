@@ -6,6 +6,16 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{993F5DB1-686B-418D-8A5A-8235C86139D3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "framework", "framework", "{E24B3693-E6A0-4142-B71F-AF2FD7ABB1E7}"
+	ProjectSection(SolutionItems) = preProject
+		platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Georgia.ttf = platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Georgia.ttf
+		platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Platz.Config.Link\appsettings.localdb.json = platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Platz.Config.Link\appsettings.localdb.json
+		platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Platz.Config.Link\appsettings.mssql.json = platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Platz.Config.Link\appsettings.mssql.json
+		platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Platz.Config.Link\localdb.cmd = platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Platz.Config.Link\localdb.cmd
+		platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Platz.Config.Link\readme.txt = platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Platz.Config.Link\readme.txt
+		platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Platz.Config.Link\SqlServerScripts.sql = platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Platz.Config.Link\SqlServerScripts.sql
+		platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Roboto-Regular.ttf = platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Roboto-Regular.ttf
+		platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Verdana.ttf = platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Verdana.ttf
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "demo", "demo", "{B9B1795A-8436-4FFA-B8E4-9EB1EA5A8D99}"
 EndProject
@@ -129,6 +139,17 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorForms.Storage", "store\BlazorForms.Storage\BlazorForms.Storage.csproj", "{380457A0-2268-45CD-8675-DF1BB7230DB0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrmLightDemoApp.Store", "..\seed\CrmLightDemoApp.Store\CrmLightDemoApp.Store.csproj", "{A3F91917-8FD9-4B61-90B6-010F256C74E6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Nuspec", "Nuspec", "{BDA46B52-3C46-4E46-8352-6C58804BF14C}"
+	ProjectSection(SolutionItems) = preProject
+		platform\BlazorForms.Platform\Nuspec\BlazorForms.Cosmos.nuspec = platform\BlazorForms.Platform\Nuspec\BlazorForms.Cosmos.nuspec
+		platform\BlazorForms.Platform\Nuspec\BlazorForms.Shared.nuspec = platform\BlazorForms.Platform\Nuspec\BlazorForms.Shared.nuspec
+		platform\BlazorForms.Platform\Nuspec\BlazorForms.Rendering.nuspec = platform\BlazorForms.Platform\Nuspec\BlazorForms.Rendering.nuspec
+		platform\BlazorForms.Platform\Nuspec\BlazorForms.Rendering.Flows.nuspec = platform\BlazorForms.Platform\Nuspec\BlazorForms.Rendering.Flows.nuspec
+		platform\BlazorForms.Platform\Nuspec\BlazorForms.nuspec = platform\BlazorForms.Platform\Nuspec\BlazorForms.nuspec
+		platform\BlazorForms.Platform\Nuspec\cmdTemp.bat = platform\BlazorForms.Platform\Nuspec\cmdTemp.bat
+		platform\BlazorForms.Platform\Nuspec\cmd.bat = platform\BlazorForms.Platform\Nuspec\cmd.bat
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -406,6 +427,7 @@ Global
 		{8D22E139-5B6D-47F9-950F-B6D378639D62} = {D619E7EE-DAC2-4AEF-9711-31865BEAD435}
 		{380457A0-2268-45CD-8675-DF1BB7230DB0} = {E24B3693-E6A0-4142-B71F-AF2FD7ABB1E7}
 		{A3F91917-8FD9-4B61-90B6-010F256C74E6} = {D619E7EE-DAC2-4AEF-9711-31865BEAD435}
+		{BDA46B52-3C46-4E46-8352-6C58804BF14C} = {E24B3693-E6A0-4142-B71F-AF2FD7ABB1E7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C1EF108-97F0-41A0-8507-C75FE328A4A3}

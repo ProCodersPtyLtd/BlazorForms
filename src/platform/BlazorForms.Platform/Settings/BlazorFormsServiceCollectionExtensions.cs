@@ -25,6 +25,7 @@ using BlazorForms.Shared.FastReflection;
 using BlazorForms.Platform.Definitions.Shared;
 using BlazorForms.Rendering.ViewModels;
 using BlazorForms.FlowRules.Engine;
+using BlazorForms.Flows.Engine.Persistence;
 
 namespace BlazorForms
 {
@@ -87,6 +88,7 @@ namespace BlazorForms
                 //.AddSingleton<IUserViewDataResolver, UserViewDataResolver>()
                 .AddSingleton<IUserViewDataResolver, UserViewDataResolverJsonPath>()
                 .AddScoped(typeof(IFlowRunStorage), typeof(FlowRunStorage))
+                .AddScoped(typeof(ICachedFlowRepository), typeof(CachedFlowRepository))
                 //.AddSingleton(typeof(IFlowRepository), typeof(SqlFlowRepository))
                 .AddSingleton(typeof(IFlowRunIdGenerator), typeof(SqlFlowRunIdGenerator))
                 //.AddSingleton(typeof(IFlowRunIdGenerator), typeof(NpgsqlFlowRunIdGenerator)) //Postgres
