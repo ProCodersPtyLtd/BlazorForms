@@ -11,7 +11,8 @@ namespace BlazorForms
         public static IServiceCollection AddBlazorFormsCosmos([NotNull] this IServiceCollection serviceCollection)
         {
             serviceCollection
-                .AddSingleton(typeof(IFlowRepository), typeof(CosmosFlowRepository));
+                .AddSingleton<BfCosmosSerializer>()
+                .AddSingleton<IFlowRepository, CosmosFlowRepository>();
             
             return serviceCollection;
         }

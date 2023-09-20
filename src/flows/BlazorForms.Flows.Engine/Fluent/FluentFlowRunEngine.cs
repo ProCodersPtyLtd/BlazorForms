@@ -298,14 +298,9 @@ namespace BlazorForms.Flows
                             var formRuleInstanceType = formRuleInstance?.GetType();
                             var formRuleMethodInfo = formRuleInstanceType?.GetMethod("Handle");
 
-                            // Run the rules
-                            for (var maxLoops = MAX_LOOP_COUNT; maxLoops > 0; maxLoops--)
-                            {
-                                if (formRuleMethodInfo?.Invoke(formRuleInstance, new object[]{ context.Model }) is not Task<bool> resultTask || await resultTask)
-                                {
-                                    break;
-                                }
-                            }
+                            // Run the form rule
+                            _ = formRuleMethodInfo?.Invoke(formRuleInstance, new object[] { context.Model }) is Task<bool> resultTask 
+                                && await resultTask;
                         }
                         
                         if (task.Action is not null)

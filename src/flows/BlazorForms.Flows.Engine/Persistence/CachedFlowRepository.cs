@@ -29,7 +29,10 @@ public class CachedFlowRepository : ICachedFlowRepository
         }
         
         flowEntity = await _repo.GetFlowByRef(tenantId, refId);
-        _cache.Set(cacheKey, flowEntity);
+        if (flowEntity != null)
+        {
+            _cache.Set(cacheKey, flowEntity);
+        }
 
         return flowEntity;
     }

@@ -153,7 +153,7 @@ namespace BlazorForms.Flows.Engine.Persistence
         {
             var tId = await _tenantedScope.GetTenantId();
             var model = await _repo.GetFlowByRef(tId, refId);
-            return model.Context.Model;
+            return model?.Context?.Model;
         }
 
         public async IAsyncEnumerable<(string, T)> GetFlowModels<T>(FlowModelsQueryOptions flowModelsQueryOptions) where T : class, IFlowModel
