@@ -64,7 +64,7 @@ public class CosmosFlowRepository : IFlowRepository
     private const string DefaultFlowCollection = "_cosmosDbOptions.FlowCollection";
 
     private Container _container;
-
+    
     private async Task GetOrCreateDatabase(string id)
     {
         _client = new CosmosClient(_cosmosDbOptions.Uri, _cosmosDbOptions.Key, new CosmosClientOptions
@@ -77,15 +77,33 @@ public class CosmosFlowRepository : IFlowRepository
         _database = await _client.CreateDatabaseIfNotExistsAsync(id, 
             ThroughputProperties.CreateAutoscaleThroughput(DefaultThroughput));
 
-        _container = await _database.CreateContainerIfNotExistsAsync(new ContainerProperties
+        var containerProperties = new ContainerProperties
         {
             Id = _cosmosDbOptions.FlowCollection,
-            PartitionKeyPath = "/FlowName",
+            PartitionKeyPath = "/RefId",
             IndexingPolicy = new IndexingPolicy
             {
-                IncludedPaths = { new IncludedPath { Path = "/RefId" } }
+                IndexingMode = IndexingMode.Consistent,
+                IncludedPaths = {
+                    new IncludedPath { Path = "/EnvTag/?" },
+                    new IncludedPath { Path = "/Version/?" },
+                    new IncludedPath { Path = "/RefId/?" },
+                    new IncludedPath { Path = "/TenantId/?" },
+                    new IncludedPath { Path = "/Created/?" },
+                    new IncludedPath { Path = "/FlowName/?" },
+                    new IncludedPath { Path = "/DocumentType/?" },
+                    new IncludedPath { Path = "/FlowTags/*" },
+                    new IncludedPath { Path = "/FlowStatus/?" },
+                    new IncludedPath { Path = "/Context/Model/*" }
+                },
+                ExcludedPaths =
+                {
+                    new ExcludedPath { Path = "/*" }
+                }
             }
-        });
+        };
+        
+        _container = await _database.CreateContainerIfNotExistsAsync(containerProperties);
     }
     #endregion
 
