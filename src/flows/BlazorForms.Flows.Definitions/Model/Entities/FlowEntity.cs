@@ -1,4 +1,4 @@
-﻿using BlazorForms.Shared;
+using BlazorForms.Shared;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -49,7 +49,7 @@ namespace BlazorForms.Flows.Definitions
         /// </summary>
         public string RefId { get; set; }
         /// <summary>
-        /// TetantId used in multi-tenant systems
+        /// TenantId used in multi-tenant systems
         /// </summary>
         public string TenantId { get; set; }
         /// <summary>
