@@ -36,12 +36,22 @@ namespace BlazorForms.Tests.Framework.Core
             throw new NotImplementedException();
         }
 
+        public IAsyncEnumerable<FlowEntity> GetFlowEntities<T>(FlowModelsQueryOptions flowModelsQueryOptions) where T : class, IFlowModel
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<List<FlowContextJsonModel>> GetFlowContexts(FlowModelsQueryOptions flowModelsQueryOptions)
         {
             throw new NotImplementedException();
         }
 
         public Task<IFlowModel> GetFlowModelByRef(string refId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<bool> DeleteFlow(string refId)
         {
             throw new NotImplementedException();
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
@@ -63,6 +63,9 @@ namespace BlazorForms.Shared.Extensions
                     case FieldFilterType.DecimalEqual:
                         query = WhereLike(query, queryOptions.GetFieldMapping(filter.BindingProperty), $"{filter.Filter}", FieldFilterType.DecimalEqual, type);
                         break;
+                    case FieldFilterType.Integer:
+                        query = WhereLike(query, queryOptions.GetFieldMapping(filter.BindingProperty), $"{filter.Filter}", FieldFilterType.Integer, type);
+                        break;
                     case FieldFilterType.DecimalGreaterThan:
                         query = WhereLike(query, queryOptions.GetFieldMapping(filter.BindingProperty), $"{filter.Filter}", FieldFilterType.DecimalGreaterThan, type);
                         break;
@@ -92,7 +95,7 @@ namespace BlazorForms.Shared.Extensions
             }
 
             var parameter = Expression.Parameter(typeof(Q), "x");
-            var DateTimeType = typeof(DateTime);
+            var DateTimeType = typeof(DateTimeOffset);
             Expression property;
             Expression MethodCall;
 
@@ -115,7 +118,7 @@ namespace BlazorForms.Shared.Extensions
 
             if (property.Type.Name == "Nullable`1")
             {
-                DateTimeType = typeof(DateTime?);
+                DateTimeType = typeof(DateTimeOffset?);
             }
 
 
@@ -138,18 +141,17 @@ namespace BlazorForms.Shared.Extensions
             }
             else if (filterType == FieldFilterType.DateExpressionFromDate)
             {
-                DateTime date1 = DateTime.ParseExact(searchPattern, "dd/MM/yyyy", null);
+                var date1 = DateTimeOffset.TryParse(searchPattern, out var date1Value) ? date1Value : default;
                 MethodCall = Expression.GreaterThanOrEqual(property, Expression.Constant(date1, DateTimeType));
             }
             else if (filterType == FieldFilterType.DateExpressionToDate)
             {
-
-                DateTime date1 = DateTime.ParseExact(searchPattern, "dd/MM/yyyy", null);
+                var date1 = DateTimeOffset.TryParse(searchPattern, out var date1Value) ? date1Value : default;
                 MethodCall = Expression.LessThanOrEqual(property, Expression.Constant(date1, DateTimeType));
             }
             else if (filterType == FieldFilterType.DateExpressionEqual)
             {
-                DateTime date1 = DateTime.ParseExact(searchPattern, "dd/MM/yyyy", null);
+                var date1 = DateTimeOffset.TryParse(searchPattern, out var date1Value) ? date1Value : default;
                 Expression antes = Expression.GreaterThanOrEqual(property, Expression.Constant(date1.Date.AddDays(-1), DateTimeType));
                 Expression despues = Expression.LessThanOrEqual(property, Expression.Constant(date1.Date.AddDays(1), DateTimeType));
                 MethodCall = Expression.AndAlso(antes, despues);
@@ -158,6 +160,34 @@ namespace BlazorForms.Shared.Extensions
             {
                 var decimalVal = Convert.ToDecimal(searchPattern);
                 MethodCall = Expression.Equal(property, Expression.Constant(decimalVal, decimalVal.GetType()));
+            }
+            else if (filterType == FieldFilterType.Integer)
+            {
+                var val = Convert.ToInt32(searchPattern);
+                var underlyingType = Nullable.GetUnderlyingType(property.Type);
+
+                if (property.Type.IsEnum)
+                {
+                    var enumVal = Enum.ToObject(property.Type, val);
+                    MethodCall = Expression.Equal(property, Expression.Constant(enumVal, property.Type));
+                }
+                else if (underlyingType is { IsEnum: true })
+                {
+                    var enumToObject = typeof(Enum).GetMethod(nameof(Enum.ToObject),
+                        BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(Type), typeof(int) }, null);
+                    var enumVal = enumToObject?.Invoke(null, new object[] { underlyingType, val });
+                    var nullableEnumVal = Activator.CreateInstance(property.Type, enumVal);
+                    MethodCall = Expression.Equal(property, Expression.Constant(nullableEnumVal, property.Type));
+                }
+                else if (underlyingType is { IsPrimitive: true })
+                {
+                    var nullableIntVal = Activator.CreateInstance(property.Type, val);
+                    MethodCall = Expression.Equal(property, Expression.Constant(nullableIntVal, property.Type));
+                }
+                else
+                {
+                    MethodCall = Expression.Equal(property, Expression.Constant(val, val.GetType()));
+                }
             }
             else if (filterType == FieldFilterType.DecimalLessThan)
             {

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using BlazorForms.Flows;
 using BlazorForms.Flows.Definitions;
 using BlazorForms.Platform.Cosmos.Configuration;
@@ -25,19 +26,21 @@ public class CosmosFlowRepository : IFlowRepository
     private readonly ILogger _logger;
     private readonly ILogStreamer _logStreamer;
     private readonly CosmosDbOptions _cosmosDbOptions;
+    private readonly IMapper _mapper;
 
     public CosmosFlowRepository(
         IKnownTypesBinder knownTypesBinder,
         BfCosmosSerializer serializer,
         ILogger<CosmosFlowRepository> logger,
         IOptions<CosmosDbOptions> cosmosDbOptions,
-        ILogStreamer logStreamer)
+        ILogStreamer logStreamer, IMapper mapper)
     {
         _cosmosDbOptions = cosmosDbOptions.Value;
         _knownTypesBinder = knownTypesBinder;
         _serializer = serializer;
         _logger = logger;
         _logStreamer = logStreamer;
+        _mapper = mapper;
 
         if (string.IsNullOrEmpty(_cosmosDbOptions.Database)
             || string.IsNullOrEmpty(_cosmosDbOptions.Uri)
@@ -106,6 +109,27 @@ public class CosmosFlowRepository : IFlowRepository
         _container = await _database.CreateContainerIfNotExistsAsync(containerProperties);
     }
     #endregion
+
+    public async Task<bool> DeleteFlow(string tenantId, string flowName, string itemId, string refId)
+    {
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        try
+        {
+            var result = await _container.DeleteItemAsync<FlowEntity>(itemId, new PartitionKey(refId));
+            return (int)result.StatusCode >= 200 && (int)result.StatusCode <= 299;
+        }
+        catch (Exception exc)
+        {
+            _logStreamer.TrackException(exc);
+            throw;
+        }
+        finally
+        {
+            watch.Stop();
+            var elapsedMs = watch.ElapsedMilliseconds;
+            _logger.LogInformation("[{Method}] Elapsed {elapsedMs} ms", nameof(DeleteFlow), elapsedMs);
+        }
+    }
 
     public async Task<string> UpsertFlow(string tenantId, FlowEntity flowEntity)
     {
@@ -243,20 +267,18 @@ public class CosmosFlowRepository : IFlowRepository
         try
         {
             // TODO: Confirm this is the best performance option
-            //var item = new { PK = 0L, LastModel = default(T) };
-            //var value = CastTo(item, i);
-            //return ((long)value.PK, (T)value.LastModel);
-            return (p.RefId, (T)p.Model);
+            var mapped = _mapper.Map<T>(p.Model);
+            return (p.RefId, mapped);
         }
         catch (Exception ex)
         {
-            _logger.LogError("Failed to deserialize flow RefId {RefId}, {ex}", p.RefId, ex);
+            // _logger.LogWarning("Failed to deserialize flow RefId {RefId}, {ex}", p.RefId, ex);
         }
 
-        return (null, null);
+        return (p.RefId, null);
     }
 
-    public async IAsyncEnumerable<(string, T)> GetFlowModels<T>(string tenantId, FlowModelsQueryOptions flowModelsQueryOptions) where T : class, IFlowModel
+    public async IAsyncEnumerable<FlowEntity> GetFlowEntities<T>(string tenantId, FlowModelsQueryOptions flowModelsQueryOptions) where T : class, IFlowModel
     {
         var watch = System.Diagnostics.Stopwatch.StartNew();
         
@@ -320,17 +342,31 @@ public class CosmosFlowRepository : IFlowRepository
             query = QueryOptionsPaginationHelper.GetPaginationResult(query, flowModelsQueryOptions.QueryOptions);
         }
 
-        var selector = query.Select(f => new FlowIdModel { RefId = f.RefId, Model = f.Context.Model });
+        var selector = query;
         using var iterator = selector.ToFeedIterator();
 
         while (iterator.HasMoreResults)
         {
             foreach (var item in await iterator.ReadNextAsync())
             {
-                yield return CastToFlowModel<T>(item);
+                yield return item;
             }
         }
         
+        watch.Stop();
+        var elapsedMs = watch.ElapsedMilliseconds;
+        _logger.LogInformation("[{Method}] Elapsed {elapsedMs} ms", nameof(GetFlowEntities), elapsedMs);
+    }
+
+    public async IAsyncEnumerable<(string, T)> GetFlowModels<T>(string tenantId, FlowModelsQueryOptions flowModelsQueryOptions) where T : class, IFlowModel
+    {
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+
+        await foreach (var item in GetFlowEntities<T>(tenantId, flowModelsQueryOptions))
+        {
+            yield return CastToFlowModel<T>(new FlowIdModel { RefId = item.RefId, Model = item.Context.Model });
+        }
+
         watch.Stop();
         var elapsedMs = watch.ElapsedMilliseconds;
         _logger.LogInformation("[{Method}] Elapsed {elapsedMs} ms", nameof(GetFlowModels), elapsedMs);
@@ -445,7 +481,7 @@ public class CosmosFlowRepository : IFlowRepository
 public class BfCosmosSerializer : CosmosSerializer
 {
     private readonly JsonSerializerSettings _settings;
-
+    
     public BfCosmosSerializer(IKnownTypesBinder knownTypesBinder)
     {
         _settings = new JsonSerializerSettings

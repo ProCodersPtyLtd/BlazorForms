@@ -156,10 +156,30 @@ namespace BlazorForms.Flows.Engine.Persistence
             return model?.Context?.Model;
         }
 
+        public async Task<bool> DeleteFlow(string refId)
+        {
+            var tId = await _tenantedScope.GetTenantId();
+            if (await _repo.GetFlowByRef(tId, refId) is { } flow)
+            {
+                await _repo.DeleteFlow(tId, flow.FlowName, flow.id, flow.RefId);
+            }
+
+            return true;
+        }
+
         public async IAsyncEnumerable<(string, T)> GetFlowModels<T>(FlowModelsQueryOptions flowModelsQueryOptions) where T : class, IFlowModel
         {
             var tId = await _tenantedScope.GetTenantId();
             await foreach (var i in _repo.GetFlowModels<T>(tId, flowModelsQueryOptions))
+            {
+                yield return i;
+            }
+        }
+
+        public async IAsyncEnumerable<FlowEntity> GetFlowEntities<T>(FlowModelsQueryOptions flowModelsQueryOptions) where T : class, IFlowModel
+        {
+            var tId = await _tenantedScope.GetTenantId();
+            await foreach (var i in _repo.GetFlowEntities<T>(tId, flowModelsQueryOptions))
             {
                 yield return i;
             }

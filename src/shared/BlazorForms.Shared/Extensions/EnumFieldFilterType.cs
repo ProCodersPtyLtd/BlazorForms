@@ -21,7 +21,8 @@ namespace BlazorForms.Shared.Extensions
         DecimalEqual,
         DecimalLessThan,
         DecimalGreaterThan,
-        DecimalRange
+        DecimalRange,
+        Integer
     }
 
     public enum FieldFilterPositionType
