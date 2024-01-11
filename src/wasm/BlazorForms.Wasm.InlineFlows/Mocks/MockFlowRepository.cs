@@ -27,6 +27,16 @@ namespace BlazorForms.Wasm.InlineFlows
             throw new NotImplementedException();
         }
 
+        public IAsyncEnumerable<FlowEntity> GetFlowEntities<T>(string tenantId, FlowModelsQueryOptions flowModelsQueryOptions) where T : class, IFlowModel
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<bool> DeleteFlow(string tenantId, string flowName, string itemId, string refId)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<string> UpsertFlow(string tenantId, FlowEntity flowEntity)
         {
             throw new NotImplementedException("MockFlowRepository can be used only for NoStorage flow run mode");

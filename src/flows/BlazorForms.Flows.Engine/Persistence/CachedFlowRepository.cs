@@ -27,7 +27,7 @@ public class CachedFlowRepository : ICachedFlowRepository
         {
             return flowEntity;
         }
-        
+
         flowEntity = await _repo.GetFlowByRef(tenantId, refId);
         if (flowEntity != null)
         {
@@ -39,20 +39,25 @@ public class CachedFlowRepository : ICachedFlowRepository
 
     public IAsyncEnumerable<string> GetActiveFlowsIds(string tenantId, string flowName)
     {
-        // implement a passthrough to the repo
+        // implement a pass-through to the repo
         return _repo.GetActiveFlowsIds(tenantId, flowName);
     }
 
     public IAsyncEnumerable<string> GetAllWaitingFlowsIds(string tenantId)
     {
-        // implement a passthrough to the repo
+        // implement a pass-through to the repo
         return _repo.GetAllWaitingFlowsIds(tenantId);
     }
 
     public IAsyncEnumerable<(string, T)> GetFlowModels<T>(string tenantId, FlowModelsQueryOptions flowModelsQueryOptions) where T : class, IFlowModel
     {
-        // implement a passthrough to the repo
+        // implement a pass-through to the repo
         return _repo.GetFlowModels<T>(tenantId, flowModelsQueryOptions);
+    }
+
+    public IAsyncEnumerable<FlowEntity> GetFlowEntities<T>(string tenantId, FlowModelsQueryOptions flowModelsQueryOptions) where T : class, IFlowModel
+    {
+        return _repo.GetFlowEntities<T>(tenantId, flowModelsQueryOptions);
     }
 
     public async Task<List<FlowContextJsonModel>> GetFlowContexts(string tenantId, FlowModelsQueryOptions flowModelsQueryOptions)
@@ -63,11 +68,29 @@ public class CachedFlowRepository : ICachedFlowRepository
         {
             return flowContexts;
         }
-        
+
         flowContexts = await _repo.GetFlowContexts(tenantId, flowModelsQueryOptions);
         _cache.Set(cacheKey, flowContexts);
 
         return flowContexts;
+    }
+
+    public async Task<bool> DeleteFlow(string tenantId, string flowName, string itemId, string refId)
+    {
+        var result = await _repo.DeleteFlow(tenantId, flowName, itemId, refId);
+        if (!result)
+        {
+            return false;
+        }
+
+        var flowRefCacheKey = $"FlowByRef-{tenantId}-{refId}";
+        _cache.Remove(flowRefCacheKey);
+
+        // invalidate the FlowContexts cache
+        var flowContextsCacheKey = $"FlowContexts-{tenantId}-{flowName}";
+        _cache.Remove(flowContextsCacheKey);
+
+        return true;
     }
 
     public async Task<string> UpsertFlow(string tenantId, FlowEntity entity)
@@ -75,11 +98,11 @@ public class CachedFlowRepository : ICachedFlowRepository
         var result = await _repo.UpsertFlow(tenantId, entity);
         var flowRefCacheKey = $"FlowByRef-{tenantId}-{entity.RefId}";
         _cache.Remove(flowRefCacheKey);
-        
+
         // invalidate the FlowContexts cache
         var flowContextsCacheKey = $"FlowContexts-{tenantId}-{entity.FlowName}";
         _cache.Remove(flowContextsCacheKey);
-        
+
         return result;
     }
 }

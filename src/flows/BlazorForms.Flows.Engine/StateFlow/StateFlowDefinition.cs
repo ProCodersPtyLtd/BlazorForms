@@ -49,26 +49,26 @@ namespace BlazorForms.Flows
             return flow;
         }
 
-        public static F Transition<F>(this F flow, Func<TransitionTrigger> triggerFunction, state state, Action onTransitionEvent = null) 
-            where F : class, IStateFlow 
-        { 
-            RegisterTransition(flow, triggerFunction, state, onTransitionEvent); 
-            return flow; 
+        public static F Transition<F>(this F flow, Func<TransitionTrigger> triggerFunction, state state, Action onTransitionEvent = null)
+            where F : class, IStateFlow
+        {
+            RegisterTransition(flow, triggerFunction, state, onTransitionEvent);
+            return flow;
         }
 
-        public static F Transition<F>(this F flow, TransitionTrigger trigger, state state, Action onTransitionEvent = null) 
-			where F : class, IStateFlow 
-        { 
+        public static F Transition<F>(this F flow, TransitionTrigger trigger, state state, Action onTransitionEvent = null)
+			where F : class, IStateFlow
+        {
             if (trigger.Text == null)
             {
                 trigger.Text = state.Value;
 			}
 
-            RegisterTransition(flow, trigger, state, onTransitionEvent); 
-            return flow; 
+            RegisterTransition(flow, trigger, state, onTransitionEvent);
+            return flow;
         }
 
-		public static F Transition<F>(this F flow, UserActionTransitionTrigger trigger, state state, Action onTransitionEvent = null) 
+		public static F Transition<F>(this F flow, UserActionTransitionTrigger trigger, state state, Action onTransitionEvent = null)
 			where F : class, IStateFlow
 		{
 			if (trigger.Text == null)
@@ -81,7 +81,7 @@ namespace BlazorForms.Flows
 			return flow;
 		}
 
-		public static F Transition<F>(this F flow, UserActionTransitionTrigger trigger, state state, Func<Task> onTransitionEvent) 
+		public static F Transition<F>(this F flow, UserActionTransitionTrigger trigger, state state, Func<Task> onTransitionEvent)
 			where F : class, IStateFlow
 		{
 			if (trigger.Text == null)
@@ -120,18 +120,18 @@ namespace BlazorForms.Flows
 
         private static void RegisterTransition(IStateFlow flow, Func<TransitionTrigger> triggerFunction, state state, Action onTransitionEvent)
         {
-            flow.Transitions.Add(new TransitionDef { FromState = flow.States.Last().State, ToState = state.Value, TriggerFunction = triggerFunction, 
+            flow.Transitions.Add(new TransitionDef { FromState = flow.States.Last().State, ToState = state.Value, TriggerFunction = triggerFunction,
 				OnChanging = onTransitionEvent });
         }
         private static void RegisterTransition(IStateFlow flow, Func<TransitionTrigger> triggerFunction, state state, Func<Task> onTransitionEvent)
         {
-            flow.Transitions.Add(new TransitionDef { FromState = flow.States.Last().State, ToState = state.Value, TriggerFunction = triggerFunction, 
+            flow.Transitions.Add(new TransitionDef { FromState = flow.States.Last().State, ToState = state.Value, TriggerFunction = triggerFunction,
 				OnChangingAsync = onTransitionEvent });
         }
 
         private static void RegisterTransition(IStateFlow flow, TransitionTrigger trigger, state state, Action onTransitionEvent)
         {
-            flow.Transitions.Add(new TransitionDef { FromState = flow.States.Last().State, ToState = state.Value, Trigger = trigger, 
+            flow.Transitions.Add(new TransitionDef { FromState = flow.States.Last().State, ToState = state.Value, Trigger = trigger,
 				OnChanging = onTransitionEvent });
         }
 
@@ -151,7 +151,7 @@ namespace BlazorForms.Flows
 			flow.Forms.Add(new FormDef { FormType = form.FullName, State = flow.States.LastOrDefault()?.State });
 		}
 
-		private static void RegisterTransitionForm(StateFlowBase flow, Type form, TransitionTrigger trigger, state state, 
+		private static void RegisterTransitionForm(StateFlowBase flow, Type form, TransitionTrigger trigger, state state,
 			Func<Task> onTransitionEvent)
 		{
 			flow.Transitions.Add(new TransitionDef

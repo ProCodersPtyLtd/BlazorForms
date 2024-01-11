@@ -6,9 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BlazorForms.Forms;
-using BlazorForms.Forms.Definitions.FluentForms.Rules;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace BlazorForms.Flows
 {
@@ -179,7 +176,7 @@ namespace BlazorForms.Flows
             await RunFlowTasks(index, flow, context, noStorage);
             return context;
         }
-        
+
         private static async Task ExecuteTask(TaskDef task, IFlow flow, IFlowContext context)
         {
             try
@@ -292,17 +289,17 @@ namespace BlazorForms.Flows
                             var formInstance = _serviceProvider.GetService(task.FormType);
                             var formInstanceType = formInstance?.GetType();
                             var methodInfo = formInstanceType?.GetMethod("RootRule");
-                            
+
                             var formRuleInstance = methodInfo?.Invoke(formInstance, null);
-                                
+
                             var formRuleInstanceType = formRuleInstance?.GetType();
                             var formRuleMethodInfo = formRuleInstanceType?.GetMethod("Handle");
 
                             // Run the form rule
-                            _ = formRuleMethodInfo?.Invoke(formRuleInstance, new object[] { context.Model }) is Task<bool> resultTask 
+                            _ = formRuleMethodInfo?.Invoke(formRuleInstance, new object[] { context.Model }) is Task<bool> resultTask
                                 && await resultTask;
                         }
-                        
+
                         if (task.Action is not null)
                         {
                             await ExecuteTask(task, flow, context);
@@ -474,7 +471,7 @@ namespace BlazorForms.Flows
 				//	var gotoTransition = GetTransitionDef(currentDef, labelDef);
 				//	result.Transitions.Add(gotoTransition);
 				//}
-    //            else 
+    //            else
                 if (task.Type != TaskDefTypes.If && task.Type != TaskDefTypes.EndIf)
                 {
                     var newDef = GetTaskDef(task);
@@ -514,8 +511,8 @@ namespace BlazorForms.Flows
                 task = flow.Tasks[index];
             }
 
-            void ReadIfBlock() 
-            { 
+            void ReadIfBlock()
+            {
                 if (task.Type != TaskDefTypes.If)
                 {
                     return;

@@ -100,7 +100,7 @@ namespace BlazorForms.Tests.Framework.Core
             // for some tests we need to construct  SqlFlowRepository
             serviceCollection.AddScoped<IFlowRepository, MockFlowRepository>();
             serviceCollection.AddScoped<IFlowRunStorage, MockFlowRunStorage>();
-            serviceCollection.AddScoped<ICachedFlowRepository, CachedFlowRepository>();
+            //serviceCollection.AddScoped<ICachedFlowRepository, CachedFlowRepository>();
             serviceCollection.AddScoped<IObjectCloner, MockObjectCloner>();
             serviceCollection.AddScoped<IAuthState, TestAuthState>();
 
@@ -178,7 +178,7 @@ namespace BlazorForms.Tests.Framework.Core
             dynamic dynamicParams = new ExpandoObject();
             dynamicParams.Top = 10;
             //var repo = _fixture.FlowRepository;
-            var repo = serviceProvider.GetRequiredService<ICachedFlowRepository>();
+            var repo = serviceProvider.GetRequiredService<IFlowRepository>();
             var cloner = serviceProvider.GetRequiredService<IObjectCloner>();
             var tenantedScope = serviceProvider.GetRequiredService<ITenantedScope>();
             var storage = new FlowRunStorage(repo, cloner, tenantedScope);

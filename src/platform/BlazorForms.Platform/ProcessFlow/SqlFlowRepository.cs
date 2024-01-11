@@ -37,6 +37,11 @@ namespace BlazorForms.Platform
             _connectionString = configuration.GetConnectionString("SqlFlowRepositoryConnection");
         }
 
+        public async Task<bool> DeleteFlow(string tenantId, string flowName, string itemId, string refId)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<string> UpsertFlow(string tenantId, FlowEntity flowEntity)
         {
             flowEntity.EnvTag = _environmentTag;
@@ -175,6 +180,11 @@ ELSE
             };            
 
             return result;
+        }
+
+        public IAsyncEnumerable<FlowEntity> GetFlowEntities<T>(string tenantId, FlowModelsQueryOptions flowModelsQueryOptions) where T : class, IFlowModel
+        {
+            throw new NotImplementedException();
         }
 
         private async IAsyncEnumerable<(string, JObject)> GetFlows(string tenantId = "", FlowModelsQueryOptions flowModelsQueryOptions = null, bool checkEnvTag = false)

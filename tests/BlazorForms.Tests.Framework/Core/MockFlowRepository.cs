@@ -27,6 +27,16 @@ namespace BlazorForms.Tests.Framework.Core
             throw new NotImplementedException();
         }
 
+        public IAsyncEnumerable<FlowEntity> GetFlowEntities<T>(string tenantId, FlowModelsQueryOptions flowModelsQueryOptions) where T : class, IFlowModel
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<bool> DeleteFlow(string tenantId, string flowName, string itemId, string refId)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<string> UpsertFlow(string tenantId, FlowEntity flowEntity)
         {
             throw new System.NotImplementedException();

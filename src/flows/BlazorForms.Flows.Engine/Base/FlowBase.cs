@@ -8,7 +8,7 @@ namespace BlazorForms.Flows.Engine
     public abstract class FlowBase<M> : FlowAbstract<M>
         where M : class, IFlowModel, new()
     {
-        
+
 
         public override IFlowContext CreateContext()
         {
