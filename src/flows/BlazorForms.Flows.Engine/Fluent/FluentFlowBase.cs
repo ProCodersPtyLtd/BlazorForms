@@ -124,7 +124,7 @@ namespace BlazorForms.Flows
 
             for (int i = 0; i < Tasks.Count; i++)
             {
-                Tasks[i].Index = i; 
+                Tasks[i].Index = i;
             }
 
             return Tasks;
@@ -200,5 +200,5 @@ namespace BlazorForms.Flows
             return Guid.NewGuid().ToString();
         }
     }
-    
+
 }

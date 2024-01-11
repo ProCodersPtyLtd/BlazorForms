@@ -15,18 +15,18 @@ namespace BlazorForms.Flows
         public static F Next<F>(this F flow, Func<Task> action) where F : class, IFluentFlow { RegisterTask(flow.Tasks, action.Method.Name, action); return flow; }
         public static F Next<F>(this F flow, Action action) where F : class, IFluentFlow { RegisterTask(flow.Tasks, action.Method.Name, action); return flow; }
         public static F NextForm<F>(this F flow, Type formType, Func<Task> action) where F : class, IFluentFlow { RegisterFormTask(flow.Tasks, formType.Name, formType, action); return flow; }
-        
+
         public static F NextForm<F>(this F flow, Type formType) where F : class, IFluentFlow { RegisterFormTask(flow.Tasks, formType.Name, formType); return flow; }
         public static F NextForm<F>(this F flow, string formName) where F : class, IFluentFlow { RegisterFormTask(flow.Tasks, formName, formName); return flow; }
-        
-        public static void ListForm<M>(this IFluentFlow flow, Type formType, Func<QueryOptions , Task<M>> callBack) where M : class, IFlowModel 
-        { 
-            RegisterListFormTask(flow.Tasks, formType.Name, formType, callBack); 
+
+        public static void ListForm<M>(this IFluentFlow flow, Type formType, Func<QueryOptions , Task<M>> callBack) where M : class, IFlowModel
+        {
+            RegisterListFormTask(flow.Tasks, formType.Name, formType, callBack);
         }
 
-        public static void ListForm<M>(this IFluentFlow flow, Type formType, Func<QueryOptions , Task<M>> callBack, bool preloadTableData) where M : class, IFlowModel 
-        { 
-            RegisterListFormTask(flow.Tasks, formType.Name, formType, callBack, preloadTableData); 
+        public static void ListForm<M>(this IFluentFlow flow, Type formType, Func<QueryOptions , Task<M>> callBack, bool preloadTableData) where M : class, IFlowModel
+        {
+            RegisterListFormTask(flow.Tasks, formType.Name, formType, callBack, preloadTableData);
         }
 
         public static F Goto<F>(this F flow, string label) where F : class, IFluentFlow { RegisterGoto(flow.Tasks, label); return flow; }
@@ -101,7 +101,7 @@ namespace BlazorForms.Flows
         {
             tasks.Add(new TaskDef { NonAsyncAction = action, Name = name, Type = TaskDefTypes.Task });
         }
-        
+
         private static void RegisterFormTask(List<TaskDef> tasks, string name, Type formType, Func<Task> action)
         {
             tasks.Add(new TaskDef { Name = name, Type = TaskDefTypes.Form, FormType = formType, Action = action });

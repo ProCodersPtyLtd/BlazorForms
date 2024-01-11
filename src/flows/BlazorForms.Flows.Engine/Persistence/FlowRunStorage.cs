@@ -7,11 +7,11 @@ namespace BlazorForms.Flows.Engine.Persistence
 {
     public class FlowRunStorage : IFlowRunStorage
     {
-        private readonly ICachedFlowRepository _repo;
+        private readonly IFlowRepository _repo;
         private readonly IObjectCloner _cloner;
         private readonly ITenantedScope _tenantedScope;
 
-        public FlowRunStorage(ICachedFlowRepository repo, IObjectCloner cloner, ITenantedScope tenantedScope)
+        public FlowRunStorage(IFlowRepository repo, IObjectCloner cloner, ITenantedScope tenantedScope)
         {
             _repo = repo;
             _cloner = cloner;
@@ -66,8 +66,8 @@ namespace BlazorForms.Flows.Engine.Persistence
             {
                 yield return i;
             }
-        }       
-        
+        }
+
         public async IAsyncEnumerable<string> GetAllWaitingFlowsIds()
         {
             var tId = await _tenantedScope.GetTenantId();
@@ -106,7 +106,7 @@ namespace BlazorForms.Flows.Engine.Persistence
                 };
             }
             else
-            {                
+            {
                 flowEntity = await _repo.GetFlowByRef(tId, context.RefId);
             }
 
@@ -129,7 +129,7 @@ namespace BlazorForms.Flows.Engine.Persistence
             flow.FlowStatus = flowStatus;
             await _repo.UpsertFlow(tId, flow);
         }
- 
+
         public async Task<IEnumerable<IFlowContext>> GetProcessFlowHistory(string refId)
         {
             throw new NotImplementedException("Flow History is not required by FluentFlow and currently not implemented");
