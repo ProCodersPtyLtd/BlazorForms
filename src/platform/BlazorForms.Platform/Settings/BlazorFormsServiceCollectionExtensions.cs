@@ -89,7 +89,7 @@ namespace BlazorForms
                 .AddSingleton<IUserViewDataResolver, UserViewDataResolverJsonPath>()
                 .AddScoped(typeof(IFlowRunStorage), typeof(FlowRunStorage))
                 //.AddScoped(typeof(ICachedFlowRepository), typeof(CachedFlowRepository))
-                //.AddSingleton(typeof(IFlowRepository), typeof(SqlFlowRepository))
+                .AddSingleton(typeof(IFlowRepository), typeof(MockFlowRepository))
                 //.AddSingleton(typeof(IFlowRunIdGenerator), typeof(SqlFlowRunIdGenerator))
                 //.AddSingleton(typeof(IFlowRunIdGenerator), typeof(NpgsqlFlowRunIdGenerator)) //Postgres
                 // .AddSingleton(typeof(IFlowRepository), typeof(SqlFlowRepository))
