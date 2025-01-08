@@ -20,10 +20,10 @@
 
   <ItemGroup>
     <PackageReference Include="FeatureToggle" Version="4.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+    <!--<PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />-->
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
 	  <!--<PackageReference Include="BlazorForms.Shared" Version="1.11.0" />-->
   </ItemGroup>
