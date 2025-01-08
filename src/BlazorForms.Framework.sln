@@ -7,13 +7,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{993F5DB1
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "framework", "framework", "{E24B3693-E6A0-4142-B71F-AF2FD7ABB1E7}"
 	ProjectSection(SolutionItems) = preProject
-		platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Georgia.ttf = platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Georgia.ttf
 		platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Platz.Config.Link\appsettings.localdb.json = platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Platz.Config.Link\appsettings.localdb.json
 		platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Platz.Config.Link\appsettings.mssql.json = platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Platz.Config.Link\appsettings.mssql.json
+		platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Georgia.ttf = platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Georgia.ttf
 		platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Platz.Config.Link\localdb.cmd = platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Platz.Config.Link\localdb.cmd
 		platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Platz.Config.Link\readme.txt = platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Platz.Config.Link\readme.txt
-		platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Platz.Config.Link\SqlServerScripts.sql = platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Platz.Config.Link\SqlServerScripts.sql
 		platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Roboto-Regular.ttf = platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Roboto-Regular.ttf
+		platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Platz.Config.Link\SqlServerScripts.sql = platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Platz.Config.Link\SqlServerScripts.sql
 		platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Verdana.ttf = platform\BlazorForms.Platform\Nuspec\contentFiles\any\any\Verdana.ttf
 	EndProjectSection
 EndProject
@@ -26,10 +26,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "wasm", "wasm", "{494D4E58-A502-4019-838D-40A0554D2795}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "admin", "admin", "{30C8E642-5B9B-4041-9FBE-2F97CB367988}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Platz.Admin.BusinessObjects", "admin\Platz.Admin.BusinessObjects\Platz.Admin.BusinessObjects.csproj", "{35FBDE16-ADA3-4790-8176-01BCF4411DF5}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Platz.Admin.App", "admin\Platz.Admin.App\Platz.Admin.App.csproj", "{AB83FA42-0A0B-4659-9E5C-1255F65BC554}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{41C3EE41-537B-4424-9413-A61EE4CF8528}"
 	ProjectSection(SolutionItems) = preProject
@@ -143,12 +139,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Nuspec", "Nuspec", "{BDA46B52-3C46-4E46-8352-6C58804BF14C}"
 	ProjectSection(SolutionItems) = preProject
 		platform\BlazorForms.Platform\Nuspec\BlazorForms.Cosmos.nuspec = platform\BlazorForms.Platform\Nuspec\BlazorForms.Cosmos.nuspec
-		platform\BlazorForms.Platform\Nuspec\BlazorForms.Shared.nuspec = platform\BlazorForms.Platform\Nuspec\BlazorForms.Shared.nuspec
-		platform\BlazorForms.Platform\Nuspec\BlazorForms.Rendering.nuspec = platform\BlazorForms.Platform\Nuspec\BlazorForms.Rendering.nuspec
-		platform\BlazorForms.Platform\Nuspec\BlazorForms.Rendering.Flows.nuspec = platform\BlazorForms.Platform\Nuspec\BlazorForms.Rendering.Flows.nuspec
 		platform\BlazorForms.Platform\Nuspec\BlazorForms.nuspec = platform\BlazorForms.Platform\Nuspec\BlazorForms.nuspec
-		platform\BlazorForms.Platform\Nuspec\cmdTemp.bat = platform\BlazorForms.Platform\Nuspec\cmdTemp.bat
+		platform\BlazorForms.Platform\Nuspec\BlazorForms.Rendering.Flows.nuspec = platform\BlazorForms.Platform\Nuspec\BlazorForms.Rendering.Flows.nuspec
+		platform\BlazorForms.Platform\Nuspec\BlazorForms.Rendering.nuspec = platform\BlazorForms.Platform\Nuspec\BlazorForms.Rendering.nuspec
+		platform\BlazorForms.Platform\Nuspec\BlazorForms.Shared.nuspec = platform\BlazorForms.Platform\Nuspec\BlazorForms.Shared.nuspec
 		platform\BlazorForms.Platform\Nuspec\cmd.bat = platform\BlazorForms.Platform\Nuspec\cmd.bat
+		platform\BlazorForms.Platform\Nuspec\cmdTemp.bat = platform\BlazorForms.Platform\Nuspec\cmdTemp.bat
 	EndProjectSection
 EndProject
 Global
@@ -157,14 +153,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{35FBDE16-ADA3-4790-8176-01BCF4411DF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{35FBDE16-ADA3-4790-8176-01BCF4411DF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{35FBDE16-ADA3-4790-8176-01BCF4411DF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{35FBDE16-ADA3-4790-8176-01BCF4411DF5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AB83FA42-0A0B-4659-9E5C-1255F65BC554}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AB83FA42-0A0B-4659-9E5C-1255F65BC554}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AB83FA42-0A0B-4659-9E5C-1255F65BC554}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AB83FA42-0A0B-4659-9E5C-1255F65BC554}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FBB2F3CC-F9CE-4095-8981-7BA4429139C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FBB2F3CC-F9CE-4095-8981-7BA4429139C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FBB2F3CC-F9CE-4095-8981-7BA4429139C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -374,8 +362,6 @@ Global
 		{362EB906-B629-4835-AC71-C316FF3C3E13} = {B9B1795A-8436-4FFA-B8E4-9EB1EA5A8D99}
 		{494D4E58-A502-4019-838D-40A0554D2795} = {B9B1795A-8436-4FFA-B8E4-9EB1EA5A8D99}
 		{30C8E642-5B9B-4041-9FBE-2F97CB367988} = {E24B3693-E6A0-4142-B71F-AF2FD7ABB1E7}
-		{35FBDE16-ADA3-4790-8176-01BCF4411DF5} = {30C8E642-5B9B-4041-9FBE-2F97CB367988}
-		{AB83FA42-0A0B-4659-9E5C-1255F65BC554} = {30C8E642-5B9B-4041-9FBE-2F97CB367988}
 		{FBB2F3CC-F9CE-4095-8981-7BA4429139C3} = {362EB906-B629-4835-AC71-C316FF3C3E13}
 		{FA7501A1-E739-4395-81DE-3D4C3EB26B10} = {362EB906-B629-4835-AC71-C316FF3C3E13}
 		{ACEB11FB-EC60-4BD5-BEB1-C6A4BCA42C18} = {B9B1795A-8436-4FFA-B8E4-9EB1EA5A8D99}
