@@ -164,6 +164,9 @@ else
     [Parameter]
     public bool SupressExceptions { get; set; }
 
+    [Parameter]
+    public FlowParamsGeneric FlowParams { get; set; }
+
     private bool _loading = true;
 
     private bool _formLocked = false;
@@ -233,7 +236,8 @@ else
             _vm.SetBaseUri(_navigationManager.BaseUri);
             _vm.FormSettings.AllowAnonymousAccess = AllowAnonymousAccess;
             _vm.FormSettings.AllowFlowStorage = AllowFlowStorage;
-            await _vm.InitiateFlow(FlowName, null, Pk);
+
+            await _vm.InitiateFlow(FlowName, null, Pk, FlowParams);
 
             _vm.Loading = false;
             _loading = false;

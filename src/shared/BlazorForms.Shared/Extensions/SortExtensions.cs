@@ -10,13 +10,13 @@ namespace BlazorForms.Shared.Extensions
 {
     public static class SortExtensions
     {
-        public static IOrderedEnumerable<TSource> OrderByDirection<TSource, TKey>(this IEnumerable<TSource> source, SortDirection direction, Func<TSource, TKey> keySelector)
+        public static IOrderedEnumerable<TSource> OrderByDirection<TSource, TKey>(this IEnumerable<TSource> source, SortDirectionType direction, Func<TSource, TKey> keySelector)
         {
-            if (direction == SortDirection.Desc)
+            if (direction == SortDirectionType.Desc)
             {
                 return source.OrderByDescending(keySelector);
             }
-            else if (direction == SortDirection.Asc)
+            else if (direction == SortDirectionType.Asc)
             {
                 return source.OrderBy(keySelector);
             }
@@ -24,13 +24,13 @@ namespace BlazorForms.Shared.Extensions
             return source.OrderBy(a => 1);
         }
 
-        public static IOrderedQueryable<TSource> OrderByDirection<TSource, TKey>(this IQueryable<TSource> source, SortDirection direction, Expression<Func<TSource, TKey>> keySelector)
+        public static IOrderedQueryable<TSource> OrderByDirection<TSource, TKey>(this IQueryable<TSource> source, SortDirectionType direction, Expression<Func<TSource, TKey>> keySelector)
         {
-            if (direction == SortDirection.Desc)
+            if (direction == SortDirectionType.Desc)
             {
                 return source.OrderByDescending(keySelector);
             }
-            else if (direction == SortDirection.Asc)
+            else if (direction == SortDirectionType.Asc)
             {
                 return source.OrderBy(keySelector);
             }
@@ -38,15 +38,15 @@ namespace BlazorForms.Shared.Extensions
             return source.OrderBy(a => 1);
         }
 
-        public static IOrderedQueryable<TSource> QueryOrderByDirection<TSource>(this IQueryable<TSource> query, SortDirection direction, string propertyName)
+        public static IOrderedQueryable<TSource> QueryOrderByDirection<TSource>(this IQueryable<TSource> query, SortDirectionType direction, string propertyName)
         {
             var entityType = typeof(TSource);
-            string methodName = direction == SortDirection.Desc ? "OrderByDescending" : "OrderBy";
+            string methodName = direction == SortDirectionType.Desc ? "OrderByDescending" : "OrderBy";
 
             LambdaExpression selector;
             var propertyInfo = entityType.GetProperty(propertyName);
 
-            if (direction == SortDirection.None)
+            if (direction == SortDirectionType.None)
             {
                 //Create x=>1
                 // This one doesn't work

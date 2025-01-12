@@ -51,7 +51,8 @@ namespace BlazorForms.Rendering.Interfaces
         bool Loading { get; set; }
 
         // main flow api
-        Task InitiateFlow(string flowName, string refId, string pk);
+        //Task InitiateFlow(string flowName, string refId, string pk);
+        Task InitiateFlow(string flowName, string refId, string pk, FlowParamsGeneric? flowParams = null);
         Task FinishFlow(string refId, string binding = null);
         Task ReloadFormData();
         List<RuleExecutionResult> CheckUniqueValidationRules(string tableBinding);

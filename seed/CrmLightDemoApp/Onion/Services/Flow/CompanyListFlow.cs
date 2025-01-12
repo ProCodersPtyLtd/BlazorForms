@@ -29,7 +29,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
                         || (x.RegistrationNumber != null && x.RegistrationNumber.Contains(queryOptions.SearchString, StringComparison.OrdinalIgnoreCase)) );
             }
 
-            if (queryOptions.AllowSort && !string.IsNullOrWhiteSpace(queryOptions.SortColumn) && queryOptions.SortDirection != SortDirection.None)
+            if (queryOptions.AllowSort && !string.IsNullOrWhiteSpace(queryOptions.SortColumn) && queryOptions.SortDirection != SortDirectionType.None)
             {
                 ctx.Query = ctx.Query.QueryOrderByDirection(queryOptions.SortDirection, queryOptions.SortColumn);
             }
