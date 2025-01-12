@@ -20,32 +20,34 @@ namespace BlazorForms.Platform.BackgroundTasks.HostedService
 
         protected async override Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Queued Hosted Service is starting.");
-            if (HostedFeaturesToggle.DisableBackgroundServiceFeature.Enabled)
+			_logger.LogInformation("Queued Hosted Service is *DISABLED*.");
 
-            {
-                _logger.LogInformation("Queued Hosted Service is *DISABLED*.");
-            }
-            else
-            {
-                while (!cancellationToken.IsCancellationRequested)
-                {
-                    var workItem = await TaskQueue.DequeueAsync(cancellationToken);
+			//_logger.LogInformation("Queued Hosted Service is starting.");
+   //         if (HostedFeaturesToggle.DisableBackgroundServiceFeature.Enabled)
 
-                    try
-                    {
-                        _logger.LogInformation($"Executing {nameof(workItem)}.");
+   //         {
+   //             _logger.LogInformation("Queued Hosted Service is *DISABLED*.");
+   //         }
+   //         else
+   //         {
+   //             while (!cancellationToken.IsCancellationRequested)
+   //             {
+   //                 var workItem = await TaskQueue.DequeueAsync(cancellationToken);
 
-                        await workItem(cancellationToken);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Error occurred executing {WorkItem}.", nameof(workItem));
-                    }
-                }
-            }
+   //                 try
+   //                 {
+   //                     _logger.LogInformation($"Executing {nameof(workItem)}.");
 
-            _logger.LogInformation("Queued Hosted Service is stopping.");
+   //                     await workItem(cancellationToken);
+   //                 }
+   //                 catch (Exception ex)
+   //                 {
+   //                     _logger.LogError(ex, "Error occurred executing {WorkItem}.", nameof(workItem));
+   //                 }
+   //             }
+   //         }
+
+   //         _logger.LogInformation("Queued Hosted Service is stopping.");
         }
     }
 }

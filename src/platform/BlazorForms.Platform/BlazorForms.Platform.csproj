@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FeatureToggle" Version="4.0.2" />
+    <!--<PackageReference Include="FeatureToggle" Version="4.0.2" />-->
     <!--<PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />-->
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
