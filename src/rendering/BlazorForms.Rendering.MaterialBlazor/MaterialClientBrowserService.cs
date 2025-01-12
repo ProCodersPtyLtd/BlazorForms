@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using BlazorForms.Platform.Definitions.Shared;
+using BlazorForms.Shared;
 
 namespace BlazorForms.Rendering
 {

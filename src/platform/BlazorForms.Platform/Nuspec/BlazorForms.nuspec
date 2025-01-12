@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>BlazorForms</id>
-    <version>1.14.0</version>
+    <version>1.14.1</version>
     <authors>Pro Coders</authors>
     <owners>Pro Coders</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -55,7 +55,7 @@
     <file src="..\bin\Release\net8.0\BlazorForms.Shared.dll" target="lib\net8.0\BlazorForms.Shared.dll" />
     <file src="..\bin\Release\net8.0\BlazorForms.Platform.Definitions.dll" target="lib\net8.0\BlazorForms.Platform.Definitions.dll" />
     <file src="..\bin\Release\net8.0\BlazorForms.Platform.Shared.dll" target="lib\net8.0\BlazorForms.Platform.Shared.dll" />
-    <file src="..\bin\Release\net8.0\BlazorForms.Rendering.dll" target="lib\net8.0\BlazorForms.Rendering.dll" />
+    <!--<file src="..\bin\Release\net8.0\BlazorForms.Rendering.dll" target="lib\net8.0\BlazorForms.Rendering.dll" />-->
     <file src="..\bin\Release\net8.0\BlazorForms.DynamicCode.dll" target="lib\net8.0\BlazorForms.DynamicCode.dll" />
   </files>
 </package>
