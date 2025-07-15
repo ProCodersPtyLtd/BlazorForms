@@ -5,25 +5,26 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Nuspec\contentFiles\any\any\BlazorForms.PostgreSql.Link\**" />
-    <EmbeddedResource Remove="Nuspec\contentFiles\any\any\BlazorForms.PostgreSql.Link\**" />
-    <None Remove="Nuspec\contentFiles\any\any\BlazorForms.PostgreSql.Link\**" />
+    <Compile Remove="Nuspec\contentFiles\any\any\Platz.PostgreSql.Link\**" />
+    <EmbeddedResource Remove="Nuspec\contentFiles\any\any\Platz.PostgreSql.Link\**" />
+    <None Remove="Nuspec\contentFiles\any\any\Platz.PostgreSql.Link\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Nuspec\contentFiles\any\any\BlazorForms.PostgreSql.Link\appsettings.postresql.json" />
-    <None Remove="Nuspec\contentFiles\any\any\BlazorForms.PostgreSql.Link\readme.txt" />
-    <None Remove="Nuspec\contentFiles\any\any\BlazorForms.PostgreSql.Link\01_CreateDatabase.sql" />
+    <None Remove="Nuspec\contentFiles\any\any\Platz.PostgreSql.Link\appsettings.postresql.json" />
+    <None Remove="Nuspec\contentFiles\any\any\Platz.PostgreSql.Link\readme.txt" />
+    <None Remove="Nuspec\contentFiles\any\any\Platz.PostgreSql.Link\01_CreateDatabase.sql" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Nuspec\contentFiles\any\any\BlazorForms.PostgreSql.Link\appsettings.postresql.json" />
-    <Content Include="Nuspec\contentFiles\any\any\BlazorForms.PostgreSql.Link\readme.txt" />
-    <Content Include="Nuspec\contentFiles\any\any\BlazorForms.PostgreSql.Link\01_CreateDatabase.sql" />
+    <Content Include="Nuspec\contentFiles\any\any\Platz.PostgreSql.Link\appsettings.postresql.json" />
+    <Content Include="Nuspec\contentFiles\any\any\Platz.PostgreSql.Link\readme.txt" />
+    <Content Include="Nuspec\contentFiles\any\any\Platz.PostgreSql.Link\01_CreateDatabase.sql" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Npgsql" Version="6.0.7" />
+    <PackageReference Include="Npgsql" Version="6.0.13" />
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
   </ItemGroup>
 
   <ItemGroup>

@@ -5,14 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Nuspec\contentFiles\any\any\BlazorForms.Cosmos.Link\**" />
-    <EmbeddedResource Remove="Nuspec\contentFiles\any\any\BlazorForms.Cosmos.Link\**" />
-    <None Remove="Nuspec\contentFiles\any\any\BlazorForms.Cosmos.Link\**" />
+    <Compile Remove="Nuspec\contentFiles\any\any\Platz.Cosmos.Link\**" />
+    <EmbeddedResource Remove="Nuspec\contentFiles\any\any\Platz.Cosmos.Link\**" />
+    <None Remove="Nuspec\contentFiles\any\any\Platz.Cosmos.Link\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Nuspec\contentFiles\any\any\BlazorForms.Cosmos.Link\appsettings.cosmos.json" />
-    <Content Include="Nuspec\contentFiles\any\any\BlazorForms.Cosmos.Link\readme.txt" />
+    <Content Include="Nuspec\contentFiles\any\any\Platz.Cosmos.Link\appsettings.cosmos.json" />
+    <Content Include="Nuspec\contentFiles\any\any\Platz.Cosmos.Link\readme.txt" />
   </ItemGroup>
 
   <ItemGroup>
