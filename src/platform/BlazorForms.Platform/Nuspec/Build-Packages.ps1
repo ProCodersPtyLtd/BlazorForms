@@ -1,6 +1,6 @@
 ﻿# PowerShell script to build BlazorForms NuGet packages
 # Uses nuget.exe with .nuspec files to ensure all required DLLs are included
-param([string]$Version = "1.14.2-preview")
+param([string]$Version = "1.14.2-preview.3")
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $OutputDir = Join-Path $ScriptDir "Nuget"
