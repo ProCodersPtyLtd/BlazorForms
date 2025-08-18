@@ -222,7 +222,7 @@
         ViewModel.QueryOptions.PageIndex = state.Page;
         ViewModel.QueryOptions.PageSize = state.PageSize;
         ViewModel.QueryOptions.SortColumn = state.SortLabel;
-        ViewModel.QueryOptions.SortDirection = (BlazorForms.Shared.SortDirection)state.SortDirection;
+        ViewModel.QueryOptions.SortDirection = (BlazorForms.Shared.SortDirectionType)state.SortDirection;
 
         await Reload();
         var result = new TableData<string[]> { Items = GetListData(), TotalItems = ViewModel.QueryOptions.PageReturnTotalCount };

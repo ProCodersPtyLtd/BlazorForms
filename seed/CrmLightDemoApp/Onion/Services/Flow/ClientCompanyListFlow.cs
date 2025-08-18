@@ -38,11 +38,11 @@ namespace CrmLightDemoApp.Onion.Services.Flow
             }
 
             // because FullName is not SQL field, we need to sort by FirstName and LastName
-            if (queryOptions.AllowSort && !string.IsNullOrWhiteSpace(queryOptions.SortColumn) && queryOptions.SortDirection != SortDirection.None)
+            if (queryOptions.AllowSort && !string.IsNullOrWhiteSpace(queryOptions.SortColumn) && queryOptions.SortDirection != SortDirectionType.None)
             {
                 if (queryOptions.SortColumn == "ManagerFullName")
                 {
-                    if (queryOptions.SortDirection == SortDirection.Asc)
+                    if (queryOptions.SortDirection == SortDirectionType.Asc)
                     {
                         ctx.Query = ctx.Query.OrderBy(x => x.ManagerFirstName).ThenBy(x => x.ManagerLastName);
                     }
@@ -53,7 +53,7 @@ namespace CrmLightDemoApp.Onion.Services.Flow
                 }
                 else if (queryOptions.SortColumn == "AlternativeManagerFullName")
                 {
-                    if (queryOptions.SortDirection == SortDirection.Asc)
+                    if (queryOptions.SortDirection == SortDirectionType.Asc)
                     {
                         ctx.Query = ctx.Query.OrderBy(x => x.AlternativeManagerFirstName).ThenBy(x => x.AlternativeManagerLastName);
                     }

@@ -2,7 +2,7 @@
 
 namespace BlazorForms.Shared
 {
-    public enum SortDirection
+    public enum SortDirectionType
     {
         None,
         Asc,

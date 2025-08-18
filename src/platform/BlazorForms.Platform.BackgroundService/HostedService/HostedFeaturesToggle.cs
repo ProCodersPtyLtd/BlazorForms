@@ -1,13 +1,13 @@
-﻿using BlazorForms.Platform.Config;
+﻿//using BlazorForms.Platform.Config;
 
-namespace BlazorForms.Platform.BackgroundTasks.HostedService
-{
-    public class HostedFeaturesToggle
-    {
-        public static EnvironmentFeatureToggle DisableBackgroundServiceFeature { get; set; } = new DisableBackgroundService();
+//namespace BlazorForms.Platform.BackgroundTasks.HostedService
+//{
+//    public class HostedFeaturesToggle
+//    {
+//        public static EnvironmentFeatureToggle DisableBackgroundServiceFeature { get; set; } = new DisableBackgroundService();
 
-        private class DisableBackgroundService : EnvironmentFeatureToggle
-        {
-        }
-    }
-}
+//        private class DisableBackgroundService : EnvironmentFeatureToggle
+//        {
+//        }
+//    }
+//}

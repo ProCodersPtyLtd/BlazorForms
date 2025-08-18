@@ -1,25 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Nuspec\contentFiles\any\any\BlazorForms.Cosmos.Link\**" />
-    <EmbeddedResource Remove="Nuspec\contentFiles\any\any\BlazorForms.Cosmos.Link\**" />
-    <None Remove="Nuspec\contentFiles\any\any\BlazorForms.Cosmos.Link\**" />
+    <Compile Remove="Nuspec\contentFiles\any\any\Platz.Cosmos.Link\**" />
+    <EmbeddedResource Remove="Nuspec\contentFiles\any\any\Platz.Cosmos.Link\**" />
+    <None Remove="Nuspec\contentFiles\any\any\Platz.Cosmos.Link\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Nuspec\contentFiles\any\any\BlazorForms.Cosmos.Link\appsettings.cosmos.json" />
-    <Content Include="Nuspec\contentFiles\any\any\BlazorForms.Cosmos.Link\readme.txt" />
+    <Content Include="Nuspec\contentFiles\any\any\Platz.Cosmos.Link\appsettings.cosmos.json" />
+    <Content Include="Nuspec\contentFiles\any\any\Platz.Cosmos.Link\readme.txt" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.35.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.46.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>

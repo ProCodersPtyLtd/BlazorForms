@@ -2,12 +2,13 @@
 @using BlazorForms.Forms
 @using BlazorForms.FlowRules
 @using BlazorForms.Rendering.Validation
+@using BlazorForms.Shared
 
 @inject IDynamicFieldValidator FieldValidator
 
 @if (Field.DisplayProperties.Disabled)
 {
-    var value = !string.IsNullOrWhiteSpace(TextValue) ? _items.FirstOrDefault(x => x.Key == TextValue)?.Value : null;
+    var value = !string.IsNullOrWhiteSpace(TextValue) ? _items.FirstOrDefault(x => x.Text == TextValue)?.Value : null;
 
     <FluentTextField
         Value="@value"
@@ -74,7 +75,7 @@ else
         var items = ViewModel.ModelNaviGetItems(ItemsBinding);
         _items = items.Select(i => new Option<string>
         {
-            Key = ViewModel.PathNavi.GetValue(i, IdBinding).ToString(),
+            Text = ViewModel.PathNavi.GetValue(i, IdBinding).ToString(),
             Value = ViewModel.PathNavi.GetValue(i, NameBinding).ToString()
         }).ToArray();
     }

@@ -15,7 +15,7 @@ namespace BlazorForms.Shared.Extensions
             var propertyName = queryOptions.GetFieldMapping(queryOptions.SortColumn);
             var direction = queryOptions.SortDirection;
 
-            if (direction == SortDirection.None)
+            if (direction == SortDirectionType.None)
             {
                 return (IOrderedQueryable<T>)query;
             }
@@ -44,7 +44,7 @@ namespace BlazorForms.Shared.Extensions
 
             var lambda = Expression.Lambda(property, parameter);
 
-            var sortDirection = direction == SortDirection.Asc ? "OrderBy" : "OrderByDescending";
+            var sortDirection = direction == SortDirectionType.Asc ? "OrderBy" : "OrderByDescending";
 
             // REFLECTION: source.OrderBy(x => x.Property)
             var orderByMethod = typeof(Queryable).GetMethods().First(x => x.Name == sortDirection && x.GetParameters().Length == 2);

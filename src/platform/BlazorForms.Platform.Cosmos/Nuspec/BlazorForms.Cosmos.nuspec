@@ -2,19 +2,21 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>BlazorForms.Cosmos</id>
-    <version>1.12.1</version>
-    <authors>Binoculars X</authors>
-    <owners>Binoculars X</owners>
+    <version>1.14.2-preview.3</version>
+    <authors>Pro Coders</authors>
+    <owners>Pro Coders</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>BlazorForms is a declarative Flows, Forms, Rules framework for controlled project development and maintenance. Cosmos DB extensions.</description>
-    <copyright>Copyright (c) 2023 Binoculars X</copyright>
-    <tags>blazor declarative dynamic flow form rule framework cosmosdb cosmos db</tags>
+    <description>BlazorForms.Cosmos is a Azure Cosmos Storage Library for BlazorForms (model-centric framework that helps to create flows, forms and rules)</description>
+    <copyright>Copyright (c) 2023 Pro Coders PTY LTD</copyright>
+	<license type="expression">MIT</license>
+    <tags>blazor flow form rule framework cosmos</tags>
     <dependencies>
-		<group targetFramework="net6.0">
-          <dependency id="Microsoft.Azure.Cosmos" version="3.35.4" />
-          <dependency id="Microsoft.EntityFrameworkCore" version="6.0.9" />
-          <dependency id="Microsoft.Extensions.Configuration" version="6.0.1" />
-          <dependency id="Microsoft.Extensions.Options" version="7.0.0" />
+		<group targetFramework="net8.0">
+			<dependency id="Microsoft.Azure.Cosmos" version="3.46.0" />
+			<dependency id="Microsoft.EntityFrameworkCore" version="9.0.0" />
+			<dependency id="Microsoft.Extensions.Configuration" version="9.0.0" />
+            <dependency id="Microsoft.Extensions.Options" version="9.0.0" />
+			<dependency id="BlazorForms" version="1.14.2-preview.3" />
 		</group>
     </dependencies>
     <contentFiles>
@@ -22,11 +24,12 @@
       <files include="**\*.cmd" buildAction="None" />
       <files include="**\*.txt" buildAction="None" />
       <files include="**\*.sql" buildAction="None" />
+      <files include="**\*.ttf" buildAction="None" copyToOutput="true" />
     </contentFiles>
   </metadata>
   <files>
     <file src="readme.txt" />
-    <file src="contentFiles\any\any\BlazorForms.Cosmos.Link\*" target="contentFiles\any\any\BlazorForms.Cosmos.Link"/>
-    <file src="..\bin\Release\net6.0\BlazorForms.Platform.Cosmos.dll" target="lib\net6.0\BlazorForms.Platform.Cosmos.dll" />
+    <file src="contentFiles\any\any\Platz.Cosmos.Link\*" target="contentFiles\any\any\Platz.Cosmos.Link"/>
+    <file src="..\bin\Release\net8.0\BlazorForms.Platform.Cosmos.dll" target="lib\net8.0\BlazorForms.Platform.Cosmos.dll" />
   </files>
 </package>

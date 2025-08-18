@@ -1,4 +1,4 @@
-﻿using BlazorForms.Rendering;
+﻿using BlazorForms.Shared;
 using System;
 using System.Threading.Tasks;
 

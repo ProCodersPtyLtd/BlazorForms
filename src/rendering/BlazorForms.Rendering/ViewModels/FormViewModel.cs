@@ -135,14 +135,18 @@ namespace BlazorForms.Rendering
             throw new NotImplementedException();
         }
 
-        public async Task InitiateFlow(string flowName, string refId, string pk)
+        //public async Task InitiateFlow(string flowName, string refId, string pk, FlowParamsGeneric flowParams)
+        //{ }
+
+        public async Task InitiateFlow(string flowName, string refId, string pk, FlowParamsGeneric? fps = null)
         {
             if (string.IsNullOrEmpty(flowName))
             {
                 throw new Exception("Flow name must be supplied");
             }
 
-            var flowParams = new FlowParamsGeneric { ItemId = pk };
+            var flowParams = fps ?? new FlowParamsGeneric();
+            flowParams.ItemId = pk;
             flowParams["BaseUri"] = _navigationManager.BaseUri;
             Params = flowParams;
 

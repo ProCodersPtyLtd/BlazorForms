@@ -14,16 +14,11 @@ using BlazorForms.Platform.ProcessFlow;
 using BlazorForms.Platform.Shared.ApplicationParts;
 using BlazorForms.Platform.Shared.Interfaces;
 using BlazorForms.Platform.Stubs;
-using BlazorForms.Rendering;
-using BlazorForms.Rendering.Interfaces;
-using BlazorForms.Rendering.State;
-using BlazorForms.Rendering.Validation;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Reflection;
 using BlazorForms.Shared.FastReflection;
 using BlazorForms.Platform.Definitions.Shared;
-using BlazorForms.Rendering.ViewModels;
 using BlazorForms.FlowRules.Engine;
 using BlazorForms.Flows.Engine.Persistence;
 
@@ -89,7 +84,7 @@ namespace BlazorForms
                 .AddSingleton<IUserViewDataResolver, UserViewDataResolverJsonPath>()
                 .AddScoped(typeof(IFlowRunStorage), typeof(FlowRunStorage))
                 //.AddScoped(typeof(ICachedFlowRepository), typeof(CachedFlowRepository))
-                //.AddSingleton(typeof(IFlowRepository), typeof(SqlFlowRepository))
+                .AddSingleton(typeof(IFlowRepository), typeof(MockFlowRepository))
                 //.AddSingleton(typeof(IFlowRunIdGenerator), typeof(SqlFlowRunIdGenerator))
                 //.AddSingleton(typeof(IFlowRunIdGenerator), typeof(NpgsqlFlowRunIdGenerator)) //Postgres
                 // .AddSingleton(typeof(IFlowRepository), typeof(SqlFlowRepository))
@@ -104,18 +99,6 @@ namespace BlazorForms
                 .AddSingleton<IJsonPathNavigator, JsonPathNavigator>()
                 .AddScoped<IModelNavigator, ModelNavigator>()
                 .AddSingleton<IModelBindingNavigator, ModelBindingNavigator>()
-                .AddScoped<IFormViewModel, FormViewModel>()
-                .AddScoped(typeof(IFormViewModel<>), typeof(FormViewModel<>))
-                .AddScoped<IListFormViewModel, ListFormViewModel>()
-                .AddScoped<IDialogFormViewModel, DialogFormViewModel>()
-                .AddScoped<BoardDialogViewModel, BoardDialogViewModel>()
-                .AddScoped<CardListViewModel, CardListViewModel>()
-                .AddScoped<ControlDialogFormViewModel, ControlDialogFormViewModel>()
-                .AddScoped<HttpClient>()
-                .AddScoped<IDynamicFieldValidator, DynamicFieldValidator>()
-
-                // trying new approach where each page has it's own ViewModel instance
-                .AddTransient<IFlowBoardViewModel, FlowBoardViewModel>()
             ;
             return serviceCollection;
         }

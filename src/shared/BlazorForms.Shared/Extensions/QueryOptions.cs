@@ -11,7 +11,7 @@ namespace BlazorForms.Shared.Extensions
         public int PageSize { get; set; }
         public int PageReturnTotalCount { get; set; } = -1;
         public string SearchString { get; set; }
-        public SortDirection SortDirection { get; set; }
+        public SortDirectionType SortDirection { get; set; }
         public string SortColumn { get; set; }
         public bool AllowSort { get; set; } = false;
         public bool AllowFiltering { get; set; } = false;
